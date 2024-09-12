@@ -5,5 +5,5 @@ Clinical Research tools. See documentation at <https://Oncostat.github.io/grstat
 #### New features
 
 -   Adverse events description tables: `ae_table_grade()` and `ae_table_soc()`
--   Adverse events description plots: `ae_plot_grade()`, `ae_plot_grade_sum()` and `ae_plot_soc()`
+-   Adverse events description plots: `ae_plot_grade()`, `ae_plot_grade_sum()` and `butterfly_plot()` (aka `ae_plot_soc()`)
 
