@@ -44,11 +44,11 @@ Produce a graphic representation of AE, counting AE as bars for each patient, co
 }
 \examples{
 tm = grstat_example()
-load_list(tm)
+attach(tm, warn.conflicts=FALSE)
 ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
 ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM")
 ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM", weights=c(1,1,3,6,10))
 }
 \seealso{
-\code{\link[=ae_table_grade_max]{ae_table_grade_max()}}, \code{\link[=ae_table_grade_n]{ae_table_grade_n()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade_max]{ae_plot_grade_max()}}, \code{\link[=ae_plot_grade_n]{ae_plot_grade_n()}}
+\code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}
 }

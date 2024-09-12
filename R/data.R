@@ -44,7 +44,8 @@ grstat_example = function(N=50, seed=42){
 
   enrolres = tibble(subjid=1:N, arm=sample(c("Trt", "Ctl"), size=N, replace=TRUE))
 
-  ae = tibble(subjid=1:N, n_ae=rbinom(n=N, size=15, prob=0.2)) %>%
+  n_ae_max = 15
+  ae = tibble(subjid=1:N, n_ae=rbinom(n=N, size=n_ae_max, prob=0.2)) %>%
     mutate(x = map(n_ae, ~seq_len(.x))) %>%
     unnest(x) %>%
     mutate(
@@ -56,6 +57,9 @@ grstat_example = function(N=50, seed=42){
 
   rtn = lst(enrolres, ae) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
+  rtn$date_extraction = "2024/01/01"
+  rtn$datetime_extraction = structure(1704067200, class = c("POSIXct", "POSIXt"),
+                                      tzone = "Europe/Paris")
 
   rtn
 }

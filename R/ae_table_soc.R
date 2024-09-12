@@ -25,7 +25,7 @@
 #'
 #' @return a dataframe (`ae_table_soc()`) or a flextable (`as_flextable()`).
 #'
-#' @seealso [ae_table_grade_max()], [ae_table_grade_n()], [ae_table_soc()], [ae_plot_grade_max()], [ae_plot_grade_n()]
+#' @seealso [ae_table_grade()], [ae_table_soc()], [ae_plot_grade()], [ae_plot_grade_sum()], [butterfly_plot()]
 #'
 #' @importFrom cli cli_warn
 #' @importFrom dplyr across any_of arrange count cur_group filter full_join if_else mutate pull rename select summarise
@@ -264,7 +264,7 @@ as_flextable.ae_table_soc = function(x,
 #'
 #' @return a crosstable (dataframe)
 #' @export
-#' @importFrom cli cli_abort
+#' @importFrom cli cli_abort cli_warn
 #' @importFrom dplyr any_of arrange count filter full_join left_join mutate select summarise
 #' @importFrom forcats fct_reorder
 #' @importFrom ggplot2 aes facet_grid geom_blank geom_col ggplot labs scale_x_continuous theme unit vars
@@ -278,7 +278,7 @@ as_flextable.ae_table_soc = function(x,
 #' @examples
 #'
 #' tm = grstat_example(N=100)
-#' load_list(tm)
+#' attach(tm, warn.conflicts=FALSE)
 #'
 #' ae2 = ae %>%
 #'   dplyr::mutate(serious = sae=="Yes")
@@ -410,131 +410,3 @@ evaluate_grades = function(gr, variant){
   c(n, n_na, n_tot) %>%
     as_tibble_row()
 }
-
-# Legacy --------------------------------------------------------------------------------------
-
-#' @importFrom cli cli_warn
-#' @importFrom dplyr across any_of arrange count cur_group filter full_join if_else mutate pull rename select summarise
-#' @importFrom forcats fct_infreq fct_relevel
-#' @importFrom glue glue
-#' @importFrom purrr iwalk keep map map_lgl
-#' @importFrom rlang arg_match check_dots_empty ensym is_empty set_names
-#' @importFrom tibble as_tibble_row deframe lst
-#' @importFrom tidyr build_wider_spec pivot_wider_spec replace_na unnest
-#' @importFrom tidyselect matches
-#' @keywords internal
-ae_table_soc_legacy = function(
-    df_ae, ..., df_enrol,
-    variant=c("max", "sup", "eq"),
-    arm="ARM", term="AETERM", soc="AESOC", grade="AEGR", subjid="SUBJID",
-    sort_by_ae=TRUE, total=TRUE, digits=0, warn_miss=FALSE
-){
-  check_dots_empty()
-  default_arm = set_label("All patients", "Treatment arm")
-  null_term = is.null(term)
-  null_arm = is.null(arm)
-  variant = arg_match(variant)
-
-  assert_names_exists(df_ae, lst(subjid, term, soc, grade))
-  assert_names_exists(df_enrol, lst(subjid, arm))
-
-
-  label_missing_soc = "Missing SOC"
-  label_missing_pat = "No Declared AE"
-
-  df_ae = df_ae %>%
-    select(subjid_=any_of2(subjid), soc_=any_of2(soc),
-           term_=any_of2(term), grade_=any_of2(grade)) %>%
-    mutate(soc_ = if_else(soc_ %in% c(0, NA), label_missing_soc, soc_))
-  df_enrol = df_enrol %>%
-    select(subjid_=any_of2(subjid), arm_=any_of2(arm)) %>%
-    mutate(arm_ = if(is.null(.env$arm)) default_arm else .data$arm_)
-
-  df = df_enrol %>%
-    full_join(df_ae, by="subjid_") %>%
-    arrange(subjid_) %>%
-    mutate(
-      arm_ = to_snake_case(arm_),
-      soc_ = if_else(!subjid_ %in% df_ae$subjid_, label_missing_pat, soc_),
-      # soc_ = fct_infreq(soc_) %>% fct_relevel(label_missing_soc,
-      #                                         label_missing_pat, after=Inf)
-    )
-
-  #check missing data
-  if(warn_miss){
-    miss = names(df) %>% set_names() %>% map(~{
-      df %>% filter(is.na(!!ensym(.x))) %>% pull(subjid_) %>% unique() %>% sort()
-    }) %>% keep(~!is_empty(.x))
-    miss %>% iwalk(~{
-      cli_warn("{.fn ae_table_soc}: Missing values in column {.val {.y}} for patients {.val {.x}}.",
-               class="edc_ae_missing_values_warning")
-    })
-  }
-  ##_______________________________________________________________________
-
-  arm_count = df_enrol %>%
-    count(arm_) %>%
-    deframe() %>% as.list()
-  arm_count2 = arm_count %>%
-    set_names(to_snake_case)
-
-
-  #' for each patient/soc, detect if each grade satisfies the specified
-  #' condition (max/eq/sup)
-  evaluate_grades = function(gr, variant){
-    inner_calc = switch(variant, max=~max_narm(gr) == .x,
-                        sup=~any(gr >= .x, na.rm=TRUE),
-                        eq=~any(gr == .x, na.rm=TRUE))
-    n = c(1:5) %>% set_names(paste0("G",1:5)) %>% map_lgl(inner_calc)
-    n_na = c("NA"=all(is.na(n)))
-    n = replace_na(n, FALSE)
-    n_tot = c(Tot=sum(c(n, n_na), na.rm=TRUE))
-    c(n, n_na, n_tot) %>%
-      as_tibble_row()
-  }
-
-  # soc_ = fct_infreq(soc_) %>% fct_relevel(label_missing_soc, label_missing_pat, after=Inf)
-
-  rtn = df %>%
-    # filter(subjid_==126) %>%
-    # filter(arm_=="crt_atezolizumab") %>%
-    summarise(calc = evaluate_grades(grade_, variant),
-              .by=any_of(c("subjid_", "arm_", "soc_", "term_"))) %>%
-    unnest(calc) %>%
-    mutate(soc_ = soc_ %>% fct_infreq(w=Tot) %>%
-             fct_relevel(label_missing_soc, label_missing_pat, after=Inf)) %>%
-    summarise(
-      across(c(matches("^G\\d$"), any_of(c("NA", "Tot"))), ~{
-        n = sum(.x)
-        n_arm = arm_count2[[cur_group()$arm_]]
-        label = glue("{n} ({p})", p=scales::percent(n/n_arm, 1))
-        label[n==0] = NA
-        label
-      }),
-      .by=any_of(c("arm_", "soc_", "term_"))
-    ) %>%
-    arrange(arm_, soc_)
-
-  if(!total) rtn = rtn %>% select(-Tot)
-  if(!showNA) rtn = rtn %>% select(-"NA")
-  if(!sort_by_count) rtn = rtn %>% mutate(soc_=as.character(soc_)) %>% arrange(arm_, soc_)
-
-  spec = rtn %>%
-    build_wider_spec(names_from=arm_,
-                     values_from=c(matches("^G\\d$"), any_of(c("NA", "Tot"))),
-                     names_glue="{arm_}_{.value}") %>%
-    arrange(.name)
-  rtn = rtn %>%
-    rename(soc=soc_) %>%
-    pivot_wider_spec(spec) %>%
-    add_class("ae_table_soc")
-
-  attr(rtn, "header") =
-    glue("{a} (N={b})", a=names(arm_count), b=arm_count) %>%
-    set_names(to_snake_case(names(arm_count))) %>%
-    as.character()
-
-  rtn
-}
-
-# https://www.acpjournals.org/doi/full/10.7326/0003-4819-141-10-200411160-00009

@@ -46,7 +46,7 @@ Produce a graphic representation of AE, counting AE as bars for each patient, co
 }
 \examples{
 tm = grstat_example()
-load_list(tm)
+attach(tm, warn.conflicts=FALSE)
 ae_plot_grade(df_ae=ae, df_enrol=enrolres)
 ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", variant=c("sup", "max"))
 ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")

@@ -16,14 +16,14 @@
 #' @importFrom dplyr arrange case_match case_when cur_group filter full_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
 #' @importFrom rlang check_dots_empty check_installed
-#' @importFrom stringr str_remove str_starts
+#' @importFrom stringr str_remove str_starts str_subset
 #' @importFrom tibble lst
 #' @importFrom tidyselect matches
 #' @export
 #'
 #' @examples
 #' tm = grstat_example()
-#' load_list(tm)
+#' attach(tm, warn.conflicts=FALSE)
 #'
 #' if(require(flextable)){
 #'
@@ -146,7 +146,7 @@ ae_table_grade = function(
 #'
 #' @examples
 #' tm = grstat_example()
-#' load_list(tm)
+#' attach(tm, warn.conflicts=FALSE)
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres)
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", variant=c("sup", "max"))
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
@@ -229,15 +229,15 @@ ae_plot_grade = function(
 #' @return a ggplot
 #' @export
 #' @importFrom dplyr across any_of arrange count full_join mutate rename_with select
-#' @importFrom forcats fct_infreq
-#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_fill_steps theme vars
+#' @importFrom forcats fct_infreq fct_rev
+#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_fill_manual theme vars
 #' @importFrom rlang check_dots_empty int
 #' @importFrom tibble deframe lst
 #' @importFrom tidyr replace_na
 #'
 #' @examples
 #' tm = grstat_example()
-#' load_list(tm)
+#' attach(tm, warn.conflicts=FALSE)
 #' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
 #' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM")
 #' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM", weights=c(1,1,3,6,10))
@@ -319,253 +319,3 @@ fix_grade = function(x){
 }
 
 
-
-# Deprecated ----------------------------------------------------------------------------------
-
-
-
-
-#' Summary tables for AE
-#'
-#' `r lifecycle::badge("deprecated")`
-#'
-#' @inheritParams ae_table_soc
-#' @inherit ae_table_soc seealso
-#'
-#' @return a crosstable
-#' @importFrom dplyr across arrange count cur_column distinct filter full_join mutate rename_with select
-#' @importFrom lifecycle deprecate_warn
-#' @importFrom rlang check_dots_empty check_installed int
-#' @importFrom tibble deframe
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' tm = grstat_example()
-#'
-#' ae_table_grade_n(df_ae=tm$ae, df_enrol=tm$enrolres) %>%
-#'   as_flextable() %>%
-#'   flextable::add_footer_lines("Percentages are given as the proportion of patients
-#'                                presenting at least one AE of given grade")
-#'
-#' ae_table_grade_n(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL) %>%
-#'   as_flextable(by_header=F) %>%
-#'   flextable::set_header_labels(values=c("","","N (%)"))
-#'
-#' #To get SAE only, filter df_ae first
-#' tm$ae %>% filter(sae==TRUE) %>% ae_table_grade_n(df_enrol=tm$enrolres, arm=NULL)
-#' }
-ae_table_grade_n = function(
-    df_ae, ..., df_enrol,
-    arm="ARM", grade="AEGR", subjid="SUBJID", soc="AESOC",
-    total=FALSE, digits=0
-){
-  deprecate_warn("0.5.0", "ae_table_grade_n()", 'ae_table_grade(variant="eq")')
-  check_installed("crosstable", "for `ae_table_grade_n()` to work.")
-  check_dots_empty()
-
-  df_ae = df_ae %>% rename_with(tolower) %>%
-    select(subjid=tolower(subjid), soc=tolower(soc), grade=tolower(grade))
-  df_enrol = df_enrol %>% rename_with(tolower) %>%
-    select(subjid=tolower(subjid), arm=tolower(arm))
-  df = df_enrol %>%
-    full_join(df_ae, by=tolower(subjid)) %>%
-    arrange(subjid) %>%
-    mutate(grade = fix_grade(grade)) %>%
-    filter(!is.na(soc))
-
-  default_arm = "All patients"
-  # browser()
-  npat = int(!!default_arm:=nrow(df_enrol))
-  if(!is.null(arm)){
-    npat = deframe(count(df_enrol, arm))
-    npat["Total"] = sum(npat)
-  }
-  total = if(total) "row" else FALSE
-
-  if(!any(names(df)=="arm")) df$arm=default_arm %>% set_label("Treatment arm")
-  rtn = df %>%
-    distinct(subjid, arm, grade) %>%
-    mutate(arm) %>%
-    mutate(grade = ifelse(is.na(grade), "NA", paste("Grade", grade)) %>%
-             copy_label_from(grade)) %>%
-    crosstable::crosstable(grade, by=arm, total=total,
-                           percent_pattern=crosstable::get_percent_pattern("none")) %>%
-    mutate(across(-(.id:variable), function(x){
-      x = as.numeric(x)
-      tot = npat[cur_column()]
-      p = crosstable::format_fixed(x/tot, digits, percent=TRUE)
-      paste0(x, " (", p, ")")
-    }))
-  attr(rtn, "by_table")[] = npat[!is.na(names(npat)) & names(npat)!="Total"] #zarb que crosstable oublie les NA dans by_table non?
-  rtn
-}
-
-
-
-#' Summary tables for AE by grade max
-#'
-#' `r lifecycle::badge("deprecated")`
-#'
-#' The function `ae_table_grade_max()` creates a summary table of the maximum AE grade experienced per each patient.
-#' The resulting crosstable can be piped to `as_flextable()` to get a nicely formatted flextable.
-#'
-#' @inheritParams ae_table_soc
-#' @inherit ae_table_soc seealso
-#'
-#' @return a crosstable (dataframe)
-#' @export
-#' @importFrom dplyr any_of arrange full_join if_else mutate recode select summarise
-#' @importFrom lifecycle deprecate_warn
-#' @importFrom rlang check_dots_empty check_installed
-#'
-#' @examples
-#'
-#' tm = grstat_example()
-#' ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres)
-#' ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL)
-#'
-#' \dontrun{
-#' #you can use as_flextable() to get an HTML flextable
-#' #you can use modificators modificators from the flextable package
-#' library(flextable)
-#' ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL) %>%
-#'   as_flextable() %>%
-#'   add_footer_lines("Percentages are given as the proportion of patients
-#'                     presenting at most one AE of given grade")
-#' ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres) %>%
-#'   as_flextable(by_header="Both arms") %>%
-#'   highlight(i=~variable=="Grade 5", j=-1)
-#' }
-ae_table_grade_max = function(
-    df_ae, ..., df_enrol,
-    arm="ARM", subjid="SUBJID", soc="AESOC", grade="AEGR", total=TRUE, digits=0
-){
-  check_installed("crosstable", "for `ae_table_grade_max()` to work.")
-  deprecate_warn("0.5.0", "ae_table_grade_max()", 'ae_table_grade(variant="max")')
-  check_dots_empty()
-  null_arm = is.null(arm)
-
-  df_ae = df_ae %>%
-    select(subjid_=any_of2(subjid), soc_=any_of2(soc), grade_=any_of2(grade))
-  df = df_enrol %>%
-    select(subjid_=any_of2(subjid), arm_=any_of2(arm)) %>%
-    full_join(df_ae, by="subjid_") %>%
-    arrange(subjid_) %>%
-    mutate(
-      grade_ = if_else(is.na(soc_), 0, fix_grade(grade_)),
-    ) %>%
-    summarise(grade_max = max_narm(grade_), .by=any_of(c("subjid_", "arm_")))
-
-  df %>%
-    mutate(grade_max = ifelse(is.na(grade_max), "NA", paste("Grade", grade_max)),
-           grade_max = recode(grade_max, "Grade 0"="No AE")) %>%
-    crosstable::apply_labels(grade_max = "Max grade") %>%
-    crosstable::crosstable(grade_max, by=any_of("arm_"), total=total,
-                           percent_digits=digits, margin="col")
-}
-
-#' Graphic representation of AEs by grade max
-#'
-#' `r lifecycle::badge("deprecated")`
-#'
-#' Produces a graphic representation of AE, counting the maximum grade each patient experienced, colored by treatment arm. Returns up to 3 representations if `arm!=NULL`.
-#'
-#' @inheritParams ae_table_soc
-#' @inherit ae_table_soc seealso
-#' @param proportion display proportion instead of count.
-#' @param type the plots to be included. One of `c("stack", "dodge", "fill")`.
-#' @param drop_levels whether to drop unused grade levels.
-#'
-#' @return a patchwork of ggplots
-#' @importFrom dplyr any_of arrange distinct full_join mutate n select setdiff summarise
-#' @importFrom ggplot2 aes geom_bar geom_col ggplot labs position_dodge scale_x_continuous scale_y_discrete theme waiver
-#' @importFrom purrr map
-#' @importFrom rlang check_dots_empty check_installed set_names
-#' @export
-#'
-#' @examples
-#' tm = grstat_example()
-#' ae_plot_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres)
-#' ae_plot_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, type=c("dodge", "fill"), proportion=FALSE)
-#' ae_plot_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL) + ggplot2::coord_flip()
-#'
-#' #you can use modificators from the patchwork package, like "&"
-#' \dontrun{
-#' library(patchwork)
-#' ae_plot_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres) & labs(fill="Group")
-#' }
-ae_plot_grade_max = function(
-    df_ae, ..., df_enrol,
-    type = c("stack", "dodge", "fill"),
-    proportion = TRUE,
-    drop_levels = FALSE,
-    arm="ARM", subjid="SUBJID", soc="AESOC", grade="AEGR"
-){
-  check_installed("patchwork", "for `ae_plot_grade_max()` to work.")
-  check_dots_empty()
-
-  df_ae = df_ae %>%
-    select(subjid=any_of2(subjid), soc=any_of2(soc), grade=any_of2(grade))
-  a = df_enrol %>%
-    select(subjid=any_of2(subjid), arm=any_of2(arm)) %>%
-    full_join(df_ae, by="subjid") %>%
-    arrange(subjid) %>%
-    mutate(grade = ifelse(is.na(soc), 0, fix_grade(grade)))
-
-  by_cols = if(is.null(arm)) "subjid" else c("subjid", "arm")
-  x = a %>%
-    summarise(grade_max = max_narm(grade), .by=any_of(by_cols)) %>%
-    mutate(grade_max = factor(grade_max, levels=0:5, labels=c("No AE", paste("Grade", 1:5))))
-
-  if(isTRUE(proportion)){
-    type = setdiff(type, "fill")
-    x2 = x %>%
-      mutate(n_arm = n(), .by=arm) %>%
-      summarise(n=n(), p=n()/n_arm,
-                .by=c(grade_max, arm)) %>%
-      distinct() %>%
-      mutate(label = paste0("N=",n))
-    p_list = type %>% set_names() %>%
-      map(~{
-        if(.x=="dodge") .x = position_dodge(width=0.9)
-        p =
-          x2 %>%
-          ggplot(aes(y=grade_max, x=p, fill=arm, by=grade_max)) +
-          geom_col(position=.x) +
-          # geom_text(aes(label=label), position=.x, hjust=1) +
-          scale_y_discrete(drop=drop_levels) +
-          scale_x_continuous(labels=scales::percent) +
-          labs(y="Max AE grade experienced", x="Proportion of patients", fill="Treatment")
-        # StatProp = ggstats:::StatProp
-        # if(.x=="fill") p =
-        #   p + geom_text(stat="prop", position = position_fill(.5))
-        p
-      })
-  } else {
-    if(is.null(arm)) type="stack"
-    p_list = type %>% set_names() %>%
-      map(~{
-        y_lab = if(.x=="fill") "Proportion" else "Count"
-        p =
-          x %>%
-          ggplot(aes(y=grade_max, fill=arm, by=grade_max)) +
-          geom_bar(position=.x) +
-          scale_y_discrete(drop=drop_levels) +
-          scale_x_continuous(labels = if(.x=="fill") scales::percent else waiver()) +
-          labs(y="Max AE grade experienced", x=y_lab, fill="Treatment")
-        # StatProp = ggstats:::StatProp
-        # if(.x=="fill") p =
-        #   p + geom_text(stat="prop", position = position_fill(.5))
-        p
-      })
-  }
-
-
-
-
-  patchwork::wrap_plots(p_list) +
-    patchwork::plot_layout(guides="collect") &
-    theme(legend.position="top")
-
-}

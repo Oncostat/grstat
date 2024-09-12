@@ -92,5 +92,5 @@ ae_table_soc(tm$ae, df_enrol=tm$enrolres, term=NULL, arm=NULL) \%>\%
 }
 }
 \seealso{
-\code{\link[=ae_table_grade_max]{ae_table_grade_max()}}, \code{\link[=ae_table_grade_n]{ae_table_grade_n()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade_max]{ae_plot_grade_max()}}, \code{\link[=ae_plot_grade_n]{ae_plot_grade_n()}}
+\code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}
 }

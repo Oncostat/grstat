@@ -51,7 +51,7 @@ The resulting crosstable can be piped to \code{as_flextable()} to get a nicely f
 \examples{
 
 tm = grstat_example(N=100)
-load_list(tm)
+attach(tm, warn.conflicts=FALSE)
 
 ae2 = ae \%>\%
   dplyr::mutate(serious = sae=="Yes")
@@ -64,5 +64,5 @@ ae2 \%>\%
   ggplot2::labs(caption="Darker areas represent Serious Adverse Events")
 }
 \seealso{
-\code{\link[=ae_table_grade_max]{ae_table_grade_max()}}, \code{\link[=ae_table_grade_n]{ae_table_grade_n()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade_max]{ae_plot_grade_max()}}, \code{\link[=ae_plot_grade_n]{ae_plot_grade_n()}}
+\code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}
 }
