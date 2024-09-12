@@ -48,7 +48,7 @@ a patchwork of ggplots
 Produces a graphic representation of AE, counting the maximum grade each patient experienced, colored by treatment arm. Returns up to 3 representations if \code{arm!=NULL}.
 }
 \examples{
-tm = edc_example_ae()
+tm = grstat_example()
 ae_plot_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres)
 ae_plot_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, type=c("dodge", "fill"), proportion=FALSE)
 ae_plot_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL) + ggplot2::coord_flip()

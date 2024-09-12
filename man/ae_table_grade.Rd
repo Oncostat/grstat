@@ -42,25 +42,25 @@ a crosstable
 Summary tables for AE
 }
 \examples{
-tm = edc_example_ae()
+tm = grstat_example()
 load_list(tm)
 
 if(require(flextable)){
 
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) \%>\% 
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) \%>\%
   as_flextable(header_show_n=TRUE)
 
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="ARM") \%>\% 
-  as_flextable(header_show_n=TRUE) 
-  
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="ARM") \%>\%
+  as_flextable(header_show_n=TRUE)
+
 #To get SAE only, filter df_ae first
 library(dplyr)
-ae \%>\% 
-  filter(sae=="Yes") \%>\% 
-  ae_table_grade(df_enrol=enrolres, arm="ARM") \%>\% 
-  dplyr::mutate_all(~stringr::str_replace(.x, "AE", "SAE")) \%>\% 
-  as_flextable(header_show_n=TRUE) 
-  
+ae \%>\%
+  filter(sae=="Yes") \%>\%
+  ae_table_grade(df_enrol=enrolres, arm="ARM") \%>\%
+  dplyr::mutate_all(~stringr::str_replace(.x, "AE", "SAE")) \%>\%
+  as_flextable(header_show_n=TRUE)
+
 }
 }
 \seealso{

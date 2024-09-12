@@ -47,7 +47,7 @@ The resulting crosstable can be piped to \code{as_flextable()} to get a nicely f
 }
 \examples{
 
-tm = edc_example_ae()
+tm = grstat_example()
 ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres)
 ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL)
 
@@ -55,12 +55,12 @@ ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL)
 #you can use as_flextable() to get an HTML flextable
 #you can use modificators modificators from the flextable package
 library(flextable)
-ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL) \%>\% 
-  as_flextable() \%>\% 
-  add_footer_lines("Percentages are given as the proportion of patients 
+ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres, arm=NULL) \%>\%
+  as_flextable() \%>\%
+  add_footer_lines("Percentages are given as the proportion of patients
                     presenting at most one AE of given grade")
 ae_table_grade_max(df_ae=tm$ae, df_enrol=tm$enrolres) \%>\%
-  as_flextable(by_header="Both arms") \%>\% 
+  as_flextable(by_header="Both arms") \%>\%
   highlight(i=~variable=="Grade 5", j=-1)
 }
 }

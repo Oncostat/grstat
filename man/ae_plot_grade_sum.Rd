@@ -43,7 +43,7 @@ a ggplot
 Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
 }
 \examples{
-tm = edc_example_ae()
+tm = grstat_example()
 load_list(tm)
 ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
 ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM")

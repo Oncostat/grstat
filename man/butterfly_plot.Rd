@@ -50,17 +50,17 @@ The resulting crosstable can be piped to \code{as_flextable()} to get a nicely f
 }
 \examples{
 
-tm = edc_example_ae(N=100)
+tm = grstat_example(N=100)
 load_list(tm)
 
-ae2 = ae \%>\% 
+ae2 = ae \%>\%
   dplyr::mutate(serious = sae=="Yes")
-  
-ae2 \%>\% 
+
+ae2 \%>\%
   butterfly_plot(df_enrol=enrolres, range_min=0.5)
-  
-ae2 \%>\% 
-  butterfly_plot(df_enrol=enrolres, severe="serious") + 
+
+ae2 \%>\%
+  butterfly_plot(df_enrol=enrolres, severe="serious") +
   ggplot2::labs(caption="Darker areas represent Serious Adverse Events")
 }
 \seealso{

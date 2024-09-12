@@ -26,7 +26,13 @@ sample_soc = c(
 )
 
 
-#' @rdname data_example
+#' Example databases
+#'
+#' Example tables, mostly used in examples and tests.
+#'
+#' @param N the number of patients
+#' @param seed the random seed
+#'
 #' @export
 #' @importFrom dplyr mutate n select
 #' @importFrom purrr imap map
