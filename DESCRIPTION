@@ -17,5 +17,27 @@ URL: https://oncostat.github.io/grstat/, https://github.com/oncostat/grstat/
 BugReports: https://github.com/oncostat/grstat/issues/
 Depends:
     R (>= 3.1.0)
+Imports: 
+    cli,
+    dplyr,
+    forcats,
+    ggplot2,
+    glue,
+    lifecycle,
+    magrittr,
+    purrr,
+    rlang,
+    scales,
+    stringr,
+    tibble,
+    tidyr,
+    tidyselect
+Suggests: 
+    crosstable,
+    flextable,
+    patchwork
 Encoding: UTF-8
-LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3
+Config/testthat/parallel: true
