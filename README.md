@@ -20,7 +20,7 @@ version](https://img.shields.io/badge/R-%E2%89%A53.1-blue.svg)](https://cran.r-p
 <!-- [![Build Status](https://travis-ci.org/Oncostat/grstat.svg?branch=main)](https://travis-ci.org/Oncostat/grstat) -->
 <!-- badges: end -->
 
-`{grstat}` is a package designed to help 
+`{grstat}` is a package designed to help standardize the descriptive clinical research analyses at GR.
 
 ## Installation
 
@@ -30,9 +30,8 @@ The package is not on CRAN yet, so you have to install the development package f
 # Install development version on Github
 remotes::install_github("Oncostat/grstat")
 
-# Install specific commit or tagged version (for reproducibility purpose)
-remotes::install_github("Oncostat/grstat@ee012f6", build_vignettes=TRUE)
-remotes::install_github("Oncostat/grstat@0.6.1", build_vignettes=TRUE)
+# Install specific tagged version (for reproducibility purpose)
+remotes::install_github("Oncostat/grstat@0.1.0", build_vignettes=TRUE)
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
