@@ -116,8 +116,6 @@ ae_table_soc = function(
     set_names(to_snake_case)
 
   rtn = df %>%
-    # filter(subjid_==126) %>%
-    # filter(arm_=="crt_atezolizumab") %>%
     summarise(calc = evaluate_grades(grade_, variant),
               .by=any_of(c("subjid_", "arm_", "soc_", "term_"))) %>%
     unnest(calc) %>%
