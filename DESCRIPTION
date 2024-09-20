@@ -1,7 +1,7 @@
 Package: grstat
 Type: Package
 Title: Clinical Research Tools
-Version: 0.1.0.9002
+Version: 0.1.0.9003
 Authors@R: 
     c(
       person(given = "Dan",
@@ -9,10 +9,18 @@ Authors@R:
              role = c("aut", "cre"),
              email = "dan.chaltiel@gustaveroussy.fr",
              comment = c(ORCID = "0000-0003-3488-779X")),
+
             person(given = "Nusaïbah",
              family = "Ibrahimi",
              role = "ctb",
-             email = "nusaibah.ibrahimi@gustaveroussy.fr"))  
+             email = "nusaibah.ibrahimi@gustaveroussy.fr")), 
+
+      person(given = "Aldéric",
+             family = "Fraslin",
+             role = c("ctb"),
+             email = "alderic.fraslin@gustaveroussy.fr",
+             comment = c(ORCID = "0000-0003-2235-0012"))
+
     )
 Maintainer: Dan Chaltiel <dan.chaltiel@gustaveroussy.fr>
 Description: Gives tools to standardize the output of clinical research description.
