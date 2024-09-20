@@ -31,7 +31,7 @@ The package is not on CRAN yet, so you have to install the development package f
 remotes::install_github("Oncostat/grstat")
 
 # Install specific tagged version (for reproducibility purpose)
-remotes::install_github("Oncostat/grstat@0.1.0", build_vignettes=TRUE)
+remotes::install_github("Oncostat/grstat@x.x.x", build_vignettes=TRUE)
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
