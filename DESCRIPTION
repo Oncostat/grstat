@@ -10,11 +10,10 @@ Authors@R:
              email = "dan.chaltiel@gustaveroussy.fr",
              comment = c(ORCID = "0000-0003-3488-779X")),
 
-
-            person(given = "Nusaïbah",
+      person(given = "Nusaïbah",
              family = "Ibrahimi",
              role = "ctb",
-             email = "nusaibah.ibrahimi@gustaveroussy.fr")), 
+             email = "nusaibah.ibrahimi@gustaveroussy.fr"), 
 
       person(given = "Charlotte",
              family = "Bargain",
@@ -26,6 +25,7 @@ Authors@R:
              role = c("ctb"),
              email = "alderic.fraslin@gustaveroussy.fr",
              comment = c(ORCID = "0000-0003-2235-0012")),
+             
       person(given = "Baptiste",
              family = "Archambaud",
              role = c("ctb"),
