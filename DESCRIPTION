@@ -19,6 +19,11 @@ Authors@R:
              family = "Bargain",
              role = c("ctb"),
              email = "charlotte.bargain@gustaveroussy.fr"),
+             
+      person(given = "Livia",
+             family = "Pierotti",
+             role = c("ctb"),
+             email = "livia.pierotti@gustaveroussy.fr"),
 
       person(given = "Aldéric",
              family = "Fraslin",
