@@ -10,17 +10,22 @@ Authors@R:
              email = "dan.chaltiel@gustaveroussy.fr",
              comment = c(ORCID = "0000-0003-3488-779X")),
 
+
             person(given = "Nusaïbah",
              family = "Ibrahimi",
              role = "ctb",
              email = "nusaibah.ibrahimi@gustaveroussy.fr")), 
+
+      person(given = "Charlotte",
+             family = "Bargain",
+             role = c("ctb"),
+             email = "charlotte.bargain@gustaveroussy.fr")
 
       person(given = "Aldéric",
              family = "Fraslin",
              role = c("ctb"),
              email = "alderic.fraslin@gustaveroussy.fr",
              comment = c(ORCID = "0000-0003-2235-0012"))
-
     )
 Maintainer: Dan Chaltiel <dan.chaltiel@gustaveroussy.fr>
 Description: Gives tools to standardize the output of clinical research description.
