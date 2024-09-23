@@ -13,7 +13,7 @@
 #' @inherit ae_table_soc seealso
 #'
 #' @return a crosstable
-#' @importFrom dplyr arrange case_match case_when cur_group filter full_join mutate rename_with select summarise
+#' @importFrom dplyr arrange case_match case_when cur_group filter left_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
 #' @importFrom rlang check_dots_empty check_installed
 #' @importFrom stringr str_remove str_starts str_subset
@@ -66,7 +66,7 @@ ae_table_grade = function(
     mutate(arm=if(is.null(.env$arm)) default_arm else .data$arm)
 
   df = df_enrol %>%
-    full_join(df_ae, by=tolower(subjid)) %>%
+    left_join(df_ae, by=tolower(subjid)) %>%
     arrange(subjid) %>%
     mutate(
       grade = fix_grade(grade),
@@ -228,7 +228,7 @@ ae_plot_grade = function(
 #'
 #' @return a ggplot
 #' @export
-#' @importFrom dplyr across any_of arrange count full_join mutate rename_with select
+#' @importFrom dplyr across any_of arrange count left_join mutate rename_with select
 #' @importFrom forcats fct_infreq fct_rev
 #' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_fill_manual theme vars
 #' @importFrom rlang check_dots_empty int
@@ -262,7 +262,7 @@ ae_plot_grade_sum = function(
     select(subjid=tolower(subjid), arm=tolower(arm))
 
   df = df_enrol %>%
-    full_join(df_ae, by=tolower(subjid)) %>%
+    left_join(df_ae, by=tolower(subjid)) %>%
     mutate(grade = fix_grade(grade),
            weight = weights[grade] %>% replace_na(0.1)) %>%
     arrange(subjid)

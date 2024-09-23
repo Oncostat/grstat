@@ -28,7 +28,7 @@
 #' @seealso [ae_table_grade()], [ae_table_soc()], [ae_plot_grade()], [ae_plot_grade_sum()], [butterfly_plot()]
 #'
 #' @importFrom cli cli_warn
-#' @importFrom dplyr across any_of arrange count cur_group filter full_join if_else mutate pull rename select summarise
+#' @importFrom dplyr across any_of arrange count cur_group filter left_join if_else mutate pull rename select summarise
 #' @importFrom forcats fct_infreq
 #' @importFrom glue glue
 #' @importFrom purrr iwalk keep map
@@ -91,7 +91,7 @@ ae_table_soc = function(
     mutate(arm_ = if(is.null(.env$arm)) default_arm else .data$arm_)
 
   df = df_enrol %>%
-    full_join(df_ae, by="subjid_") %>%
+    left_join(df_ae, by="subjid_") %>%
     arrange(subjid_) %>%
     mutate(
       arm_ = to_snake_case(arm_),
@@ -263,7 +263,7 @@ as_flextable.ae_table_soc = function(x,
 #' @return a crosstable (dataframe)
 #' @export
 #' @importFrom cli cli_abort cli_warn
-#' @importFrom dplyr any_of arrange count filter full_join left_join mutate select summarise
+#' @importFrom dplyr any_of arrange count filter left_join mutate select summarise
 #' @importFrom forcats fct_reorder
 #' @importFrom ggplot2 aes facet_grid geom_blank geom_col ggplot labs scale_x_continuous theme unit vars
 #' @importFrom glue glue
@@ -304,7 +304,7 @@ butterfly_plot = function(
   df_enrol = df_enrol %>%
     select(subjid_=any_of2(subjid), arm_=any_of2(arm))
   df = df_ae %>%
-    full_join(df_enrol, by="subjid_") %>%
+    left_join(df_enrol, by="subjid_") %>%
     filter(!is.na(soc_))  %>%
     arrange(subjid_)
 
