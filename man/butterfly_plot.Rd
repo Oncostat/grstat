@@ -3,7 +3,7 @@
 \name{butterfly_plot}
 \alias{butterfly_plot}
 \alias{ae_plot_soc}
-\title{Graphic representation of AEs by soc (Butterfly plot)}
+\title{Graphic representation of AEs by CTCAE SOC}
 \usage{
 butterfly_plot(
   df_ae,
@@ -42,11 +42,7 @@ ae_plot_soc(df_ae, ..., df_enrol, severe, sort_by, range_min, arm, subjid, soc)
 a crosstable (dataframe)
 }
 \description{
-Produces a graphic representation of AE, counting the maximum grade each patient experienced, colored by treatment arm. Returns up to 3 representations if \code{arm!=NULL}.
-}
-\details{
-The function \code{butterfly_plot()} creates a summary table of the maximum AE grade experienced per each patient.
-The resulting crosstable can be piped to \code{as_flextable()} to get a nicely formatted flextable.
+Produces a graphic representation of AEs by CTCAE SOC.
 }
 \examples{
 
@@ -56,8 +52,8 @@ attach(tm, warn.conflicts=FALSE)
 ae2 = ae \%>\%
   dplyr::mutate(serious = sae=="Yes")
 
-ae2 \%>\%
-  butterfly_plot(df_enrol=enrolres, range_min=0.5)
+butterfly_plot(ae2, df_enrol=enrolres, range_min=0.5)
+butterfly_plot(ae2, df_enrol=head(enrolres,9), range_min=0.5)
 
 ae2 \%>\%
   butterfly_plot(df_enrol=enrolres, severe="serious") +

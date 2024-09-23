@@ -40,19 +40,24 @@
 #'
 #' @examples
 #' tm = grstat_example()
-#' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, term=NULL)
-#' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, term=NULL, arm=NULL)
+#' attach(tm, warn.conflicts=FALSE)
+#'
+#' ae_table_soc(df_ae=ae, df_enrol=enrolres)
+#' ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm")
+#'
+#' #sub population
+#' ae_table_soc(df_ae=ae, df_enrol=head(enrolres, 10), arm="arm")
 #'
 #' if (require("flextable")) {
 #'
 #' #the resulting flextable can be customized using the flextable package
-#' ae_table_soc(tm$ae, df_enrol=tm$enrolres, total=FALSE) %>%
+#' ae_table_soc(ae, df_enrol=enrolres, total=FALSE) %>%
 #'   as_flextable() %>%
 #'   hline(i=~soc=="" & soc!=dplyr::lead(soc))
-#' ae_table_soc(tm$ae, df_enrol=tm$enrolres, term=NULL, sort_by_count=FALSE) %>%
+#' ae_table_soc(ae, df_enrol=enrolres, term=NULL, sort_by_count=FALSE) %>%
 #'   as_flextable() %>%
 #'   bold(i=~soc=="Eye disorders")
-#' ae_table_soc(tm$ae, df_enrol=tm$enrolres, term=NULL, arm=NULL) %>%
+#' ae_table_soc(ae, df_enrol=enrolres, term=NULL, arm=NULL) %>%
 #'   as_flextable() %>%
 #'   highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
 #' }
@@ -247,12 +252,9 @@ as_flextable.ae_table_soc = function(x,
 }
 
 
-#' Graphic representation of AEs by soc (Butterfly plot)
+#' Graphic representation of AEs by CTCAE SOC
 #'
-#' Produces a graphic representation of AE, counting the maximum grade each patient experienced, colored by treatment arm. Returns up to 3 representations if `arm!=NULL`.
-#'
-#' The function `butterfly_plot()` creates a summary table of the maximum AE grade experienced per each patient.
-#' The resulting crosstable can be piped to `as_flextable()` to get a nicely formatted flextable.
+#' Produces a graphic representation of AEs by CTCAE SOC.
 #'
 #' @inheritParams ae_table_soc
 #' @inherit ae_table_soc seealso
@@ -281,8 +283,8 @@ as_flextable.ae_table_soc = function(x,
 #' ae2 = ae %>%
 #'   dplyr::mutate(serious = sae=="Yes")
 #'
-#' ae2 %>%
-#'   butterfly_plot(df_enrol=enrolres, range_min=0.5)
+#' butterfly_plot(ae2, df_enrol=enrolres, range_min=0.5)
+#' butterfly_plot(ae2, df_enrol=head(enrolres,9), range_min=0.5)
 #'
 #' ae2 %>%
 #'   butterfly_plot(df_enrol=enrolres, severe="serious") +
