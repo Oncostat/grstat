@@ -20,5 +20,14 @@ Useful links:
 \author{
 \strong{Maintainer}: Dan Chaltiel \email{dan.chaltiel@gustaveroussy.fr} (\href{https://orcid.org/0000-0003-3488-779X}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Baptiste Archambaud \email{baptiste.archambaud@gustaveroussy.fr} [contributor]
+  \item Charlotte Bargain \email{charlotte.bargain@gustaveroussy.fr} [contributor]
+  \item Aldéric Fraslin \email{alderic.fraslin@gustaveroussy.fr} (\href{https://orcid.org/0000-0003-2235-0012}{ORCID}) [contributor]
+  \item Nusaïbah Ibrahimi \email{nusaibah.ibrahimi@gustaveroussy.fr} [contributor]
+  \item Livia Pierotti \email{livia.pierotti@gustaveroussy.fr} [contributor]
+}
+
 }
 \keyword{internal}
