@@ -1,7 +1,7 @@
 Package: grstat
 Type: Package
 Title: Clinical Research Tools
-Version: 0.1.0.9004
+Version: 0.1.0.9005
 Authors@R: c(
       person("Dan", "Chaltiel", role = c("aut", "cre"),
              email = "dan.chaltiel@gustaveroussy.fr",
