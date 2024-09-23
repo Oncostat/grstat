@@ -303,8 +303,8 @@ butterfly_plot = function(
     mutate(severe_ = if(is.null(severe)) NA else severe_)
   df_enrol = df_enrol %>%
     select(subjid_=any_of2(subjid), arm_=any_of2(arm))
-  df = df_ae %>%
-    left_join(df_enrol, by="subjid_") %>%
+  df = df_enrol %>%
+    left_join(df_ae, by="subjid_") %>%
     filter(!is.na(soc_))  %>%
     arrange(subjid_)
 
