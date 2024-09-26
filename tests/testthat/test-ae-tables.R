@@ -1,5 +1,7 @@
 
 test_that("ae_table_grade() works", {
+  local_reproducible_output(width=125)
+
   expect_snapshot({
     tm = grstat_example()
     attach(tm)
@@ -14,6 +16,8 @@ test_that("ae_table_grade() works", {
 
 
 test_that("ae_table_soc() works", {
+  local_reproducible_output(width=125)
+
   expect_snapshot({
     tm = grstat_example()
     attach(tm)
