@@ -15,7 +15,7 @@ tournoi <- function(forces){
 
 #Simulation of N tournaments
 tournois <- function(n_tournois, participants){
-  victoires_participants <- as.list(setNames(rep(0, 6), participants))
+  victoires_participants <- as.list(setNames(rep(0, length(participants)), participants))
   for(i in 1:n_tournois){
     winner <- tournoi(force_participants)
     victoires_participants[[winner]] <- 1 + victoires_participants[[winner]]
@@ -35,7 +35,7 @@ histogramme_victoires <- function(tournois){
 
 #---- Fight ! ----
 
-participants <- c("dan", "nus", "livia", "alde", "cha", "baptiste archambaud")
+participants <- c("dan", "nus", "livia", "alde", "cha", "baptiste archambaud", "dat")
 force_participants <- as.list(setNames(nchar(participants), participants))
 
 histogramme_victoires(tournois(1000, participants))
