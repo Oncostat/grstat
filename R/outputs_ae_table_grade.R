@@ -1,5 +1,5 @@
-#fonction comparing R and SAS outputs
-validate_ae_table_grade <- function(R_output, 
+#fonction formatting R and SAS outputs to same table format
+outputs_ae_table_grade <- function(R_output, 
                                     SAS_output, 
                                     round = 0 #rounding of recalculated percentages in group_grades_zeroNA()
                                     ){
