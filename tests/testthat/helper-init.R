@@ -5,15 +5,12 @@ Sys.setenv("TESTTHAT_CPUS" = 5)
 
 options(
   encoding="UTF-8",
-  # warn=0, #default, stacks
-  warn=1, #immediate.=TRUE
-  # warn=2, #error
+  warn=1, #0=default (stacks), 1=immediate, 2=error
   # warnPartialMatchArgs=TRUE,
   # warnPartialMatchAttr=TRUE,
   # warnPartialMatchDollar=TRUE,
   stringsAsFactors=FALSE,
   dplyr.summarise.inform=FALSE,
-  # conflicts.policy="depends.ok",
   tidyverse.quiet=TRUE,
   tidyselect_verbosity ="verbose",#quiet or verbose
   lifecycle_verbosity="warning", #NULL, "quiet", "warning" or "error"
@@ -21,22 +18,22 @@ options(
   testthat.progress.max_fails = 50
 )
 
-options(
-  tibble.print_max = Inf,
-  tibble.max_extra_cols = 0,
-  tibble.width = NULL
-)
 
-# globalCallingHandlers(NULL)
-# rlang::global_entrace()
 
 if(!is_testing() & !is_checking()){
   library(usethis, warn.conflicts=FALSE)
   library(rlang, warn.conflicts=FALSE)
   library(cli, warn.conflicts=FALSE)
-# library(tidyverse, warn.conflicts=FALSE)
   library(dplyr, warn.conflicts=FALSE)
   library(purrr, warn.conflicts=FALSE)
+} else {
+  #During testing, ensure snapshots have no abbreviated tibble
+  options(
+    pillar.width=Inf,
+    pillar.print_max=Inf,
+    pillar.max_footer_lines=Inf,
+    pillar.max_extra_cols=Inf
+  )
 }
 
 
@@ -44,7 +41,6 @@ v=utils::View
 
 
 snapshot_review_bg = function(...){
-  # brw = function(url) .Call("rs_browseURL", url, PACKAGE="(embedding)")
   brw = Sys.getenv("R_BROWSER")
   callr::r_bg(function() testthat::snapshot_review(...),
               package=TRUE,
@@ -53,14 +49,6 @@ snapshot_review_bg = function(...){
 
 
 is_testing_in_buildpane = function(){
-  # Sys.getenv("RSTUDIO_CHILD_PROCESS_PANE") =="build"
-
-  # print("----------")
-  # # print(Sys.getenv("RSTUDIO_CHILD_PROCESS_PANE"))
-  # print(getwd())
-  # print(Sys.getenv())
-  # print("----------")
-
   str_ends(getwd(), "testthat/?")
 }
 
@@ -135,7 +123,6 @@ tryCatch2 = function(expr){
   rtn
 }
 
-# clean_cache()
 cli::cli_inform(c(v="Initializer {.file helper-init.R} loaded at {.path {getwd()}}",
                   i="is_testing={.val {is_testing()}}, is_checking={.val {is_checking()}},
                   is_parallel={.val {is_parallel()}}"))
