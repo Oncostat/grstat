@@ -66,7 +66,7 @@ ae_table_grade = function(
     mutate(arm=if(is.null(.env$arm)) default_arm else .data$arm)
 
   df = df_enrol %>%
-    left_join(df_ae, by=tolower(subjid)) %>%
+    left_join(df_ae, by="subjid") %>%
     arrange(subjid) %>%
     mutate(
       grade = fix_grade(grade),
