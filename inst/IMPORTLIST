@@ -1,0 +1,7 @@
+attr = base
+dir_create = fs
+intersect = dplyr
+isFALSE = base
+readLines = base
+setequal = dplyr
+writeLines = base
