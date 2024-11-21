@@ -298,7 +298,7 @@ butterfly_plot = function(
 
   assert_names_exists(df_ae, lst(subjid, soc, severe))
   assert_names_exists(df_enrol, lst(subjid, arm))
-  assert_not_null(subjid, soc)
+  assert_not_null(df_ae, df_enrol, sort_by, subjid, soc)
 
   df_ae = df_ae %>%
     select(subjid_=any_of2(subjid), soc_=any_of2(soc),
