@@ -51,6 +51,14 @@ assert_names_exists = function(df, l){
   }
 }
 
+assert_not_null = function(...){
+  nulls = lst(...) %>% keep(is.null) %>% names()
+  if(length(nulls)>0){
+    cli_abort("Variable{?s} {.arg {nulls}} cannot be NULL.",
+              class="grstat_var_null")
+  }
+}
+
 
 # Misc ----------------------------------------------------------------------------------------
 
