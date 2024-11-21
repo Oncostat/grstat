@@ -74,12 +74,13 @@ test_that("butterfly_plot() errors", {
     butterfly_plot(df_enrol=enrolres, arm="crfname") %>%
     expect_error(class="edc_butterfly_two_arms_error")
 
-  # arm is NULL
+  # NULL arguments
   ae %>%
-    butterfly_plot(df_enrol=enrolres, subjid=NULL, soc=NULL) %>%
+    butterfly_plot(df_enrol=enrolres, df_enrol=NULL,
+                   sort_by=NULL, subjid=NULL, soc=NULL) %>%
     expect_error(class="grstat_var_null")
   ae %>%
     butterfly_plot(df_enrol=enrolres, arm=NULL) %>%
-    expect_error(class="grstat_var_null")
+    expect_error(class="edc_butterfly_two_arms_error")
 
 })
