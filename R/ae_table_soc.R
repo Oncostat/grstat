@@ -305,20 +305,23 @@ butterfly_plot = function(
            severe_=any_of2(severe)) %>%
     mutate(severe_ = if(is.null(severe)) NA else severe_)
   df_enrol = df_enrol %>%
+    mutate(across(any_of2(arm), factor)) %>%
     select(subjid_=any_of2(subjid), arm_=any_of2(arm))
+
+  arms = df_enrol[["arm_"]]
+  n_arms = n_distinct(arms, na.rm=TRUE)
+  if(n_arms!=2){
+    if(is.null(arms)) arms = "NULL"
+    cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
+                i="Found {n_arms} arm{?s} in column {.arg {arm}}: {.val {unique(arms)}}"),
+              class="edc_butterfly_two_arms_error")
+  }
+
   df = df_enrol %>%
     left_join(df_ae, by="subjid_") %>%
     filter(!is.na(soc_))  %>%
     arrange(subjid_)
 
-  if(!is.factor(df_enrol$arm_)) df_enrol$arm_ = factor(df_enrol$arm_)
-
-  arms = df_enrol$arm_ %>% unique() %>% na.omit()
-  if(length(arms)!=2){
-    cli_abort(c("{.fn EDCimport::butterfly_plot} needs exactly 2 arms.",
-                i="Arms: {.val {arms}}"),
-              class="edc_butterfly_two_arms_error")
-  }
   if(!is.null(severe)){
     if(!is.logical(df_ae$severe_)){
       cli_abort(c("{.arg severe} should be a logical column, not a {.type {df_ae$severe_}}. Did you forget to mutate it with `==`?"),
