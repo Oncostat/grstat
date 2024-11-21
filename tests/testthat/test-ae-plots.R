@@ -76,8 +76,7 @@ test_that("butterfly_plot() errors", {
 
   # NULL arguments
   ae %>%
-    butterfly_plot(df_enrol=enrolres, df_enrol=NULL,
-                   sort_by=NULL, subjid=NULL, soc=NULL) %>%
+    butterfly_plot(df_enrol=NULL, sort_by=NULL, subjid=NULL, soc=NULL) %>%
     expect_error(class="grstat_var_null")
   ae %>%
     butterfly_plot(df_enrol=enrolres, arm=NULL) %>%
