@@ -294,11 +294,10 @@ butterfly_plot = function(
     arm="ARM", subjid="SUBJID", soc="AESOC"
 ){
   check_dots_empty()
-  sort_by = arg_match(sort_by)
-
+  assert_not_null(df_ae, df_enrol, sort_by, subjid, soc)
   assert_names_exists(df_ae, lst(subjid, soc, severe))
   assert_names_exists(df_enrol, lst(subjid, arm))
-  assert_not_null(df_ae, df_enrol, sort_by, subjid, soc)
+  sort_by = arg_match(sort_by)
 
   df_ae = df_ae %>%
     select(subjid_=any_of2(subjid), soc_=any_of2(soc),
