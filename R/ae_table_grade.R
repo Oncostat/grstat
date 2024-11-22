@@ -50,9 +50,10 @@ ae_table_grade = function(
 
   assert_names_exists(df_ae, lst(subjid, grade))
   assert_names_exists(df_enrol, lst(subjid, arm))
+  assert_class(total, "logical")
 
   if(missing(total) && is.null(arm)) total = FALSE
-  if(total) total = "row"
+  if(isTRUE(total)) total = "row"
   default_arm = set_label("All patients", "Treatment arm")
 
   df_ae = df_ae %>% rename_with(tolower) %>%
