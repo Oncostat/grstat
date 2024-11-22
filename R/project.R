@@ -16,7 +16,7 @@
 #' @importFrom purrr walk
 #' @importFrom rlang is_installed
 #' @importFrom stringr fixed str_replace
-grstat_new_project = function(path, open=TRUE, verbose=TRUE){
+gr_new_project = function(path, open=TRUE, verbose=TRUE){
   # check_installed("usethis", "for `init_project()` to work.")
   dir_create(path)
   if(!is_dir(path)){
@@ -26,7 +26,7 @@ grstat_new_project = function(path, open=TRUE, verbose=TRUE){
   if(length(path_files)>0){
     cli_abort(c("`path` should be empty, but has {length(path_files)} child{?s}.", 
                 i="{length(path_files)}"),
-              class="grstat_new_project_notempty_error")
+              class="gr_new_project_notempty_error")
   }
   
   proj_name = basename(path)
