@@ -47,6 +47,6 @@ test_that("ae_table_soc() works", {
 
   ae_table_soc(df_ae=ae, df_enrol=enrolres,
                arm="ARsM", term="AETEeRM", soc="AEtSOC", grade="AEGeR", subjid="SUBaJID") %>%
-    expect_error(class="edc_name_notfound_error")
+    expect_error(class="grstat_name_notfound_error")
 
 })

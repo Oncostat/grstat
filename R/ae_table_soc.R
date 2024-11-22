@@ -110,7 +110,7 @@ ae_table_soc = function(
     }) %>% keep(~!is_empty(.x))
     miss %>% iwalk(~{
       cli_warn("{.fn ae_table_soc}: Missing values in column {.val {.y}} for patients {.val {.x}}.",
-               class="edc_ae_missing_values_warning")
+               class="grstat_ae_missing_values_warning")
     })
   }
 
@@ -321,14 +321,22 @@ butterfly_plot = function(
     filter(!is.na(soc_))  %>%
     arrange(subjid_)
 
+  if(!is.factor(df_enrol$arm_)) df_enrol$arm_ = factor(df_enrol$arm_)
+
+  arms = df_enrol$arm_ %>% unique() %>% na.omit()
+  if(length(arms)!=2){
+    cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
+                i="Arms: {.val {arms}}"),
+              class="grstat_butterfly_two_arms_error")
+  }
   if(!is.null(severe)){
     if(!is.logical(df_ae$severe_)){
       cli_abort(c("{.arg severe} should be a logical column, not a {.type {df_ae$severe_}}. Did you forget to mutate it with `==`?"),
-                class="edc_butterfly_serious_lgl_error")
+                class="grstat_butterfly_serious_lgl_error")
     }
     if(!any(df_ae$severe_)){
       cli_warn(c("All {.arg severe} values are FALSE."),
-               class="edc_butterfly_serious_false_warning")
+               class="grstat_butterfly_serious_false_warning")
     }
   }
 

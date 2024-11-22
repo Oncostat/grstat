@@ -12,7 +12,7 @@ waterfall_plot(
   type = c("best_resp", "worst_resp"),
   rc_star = NULL,
   arm = NULL,
-  warnings = getOption("edc_wp_warnings", TRUE)
+  warnings = getOption("grstat_wp_warnings", TRUE)
 )
 }
 \arguments{

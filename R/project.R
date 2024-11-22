@@ -16,7 +16,7 @@
 #' @importFrom purrr walk
 #' @importFrom rlang is_installed
 #' @importFrom stringr fixed str_replace
-edc_new_project = function(path, open=TRUE, verbose=TRUE){
+grstat_new_project = function(path, open=TRUE, verbose=TRUE){
   # check_installed("usethis", "for `init_project()` to work.")
   dir_create(path)
   if(!is_dir(path)){
@@ -26,7 +26,7 @@ edc_new_project = function(path, open=TRUE, verbose=TRUE){
   if(length(path_files)>0){
     cli_abort(c("`path` should be empty, but has {length(path_files)} child{?s}.", 
                 i="{length(path_files)}"),
-              class="edc_new_project_notempty_error")
+              class="grstat_new_project_notempty_error")
   }
   
   proj_name = basename(path)
@@ -34,7 +34,7 @@ edc_new_project = function(path, open=TRUE, verbose=TRUE){
   rproj_file = paste0(proj_name, ".Rproj")
   
   #copy template files from package to path
-  templ_dir = path_package("/init_proj", package="EDCimport")
+  templ_dir = path_package("/init_proj", package="grstat")
   pkg_files = dir_ls(templ_dir, type="file", recurse=TRUE)
   new_files = pkg_files %>% 
     str_replace(fixed(as.character(templ_dir)), path) %>% 

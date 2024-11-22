@@ -47,7 +47,7 @@ assert_names_exists = function(df, l){
   if(length(not_found)>0){
     a = paste0(names(not_found), "='", not_found, "'")
     cli_abort("Columns not found in {.arg df_name}: {.val {a}}",
-              class="edc_name_notfound_error")
+              class="grstat_name_notfound_error")
   }
 }
 
