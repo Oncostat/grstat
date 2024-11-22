@@ -9,6 +9,7 @@ waterfall_plot(
   rc_sum = "RCTLSUM",
   rc_resp = "RCRESP",
   rc_date = "RCDT",
+  subjid = "SUBJID",
   type = c("best_resp", "worst_resp"),
   rc_star = NULL,
   arm = NULL,
@@ -48,10 +49,10 @@ Data are ordered on \code{rc_date}.
 \dontrun{
 waterfall_plot(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP")
 waterfall_plot(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP", type="worst_resp")
-rc \%>\% 
+rc \%>\%
   left_join(enrolres, by="SUBJID") \%>\% #adds the ARM column
-  mutate(new_lesion = ifelse(RCNEW=="1-Yes", "New lesion", NA)) \%>\% 
-  waterfall_plot(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP", 
+  mutate(new_lesion = ifelse(RCNEW=="1-Yes", "New lesion", NA)) \%>\%
+  waterfall_plot(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP",
                  arm="ARM", rc_star="new_lesion")
 }
 }
