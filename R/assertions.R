@@ -59,6 +59,42 @@ assert_not_null = function(...){
   }
 }
 
+# Checks --------------------------------------------------------------------------------------
+
+grstat_data_warn = function (.data, message, subjid){
+  if (missing(max_subjid))
+    max_subjid = getOption("edc_warn_max_subjid", max_subjid)
+  check_dots_empty()
+
+  if (nrow(.data) > 0) {
+    message = format_inline(message)
+    par_subj = ""
+    subj = NULL
+    if (!is.null(subjid)) {
+      col_found = tolower(subjid) %in% tolower(names(.data))
+      if (sum(col_found) > 1) {
+        cli_warn("Found {length(col_found)} subject identifiers in the input dataset:\n                 {.val {subjid[col_found]}}. Defaulting to the first one.",
+                 class = "grstat_data_warn_subjid_multiple_warn",
+                 call = parent.frame())
+        subjid = subjid[col_found][1]
+      }
+      if (!any(col_found)) {
+        cli_abort("Could not find column {subjid} in the input dataset.",
+                  class = "grstat_data_warn_subjid_error",
+                  call = parent.frame())
+      }
+      subj0 = .data %>% pull(any_of2(subjid)) %>% unique() %>% sort()
+      subj = paste0("#", subj0) %>%
+        cli_vec(style = list(vec_trunc = max_subjid, `vec-trunc-style` = "head"))
+      par_subj = format_inline(" ({length(subj0)} patient{?s}: {subj})")
+    }
+    fun_name = caller_arg(fun)
+    item = tibble(issue_n, message, subjid = list(subj),
+                  fun = fun_name)
+    cli_warn("{message}{par_subj}")
+  }
+  invisible(.data)
+}
 
 # Misc ----------------------------------------------------------------------------------------
 
