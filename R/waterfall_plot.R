@@ -153,7 +153,7 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
 
 #' @noRd
 #' @keywords internal
-#' @importFrom dplyr filter n_distinct
+#' @importFrom dplyr all_of filter n_distinct
 waterfall_check = function(df, subjid="SUBJID") {
   assert_names_exists(df, subjid)
   df %>%

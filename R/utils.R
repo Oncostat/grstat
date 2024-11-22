@@ -22,6 +22,7 @@ to_snake_case = function(str) {
 #' `fct_relevel` to the end, without warning for missing levels
 #' @noRd
 #' @keywords internal
+#' @importFrom dplyr intersect
 #' @importFrom forcats fct_relevel
 fct_last = function(f, ...) {
   lvl = c(...)

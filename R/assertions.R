@@ -61,6 +61,10 @@ assert_not_null = function(...){
 
 # Checks --------------------------------------------------------------------------------------
 
+#' @importFrom cli cli_abort cli_vec cli_warn format_inline
+#' @importFrom dplyr pull
+#' @importFrom rlang caller_arg check_dots_empty
+#' @importFrom tibble tibble
 grstat_data_warn = function (.data, message, subjid){
   if (missing(max_subjid))
     max_subjid = getOption("edc_warn_max_subjid", max_subjid)

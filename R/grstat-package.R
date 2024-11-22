@@ -24,8 +24,8 @@ f = function(x) x %>% stringr::str_squish() %>% str_replace_all("[ \n]", '", "')
 
 utils::globalVariables(
   c(".", ".data", ".env", ".id", ".name", "Tot", "aegr", "aesoc", "any_ae", "any_grade_sup_na",
-    "any_severe", "arm_", "assert_no_duplicate", "calc", "col_keys", "diff_first", "first_date",
-    "first_sum", "get_subjid_cols", "grade_", "grstat_data_warn", "h1", "h2", "label", "min_sum",
+    "any_severe", "arm_", "calc", "col_keys", "diff_first", "first_date",
+    "first_sum", "grade_", "h1", "h2", "label", "min_sum",
     "n_ae", "n_arm", "n_severe", "name", "pct_ae", "pct_severe", "resp", "resp2", "resp_num",
     "sae", "severe_", "soc_", "subjid", "subjid_", "value", "variable", "weight", "x")
 )

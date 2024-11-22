@@ -28,7 +28,7 @@
 #' @seealso [ae_table_grade()], [ae_table_soc()], [ae_plot_grade()], [ae_plot_grade_sum()], [butterfly_plot()]
 #'
 #' @importFrom cli cli_warn
-#' @importFrom dplyr across any_of arrange count cur_group filter left_join if_else mutate pull rename select summarise
+#' @importFrom dplyr across any_of arrange count cur_group filter if_else left_join mutate pull rename select summarise
 #' @importFrom forcats fct_infreq
 #' @importFrom glue glue
 #' @importFrom purrr iwalk keep map

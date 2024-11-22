@@ -13,7 +13,7 @@
 #' @return a factor, or `x` untouched.
 #' @export
 #' @importFrom cli cli_abort
-#' @importFrom dplyr case_when
+#' @importFrom dplyr case_when setequal
 #' @importFrom stringr str_detect
 #'
 #' @examples
