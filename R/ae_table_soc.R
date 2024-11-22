@@ -313,7 +313,7 @@ butterfly_plot = function(
     if(is.null(arms)) arms = "NULL"
     cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
                 i="Found {n_arms} arm{?s} in column {.arg {arm}}: {.val {unique(arms)}}"),
-              class="edc_butterfly_two_arms_error")
+              class="grstat_butterfly_two_arms_error")
   }
 
   df = df_enrol %>%

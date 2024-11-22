@@ -80,6 +80,6 @@ test_that("butterfly_plot() errors", {
     expect_error(class="grstat_var_null")
   ae %>%
     butterfly_plot(df_enrol=enrolres, arm=NULL) %>%
-    expect_error(class="edc_butterfly_two_arms_error")
+    expect_error(class="grstat_butterfly_two_arms_error")
 
 })

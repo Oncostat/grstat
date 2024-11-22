@@ -67,7 +67,7 @@ assert_not_null = function(...){
 #' @importFrom tibble tibble
 grstat_data_warn = function (.data, message, subjid){
   if (missing(max_subjid))
-    max_subjid = getOption("edc_warn_max_subjid", max_subjid)
+    max_subjid = getOption("grstat_warn_max_subjid", max_subjid)
   check_dots_empty()
 
   if (nrow(.data) > 0) {
