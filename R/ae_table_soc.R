@@ -91,6 +91,9 @@ ae_table_soc = function(
   df_enrol = df_enrol %>%
     select(subjid_=any_of2(subjid), arm_=any_of2(arm)) %>%
     mutate(arm_ = if(is.null(.env$arm)) default_arm else .data$arm_)
+  if(!is.numeric(df_ae$grade)){
+    cli_abort("Grade ({.val {grade}}) should be a numeric column.")
+  }
 
   df = df_enrol %>%
     left_join(df_ae, by="subjid_") %>%
