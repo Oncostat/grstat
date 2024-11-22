@@ -167,7 +167,6 @@ ae_table_soc = function(
 #'
 #' @return a formatted flextable
 #' @rdname ae_table_soc
-#' @exportS3Method flextable::as_flextable
 #' @export
 #'
 #' @importFrom dplyr case_match lag lead transmute
