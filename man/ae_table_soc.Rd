@@ -82,8 +82,6 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm")
 #sub population
 ae_table_soc(df_ae=ae, df_enrol=head(enrolres, 10), arm="arm")
 
-if (require("flextable")) {
-
 #the resulting flextable can be customized using the flextable package
 ae_table_soc(ae, df_enrol=enrolres, total=FALSE) \%>\%
   as_flextable() \%>\%
@@ -94,7 +92,6 @@ ae_table_soc(ae, df_enrol=enrolres, term=NULL, sort_by_count=FALSE) \%>\%
 ae_table_soc(ae, df_enrol=enrolres, term=NULL, arm=NULL) \%>\%
   as_flextable() \%>\%
   highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
-}
 }
 \seealso{
 \code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}

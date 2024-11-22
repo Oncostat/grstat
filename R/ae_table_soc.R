@@ -48,8 +48,6 @@
 #' #sub population
 #' ae_table_soc(df_ae=ae, df_enrol=head(enrolres, 10), arm="arm")
 #'
-#' if (require("flextable")) {
-#'
 #' #the resulting flextable can be customized using the flextable package
 #' ae_table_soc(ae, df_enrol=enrolres, total=FALSE) %>%
 #'   as_flextable() %>%
@@ -60,7 +58,6 @@
 #' ae_table_soc(ae, df_enrol=enrolres, term=NULL, arm=NULL) %>%
 #'   as_flextable() %>%
 #'   highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
-#' }
 ae_table_soc = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
@@ -171,6 +168,7 @@ ae_table_soc = function(
 #' @return a formatted flextable
 #' @rdname ae_table_soc
 #' @exportS3Method flextable::as_flextable
+#' @export
 #'
 #' @importFrom dplyr case_match lag lead transmute
 #' @importFrom purrr map map_int
@@ -181,7 +179,6 @@ ae_table_soc = function(
 as_flextable.ae_table_soc = function(x,
                                      arm_colors=c("#f2dcdb", "#dbe5f1", "#ebf1dd", "#e5e0ec"),
                                      padding_v = NULL){
-  check_installed("flextable")
   if (missing(padding_v)) padding_v = getOption("crosstable_padding_v", padding_v)
   table_ae_header = attr(x, "header")
   if(FALSE){
@@ -221,31 +218,31 @@ as_flextable.ae_table_soc = function(x,
     which() %>% unname() %>% c(ncol(x))
 
   rtn = x %>%
-    flextable::flextable() %>%
-    flextable::set_header_df(mapping=header_df) %>%
-    # flextable::hline_top(part="header") %>%
-    flextable::hline_bottom(part="header") %>%
-    flextable::merge_h(part="header") %>%
-    # flextable::set_header_labels(values=header_labels) %>%
-    # flextable::add_header_row(values=c(" ", table_ae_header), colwidths = colwidths) %>%
-    flextable::align(i=1, part="header", align="center") %>%
-    flextable::align(j=seq(col1), part="all", align="right") %>%
-    flextable::padding(padding.top=0, padding.bottom=0) %>%
-    flextable::set_table_properties(layout="autofit") %>%
-    flextable::fontsize(size=8, part="all") %>%
-    flextable::bold(part="header")
+    flextable() %>%
+    set_header_df(mapping=header_df) %>%
+    # hline_top(part="header") %>%
+    hline_bottom(part="header") %>%
+    merge_h(part="header") %>%
+    # set_header_labels(values=header_labels) %>%
+    # add_header_row(values=c(" ", table_ae_header), colwidths = colwidths) %>%
+    align(i=1, part="header", align="center") %>%
+    align(j=seq(col1), part="all", align="right") %>%
+    padding(padding.top=0, padding.bottom=0) %>%
+    set_table_properties(layout="autofit") %>%
+    fontsize(size=8, part="all") %>%
+    bold(part="header")
   if (length(padding_v) >= 1) {
-    rtn = flextable::padding(rtn, padding.top=padding_v[1], padding.bottom=padding_v[1], part="body")
+    rtn = padding(rtn, padding.top=padding_v[1], padding.bottom=padding_v[1], part="body")
   }
   if (length(padding_v) == 2) {
-    rtn = flextable::padding(rtn, padding.top=padding_v[2], padding.bottom=padding_v[2], part="header")
+    rtn = padding(rtn, padding.top=padding_v[2], padding.bottom=padding_v[2], part="header")
   }
   # a = cumsum(colwidths)[-1]
   a = sep_cols
   for(i in seq_along(a)){
     from = lag(a, default=col1)[i] + 1
     to = a[i]
-    rtn = rtn %>% flextable::bg(j=seq(from, to), bg = arm_colors[i], part="all")
+    rtn = rtn %>% bg(j=seq(from, to), bg = arm_colors[i], part="all")
   }
 
   rtn

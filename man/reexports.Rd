@@ -5,6 +5,7 @@
 \alias{reexports}
 \alias{\%>\%}
 \alias{tibble}
+\alias{as_flextable}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -13,6 +14,8 @@ below to see their documentation.
 
 \describe{
   \item{dplyr}{\code{\link[dplyr:reexports]{\%>\%}}}
+
+  \item{flextable}{\code{\link[flextable]{as_flextable}}}
 
   \item{tibble}{\code{\link[tibble]{tibble}}}
 }}

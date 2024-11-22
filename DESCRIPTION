@@ -28,6 +28,7 @@ Depends:
 Imports: 
     cli,
     dplyr,
+    flextable,
     forcats,
     fs,
     ggplot2,
@@ -43,7 +44,6 @@ Imports:
 Suggests: 
     callr,
     crosstable,
-    flextable,
     gtools,
     patchwork,
     plotly,

@@ -25,8 +25,6 @@
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
 #'
-#' if(require(flextable)){
-#'
 #' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
@@ -38,10 +36,8 @@
 #' ae %>%
 #'   filter(sae=="Yes") %>%
 #'   ae_table_grade(df_enrol=enrolres, arm="ARM") %>%
-#'   dplyr::mutate_all(~stringr::str_replace(.x, "AE", "SAE")) %>%
+#'   mutate_all(~stringr::str_replace(.x, "AE", "SAE")) %>%
 #'   as_flextable(header_show_n=TRUE)
-#'
-#' }
 ae_table_grade = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),

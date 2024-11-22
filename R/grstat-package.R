@@ -16,6 +16,9 @@ dplyr::`%>%`
 #' @export
 tibble::tibble
 
+#' @importFrom flextable as_flextable
+#' @export
+flextable::as_flextable
 
 # Global settings -----------------------------------------------------------------------------
 
