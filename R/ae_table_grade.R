@@ -64,6 +64,9 @@ ae_table_grade = function(
   df_enrol = df_enrol %>% rename_with(tolower) %>%
     select(subjid=tolower(subjid), arm=tolower(arm)) %>%
     mutate(arm=if(is.null(.env$arm)) default_arm else .data$arm)
+  if(!is.numeric(df_ae$grade)){
+    cli_abort("Grade ({.val {grade}}) should be a numeric column.")
+  }
 
   df = df_enrol %>%
     left_join(df_ae, by="subjid") %>%
