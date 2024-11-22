@@ -65,10 +65,10 @@ assert_not_null = function(...){
 #' @importFrom dplyr pull
 #' @importFrom rlang caller_arg check_dots_empty
 #' @importFrom tibble tibble
-grstat_data_warn = function (.data, message, subjid){
+grstat_data_warn = function (.data, message, subjid, max_subjid=5,
+                             class="grstat_data_warn"){
   if (missing(max_subjid))
     max_subjid = getOption("grstat_warn_max_subjid", max_subjid)
-  check_dots_empty()
 
   if (nrow(.data) > 0) {
     message = format_inline(message)
@@ -87,12 +87,14 @@ grstat_data_warn = function (.data, message, subjid){
                   class = "grstat_data_warn_subjid_error",
                   call = parent.frame())
       }
-      subj0 = .data %>% pull(any_of2(subjid)) %>% unique() %>% sort()
+      # browser()
+      .subjid = subjid
+      subj0 = .data %>% pull(any_of2(.subjid)) %>% unique() %>% sort()
       subj = paste0("#", subj0) %>%
         cli_vec(style = list(vec_trunc = max_subjid, `vec-trunc-style` = "head"))
       par_subj = format_inline(" ({length(subj0)} patient{?s}: {subj})")
     }
-    cli_warn("{message}{par_subj}")
+    cli_warn("{message}{par_subj}", class=class)
   }
   invisible(.data)
 }

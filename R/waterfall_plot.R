@@ -68,7 +68,7 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
            arm=any_of2(arm),
            )
   if(isTRUE(warnings)){
-    waterfall_check(db_wf)
+    waterfall_check(db_wf, subjid=subjid)
   }
 
   db_wf2 = db_wf %>%
@@ -157,14 +157,18 @@ waterfall_check = function(df, subjid="SUBJID") {
   assert_names_exists(df, subjid)
   df %>%
     filter(is.na(sum)) %>%
-    grstat_data_warn("Rows with missing target lesions length sum were ignored.", subjid=subjid)
+    grstat_data_warn("Rows with missing target lesions length sum were ignored.", subjid=subjid,
+                     class="gr_waterfall_missing_sum_warning")
   df %>%
     filter(is.na(date)) %>%
-    grstat_data_warn("Rows with missing target evaluation date were ignored.", subjid=subjid)
+    grstat_data_warn("Rows with missing target evaluation date were ignored.", subjid=subjid,
+                     class="gr_waterfall_missing_target_warning")
   df %>%
-    filter(date==min(date) & !is.na(resp), .by=all_of(subjid)) %>%
-    grstat_data_warn("Response is not missing at first date", subjid=subjid)
+    filter(date==min(date) & !is.na(resp), .by=any_of2(subjid)) %>%
+    grstat_data_warn("Response is not missing at first date", subjid=subjid,
+                     class="gr_waterfall_notmissing_bl_warning")
   df %>%
-    filter(n_distinct(date)<2, .by=all_of(subjid)) %>%
-    grstat_data_warn("Patients with <2 recist evaluations were ignored.", subjid=subjid)
+    filter(n_distinct(date)<2, .by=any_of2(subjid)) %>%
+    grstat_data_warn("Patients with <2 recist evaluations were ignored.", subjid=subjid,
+                     class="gr_waterfall_inf2_eval_warning")
 }
