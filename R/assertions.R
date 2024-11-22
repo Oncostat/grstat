@@ -92,9 +92,6 @@ grstat_data_warn = function (.data, message, subjid){
         cli_vec(style = list(vec_trunc = max_subjid, `vec-trunc-style` = "head"))
       par_subj = format_inline(" ({length(subj0)} patient{?s}: {subj})")
     }
-    fun_name = caller_arg(fun)
-    item = tibble(issue_n, message, subjid = list(subj),
-                  fun = fun_name)
     cli_warn("{message}{par_subj}")
   }
   invisible(.data)

@@ -9,10 +9,10 @@ waterfall_plot(
   rc_sum = "RCTLSUM",
   rc_resp = "RCRESP",
   rc_date = "RCDT",
-  subjid = "SUBJID",
   type = c("best_resp", "worst_resp"),
   rc_star = NULL,
   arm = NULL,
+  subjid = "SUBJID",
   warnings = getOption("grstat_wp_warnings", TRUE)
 )
 }
@@ -30,6 +30,8 @@ waterfall_plot(
 \item{rc_star}{name of the column in \code{data_recist} that triggers the star symbol. The column should be character or factor, with \code{NA} for patients without symbol.}
 
 \item{arm}{name of the treatment column in \code{data_recist}. Can be left to \code{NULL} to not group.}
+
+\item{subjid}{name of the subject identifier column in \code{data_recist}.}
 
 \item{warnings}{whether to warn about any problems}
 }

@@ -9,6 +9,7 @@
 #' @param rc_date name of the date column in `data_recist`, usually "RCDT".
 #' @param rc_star name of the column in `data_recist` that triggers the star symbol. The column should be character or factor, with `NA` for patients without symbol.
 #' @param arm name of the treatment column in `data_recist`. Can be left to `NULL` to not group.
+#' @param subjid name of the subject identifier column in `data_recist`.
 #' @param type one of `c("best_resp", "worst_resp")`
 #' @param warnings whether to warn about any problems
 #'
@@ -37,10 +38,9 @@
 #'   waterfall_plot(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP",
 #'                  arm="ARM", rc_star="new_lesion")
 #'}
-waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP",
-                          rc_date="RCDT", subjid="SUBJID",
+waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
                           type = c("best_resp", "worst_resp"),
-                          rc_star=NULL, arm=NULL,
+                          rc_star=NULL, arm=NULL, subjid="SUBJID",
                           warnings=getOption("grstat_wp_warnings", TRUE)) {
   type = match.arg(type)
   assert_class(data_recist, class="data.frame")
