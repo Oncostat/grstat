@@ -60,19 +60,19 @@ test_that("butterfly_plot() errors", {
   # there is no SAE (probably an error)
   ae2 %>%
     butterfly_plot(df_enrol=enrolres, severe="bad_serious") %>%
-    expect_warning(class="edc_butterfly_serious_false_warning")
+    expect_warning(class="grstat_butterfly_serious_false_warning")
 
   # Errors   ------------------------------------------------------
 
   # `severe` is not logical
   ae %>%
     butterfly_plot(df_enrol=enrolres, severe="sae") %>%
-    expect_error(class="edc_butterfly_serious_lgl_error")
+    expect_error(class="grstat_butterfly_serious_lgl_error")
 
   # not exactly 2 arms
   ae %>%
     butterfly_plot(df_enrol=enrolres, arm="crfname") %>%
-    expect_error(class="edc_butterfly_two_arms_error")
+    expect_error(class="grstat_butterfly_two_arms_error")
 
   # NULL arguments
   ae %>%
@@ -80,6 +80,6 @@ test_that("butterfly_plot() errors", {
     expect_error(class="grstat_var_null")
   ae %>%
     butterfly_plot(df_enrol=enrolres, arm=NULL) %>%
-    expect_error(class="edc_butterfly_two_arms_error")
+    expect_error(class="grstat_butterfly_two_arms_error")
 
 })
