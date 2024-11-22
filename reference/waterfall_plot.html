@@ -61,7 +61,8 @@
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"best_resp"</span>, <span class="st">"worst_resp"</span><span class="op">)</span>,</span>
 <span>  rc_star <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  arm <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  warnings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"edc_wp_warnings"</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  subjid <span class="op">=</span> <span class="st">"SUBJID"</span>,</span>
+<span>  warnings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"grstat_wp_warnings"</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -97,6 +98,10 @@
 <dd><p>name of the treatment column in <code>data_recist</code>. Can be left to <code>NULL</code> to not group.</p></dd>
 
 
+<dt id="arg-subjid">subjid<a class="anchor" aria-label="anchor" href="#arg-subjid"></a></dt>
+<dd><p>name of the subject identifier column in <code>data_recist</code>.</p></dd>
+
+
 <dt id="arg-warnings">warnings<a class="anchor" aria-label="anchor" href="#arg-warnings"></a></dt>
 <dd><p>whether to warn about any problems</p></dd>
 
@@ -118,10 +123,10 @@
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu">waterfall_plot</span><span class="op">(</span><span class="va">rc</span>, rc_date<span class="op">=</span><span class="st">"RCDT"</span>, rc_sum<span class="op">=</span><span class="st">"RCTLSUM"</span>, rc_resp<span class="op">=</span><span class="st">"RCRESP"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">waterfall_plot</span><span class="op">(</span><span class="va">rc</span>, rc_date<span class="op">=</span><span class="st">"RCDT"</span>, rc_sum<span class="op">=</span><span class="st">"RCTLSUM"</span>, rc_resp<span class="op">=</span><span class="st">"RCRESP"</span>, type<span class="op">=</span><span class="st">"worst_resp"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">rc</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span></span>
+<span class="r-in"><span><span class="va">rc</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">enrolres</span>, by<span class="op">=</span><span class="st">"SUBJID"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="co">#adds the ARM column</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>new_lesion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">RCNEW</span><span class="op">==</span><span class="st">"1-Yes"</span>, <span class="st">"New lesion"</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span></span>
-<span class="r-in"><span>  <span class="fu">waterfall_plot</span><span class="op">(</span>rc_date<span class="op">=</span><span class="st">"RCDT"</span>, rc_sum<span class="op">=</span><span class="st">"RCTLSUM"</span>, rc_resp<span class="op">=</span><span class="st">"RCRESP"</span>, </span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>new_lesion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">RCNEW</span><span class="op">==</span><span class="st">"1-Yes"</span>, <span class="st">"New lesion"</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">waterfall_plot</span><span class="op">(</span>rc_date<span class="op">=</span><span class="st">"RCDT"</span>, rc_sum<span class="op">=</span><span class="st">"RCTLSUM"</span>, rc_resp<span class="op">=</span><span class="st">"RCRESP"</span>,</span></span>
 <span class="r-in"><span>                 arm<span class="op">=</span><span class="st">"ARM"</span>, rc_star<span class="op">=</span><span class="st">"new_lesion"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
