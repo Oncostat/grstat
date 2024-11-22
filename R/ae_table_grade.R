@@ -122,8 +122,8 @@ ae_table_grade = function(
                       .default="ERROR"),
       .id = str_remove(.id, "_[^_]*$") %>% factor(levels=variant),
       label = fct_reorder(label, as.numeric(.id)),
-      variable = suppressWarnings(fct_relevel(variable, "Grade = 5", after=4)),
       variable = suppressWarnings(fct_relevel(variable, lab_no_ae, after=0)),
+      variable = suppressWarnings(fct_relevel(variable, "Grade = 5", after=Inf)),
       variable = suppressWarnings(fct_relevel(variable, ~str_subset(.x, "missing"), after=Inf)),
     ) %>%
     arrange(.id, label, variable)
