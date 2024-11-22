@@ -42,7 +42,7 @@ ae_table_grade = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
     arm=NULL, grade="AEGR", subjid="SUBJID",
-    percent=TRUE,
+    percent=TRUE, digits=2,
     total=TRUE
 ){
   check_installed("crosstable", "for `ae_table_grade()` to work.")
@@ -109,6 +109,7 @@ ae_table_grade = function(
     ) %>%
     crosstable::crosstable(matches(rex),
                by=arm, total=total,
+               percent_digits=digits,
                percent_pattern=percent_pattern) %>%
     filter(variable!="foobar" & variable!="NA") %>%
     mutate(

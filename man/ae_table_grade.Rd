@@ -13,6 +13,7 @@ ae_table_grade(
   grade = "AEGR",
   subjid = "SUBJID",
   percent = TRUE,
+  digits = 2,
   total = TRUE
 )
 }
@@ -32,6 +33,8 @@ ae_table_grade(
 \item{subjid}{name of the patient ID in both \code{df_ae} and \code{df_enrol}. Case-insensitive.}
 
 \item{percent}{whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.}
+
+\item{digits}{significant digits for percentages.}
 
 \item{total}{whether to add a \code{total} column for each arm.}
 }
