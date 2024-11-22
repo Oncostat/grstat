@@ -37,7 +37,8 @@
 #'   waterfall_plot(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP",
 #'                  arm="ARM", rc_star="new_lesion")
 #'}
-waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
+waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP",
+                          rc_date="RCDT", subjid="SUBJID",
                           type = c("best_resp", "worst_resp"),
                           rc_star=NULL, arm=NULL,
                           warnings=getOption("grstat_wp_warnings", TRUE)) {
@@ -49,7 +50,6 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
   assert_class(rc_star, class="character")
   assert_class(arm, class="character")
   assert_class(warnings, class="logical")
-  subjid = get_subjid_cols()
   responses = c("Complete response"="#42B540FF", "Partial response"="#006dd8",
                 "Stable disease"="#925E9F", "Progressive disease"="#ED0000", "Missing"="white")
 
@@ -101,7 +101,6 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
     filter(sum==fun(sum), .by=c(subjid, resp_num)) %>%
     filter(date==min_narm(date), .by=c(subjid, resp_num)) %>%
     # complete(subjid=db_wf$subjid) %>%
-    assert_no_duplicate() %>%
     mutate(
       diff_first = (sum - first_sum)/first_sum,
       diff_min = (sum - min_sum)/min_sum

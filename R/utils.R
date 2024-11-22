@@ -38,6 +38,12 @@ percent = function(x, digits=0){
   paste0(x,"%")
 }
 
+#' @noRd
+#' @keywords internal
+today_ymd = function() {
+  format(Sys.Date(), "%Y-%m-%d")
+}
+
 
 # Labels --------------------------------------------------------------------------------------
 
