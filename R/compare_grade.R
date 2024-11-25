@@ -40,7 +40,7 @@ compare_grade <- function(tabR,tabSAS){
       # tab$Mineur=c(tab$Mineur,
       #              paste0("Grade ",tabSAS[!(which(tabSAS$grade%in% tabR$grade)),"grade"], " missing in R table"))
 
-    }else if (nrow(tabR)>nrow(tabSAS)){
+    }else if (ncol(tabR)>ncol(tabSAS)){
 
       tab$level=c(tab$level,"Mineur")
       tab$grade=c(tab$grade,tabR[!(which(tabR$grade%in% tabSAS$grade)),"grade"])
