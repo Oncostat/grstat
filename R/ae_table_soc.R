@@ -49,6 +49,7 @@
 #' ae_table_soc(df_ae=ae, df_enrol=head(enrolres, 10), arm="arm")
 #'
 #' #the resulting flextable can be customized using the flextable package
+#' library(flextable)
 #' ae_table_soc(ae, df_enrol=enrolres, total=FALSE) %>%
 #'   as_flextable() %>%
 #'   hline(i=~soc=="" & soc!=dplyr::lead(soc))
@@ -167,6 +168,7 @@ ae_table_soc = function(
 #' @param x a dataframe, resulting of `ae_table_soc()`
 #' @param arm_colors colors for the arm groups
 #' @param padding_v a numeric of lenght up to 2, giving the vertical padding of body (1) and header (2)
+#' @param ... unused
 #'
 #' @return a formatted flextable
 #' @rdname ae_table_soc
@@ -175,13 +177,15 @@ ae_table_soc = function(
 #' @importFrom dplyr case_match lag lead transmute
 #' @importFrom flextable align bg bold flextable fontsize hline_bottom merge_h padding set_header_df set_table_properties
 #' @importFrom purrr map map_int
-#' @importFrom rlang set_names
+#' @importFrom rlang check_dots_empty set_names
 #' @importFrom stringr str_detect str_replace_all
 #' @importFrom tibble as_tibble_col
 #' @importFrom tidyr separate_wider_regex
 as_flextable.ae_table_soc = function(x,
+                                     ...,
                                      arm_colors=c("#f2dcdb", "#dbe5f1", "#ebf1dd", "#e5e0ec"),
                                      padding_v = NULL){
+  check_dots_empty()
   if (missing(padding_v)) padding_v = getOption("crosstable_padding_v", padding_v)
   table_ae_header = attr(x, "header")
   if(FALSE){

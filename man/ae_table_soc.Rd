@@ -24,6 +24,7 @@ ae_table_soc(
 
 \method{as_flextable}{ae_table_soc}(
   x,
+  ...,
   arm_colors = c("#f2dcdb", "#dbe5f1", "#ebf1dd", "#e5e0ec"),
   padding_v = NULL
 )
@@ -83,6 +84,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm")
 ae_table_soc(df_ae=ae, df_enrol=head(enrolres, 10), arm="arm")
 
 #the resulting flextable can be customized using the flextable package
+library(flextable)
 ae_table_soc(ae, df_enrol=enrolres, total=FALSE) \%>\%
   as_flextable() \%>\%
   hline(i=~soc=="" & soc!=dplyr::lead(soc))
