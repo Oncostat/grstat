@@ -44,16 +44,16 @@
 <polyline points='345.17,516.43 345.17,78.63 ' style='stroke-width: 1.07; stroke: #FFFFFF; stroke-linecap: butt;' />
 <rect x='53.54' y='496.53' width='24.08' height='0.00' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
 <rect x='77.62' y='444.61' width='24.08' height='51.91' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='107.05' y='481.79' width='24.08' height='14.74' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='131.13' y='410.01' width='24.08' height='86.52' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='160.56' y='98.53' width='24.08' height='398.00' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='184.64' y='150.44' width='24.08' height='346.08' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='214.07' y='142.75' width='24.08' height='353.77' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='238.15' y='167.75' width='24.08' height='328.78' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='267.58' y='216.46' width='24.08' height='280.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='291.66' y='254.27' width='24.08' height='242.26' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='321.09' y='363.86' width='24.08' height='132.67' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='345.17' y='392.70' width='24.08' height='103.82' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='107.05' y='98.53' width='24.08' height='398.00' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='131.13' y='150.44' width='24.08' height='346.08' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='160.56' y='142.75' width='24.08' height='353.77' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='184.64' y='167.75' width='24.08' height='328.78' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='214.07' y='216.46' width='24.08' height='280.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='238.15' y='254.27' width='24.08' height='242.26' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='267.58' y='363.86' width='24.08' height='132.67' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='291.66' y='392.70' width='24.08' height='103.82' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='321.09' y='481.79' width='24.08' height='14.74' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='345.17' y='410.01' width='24.08' height='86.52' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
@@ -122,11 +122,11 @@
 <polyline points='291.66,519.17 291.66,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='345.17,519.17 345.17,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <text transform='translate(81.90,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='61.64px' lengthAdjust='spacingAndGlyphs'>No declared AE</text>
-<text transform='translate(135.41,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.39px' lengthAdjust='spacingAndGlyphs'>Grade = 5</text>
-<text transform='translate(188.92,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 1</text>
-<text transform='translate(242.43,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 2</text>
-<text transform='translate(295.94,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 3</text>
-<text transform='translate(349.45,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 4</text>
+<text transform='translate(135.41,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 1</text>
+<text transform='translate(188.92,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 2</text>
+<text transform='translate(242.43,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 3</text>
+<text transform='translate(295.94,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 4</text>
+<text transform='translate(349.45,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.39px' lengthAdjust='spacingAndGlyphs'>Grade = 5</text>
 <polyline points='414.86,519.17 414.86,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='468.37,519.17 468.37,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='521.88,519.17 521.88,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />

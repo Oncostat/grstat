@@ -15,11 +15,11 @@
        5 max_grade     "Patient maximum AE grade"              Grade 4        9 (18%)       
        6 max_grade     "Patient maximum AE grade"              Grade 5        6 (12%)       
        7 any_grade_sup "Patient had at least one AE of grade"  No declared AE 3 (6%)        
-       8 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      6 (12%)       
-       9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      47 (94%)      
-      10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      43 (86%)      
-      11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      33 (66%)      
-      12 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      15 (30%)      
+       8 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      47 (94%)      
+       9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      43 (86%)      
+      10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      33 (66%)      
+      11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      15 (30%)      
+      12 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      6 (12%)       
       13 any_grade_eq  "Patient had at least one AE of grade " No declared AE 3 (6%)        
       14 any_grade_eq  "Patient had at least one AE of grade " Grade 1        28 (56%)      
       15 any_grade_eq  "Patient had at least one AE of grade " Grade 2        25 (50%)      
@@ -39,11 +39,11 @@
        5 max_grade     "Patient maximum AE grade"              Grade 4        8 (30%)   1 (4%)   9 (18%) 
        6 max_grade     "Patient maximum AE grade"              Grade 5        1 (4%)    5 (22%)  6 (12%) 
        7 any_grade_sup "Patient had at least one AE of grade"  No declared AE 0 (0%)    3 (13%)  3 (6%)  
-       8 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      1 (4%)    5 (22%)  6 (12%) 
-       9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      27 (100%) 20 (87%) 47 (94%)
-      10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      24 (89%)  19 (83%) 43 (86%)
-      11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      19 (70%)  14 (61%) 33 (66%)
-      12 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      9 (33%)   6 (26%)  15 (30%)
+       8 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      27 (100%) 20 (87%) 47 (94%)
+       9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      24 (89%)  19 (83%) 43 (86%)
+      10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      19 (70%)  14 (61%) 33 (66%)
+      11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      9 (33%)   6 (26%)  15 (30%)
+      12 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      1 (4%)    5 (22%)  6 (12%) 
       13 any_grade_eq  "Patient had at least one AE of grade " No declared AE 0 (0%)    3 (13%)  3 (6%)  
       14 any_grade_eq  "Patient had at least one AE of grade " Grade 1        15 (56%)  13 (57%) 28 (56%)
       15 any_grade_eq  "Patient had at least one AE of grade " Grade 2        17 (63%)  8 (35%)  25 (50%)
@@ -81,11 +81,11 @@
        5 max_grade     "Patient maximum AE grade"              Grade 4        8     1    
        6 max_grade     "Patient maximum AE grade"              Grade 5        1     5    
        7 any_grade_sup "Patient had at least one AE of grade"  No declared AE 0     3    
-       8 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      1     5    
-       9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      27    20   
-      10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      24    19   
-      11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      19    14   
-      12 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      9     6    
+       8 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      27    20   
+       9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      24    19   
+      10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      19    14   
+      11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      9     6    
+      12 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      1     5    
       13 any_grade_eq  "Patient had at least one AE of grade " No declared AE 0     3    
       14 any_grade_eq  "Patient had at least one AE of grade " Grade 1        15    13   
       15 any_grade_eq  "Patient had at least one AE of grade " Grade 2        17    8    
