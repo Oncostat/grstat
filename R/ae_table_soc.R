@@ -27,7 +27,7 @@
 #'
 #' @seealso [ae_table_grade()], [ae_table_soc()], [ae_plot_grade()], [ae_plot_grade_sum()], [butterfly_plot()]
 #'
-#' @importFrom cli cli_warn
+#' @importFrom cli cli_abort cli_warn
 #' @importFrom dplyr across any_of arrange count cur_group filter if_else left_join mutate pull rename select summarise
 #' @importFrom forcats fct_infreq
 #' @importFrom glue glue
@@ -173,8 +173,9 @@ ae_table_soc = function(
 #' @export
 #'
 #' @importFrom dplyr case_match lag lead transmute
+#' @importFrom flextable align bg bold flextable fontsize hline_bottom merge_h padding set_header_df set_table_properties
 #' @importFrom purrr map map_int
-#' @importFrom rlang check_installed set_names
+#' @importFrom rlang set_names
 #' @importFrom stringr str_detect str_replace_all
 #' @importFrom tibble as_tibble_col
 #' @importFrom tidyr separate_wider_regex
@@ -264,7 +265,7 @@ as_flextable.ae_table_soc = function(x,
 #' @return a crosstable (dataframe)
 #' @export
 #' @importFrom cli cli_abort cli_warn
-#' @importFrom dplyr any_of arrange count filter left_join mutate select summarise
+#' @importFrom dplyr across any_of arrange count filter left_join mutate n_distinct select summarise
 #' @importFrom forcats fct_reorder
 #' @importFrom ggplot2 aes facet_grid geom_blank geom_col ggplot labs scale_x_continuous theme unit vars
 #' @importFrom glue glue

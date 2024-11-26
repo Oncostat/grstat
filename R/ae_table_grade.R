@@ -13,6 +13,7 @@
 #' @inherit ae_table_soc seealso
 #'
 #' @return a crosstable
+#' @importFrom cli cli_abort
 #' @importFrom dplyr arrange case_match case_when cur_group filter left_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
 #' @importFrom rlang check_dots_empty check_installed
