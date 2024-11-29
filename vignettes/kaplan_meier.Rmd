@@ -1,0 +1,21 @@
+---
+title: "Kaplan Meier instruction suggestion"
+author: "LP"
+date: "2024-11-26"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{kaplan_meier}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(grstat)
+```
