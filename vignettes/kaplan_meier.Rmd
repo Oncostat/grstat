@@ -18,4 +18,38 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(grstat)
+library(tidyverse)
+```
+
+# 1. Variable Creation
+
+First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
+
+
+* Time variable:
+
+The time variable represents the duration from a defined starting point (e.g., diagnosis, study enrollment, or start of treatment) to the time at which the patient's status is recorded. It is a numeric variable measured in units such as days, months, or years, depending on the study's duration and requirements.
+
+* Status variable:
+
+The status variable is binary, indicating whether the event has occurred (event = 1) or not (censored = 0) for each subject by the end of the study period.
+
+An event (1) indicates that the subjects experienced the event of interest (e.g., death, relapse, transplant failure, etc.).
+
+Censored (0) refers to those subjects who did not experience the event during the study. For these individuals, the 'time-to-event' is considered censored, indicating that we only know they did not experience the event up to a certain point.
+
+### Example
+
+<!-- Look at dataset df_colon -->
+```{r}
+ds=df_colon %>%
+  mutate(Status= ifelse(event=="death", 1, 0 )) %>%
+  mutate(Status_date = case_when(
+     Status_date == 1  ~ pmin(date_of_relapse,date_of_death, na.rm = T), 
+    Status_date == 0  ~ pmax(date_of_last_visit,na.rm = T)
+  )) %>% 
+  mutate(Time_days=Status_date-date_first_visit ) %>%  
+  mutate(Time_years=Time_days/365.25 )  
+    
+print(ds)
 ```
