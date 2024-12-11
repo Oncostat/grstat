@@ -65,7 +65,7 @@ assert_not_null = function(...){
 #' @importFrom dplyr pull
 #' @importFrom rlang caller_arg check_dots_empty
 #' @importFrom tibble tibble
-grstat_data_warn = function (.data, message, subjid, max_subjid=5,
+grstat_data_warn = function (.data, message, subjid="subjid", max_subjid=5,
                              class="grstat_data_warn"){
   if (missing(max_subjid))
     max_subjid = getOption("grstat_warn_max_subjid", max_subjid)
