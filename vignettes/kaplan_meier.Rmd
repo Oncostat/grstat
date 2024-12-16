@@ -4,21 +4,22 @@ author: "LP"
 date: "2024-11-26"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{kaplan_meier}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+%\VignetteIndexEntry{kaplan_meier}
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteEncoding{UTF-8}
 ---
-
+  
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+collapse = TRUE,
+comment = "#>"
 )
 ```
 
 ```{r setup}
 library(grstat)
 library(tidyverse)
+library(ggsurvfit)
 ```
 
 # 1. Variable Creation
@@ -45,16 +46,16 @@ Censored (0) refers to those subjects who did not experience the event during th
 ds=df_colon %>%
   mutate(Status= ifelse(event=="death", 1, 0 )) %>%
   mutate(Status_date = case_when(
-     Status_date == 1  ~ pmin(date_of_relapse,date_of_death, na.rm = T), 
+    Status_date == 1  ~ pmin(date_of_relapse,date_of_death, na.rm = T), 
     Status_date == 0  ~ pmax(date_of_last_visit,na.rm = T)
   )) %>% 
   mutate(Time_days=Status_date-date_first_visit ) %>%  
   mutate(Time_years=Time_days/365.25 )  
-    
+
 print(ds)
 ```
 
-    
+
 # 2. Plot creation  (use package ggsurvfit)
 
 We recommend using the ggsurvfit package with the survfit2 function instead of survfit2 function.
@@ -65,7 +66,7 @@ https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html
 Kaplan-Meier by Daniel D. Sjoberg, Mark Baillie, Charlotta Fruechtenicht, Steven Haesendonckx, Tim Treis.
 
 ```{r}
-survfit2(Surv(time, status) ~ surg, data = df_colon) %>%
+km = survfit2(Surv(time, status) ~ surg, data = df_colon) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +
   add_risktable(
@@ -75,6 +76,27 @@ survfit2(Surv(time, status) ~ surg, data = df_colon) %>%
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(expand = c(0.02, 0)) +
   theme(legend.position.inside = c(0.85, 0.85))
+
+km
 ```
+
+
+
+On peut aussi l'améliorer
+
+```{r}
+km +
+  add_censor_mark(size = 4, alpha = 0.4) +
+  scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 10)) +
+  scale_y_continuous(labels=scales::label_percent(), limits=c(0,1)) +
+  labs(
+    x = "Time from begining of treatment to progression or death (months)",
+    y = "Progression Free Survival",
+    title="Progression Free Survival, (N=X, n event=X)"
+  ) +
+  theme(legend.position = "top")
+
+```
+
 
 
