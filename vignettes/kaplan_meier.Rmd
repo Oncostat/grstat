@@ -8,17 +8,18 @@ vignette: >
 %\VignetteEngine{knitr::rmarkdown}
 %\VignetteEncoding{UTF-8}
 ---
-  
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-collapse = TRUE,
-comment = "#>"
+  collapse = TRUE,
+  comment = "#>"
 )
 ```
 
 ```{r setup}
 library(grstat)
 library(tidyverse)
+library(survival)
 library(ggsurvfit)
 ```
 
@@ -41,31 +42,57 @@ Censored (0) refers to those subjects who did not experience the event during th
 
 ### Example
 
-<!-- Look at dataset df_colon -->
 ```{r}
-ds=df_colon %>%
-  mutate(Status= ifelse(event=="death", 1, 0 )) %>%
-  mutate(Status_date = case_when(
-    Status_date == 1  ~ pmin(date_of_relapse,date_of_death, na.rm = T), 
-    Status_date == 0  ~ pmax(date_of_last_visit,na.rm = T)
+data <- data.frame(
+  id = 1:5,
+  date_of_death = as.Date(c('2023-05-01', '2023-07-15', NA, '2023-09-10', '2023-06-20')),
+  date_of_relapse = as.Date(c('2023-04-10', NA, '2023-06-01', '2023-08-01', NA)),
+  date_of_last_visit = as.Date(c('2023-04-15', '2023-06-28', '2023-06-10', '2023-08-01', '2023-06-15')),
+  date_first_visit = as.Date(c('2023-01-15', '2023-05-20', '2023-03-01', '2023-07-05', '2023-02-10')),
+  # Event column: 1 for death or relapse, 0 for no event
+  event = c(1, 0, 1, 1, 0)
+)
+
+# Print the data frame
+print(data)
+
+
+ds=data %>%
+  mutate(status= ifelse(event=="death", 1, 0 )) %>%
+  mutate(status_date = case_when(
+    status == 1  ~ pmin(date_of_relapse,date_of_death, na.rm = T), 
+    status == 0  ~ pmax(date_of_last_visit,na.rm = T)
   )) %>% 
-  mutate(Time_days=Status_date-date_first_visit ) %>%  
-  mutate(Time_years=Time_days/365.25 )  
+  mutate(time_days=status_date-date_first_visit ) %>%  
+  mutate(time_years=time_days/365.25 )  
 
 print(ds)
 ```
 
+# 2.Generate the summary of the survival
 
-# 2. Plot creation  (use package ggsurvfit)
+We recommend using the survival package with the survfit2 function instead of survfit function.
 
-We recommend using the ggsurvfit package with the survfit2 function instead of survfit2 function.
+
+```{r}
+km.model_PFS <- survfit2(Surv(time, status) ~ surg,data = df_colon)
+print(km.model_PFS)
+summary(km.model_PFS)
+
+```
+
+
+# 3.Generate survival curves using ggsurvfit package
+
 
 Please follow the following link to obtain your kaplan Meier Curves
 https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html
 
 Kaplan-Meier by Daniel D. Sjoberg, Mark Baillie, Charlotta Fruechtenicht, Steven Haesendonckx, Tim Treis.
 
+
 ```{r}
+
 km = survfit2(Surv(time, status) ~ surg, data = df_colon) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +
@@ -82,7 +109,7 @@ km
 
 
 
-On peut aussi l'améliorer
+### Extra codes to make the plot better
 
 ```{r}
 km +
