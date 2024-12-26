@@ -6,7 +6,7 @@
 compare_grade <- function(tabR,tabSAS){
   tab=list()
 
-   if (nrow(tabR)!=nrow(tabSAS)){ #warning("Different number of grade levels")
+  if (nrow(tabR)!=nrow(tabSAS)){ #warning("Different number of grade levels")
 
     if (nrow(tabR)<nrow(tabSAS)){
       tab$level=c(tab$level,"Mineur")
@@ -48,17 +48,17 @@ compare_grade <- function(tabR,tabSAS){
 
     df=tabR%>%arrange(grade)%>%full_join(tabSAS,by="grade",suffix = c(".r",".sas"))
 
-   indice=which(df[,paste0(tabR%>%select(-grade)%>%colnames(),paste=".r")]!=df[,paste0(tabSAS%>%select(-grade)%>%colnames(),paste=".sas")],
-                  arr.ind=TRUE)  # difference numérique number or percentage
+    indice=which(df[,paste0(tabR%>%select(-grade)%>%colnames(),paste=".r")]!=df[,paste0(tabSAS%>%select(-grade)%>%colnames(),paste=".sas")],
+                 arr.ind=TRUE)  # difference numérique number or percentage
     indice[,"col"]=indice[,"col"]+1 # parce qu'on avait retiré le grade
 
     indice=rbind(indice,
-                  which(is.na(df),arr.ind = T)%>%as.data.frame())
-                      # difference NA quand 2 grades ne se correspondent pas dans les 2 tables. je garde NA
+                 which(is.na(df),arr.ind = T)%>%as.data.frame())
+    # difference NA quand 2 grades ne se correspondent pas dans les 2 tables. je garde NA
     if (nrow(indice)!=0){
       for (i in 1: nrow(indice)){
 
-if (is.na(df[indice[i,"row"],indice[i,"col"]]) & grepl(".r",colnames(df)[indice[i,"col"]])){
+        if (is.na(df[indice[i,"row"],indice[i,"col"]]) & grepl(".r",colnames(df)[indice[i,"col"]])){
           tab$level=c(tab$level,"Mineur")
           tab$grade=c(tab$grade,df[indice[i,"row"],"grade"]%>%pull)
           tab$table=c(tab$table,"R")
@@ -67,9 +67,9 @@ if (is.na(df[indice[i,"row"],indice[i,"col"]]) & grepl(".r",colnames(df)[indice[
           tab$valueSAS=c(tab$valueSAS,
                          paste0(df[indice[i,"row"],indice[i,"col"]+2],
                                 "(",df[indice[i,"row"],indice[i,"col"]+3],"%)"))
-if (ncol(tabR)>3 & ncol(tabSAS)>3){
-  tab$arm = c(tab$arm,str_extract(string=colnames(df)[indice[i,"col"]],pattern = "[:digit:]"))
-}
+          if (ncol(tabR)>3 & ncol(tabSAS)>3){
+            tab$arm = c(tab$arm,str_extract(string=colnames(df)[indice[i,"col"]],pattern = "[:digit:]"))
+          }
 
         }else if (is.na(df[indice[i,"row"],indice[i,"col"]]) & grepl(".sas",colnames(df)[indice[i,"col"]])){
           tab$level=c(tab$level,"Mineur")
@@ -113,7 +113,7 @@ if (ncol(tabR)>3 & ncol(tabSAS)>3){
       }
       tab=as.data.frame(tab)%>%distinct(level,grade,table,main,.keep_all = TRUE)
     }else{  #   warning("Comparison result: same outputs")
-    tab=cbind(data.frame("R table"=""),tabR,data.frame("SAS table"=""),tabSAS)
+      tab=cbind(data.frame("R table"=""),tabR,data.frame("SAS table"=""),tabSAS)
     }
   }
 

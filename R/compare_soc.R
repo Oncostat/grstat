@@ -4,16 +4,39 @@
 # author: Nusaibah
 
 compare_soc <- function(tabR,tabSAS){
-  colnames(tabR)=gsub("all_patients_G","grade",colnames(tabR))
+  colnames(tabR)=gsub("all_patients_G","grade",colnames(tabR))  # quand il n'y a pas de PT term
+
+  tabR = tabR[,!apply(is.na(tabR), 2, all)]
+  tabR = tabR[!apply(is.na(tabR%>%select(-soc)), 1, all),]
+
+
+  if (any(grepl("level",colnames(tabR))) | any(grepl("bras",colnames(tabSAS)))){
+    lev=unique(gsub("level_|__","",str_extract(colnames(tabR),".*__"))%>%discard(is.na))
+    bras=  unique(gsub("bras|_","",str_extract(colnames(tabSAS),".*_"))%>%discard(is.na))
+    corresp = data.frame("levels"=lev,
+                         "levelsSAS"=bras[bras!="term"]
+
+    )
+    brasBis=data.frame("SAS"=colnames(tabSAS)[grepl("bras",colnames(tabSAS))])%>%
+      mutate(chiffre=gsub("bras|_","",str_extract(SAS,".*_")))%>%
+      left_join(corresp,by=c("chiffre"="levelsSAS"))%>%
+      mutate(R=paste0("level_",levels,"__",gsub("grade","G",str_extract(SAS,"grade[:digit:]"))))
+
+    colnames(tabSAS)[grepl("bras",colnames(tabSAS))] =brasBis[,"R"]
+  }
+
+
   tab=list()
   if (nrow(tabR)!=nrow(tabSAS)){#warning("Different number of SOC")
     if (nrow(tabR)<nrow(tabSAS)){
 
       tab$level=c(tab$level,"Mineur")
-      tab$soc=c(tab$soc,tabSAS[which(!(tabSAS$soc%in% tabR$soc)),"soc"])
+      tab$soc=c(tab$soc,tabSAS[which(!(tabSAS$soc%in% tabR$soc)),"soc"]%>%pull)
       tab$table=c(tab$table,"R")
+      if(any(grepl("level",colnames(tabR)))){
+      tab$arm=c(tab$arm,NA)}
       if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){
-        tab$term=c(tab$term,tabSAS[which(!(tabSAS$term_%in% tabR$term_)),"term_"])
+        tab$term_=c(tab$term_,tabSAS[which(!(tabSAS$term_%in% tabR$term_)),"term_"]%>%pull)
         tab$main=c(tab$main,"Missing PT item")
       }else{
 
@@ -21,15 +44,20 @@ compare_soc <- function(tabR,tabSAS){
       }
     }else if (nrow(tabR)>nrow(tabSAS)){
       tab$level=c(tab$level,"Mineur")
-      tab$soc=c(tab$soc,tabR[which(!(tabR$soc%in% tabSAS$soc)),"soc"])
+      tab$soc=c(tab$soc,tabR[which(!(tabR$soc%in% tabSAS$soc)),"soc"]%>%pull)
       tab$table=c(tab$table,"SAS")
+      tab$grade=c(tab$grade,NA)
+      if(any(grepl("level",colnames(tabR)))){
+      tab$arm=c(tab$arm,NA)}
       if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){
-        tab$term=c(tab$term,tabR[which(!(tabR$term_%in% tabSAS$term_)),"term_"])
+        tab$term_=c(tab$term_,tabR[which(!(tabR$term_%in% tabSAS$term_)),"term_"]%>%pull)
         tab$main=c(tab$main,"Missing PT item")
       }else{
 
         tab$main=c(tab$main,"Missing SOC item")
       }
+      tab$valueR=c(tab$valueR,NA)
+      tab$valueSAS=c(tab$valueSAS,NA)
     }
   }
 
@@ -39,23 +67,29 @@ compare_soc <- function(tabR,tabSAS){
       tab$level=c(tab$level,"Mineur")
       tab$grade=c(tab$grade,colnames(tabSAS)[-(which(colnames(tabSAS) %in% colnames(tabR)))])
       tab$table=c(tab$table,"R")
+      tab$soc=c(tab$soc,NA)
+      tab$term_=c(tab$term_,NA)
       tab$main=c(tab$main,"Missing grade")
       tab$valueR=c(tab$valueR,NA)
       tab$valueSAS=c(tab$valueSAS,"Filled")
-
+      if(any(grepl("level",colnames(tabR)))){
+      tab$arm=c(tab$arm,paste(unique(str_extract(colnames(tabSAS)[which(!(colnames(tabSAS)%in% colnames(tabR)))],"level_[:alnum:]+__")),collapse = " & "))
+      }
     }else if (ncol(tabR)>ncol(tabSAS)){
 
       tab$level=c(tab$level,"Mineur")
-      tab$grade=c(tab$grade,colnames(tabR)[-(which(colnames(tabR) %in% colnames(tabSAS)))])
+      tab$soc=c(tab$soc,NA)
+      tab$term_=c(tab$term_,NA)
+      tab$grade=c(tab$grade,paste(colnames(tabR)[-(which(colnames(tabR) %in% colnames(tabSAS)))],collapse = " & "))
+      if(any(grepl("level",colnames(tabR)))){
+      tab$arm=c(tab$arm,paste(unique(str_extract(colnames(tabR)[which(!(colnames(tabR)%in% colnames(tabSAS)))],"level_[:alnum:]+__")),collapse = " & "))}
       tab$table=c(tab$table,"SAS")
       tab$main=c(tab$main,"Missing grade")
       tab$valueR=c(tab$valueR,"Filled")
       tab$valueSAS=c(tab$valueSAS,NA)
 
     }}
-  if (all(dim(tabR)==dim(tabSAS)) | all(is.na(tabR[-(which(colnames(tabR) %in% colnames(tabSAS)))])) ){# warning("Check: same dimension of tables & same grade")
-    tabR=tabR[(which(colnames(tabR) %in% colnames(tabSAS)))]
-
+  if (all(dim(tabR)==dim(tabSAS)) | "all_patients_NA" %in% colnames(tabR) ){# warning("Check: same dimension of tables or same grade")
 
     if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){
       df=tabR%>%arrange(soc,term_)%>%
@@ -66,6 +100,7 @@ compare_soc <- function(tabR,tabSAS){
                     mutate(table="SAS"),
                   by=c("soc","term_","grade"),
                   suffix = c(".r",".sas"))
+      if (any(grepl("level",df$grade))){ df=df%>%mutate("arm"=str_extract(grade,"level_[:alnum:]+__"))}
       indice=df[which(df$count.r!=df$count.sas | (is.na(df$count.r) & !is.na(df$count.sas)) |
                         (!is.na(df$count.r) & is.na(df$count.sas))
                       ,arr.ind = T),]
@@ -81,6 +116,7 @@ compare_soc <- function(tabR,tabSAS){
                   mutate(table="SAS"),
                 by=c("soc","grade"),
                 suffix = c(".r",".sas"))
+    if (any(grepl("level",df$grade))){ df=df%>%mutate("arm"=str_extract(grade,"level_[:alnum:]+__"))}
     indice=df[which(df$count.r!=df$count.sas | (is.na(df$count.r) & !is.na(df$count.sas)) |
                       (!is.na(df$count.r) & is.na(df$count.sas))
                     ,arr.ind = T),]
@@ -90,23 +126,21 @@ compare_soc <- function(tabR,tabSAS){
       # warning(paste0("Comparison result: Warning! Different outputs.",
       #                nrow(indice)," mismatching between the two tables. Above, the indices."))
       for (i in 1:nrow(indice)){
-        tab =indice%>%
-          mutate(level="MAJEUR",
-                 table="Both",
-                 main="Different value")%>%
-          dplyr::rename(valueR="count.r",
-                        valueSAS="count.sas")%>%
-          select(-c("table.r","table.sas"))
+        tab =rbind(as.data.frame(tab),indice%>%
+                     mutate(level="MAJEUR",
+                            table="Both",
+                            main="Different value")%>%
+                     dplyr::rename(valueR="count.r",
+                                   valueSAS="count.sas")%>%
+                     select(-c("table.r","table.sas")))
 
       }
-    }
+      tab=as.data.frame(tab)%>%distinct(level,grade,table,main,soc,.keep_all = TRUE)
+    }else{  #   warning("Comparison result: same outputs")
+      tab=cbind(data.frame("R table"=""),tabR,data.frame("SAS table"=""),tabSAS)
+    }}
 
-
-  }else{  #   warning("Comparison result: same outputs")
-    tab=cbind(data.frame("R table"=""),tabR,data.frame("SAS table"=""),tabSAS)
-  }
-  tab=as.data.frame(tab)
-  return(tab)
+  return(as.data.frame(tab))
 }
 
 
