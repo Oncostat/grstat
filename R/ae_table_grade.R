@@ -13,6 +13,7 @@
 #' @inherit ae_table_soc seealso
 #'
 #' @return a crosstable
+#' @importFrom cli cli_abort
 #' @importFrom dplyr arrange case_match case_when cur_group filter left_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
 #' @importFrom rlang check_dots_empty check_installed
@@ -25,8 +26,6 @@
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
 #'
-#' if(require(flextable)){
-#'
 #' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
@@ -38,15 +37,13 @@
 #' ae %>%
 #'   filter(sae=="Yes") %>%
 #'   ae_table_grade(df_enrol=enrolres, arm="ARM") %>%
-#'   dplyr::mutate_all(~stringr::str_replace(.x, "AE", "SAE")) %>%
+#'   mutate_all(~stringr::str_replace(.x, "AE", "SAE")) %>%
 #'   as_flextable(header_show_n=TRUE)
-#'
-#' }
 ae_table_grade = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
     arm=NULL, grade="AEGR", subjid="SUBJID",
-    percent=TRUE,
+    percent=TRUE, digits=2,
     total=TRUE
 ){
   check_installed("crosstable", "for `ae_table_grade()` to work.")
@@ -54,9 +51,10 @@ ae_table_grade = function(
 
   assert_names_exists(df_ae, lst(subjid, grade))
   assert_names_exists(df_enrol, lst(subjid, arm))
+  assert_class(total, "logical")
 
   if(missing(total) && is.null(arm)) total = FALSE
-  if(total) total = "row"
+  if(isTRUE(total)) total = "row"
   default_arm = set_label("All patients", "Treatment arm")
 
   df_ae = df_ae %>% rename_with(tolower) %>%
@@ -64,9 +62,12 @@ ae_table_grade = function(
   df_enrol = df_enrol %>% rename_with(tolower) %>%
     select(subjid=tolower(subjid), arm=tolower(arm)) %>%
     mutate(arm=if(is.null(.env$arm)) default_arm else .data$arm)
+  if(!is.numeric(df_ae$grade)){
+    cli_abort("Grade ({.val {grade}}) should be a numeric column.")
+  }
 
   df = df_enrol %>%
-    left_join(df_ae, by=tolower(subjid)) %>%
+    left_join(df_ae, by="subjid") %>%
     arrange(subjid) %>%
     mutate(
       grade = fix_grade(grade),
@@ -110,6 +111,7 @@ ae_table_grade = function(
     ) %>%
     crosstable::crosstable(matches(rex),
                by=arm, total=total,
+               percent_digits=digits,
                percent_pattern=percent_pattern) %>%
     filter(variable!="foobar" & variable!="NA") %>%
     mutate(
@@ -119,8 +121,8 @@ ae_table_grade = function(
                       .default="ERROR"),
       .id = str_remove(.id, "_[^_]*$") %>% factor(levels=variant),
       label = fct_reorder(label, as.numeric(.id)),
-      variable = suppressWarnings(fct_relevel(variable, "Grade = 5", after=4)),
       variable = suppressWarnings(fct_relevel(variable, lab_no_ae, after=0)),
+      variable = suppressWarnings(fct_relevel(variable, "Grade = 5", after=Inf)),
       variable = suppressWarnings(fct_relevel(variable, ~str_subset(.x, "missing"), after=Inf)),
     ) %>%
     arrange(.id, label, variable)
@@ -317,5 +319,3 @@ ae_plot_grade_n = ae_plot_grade_sum
 fix_grade = function(x){
   as.numeric(na_if(as.character(x), "NA"))
 }
-
-

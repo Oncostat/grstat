@@ -15,6 +15,20 @@ test_that("ae_table_grade() works", {
 })
 
 
+test_that("ae_table_grade() with different colnames", {
+  tm = grstat_example()
+  df_enrol = tm$enrolres %>%
+    rename(ENROLLID2=subjid, TRT=arm)
+  df_ae = tm$ae %>%
+    rename(ENROLLID2=subjid, grade=aegr)
+
+  rslt = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, subjid="ENROLLID2", grade="grade", arm="TRT") %>%
+    expect_silent()
+
+  expect_setequal(names(rslt), c(".id", "label", "variable", "Ctl", "Trt", "Total"))
+})
+
+
 test_that("ae_table_soc() works", {
   local_reproducible_output(width=125)
 
@@ -33,6 +47,6 @@ test_that("ae_table_soc() works", {
 
   ae_table_soc(df_ae=ae, df_enrol=enrolres,
                arm="ARsM", term="AETEeRM", soc="AEtSOC", grade="AEGeR", subjid="SUBaJID") %>%
-    expect_error(class="edc_name_notfound_error")
+    expect_error(class="grstat_name_notfound_error")
 
 })

@@ -22,6 +22,7 @@ to_snake_case = function(str) {
 #' `fct_relevel` to the end, without warning for missing levels
 #' @noRd
 #' @keywords internal
+#' @importFrom dplyr intersect
 #' @importFrom forcats fct_relevel
 fct_last = function(f, ...) {
   lvl = c(...)
@@ -35,6 +36,12 @@ percent = function(x, digits=0){
   stopifnot(abs(x)<=1)
   x=round(x*100, digits)
   paste0(x,"%")
+}
+
+#' @noRd
+#' @keywords internal
+today_ymd = function() {
+  format(Sys.Date(), "%Y-%m-%d")
 }
 
 

@@ -28,7 +28,9 @@ Depends:
 Imports: 
     cli,
     dplyr,
+    flextable,
     forcats,
+    fs,
     ggplot2,
     glue,
     lifecycle,
@@ -42,10 +44,10 @@ Imports:
 Suggests: 
     callr,
     crosstable,
-    flextable,
     gtools,
     patchwork,
     plotly,
+    rstudioapi,
     testthat (>= 3.0.0),
     usethis,
     vdiffr

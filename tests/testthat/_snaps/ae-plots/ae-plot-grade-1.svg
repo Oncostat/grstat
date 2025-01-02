@@ -74,11 +74,11 @@
 <polyline points='433.09,516.43 433.09,39.43 ' style='stroke-width: 1.07; stroke: #FFFFFF; stroke-linecap: butt;' />
 <polyline points='468.46,516.43 468.46,39.43 ' style='stroke-width: 1.07; stroke: #FFFFFF; stroke-linecap: butt;' />
 <rect x='275.65' y='468.73' width='31.84' height='26.02' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
-<rect x='311.03' y='442.71' width='31.84' height='52.04' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
-<rect x='346.41' y='87.13' width='31.84' height='407.61' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
-<rect x='381.79' y='121.82' width='31.84' height='372.92' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
-<rect x='417.16' y='208.55' width='31.84' height='286.20' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
-<rect x='452.54' y='364.66' width='31.84' height='130.09' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
+<rect x='311.03' y='87.13' width='31.84' height='407.61' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
+<rect x='346.41' y='121.82' width='31.84' height='372.92' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
+<rect x='381.79' y='208.55' width='31.84' height='286.20' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
+<rect x='417.16' y='364.66' width='31.84' height='130.09' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
+<rect x='452.54' y='442.71' width='31.84' height='52.04' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #595959;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
@@ -164,11 +164,11 @@
 <polyline points='433.09,519.17 433.09,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='468.46,519.17 468.46,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <text transform='translate(295.85,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='61.64px' lengthAdjust='spacingAndGlyphs'>No declared AE</text>
-<text transform='translate(331.23,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.39px' lengthAdjust='spacingAndGlyphs'>Grade = 5</text>
-<text transform='translate(366.61,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 1</text>
-<text transform='translate(401.99,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 2</text>
-<text transform='translate(437.37,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 3</text>
-<text transform='translate(472.75,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 4</text>
+<text transform='translate(331.23,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 1</text>
+<text transform='translate(366.61,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 2</text>
+<text transform='translate(401.99,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 3</text>
+<text transform='translate(437.37,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.08px' lengthAdjust='spacingAndGlyphs'>Grade ≥ 4</text>
+<text transform='translate(472.75,525.64) rotate(-45)' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='39.39px' lengthAdjust='spacingAndGlyphs'>Grade = 5</text>
 <polyline points='516.40,519.17 516.40,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='551.78,519.17 551.78,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='587.16,519.17 587.16,516.43 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />

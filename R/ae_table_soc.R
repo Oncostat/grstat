@@ -27,8 +27,8 @@
 #'
 #' @seealso [ae_table_grade()], [ae_table_soc()], [ae_plot_grade()], [ae_plot_grade_sum()], [butterfly_plot()]
 #'
-#' @importFrom cli cli_warn
-#' @importFrom dplyr across any_of arrange count cur_group filter left_join if_else mutate pull rename select summarise
+#' @importFrom cli cli_abort cli_warn
+#' @importFrom dplyr across any_of arrange count cur_group filter if_else left_join mutate pull rename select summarise
 #' @importFrom forcats fct_infreq
 #' @importFrom glue glue
 #' @importFrom purrr iwalk keep map
@@ -48,9 +48,8 @@
 #' #sub population
 #' ae_table_soc(df_ae=ae, df_enrol=head(enrolres, 10), arm="arm")
 #'
-#' if (require("flextable")) {
-#'
 #' #the resulting flextable can be customized using the flextable package
+#' library(flextable)
 #' ae_table_soc(ae, df_enrol=enrolres, total=FALSE) %>%
 #'   as_flextable() %>%
 #'   hline(i=~soc=="" & soc!=dplyr::lead(soc))
@@ -60,7 +59,6 @@
 #' ae_table_soc(ae, df_enrol=enrolres, term=NULL, arm=NULL) %>%
 #'   as_flextable() %>%
 #'   highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
-#' }
 ae_table_soc = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
@@ -94,6 +92,9 @@ ae_table_soc = function(
   df_enrol = df_enrol %>%
     select(subjid_=any_of2(subjid), arm_=any_of2(arm)) %>%
     mutate(arm_ = if(is.null(.env$arm)) default_arm else .data$arm_)
+  if(!is.numeric(df_ae$grade_)){
+    cli_abort("Grade ({.val {grade}}) should be a numeric column.")
+  }
 
   df = df_enrol %>%
     left_join(df_ae, by="subjid_") %>%
@@ -110,7 +111,7 @@ ae_table_soc = function(
     }) %>% keep(~!is_empty(.x))
     miss %>% iwalk(~{
       cli_warn("{.fn ae_table_soc}: Missing values in column {.val {.y}} for patients {.val {.x}}.",
-               class="edc_ae_missing_values_warning")
+               class="grstat_ae_missing_values_warning")
     })
   }
 
@@ -167,21 +168,24 @@ ae_table_soc = function(
 #' @param x a dataframe, resulting of `ae_table_soc()`
 #' @param arm_colors colors for the arm groups
 #' @param padding_v a numeric of lenght up to 2, giving the vertical padding of body (1) and header (2)
+#' @param ... unused
 #'
 #' @return a formatted flextable
 #' @rdname ae_table_soc
-#' @exportS3Method flextable::as_flextable
+#' @export
 #'
 #' @importFrom dplyr case_match lag lead transmute
+#' @importFrom flextable align bg bold flextable fontsize hline_bottom merge_h padding set_header_df set_table_properties
 #' @importFrom purrr map map_int
-#' @importFrom rlang check_installed set_names
+#' @importFrom rlang check_dots_empty set_names
 #' @importFrom stringr str_detect str_replace_all
 #' @importFrom tibble as_tibble_col
 #' @importFrom tidyr separate_wider_regex
 as_flextable.ae_table_soc = function(x,
+                                     ...,
                                      arm_colors=c("#f2dcdb", "#dbe5f1", "#ebf1dd", "#e5e0ec"),
                                      padding_v = NULL){
-  check_installed("flextable")
+  check_dots_empty()
   if (missing(padding_v)) padding_v = getOption("crosstable_padding_v", padding_v)
   table_ae_header = attr(x, "header")
   if(FALSE){
@@ -221,31 +225,31 @@ as_flextable.ae_table_soc = function(x,
     which() %>% unname() %>% c(ncol(x))
 
   rtn = x %>%
-    flextable::flextable() %>%
-    flextable::set_header_df(mapping=header_df) %>%
-    # flextable::hline_top(part="header") %>%
-    flextable::hline_bottom(part="header") %>%
-    flextable::merge_h(part="header") %>%
-    # flextable::set_header_labels(values=header_labels) %>%
-    # flextable::add_header_row(values=c(" ", table_ae_header), colwidths = colwidths) %>%
-    flextable::align(i=1, part="header", align="center") %>%
-    flextable::align(j=seq(col1), part="all", align="right") %>%
-    flextable::padding(padding.top=0, padding.bottom=0) %>%
-    flextable::set_table_properties(layout="autofit") %>%
-    flextable::fontsize(size=8, part="all") %>%
-    flextable::bold(part="header")
+    flextable() %>%
+    set_header_df(mapping=header_df) %>%
+    # hline_top(part="header") %>%
+    hline_bottom(part="header") %>%
+    merge_h(part="header") %>%
+    # set_header_labels(values=header_labels) %>%
+    # add_header_row(values=c(" ", table_ae_header), colwidths = colwidths) %>%
+    align(i=1, part="header", align="center") %>%
+    align(j=seq(col1), part="all", align="right") %>%
+    padding(padding.top=0, padding.bottom=0) %>%
+    set_table_properties(layout="autofit") %>%
+    fontsize(size=8, part="all") %>%
+    bold(part="header")
   if (length(padding_v) >= 1) {
-    rtn = flextable::padding(rtn, padding.top=padding_v[1], padding.bottom=padding_v[1], part="body")
+    rtn = padding(rtn, padding.top=padding_v[1], padding.bottom=padding_v[1], part="body")
   }
   if (length(padding_v) == 2) {
-    rtn = flextable::padding(rtn, padding.top=padding_v[2], padding.bottom=padding_v[2], part="header")
+    rtn = padding(rtn, padding.top=padding_v[2], padding.bottom=padding_v[2], part="header")
   }
   # a = cumsum(colwidths)[-1]
   a = sep_cols
   for(i in seq_along(a)){
     from = lag(a, default=col1)[i] + 1
     to = a[i]
-    rtn = rtn %>% flextable::bg(j=seq(from, to), bg = arm_colors[i], part="all")
+    rtn = rtn %>% bg(j=seq(from, to), bg = arm_colors[i], part="all")
   }
 
   rtn
@@ -265,7 +269,7 @@ as_flextable.ae_table_soc = function(x,
 #' @return a crosstable (dataframe)
 #' @export
 #' @importFrom cli cli_abort cli_warn
-#' @importFrom dplyr any_of arrange count filter left_join mutate select summarise
+#' @importFrom dplyr across any_of arrange count filter left_join mutate n_distinct select summarise
 #' @importFrom forcats fct_reorder
 #' @importFrom ggplot2 aes facet_grid geom_blank geom_col ggplot labs scale_x_continuous theme unit vars
 #' @importFrom glue glue
@@ -294,17 +298,28 @@ butterfly_plot = function(
     arm="ARM", subjid="SUBJID", soc="AESOC"
 ){
   check_dots_empty()
-  sort_by = arg_match(sort_by)
-
+  assert_not_null(df_ae, df_enrol, sort_by, subjid, soc)
   assert_names_exists(df_ae, lst(subjid, soc, severe))
   assert_names_exists(df_enrol, lst(subjid, arm))
+  sort_by = arg_match(sort_by)
 
   df_ae = df_ae %>%
     select(subjid_=any_of2(subjid), soc_=any_of2(soc),
            severe_=any_of2(severe)) %>%
     mutate(severe_ = if(is.null(severe)) NA else severe_)
   df_enrol = df_enrol %>%
+    mutate(across(any_of2(arm), factor)) %>%
     select(subjid_=any_of2(subjid), arm_=any_of2(arm))
+
+  arms = df_enrol[["arm_"]]
+  n_arms = n_distinct(arms, na.rm=TRUE)
+  if(n_arms!=2){
+    if(is.null(arms)) arms = "NULL"
+    cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
+                i="Found {n_arms} arm{?s} in column {.arg {arm}}: {.val {unique(arms)}}"),
+              class="grstat_butterfly_two_arms_error")
+  }
+
   df = df_enrol %>%
     left_join(df_ae, by="subjid_") %>%
     filter(!is.na(soc_))  %>%
@@ -314,18 +329,18 @@ butterfly_plot = function(
 
   arms = df_enrol$arm_ %>% unique() %>% na.omit()
   if(length(arms)!=2){
-    cli_abort(c("{.fn EDCimport::butterfly_plot} needs exactly 2 arms.",
+    cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
                 i="Arms: {.val {arms}}"),
-              class="edc_butterfly_two_arms_error")
+              class="grstat_butterfly_two_arms_error")
   }
   if(!is.null(severe)){
     if(!is.logical(df_ae$severe_)){
       cli_abort(c("{.arg severe} should be a logical column, not a {.type {df_ae$severe_}}. Did you forget to mutate it with `==`?"),
-                class="edc_butterfly_serious_lgl_error")
+                class="grstat_butterfly_serious_lgl_error")
     }
     if(!any(df_ae$severe_)){
       cli_warn(c("All {.arg severe} values are FALSE."),
-               class="edc_butterfly_serious_false_warning")
+               class="grstat_butterfly_serious_false_warning")
     }
   }
 
