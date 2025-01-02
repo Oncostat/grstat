@@ -3,6 +3,7 @@
 # if no difference, dataframe displaying table R and table SAS side by side.
 # author: Nusaibah
 
+
 compare_grade <- function(tabR,tabSAS){
   tab=list()
 
@@ -43,6 +44,7 @@ compare_grade <- function(tabR,tabSAS){
       tab$valueSAS=c(tab$valueSAS,NA)
 
     }}
+
   if (all(dim(tabR)==dim(tabSAS))){
     # warning("Check: same dimension of tables")
 
