@@ -4,63 +4,60 @@
 # author: Nusaibah
 
 compare_soc <- function(tabR,tabSAS){
-  #####################  a reporter dans les exemples.
-  colnames(tabR)=gsub("all_patients_G","grade",colnames(tabR))  # quand il n'y a pas de PT term
-  tabSAS= tabSAS %>%
-    fill(soc,.direction="down")
-
+# ae_table_soc() affiche toutes les colonnes grade 1à 5 NA et total(option) (pour chaque bras si le bras est indiqué)
+# supprimée les colonnes et lignes vides pour optimiser l'algorithme
   tabR = tabR[,!apply(is.na(tabR), 2, all)]
   tabR = tabR[!apply(is.na(tabR%>%select(-soc)), 1, all),]
-
-
-  if (any(grepl("level",colnames(tabR))) | any(grepl("bras",colnames(tabSAS)))){
-    lev=tabR %>% colnames()%>%str_extract(".*__") %>% str_remove_all("level_|__") %>% unique %>% discard(is.na)
-
-    bras=  unique(gsub("bras|_","",str_extract(colnames(tabSAS),".*_"))%>%discard(is.na))
-    corresp = data.frame("levels"=lev,
-                         "levelsSAS"=bras[bras!="term"]
-
-    )
-    brasBis=data.frame("SAS"=colnames(tabSAS)[grepl("bras",colnames(tabSAS))])%>%
-      mutate(chiffre=gsub("bras|_","",str_extract(SAS,".*_")))%>%
-      left_join(corresp,by=c("chiffre"="levelsSAS"))%>%
-      mutate(R=paste0("level_",levels,"__",gsub("grade","G",str_extract(SAS,"grade[:digit:]"))))
-
-    colnames(tabSAS)[grepl("bras",colnames(tabSAS))] =brasBis[,"R"]
+  if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){
+    tabR = tabR %>% arrange(soc,term_)
+  }else{
+  tabR = tabR %>% arrange(soc)
   }
 
-  #######################################
   tab=list()
   if (nrow(tabR)!=nrow(tabSAS)){#warning("Different number of SOC")
+
+    socdiff=table(tabR$soc) %>%
+      as.data.frame() %>%
+      full_join(table(tabSAS$soc) %>%
+                  as.data.frame(),
+                by="Var1",suffix = c(".r",".sas")) %>%
+      filter(Freq.r !=Freq.sas | (is.na(Freq.r) |is.na(Freq.sas)))
+
     if (nrow(tabR)<nrow(tabSAS)){
 
       tab$level=c(tab$level,"Mineur")
-      tab$soc=c(tab$soc,tabSAS[which(!(tabSAS$soc%in% tabR$soc)),"soc"]%>%pull)
+      tab$soc=c(tab$soc,paste(socdiff%>%filter(Freq.r<Freq.sas| is.na(Freq.r))%>%select(Var1)%>%pull,collapse = " & "))
       tab$table=c(tab$table,"R")
       if(any(grepl("level",colnames(tabR)))){
         tab$arm=c(tab$arm,NA)}
       if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){
-        tab$term_=c(tab$term_,tabSAS[which(!(tabSAS$term_%in% tabR$term_)),"term_"]%>%pull)
-        tab$main=c(tab$main,"Missing PT item")
-      }else{
-
-        tab$main=c(tab$main,"Missing SOC item")
-      }
-    }else if (nrow(tabR)>nrow(tabSAS)){
-      tab$level=c(tab$level,"Mineur")
-      tab$soc=c(tab$soc,tabR[which(!(tabR$soc%in% tabSAS$soc)),"soc"]%>%pull)
-      tab$table=c(tab$table,"SAS")
-      tab$grade=c(tab$grade,NA)
-      if(any(grepl("level",colnames(tabR)))){
-        tab$arm=c(tab$arm,NA)}
-      if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){
-        tab$term_=c(tab$term_,tabR[which(!(tabR$term_%in% tabSAS$term_)),"term_"]%>%pull)
+        tab$term_=c(tab$term_,paste(tabSAS[which(!(tabSAS$term_%in% tabR$term_)),"term_"]%>%pull,collapse = " & "))
         tab$main=c(tab$main,"Missing PT item")
       }else{
 
         tab$main=c(tab$main,"Missing SOC item")
       }
       tab$valueR=c(tab$valueR,NA)
+      tab$valueSAS=c(tab$valueSAS,"Filled")
+
+    }else if (nrow(tabR)>nrow(tabSAS)){
+
+
+      tab$level=c(tab$level,"Mineur")
+      tab$soc=c(tab$soc,paste(socdiff%>%filter(Freq.r>Freq.sas | is.na(Freq.sas))%>%select(Var1)%>%pull,collapse = " & "))
+      tab$table=c(tab$table,"SAS")
+      tab$grade=c(tab$grade,NA)
+      if(any(grepl("bras",colnames(tabR)))){
+        tab$arm=c(tab$arm,NA)}
+      if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){
+        tab$term_=c(tab$term_,paste(tabR[which(!(tabR$term_%in% tabSAS$term_)),"term_"]%>%pull,collapse = " & "))
+        tab$main=c(tab$main,"Missing PT item")
+      }else{
+
+        tab$main=c(tab$main,"Missing SOC item")
+      }
+      tab$valueR=c(tab$valueR,"Filled")
       tab$valueSAS=c(tab$valueSAS,NA)
     }
   }
@@ -69,24 +66,25 @@ compare_soc <- function(tabR,tabSAS){
     if (ncol(tabR)<ncol(tabSAS)){
 
       tab$level=c(tab$level,"Mineur")
-      tab$grade=c(tab$grade,colnames(tabSAS)[-(which(colnames(tabSAS) %in% colnames(tabR)))])
+      tab$grade=c(tab$grade,paste(colnames(tabSAS)[-(which(colnames(tabSAS) %in% colnames(tabR)))],collapse=" & "))
       tab$table=c(tab$table,"R")
       tab$soc=c(tab$soc,NA)
-      tab$term_=c(tab$term_,NA)
+      if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){ tab$term_=c(tab$term_,NA)}
       tab$main=c(tab$main,"Missing grade")
       tab$valueR=c(tab$valueR,NA)
       tab$valueSAS=c(tab$valueSAS,"Filled")
-      if(any(grepl("level",colnames(tabR)))){
-        tab$arm=c(tab$arm,paste(unique(str_extract(colnames(tabSAS)[which(!(colnames(tabSAS)%in% colnames(tabR)))],"level_[:alnum:]+__")),collapse = " & "))
+      if(any(grepl("bras",colnames(tabR)))){
+        tab$arm=c(tab$arm,paste(unique(str_extract(colnames(tabSAS)[which(!(colnames(tabSAS)%in% colnames(tabR)))],"bras[:alnum:]+")),collapse = " & "))
       }
     }else if (ncol(tabR)>ncol(tabSAS)){
 
       tab$level=c(tab$level,"Mineur")
       tab$soc=c(tab$soc,NA)
-      tab$term_=c(tab$term_,NA)
+      if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){  tab$term_=c(tab$term_,NA)}
       tab$grade=c(tab$grade,paste(colnames(tabR)[-(which(colnames(tabR) %in% colnames(tabSAS)))],collapse = " & "))
-      if(any(grepl("level",colnames(tabR)))){
-        tab$arm=c(tab$arm,paste(unique(str_extract(colnames(tabR)[which(!(colnames(tabR)%in% colnames(tabSAS)))],"level_[:alnum:]+__")),collapse = " & "))}
+      if(any(grepl("bras",colnames(tabR)))){
+        tab$arm=c(tab$arm,paste(unique(str_extract(colnames(tabR)[which(!(colnames(tabR)%in% colnames(tabSAS)))],"bras[:alnum:]+")),collapse = " & "))
+        }
       tab$table=c(tab$table,"SAS")
       tab$main=c(tab$main,"Missing grade")
       tab$valueR=c(tab$valueR,"Filled")
@@ -110,7 +108,7 @@ compare_soc <- function(tabR,tabSAS){
                   suffix = c(".r",".sas"))
 
 
-      if (any(grepl("level",df$grade))){
+      if (any(grepl("bras",df$grade))){
 
         df=df%>%separate(col="grade",into=c("arm","grade"),sep="__")}
 
@@ -129,7 +127,7 @@ compare_soc <- function(tabR,tabSAS){
                     mutate(table="SAS"),
                   by=c("soc","grade"),
                   suffix = c(".r",".sas"))
-      if (any(grepl("level",df$grade))){ df=df%>%mutate("arm"=str_extract(grade,"level_[:alnum:]+__"))}
+      if (any(grepl("bras",df$grade))){ df=df%>%mutate("arm"=str_extract(grade,"bras[:alnum:]+"))}
       indice=df[which(df$count.r!=df$count.sas | (is.na(df$count.r) & !is.na(df$count.sas)) |
                         (!is.na(df$count.r) & is.na(df$count.sas))
                       ,arr.ind = T),]
@@ -149,7 +147,7 @@ compare_soc <- function(tabR,tabSAS){
 
 
       tab=as.data.frame(tab)%>%distinct(level,grade,table,main,soc,.keep_all = TRUE)
-    }else{  #   warning("Comparison result: same outputs")
+    }else{     warning("Comparison result: same outputs")
       tab=cbind(data.frame("R table"=""),tabR,data.frame("SAS table"=""),tabSAS)
     }
   }

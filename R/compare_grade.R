@@ -114,7 +114,7 @@ compare_grade <- function(tabR,tabSAS){
 
       }
       tab=as.data.frame(tab)%>%distinct(level,grade,table,main,.keep_all = TRUE)
-    }else{  #   warning("Comparison result: same outputs")
+    }else{     warning("Comparison result: same outputs")
       tab=cbind(data.frame("R table"=""),tabR,data.frame("SAS table"=""),tabSAS)
     }
   }
