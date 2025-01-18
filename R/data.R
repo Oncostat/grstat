@@ -6,6 +6,9 @@
 #'
 #' @param N the number of patients
 #' @param seed the random seed
+#' @param n_ae_max maximum number of AE per patient
+#' @param p_sae proportion of serious AE
+#' @param p_na proportion of missing values (can be a list with a number for each column)
 #' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3`
 #'
 #' @export
@@ -14,11 +17,6 @@
 #' @importFrom stats rbinom runif
 #' @importFrom tibble enframe lst tibble
 #' @importFrom tidyr unnest unpack
-#'
-#' @examples
-#' tm = grstat_example(500, p_na=0.1)
-#' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM") %>% as_flextable()
-#' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", term="AETERM") %>% as_flextable()
 grstat_example = function(N=50, seed=42, n_ae_max=15, p_sae=0.1, p_na=0, r=0.5, r2=1/3){
   set.seed(seed)
 

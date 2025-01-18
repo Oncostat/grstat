@@ -4,12 +4,28 @@
 \alias{grstat_example}
 \title{Example databases}
 \usage{
-grstat_example(N = 50, seed = 42)
+grstat_example(
+  N = 50,
+  seed = 42,
+  n_ae_max = 15,
+  p_sae = 0.1,
+  p_na = 0,
+  r = 0.5,
+  r2 = 1/3
+)
 }
 \arguments{
 \item{N}{the number of patients}
 
 \item{seed}{the random seed}
+
+\item{n_ae_max}{maximum number of AE per patient}
+
+\item{p_sae}{proportion of serious AE}
+
+\item{p_na}{proportion of missing values (can be a list with a number for each column)}
+
+\item{r, r2}{proportion of the "Control" arm in \code{enrolres$arm} and \code{enrolres$arm3}}
 }
 \description{
 Example tables, mostly used in examples and tests.
