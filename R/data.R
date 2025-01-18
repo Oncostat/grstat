@@ -6,6 +6,7 @@
 #'
 #' @param N the number of patients
 #' @param seed the random seed
+#' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3`
 #'
 #' @export
 #' @importFrom dplyr mutate n select
@@ -18,16 +19,24 @@
 #' tm = grstat_example(500, p_na=0.1)
 #' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM") %>% as_flextable()
 #' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", term="AETERM") %>% as_flextable()
-grstat_example = function(N=50, seed=42, n_ae_max=15, p_sae=0.1, p_na=0){
+grstat_example = function(N=50, seed=42, n_ae_max=15, p_sae=0.1, p_na=0, r=0.5, r2=1/3){
   set.seed(seed)
 
-  enrolres = tibble(subjid=1:N, arm=sample(c(rep("Trt", N/2), rep("Ctl", N/2))))
+  enrolres = tibble(
+    subjid = seq_len(N),
+    arm = sample(c(rep("Control", round(N*r)),
+                   rep("Treatment", round(N*(1-r))) )),
+    arm3 = sample(c(rep("Control", round(N*r2)),
+                    rep("Treatment A", round(N*(1-r2)/2)),
+                    rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) ))
+  )
 
   if(!is.list(p_na)) {
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
   }
 
-  ae = tibble(subjid=1:N, n_ae=rbinom(n=N, size=n_ae_max, prob=0.2)) %>%
+  ae = tibble(subjid=seq_len(N),
+              n_ae=rbinom(n=N, size=n_ae_max, prob=0.2)) %>%
     mutate(x = map(n_ae, ~seq_len(.x))) %>%
     unnest(x) %>%
     mutate(
