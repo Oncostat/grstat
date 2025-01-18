@@ -15,13 +15,17 @@
 #' @importFrom tidyr unnest unpack
 #'
 #' @examples
-#' tm = grstat_example(500)
+#' tm = grstat_example(500, p_na=0.1)
 #' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM") %>% as_flextable()
 #' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", term="AETERM") %>% as_flextable()
-grstat_example = function(N=50, seed=42, n_ae_max=15, p_grade_na=0.1){
+grstat_example = function(N=50, seed=42, n_ae_max=15, p_sae=0.1, p_na=0){
   set.seed(seed)
 
   enrolres = tibble(subjid=1:N, arm=sample(c(rep("Trt", N/2), rep("Ctl", N/2))))
+
+  if(!is.list(p_na)) {
+    p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
+  }
 
   ae = tibble(subjid=1:N, n_ae=rbinom(n=N, size=n_ae_max, prob=0.2)) %>%
     mutate(x = map(n_ae, ~seq_len(.x))) %>%
@@ -30,6 +34,10 @@ grstat_example = function(N=50, seed=42, n_ae_max=15, p_grade_na=0.1){
       aegr = sample(1:5, size=n(), replace=TRUE, prob=c(0.3,0.25,0.2,0.1,0.05)),
       .sample_term(n()),
       sae = fct_yesno(runif(n())<0.1),
+      across(names(p_na), \(.x){
+        p = p_na[[cur_column()]]
+        if_else(runif(n())<p, NA, .x)
+      })
     ) %>%
     select(subjid, aesoc, aeterm, aegr, sae, n_ae) %>%
     apply_labels(
@@ -47,6 +55,12 @@ grstat_example = function(N=50, seed=42, n_ae_max=15, p_grade_na=0.1){
 
   rtn
 }
+
+.example_enrol = function(N){
+
+}
+
+
 
 
 .sample_term = function(n){
