@@ -11,7 +11,6 @@
 #' @importFrom dplyr mutate n select
 #' @importFrom purrr imap map
 #' @importFrom stats rbinom runif
-  set.seed(seed)
 #' @importFrom tibble enframe lst tibble
 #' @importFrom tidyr unnest unpack
 #'
@@ -20,8 +19,9 @@
 #' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM") %>% as_flextable()
 #' ae_table_soc(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", term="AETERM") %>% as_flextable()
 grstat_example = function(N=50, seed=42, n_ae_max=15, p_grade_na=0.1){
+  set.seed(seed)
 
-  enrolres = tibble(subjid=1:N, arm=sample(c("Trt", "Ctl"), size=N, replace=TRUE))
+  enrolres = tibble(subjid=1:N, arm=sample(c(rep("Trt", N/2), rep("Ctl", N/2))))
 
   ae = tibble(subjid=1:N, n_ae=rbinom(n=N, size=n_ae_max, prob=0.2)) %>%
     mutate(x = map(n_ae, ~seq_len(.x))) %>%
