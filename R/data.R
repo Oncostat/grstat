@@ -38,12 +38,11 @@ sample_soc = c(
 #' @importFrom stats rbinom runif
 #' @importFrom tibble lst tibble
 #' @importFrom tidyr unnest
-grstat_example = function(N=50, seed=42){
+grstat_example = function(N=50, seed=42, n_ae_max=15){
   set.seed(seed)
 
   enrolres = tibble(subjid=1:N, arm=sample(c("Trt", "Ctl"), size=N, replace=TRUE))
 
-  n_ae_max = 15
   ae = tibble(subjid=1:N, n_ae=rbinom(n=N, size=n_ae_max, prob=0.2)) %>%
     mutate(x = map(n_ae, ~seq_len(.x))) %>%
     unnest(x) %>%
