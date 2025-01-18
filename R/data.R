@@ -5,11 +5,13 @@
 #' Example tables, mostly used in examples and tests.
 #'
 #' @param N the number of patients
-#' @param seed the random seed
-#' @param n_ae_max maximum number of AE per patient
-#' @param p_sae proportion of serious AE
-#' @param p_na proportion of missing values (can be a list with a number for each column)
+#' @param seed the random seed (can be `NULL`)
+#' @param ae_n_max maximum number of AE per patient
+#' @param ae_p_sae proportion of serious AE
+#' @param ae_p_na proportion of missing values (can be a list with a number for each column)
 #' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3`
+#'
+#' @returns A list of datasets, like in EDCimport.
 #'
 #' @export
 #' @importFrom dplyr mutate n select
@@ -17,44 +19,12 @@
 #' @importFrom stats rbinom runif
 #' @importFrom tibble enframe lst tibble
 #' @importFrom tidyr unnest unpack
-grstat_example = function(N=50, seed=42, n_ae_max=15, p_sae=0.1, p_na=0, r=0.5, r2=1/3){
+grstat_example = function(N=50, seed=42, ae_n_max=15, ae_p_sae=0.1, ae_p_na=0, r=0.5, r2=1/3){
   set.seed(seed)
 
-  enrolres = tibble(
-    subjid = seq_len(N),
-    arm = sample(c(rep("Control", round(N*r)),
-                   rep("Treatment", round(N*(1-r))) )),
-    arm3 = sample(c(rep("Control", round(N*r2)),
-                    rep("Treatment A", round(N*(1-r2)/2)),
-                    rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) ))
-  )
+  enrolres = .example_enrol(N, r, r2)
 
-  if(!is.list(p_na)) {
-    p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
-  }
-
-  ae = tibble(subjid=seq_len(N),
-              n_ae=rbinom(n=N, size=n_ae_max, prob=0.2)) %>%
-    mutate(x = map(n_ae, ~seq_len(.x))) %>%
-    unnest(x) %>%
-    mutate(
-      sae = fct_yesno(runif(n())<p_sae),
-      aegr = sample(1:5, size=n(), replace=TRUE, prob=c(0.4,0.3,0.2,0.1,0.01)),
-      aegr_sae = sample(1:5, size=n(), replace=TRUE, prob=c(0.15,0.15,0.3,0.3,0.1)),
-      aegr = if_else(sae=="Yes", aegr_sae, aegr),
-      .sample_term(n()),
-      across(names(p_na), \(.x){
-        p = p_na[[cur_column()]]
-        if_else(runif(n())<p, NA, .x)
-      })
-    ) %>%
-    select(subjid, aesoc, aeterm, aegr, sae, n_ae) %>%
-    apply_labels(
-      aesoc = "AE SOC",
-      aeterm = "AE Term (HLGT)",
-      aegr = "AE grade",
-      sae = "Serious AE",
-    )
+  ae = .example_ae(N, ae_p_na, ae_n_max, ae_p_sae)
 
   rtn = lst(enrolres, ae) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
@@ -65,13 +35,66 @@ grstat_example = function(N=50, seed=42, n_ae_max=15, p_sae=0.1, p_na=0, r=0.5, 
   rtn
 }
 
-.example_enrol = function(N){
 
+# Internals -----------------------------------------------------------------------------------
+
+#' @noRd
+#' @keywords internal
+.example_enrol = function(N, r, r2){
+  tibble(
+    subjid = seq_len(N),
+    arm = sample(c(rep("Control", round(N*r)),
+                   rep("Treatment", round(N*(1-r))) )),
+    arm3 = sample(c(rep("Control", round(N*r2)),
+                    rep("Treatment A", round(N*(1-r2)/2)),
+                    rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) ))
+  ) %>%
+    apply_labels(
+      subjid = "Subject ID",
+      arm = "Treatment arm",
+      arm3 = "Treatment arm"
+    )
 }
 
 
+#' @noRd
+#' @keywords internal
+.example_ae <- function(N, ae_p_na, ae_n_max, ae_p_sae) {
+  if(!is.list(ae_p_na)) {
+    ae_p_na = list(aesoc=ae_p_na, aeterm=ae_p_na, aegr=ae_p_na, sae=ae_p_na)
+  }
+
+  ae = tibble(subjid=seq_len(N),
+              n_ae=rbinom(n=N, size=ae_n_max, prob=0.2),
+              x = map(n_ae, ~seq_len(.x)) ) %>%
+    unnest(x) %>%
+    mutate(
+      sae = fct_yesno(runif(n())<ae_p_sae),
+      aegr = sample(1:5, size=n(), replace=TRUE, prob=c(0.4,0.3,0.2,0.1,0.01)),
+      aegr_sae = sample(1:5, size=n(), replace=TRUE, prob=c(0.15,0.15,0.3,0.3,0.1)),
+      aegr = if_else(sae=="Yes", aegr_sae, aegr),
+      .sample_term(n()),
+      across(names(ae_p_na), ~{
+        p = ae_p_na[[cur_column()]]
+        if_else(runif(n()) < p, NA, .x)
+      })
+    ) %>%
+    select(subjid, aesoc, aeterm, aegr, sae, n_ae) %>%
+    apply_labels(
+      subjid = "Subject ID",
+      aesoc = "AE SOC",
+      aeterm = "AE Term (HLGT)",
+      aegr = "AE grade",
+      sae = "Serious AE",
+    )
+
+  ae
+}
 
 
+#' Used in `.example_ae()`
+#' @noRd
+#' @keywords internal
 .sample_term = function(n){
   sample(sample_ctcae, size=n, replace=TRUE) %>%
     map_chr(~sample(.x, 1)) %>%
