@@ -31,9 +31,11 @@ grstat_example = function(N=50, seed=42, n_ae_max=15, p_sae=0.1, p_na=0){
     mutate(x = map(n_ae, ~seq_len(.x))) %>%
     unnest(x) %>%
     mutate(
-      aegr = sample(1:5, size=n(), replace=TRUE, prob=c(0.3,0.25,0.2,0.1,0.05)),
+      sae = fct_yesno(runif(n())<p_sae),
+      aegr = sample(1:5, size=n(), replace=TRUE, prob=c(0.4,0.3,0.2,0.1,0.01)),
+      aegr_sae = sample(1:5, size=n(), replace=TRUE, prob=c(0.15,0.15,0.3,0.3,0.1)),
+      aegr = if_else(sae=="Yes", aegr_sae, aegr),
       .sample_term(n()),
-      sae = fct_yesno(runif(n())<0.1),
       across(names(p_na), \(.x){
         p = p_na[[cur_column()]]
         if_else(runif(n())<p, NA, .x)
