@@ -12,6 +12,7 @@ ae_table_grade(
   arm = NULL,
   grade = "AEGR",
   subjid = "SUBJID",
+  ae_label = "AE",
   percent = TRUE,
   digits = 2,
   total = TRUE
@@ -31,6 +32,8 @@ ae_table_grade(
 \item{grade}{name of the AE grade column in \code{df_ae}. Case-insensitive.}
 
 \item{subjid}{name of the patient ID in both \code{df_ae} and \code{df_enrol}. Case-insensitive.}
+
+\item{ae_label}{the label of adverse events, usually "AE" or "SAE".}
 
 \item{percent}{whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.}
 
@@ -55,11 +58,9 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="ARM") \%>\%
   as_flextable(header_show_n=TRUE)
 
 #To get SAE only, filter df_ae first
-library(dplyr)
 ae \%>\%
-  filter(sae=="Yes") \%>\%
-  ae_table_grade(df_enrol=enrolres, arm="ARM") \%>\%
-  mutate_all(~stringr::str_replace(.x, "AE", "SAE")) \%>\%
+  dplyr::filter(sae=="Yes") \%>\%
+  ae_table_grade(df_enrol=enrolres, arm="ARM", ae_label="SAE") \%>\%
   as_flextable(header_show_n=TRUE)
 }
 \seealso{

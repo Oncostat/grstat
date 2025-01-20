@@ -9,6 +9,7 @@
 #' Summary tables for AE
 #'
 #' @param percent whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.
+#' @param ae_label the label of adverse events, usually "AE" or "SAE".
 #' @inheritParams ae_table_soc
 #' @inherit ae_table_soc seealso
 #'
@@ -33,16 +34,15 @@
 #'   as_flextable(header_show_n=TRUE)
 #'
 #' #To get SAE only, filter df_ae first
-#' library(dplyr)
 #' ae %>%
-#'   filter(sae=="Yes") %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="ARM") %>%
-#'   mutate_all(~stringr::str_replace(.x, "AE", "SAE")) %>%
+#'   dplyr::filter(sae=="Yes") %>%
+#'   ae_table_grade(df_enrol=enrolres, arm="ARM", ae_label="SAE") %>%
 #'   as_flextable(header_show_n=TRUE)
 ae_table_grade = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
     arm=NULL, grade="AEGR", subjid="SUBJID",
+    ae_label="AE",
     percent=TRUE, digits=2,
     total=TRUE
 ){
@@ -81,7 +81,7 @@ ae_table_grade = function(
                     else if(percent=="only") "{n/n_col}" else "{n}"
   percent_pattern = list(body=percent_pattern, total_col=percent_pattern)
 
-  lab_no_ae = "No declared AE"
+  lab_no_ae = glue("No declared {ae_label}")
 
   rtn = df %>%
     summarise(
@@ -115,10 +115,12 @@ ae_table_grade = function(
                percent_pattern=percent_pattern) %>%
     filter(variable!="foobar" & variable!="NA") %>%
     mutate(
-      label=case_when(str_starts(.id, "max_grade_") ~ "Patient maximum AE grade",
-                      str_starts(.id, "any_grade_sup_") ~ "Patient had at least one AE of grade",
-                      str_starts(.id, "any_grade_eq_") ~ "Patient had at least one AE of grade ",
-                      .default="ERROR"),
+      label=case_when(
+        str_starts(.id, "max_grade_") ~ glue("Patient maximum {ae_label} grade"),
+        str_starts(.id, "any_grade_sup_") ~ glue("Patient had at least one {ae_label} of grade"),
+        str_starts(.id, "any_grade_eq_") ~ glue("Patient had at least one {ae_label} of grade "),
+        .default="ERROR"
+      ),
       .id = str_remove(.id, "_[^_]*$") %>% factor(levels=variant),
       label = fct_reorder(label, as.numeric(.id)),
       variable = suppressWarnings(fct_relevel(variable, lab_no_ae, after=0)),
