@@ -43,6 +43,15 @@ test_that("ae_table_soc() works", {
     ae_table_soc(ae, df_enrol=enrolres, arm="ARM", variant="sup")
     ae_table_soc(ae, df_enrol=enrolres, arm="ARM", variant="eq")
 
+    # with term
+    ae_table_soc(ae, df_enrol=enrolres, arm="ARM", term="aeterm", sort_by_count=TRUE)
+    ae_table_soc(ae, df_enrol=enrolres, arm="ARM", term="aeterm", sort_by_count=FALSE)
+
+    # with a soc only in one arm
+    ctl = tm$enrolres %>% filter(arm=="Control") %>% pull(subjid)
+    x=tm$ae %>%
+      filter(aesoc=="Cardiac disorders" | !subjid %in% ctl) %>%
+      ae_table_soc(df_enrol=tm$enrolres, arm="ARM")
   })
 
   ae_table_soc(df_ae=ae, df_enrol=enrolres,

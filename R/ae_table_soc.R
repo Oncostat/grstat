@@ -141,17 +141,24 @@ ae_table_soc = function(
 
   if(!total) rtn = rtn %>% select(-Tot)
   if(!showNA) rtn = rtn %>% select(-"NA")
-  if(!sort_by_count) rtn = rtn %>% mutate(soc_=as.character(soc_)) %>% arrange(arm_, soc_)
+  if(!sort_by_count) {
+    rtn = rtn %>%
+      mutate(across(any_of(c("soc_", "term_")), ~factor(as.character(.x))),
+             soc_ = fct_relevel(soc_, label_missing_pat, after=Inf)) %>%
+      arrange(arm_, soc_)
+  }
 
   spec = rtn %>%
     build_wider_spec(names_from=arm_,
                      values_from=c(matches("^G\\d$"), any_of(c("NA", "Tot"))),
                      names_glue="{arm_}_{.value}") %>%
     arrange(.name)
+
   rtn = rtn %>%
-    rename(soc=soc_) %>%
+    rename(soc=soc_, term=any_of("term_")) %>%
     pivot_wider_spec(spec) %>%
-    add_class("ae_table_soc")
+    add_class("ae_table_soc") %>%
+    arrange(soc, pick(any_of("term")))
 
   attr(rtn, "header") =
     glue("{a} (N={b})", a=names(arm_count), b=arm_count) %>%
