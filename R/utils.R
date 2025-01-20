@@ -91,6 +91,21 @@ get_label = function(x, default=names(x)){
   lab
 }
 
+#' @noRd
+#' @keywords internal
+apply_labels = function(data, ..., warn_missing=FALSE) {
+  args = lst(...)
+  unknowns = setdiff(names(args), names(data))
+  if (length(unknowns) && warn_missing) {
+    cli_warn("Cannot apply a label to unknown column{?s} in `data`: {.var {unknowns}}",
+             class="crosstable_missing_label_warning",
+             call=current_env())
+  }
+
+  data %>%
+    mutate(across(everything(),
+                  ~set_label(.x, args[[cur_column()]])))
+}
 
 # NA.RM ---------------------------------------------------------------------------------------
 
