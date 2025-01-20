@@ -25,6 +25,16 @@
       <ul class="nav navbar-nav"><li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Articles
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/adverse_events_sas.html">Adverse Events : Macros SAS</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
@@ -124,8 +134,8 @@
 <span class="r-in"><span><span class="fu">waterfall_plot</span><span class="op">(</span><span class="va">rc</span>, rc_date<span class="op">=</span><span class="st">"RCDT"</span>, rc_sum<span class="op">=</span><span class="st">"RCTLSUM"</span>, rc_resp<span class="op">=</span><span class="st">"RCRESP"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">waterfall_plot</span><span class="op">(</span><span class="va">rc</span>, rc_date<span class="op">=</span><span class="st">"RCDT"</span>, rc_sum<span class="op">=</span><span class="st">"RCTLSUM"</span>, rc_resp<span class="op">=</span><span class="st">"RCRESP"</span>, type<span class="op">=</span><span class="st">"worst_resp"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rc</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">enrolres</span>, by<span class="op">=</span><span class="st">"SUBJID"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="co">#adds the ARM column</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>new_lesion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">RCNEW</span><span class="op">==</span><span class="st">"1-Yes"</span>, <span class="st">"New lesion"</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">left_join</span><span class="op">(</span><span class="va">enrolres</span>, by<span class="op">=</span><span class="st">"SUBJID"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="co">#adds the ARM column</span></span></span>
+<span class="r-in"><span>  <span class="fu">mutate</span><span class="op">(</span>new_lesion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">RCNEW</span><span class="op">==</span><span class="st">"1-Yes"</span>, <span class="st">"New lesion"</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">waterfall_plot</span><span class="op">(</span>rc_date<span class="op">=</span><span class="st">"RCDT"</span>, rc_sum<span class="op">=</span><span class="st">"RCTLSUM"</span>, rc_resp<span class="op">=</span><span class="st">"RCRESP"</span>,</span></span>
 <span class="r-in"><span>                 arm<span class="op">=</span><span class="st">"ARM"</span>, rc_star<span class="op">=</span><span class="st">"new_lesion"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
