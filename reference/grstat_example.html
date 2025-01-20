@@ -53,7 +53,15 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">grstat_example</span><span class="op">(</span>N <span class="op">=</span> <span class="fl">50</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">grstat_example</span><span class="op">(</span></span>
+<span>  N <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">42</span>,</span>
+<span>  ae_n_max <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>  ae_p_sae <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  ae_p_na <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  r <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  r2 <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">3</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -65,9 +73,29 @@
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>the random seed</p></dd>
+<dd><p>the random seed (can be <code>NULL</code>)</p></dd>
+
+
+<dt id="arg-ae-n-max">ae_n_max<a class="anchor" aria-label="anchor" href="#arg-ae-n-max"></a></dt>
+<dd><p>maximum number of AE per patient</p></dd>
+
+
+<dt id="arg-ae-p-sae">ae_p_sae<a class="anchor" aria-label="anchor" href="#arg-ae-p-sae"></a></dt>
+<dd><p>proportion of serious AE</p></dd>
+
+
+<dt id="arg-ae-p-na">ae_p_na<a class="anchor" aria-label="anchor" href="#arg-ae-p-na"></a></dt>
+<dd><p>proportion of missing values (can be a list with a number for each column)</p></dd>
+
+
+<dt id="arg-r-r-">r, r2<a class="anchor" aria-label="anchor" href="#arg-r-r-"></a></dt>
+<dd><p>proportion of the "Control" arm in <code>enrolres$arm</code> and <code>enrolres$arm3</code></p></dd>
 
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    <p>A list of datasets, like in EDCimport.</p>
+    </div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
