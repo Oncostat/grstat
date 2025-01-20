@@ -130,11 +130,17 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tm</span> <span class="op">=</span> <span class="fu"><a href="grstat_example.html">grstat_example</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/attach.html" class="external-link">attach</a></span><span class="op">(</span><span class="va">tm</span>, warn.conflicts<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">ae_plot_grade_sum</span><span class="op">(</span>df_ae<span class="op">=</span><span class="va">ae</span>, df_enrol<span class="op">=</span><span class="va">enrolres</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ae_plot_grade_sum-1.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mutate(., grade = fix_grade(grade), weight = weights[grade] %&gt;%     replace_na(0.1)):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `grade = fix_grade(grade)`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `fix_grade()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> could not find function "fix_grade"</span>
 <span class="r-in"><span><span class="fu">ae_plot_grade_sum</span><span class="op">(</span>df_ae<span class="op">=</span><span class="va">ae</span>, df_enrol<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ae_plot_grade_sum-2.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mutate(., grade = fix_grade(grade), weight = weights[grade] %&gt;%     replace_na(0.1)):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `grade = fix_grade(grade)`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `fix_grade()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> could not find function "fix_grade"</span>
 <span class="r-in"><span><span class="fu">ae_plot_grade_sum</span><span class="op">(</span>df_ae<span class="op">=</span><span class="va">ae</span>, df_enrol<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, weights<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">6</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ae_plot_grade_sum-3.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mutate(., grade = fix_grade(grade), weight = weights[grade] %&gt;%     replace_na(0.1)):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `grade = fix_grade(grade)`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `fix_grade()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> could not find function "fix_grade"</span>
 </code></pre></div>
     </div>
   </div>
