@@ -280,7 +280,7 @@ ae_plot_grade_sum = function(
 
   df = df_enrol %>%
     left_join(df_ae, by=tolower(subjid)) %>%
-    mutate(grade = fix_grade(grade),
+    mutate(grade = .fix_grade_na(grade),
            weight = weights[grade] %>% replace_na(0.1)) %>%
     arrange(subjid)
 
