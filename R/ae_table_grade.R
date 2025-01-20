@@ -30,13 +30,26 @@
 #' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
-#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="ARM") %>%
+#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm") %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
 #' #To get SAE only, filter df_ae first
 #' ae %>%
 #'   dplyr::filter(sae=="Yes") %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="ARM", ae_label="SAE") %>%
+#'   ae_table_grade(df_enrol=enrolres, arm="arm", ae_label="SAE") %>%
+#'   as_flextable(header_show_n=TRUE)
+#'
+#' #To describe a sub-population, filter df_enrol first
+#' enrolres2 = enrolres %>%
+#'   dplyr::filter(arm=="Control")
+#' ae %>%
+#'   ae_table_grade(df_enrol=enrolres2, arm="arm") %>%
+#'   as_flextable(header_show_n=TRUE)
+#'
+#' #You can also filter the AE table
+#' ae %>%
+#'   ae_table_grade(df_enrol=enrolres, arm="arm") %>%
+#'   dplyr::filter(!variable %in% c("Grade 1", "Grade 2")) %>%
 #'   as_flextable(header_show_n=TRUE)
 ae_table_grade = function(
     df_ae, ..., df_enrol,
@@ -70,7 +83,7 @@ ae_table_grade = function(
     left_join(df_ae, by="subjid") %>%
     arrange(subjid) %>%
     mutate(
-      grade = fix_grade(grade),
+      grade = .fix_grade_na(grade),
     )
 
   variant = case_match(variant, "max"~"max_grade", "sup"~"any_grade_sup",
@@ -318,6 +331,6 @@ ae_plot_grade_n = ae_plot_grade_sum
 # Utils ---------------------------------------------------------------------------------------
 
 #' @importFrom dplyr na_if
-fix_grade = function(x){
+.fix_grade_na = function(x){
   as.numeric(na_if(as.character(x), "NA"))
 }
