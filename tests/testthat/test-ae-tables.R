@@ -25,7 +25,7 @@ test_that("ae_table_grade() with different colnames", {
   rslt = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, subjid="ENROLLID2", grade="grade", arm="TRT") %>%
     expect_silent()
 
-  expect_setequal(names(rslt), c(".id", "label", "variable", "Ctl", "Trt", "Total"))
+  expect_setequal(names(rslt), c(".id", "label", "variable", "Control", "Treatment", "Total"))
 })
 
 
