@@ -67,8 +67,6 @@ grstat_example = function(N=50, seed=42,
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
   }
 
-  grade_prop_ae  = c(0.4,0.3,0.2,0.1,0.01)
-  grade_prop_sae = c(0.15,0.15,0.3,0.3,0.1)
   ae = enrolres %>%
     mutate(
       n_ae = rbinom(n=n(), size=ifelse(arm=="Control", n_max, n_max_trt), prob=0.2),
@@ -76,10 +74,11 @@ grstat_example = function(N=50, seed=42,
     ) %>%
     unnest(x) %>%
     mutate(
-      sae = fct_yesno(runif(n())<p_sae),
-      aegr = sample(1:5, size=n(), replace=TRUE, prob=grade_prop_ae),
-      aegr_sae = sample(1:5, size=n(), replace=TRUE, prob=grade_prop_sae),
-      aegr = if_else(sae=="Yes", aegr_sae, aegr),
+      sae = fct_yesno(runif(n())<p_sae), #TODO p_sae function of treatment
+      # aegr = .random_grades(n(), rate=-0.4),
+      # aegr_sae = .random_grades(n(), rate=0.4),
+      rate = 0 - 0.5*(arm=="Control") + 1*(sae=="Yes"),
+      aegr = .random_grades_n(rate),
       .sample_term(n()),
       across(names(p_na), ~{
         p = p_na[[cur_column()]]
@@ -96,7 +95,37 @@ grstat_example = function(N=50, seed=42,
       aegr = "AE grade",
       sae = "Serious AE",
     )
+}
 
+
+#' Used in `.example_ae()`
+#' Construit un vecteur de grade avec exponential decay
+#' @noRd
+#' @keywords internal
+.random_grades = function(n, rate=-1) {
+  # probs = exp(rate * c(1:5))
+  # rightness = sum(probs/cumsum(probs)) #1 if rate=-Inf, to 5 if rate=Inf
+  # print(rightness)
+  probs = exp(rate * c(1:4))
+  probs = c(probs, probs[4]/7) #grade 5 always minor
+  probs = probs / sum(probs)   #normalize to sum to 1
+  sample(1:5, size=n, replace=TRUE, prob=probs)
+  # probs
+}
+
+
+
+#' Used in `.example_ae()`
+#' Construit un vecteur de grade par rate possible puis attribue selon le rate.
+#' impossible d'indexer sur un numeric (pas de names) donc j'indexe sur le dense_rank
+#' @param v_rate a vector of rate
+#' @noRd
+#' @keywords internal
+.random_grades_n = function(v_rate){
+  rates = v_rate %>% unique() %>% sort()
+  r = rates %>% map(~.random_grades(length(v_rate), .x))
+  x = dense_rank(v_rate)
+  map2_dbl(x, seq_along(x), ~ r[[.x]][.y])
 }
 
 
