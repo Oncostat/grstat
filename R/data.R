@@ -19,12 +19,14 @@
 #' @importFrom stats rbinom runif
 #' @importFrom tibble enframe lst tibble
 #' @importFrom tidyr unnest unpack
-grstat_example = function(N=50, seed=42, ae_n_max=15, ae_p_sae=0.1, ae_p_na=0, r=0.5, r2=1/3){
+grstat_example = function(N=50, seed=42,
+                          ae_n_max=15, ae_p_sae=0.1, ae_p_na=0,
+                          r=0.5, r2=1/3){
   set.seed(seed)
 
   enrolres = .example_enrol(N, r, r2)
 
-  ae = .example_ae(N, ae_p_na, ae_n_max, ae_p_sae)
+  ae = .example_ae(enrolres, p_na=ae_p_na, p_sae=ae_p_sae, n_max=ae_n_max)
 
   rtn = lst(enrolres, ae) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
@@ -59,26 +61,33 @@ grstat_example = function(N=50, seed=42, ae_n_max=15, ae_p_sae=0.1, ae_p_na=0, r
 
 #' @noRd
 #' @keywords internal
-.example_ae <- function(N, ae_p_na, ae_n_max, ae_p_sae) {
-  if(!is.list(ae_p_na)) {
-    ae_p_na = list(aesoc=ae_p_na, aeterm=ae_p_na, aegr=ae_p_na, sae=ae_p_na)
+.example_ae = function(enrolres, p_na, p_sae, n_max) {
+  if(!is.list(p_na)) {
+    p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
   }
 
-  ae = tibble(subjid=seq_len(N),
-              n_ae=rbinom(n=N, size=ae_n_max, prob=0.2),
-              x = map(n_ae, ~seq_len(.x)) ) %>%
+  grade_prop_ae  = c(0.4,0.3,0.2,0.1,0.01)
+  grade_prop_sae = c(0.15,0.15,0.3,0.3,0.1)
+  ae = enrolres %>%
+    mutate(
+      # n_ae = rbinom(n=n(), size=ifelse(arm=="Control", n_max, n_max_trt), prob=0.2),
+      n_ae = rbinom(n=N, size=ae_n_max, prob=0.2),
+      x = map(n_ae, ~seq_len(.x))
+    ) %>%
     unnest(x) %>%
     mutate(
-      sae = fct_yesno(runif(n())<ae_p_sae),
-      aegr = sample(1:5, size=n(), replace=TRUE, prob=c(0.4,0.3,0.2,0.1,0.01)),
-      aegr_sae = sample(1:5, size=n(), replace=TRUE, prob=c(0.15,0.15,0.3,0.3,0.1)),
+      sae = fct_yesno(runif(n())<p_sae),
+      aegr = sample(1:5, size=n(), replace=TRUE, prob=grade_prop_ae),
+      aegr_sae = sample(1:5, size=n(), replace=TRUE, prob=grade_prop_sae),
       aegr = if_else(sae=="Yes", aegr_sae, aegr),
       .sample_term(n()),
-      across(names(ae_p_na), ~{
-        p = ae_p_na[[cur_column()]]
+      across(names(p_na), ~{
+        p = p_na[[cur_column()]]
         if_else(runif(n()) < p, NA, .x)
       })
-    ) %>%
+    )
+
+  ae %>%
     select(subjid, aesoc, aeterm, aegr, sae, n_ae) %>%
     apply_labels(
       subjid = "Subject ID",
@@ -88,7 +97,6 @@ grstat_example = function(N=50, seed=42, ae_n_max=15, ae_p_sae=0.1, ae_p_na=0, r
       sae = "Serious AE",
     )
 
-  ae
 }
 
 
