@@ -20,13 +20,14 @@
 #' @importFrom tibble enframe lst tibble
 #' @importFrom tidyr unnest unpack
 grstat_example = function(N=50, seed=42,
-                          ae_n_max=15, ae_p_sae=0.1, ae_p_na=0,
+                          ae_n_max=15, ae_n_max_trt=ae_n_max, ae_p_sae=0.1, ae_p_na=0,
                           r=0.5, r2=1/3){
   set.seed(seed)
 
   enrolres = .example_enrol(N, r, r2)
 
-  ae = .example_ae(enrolres, p_na=ae_p_na, p_sae=ae_p_sae, n_max=ae_n_max)
+  ae = .example_ae(enrolres, p_na=ae_p_na, p_sae=ae_p_sae,
+                   n_max=ae_n_max, n_max_trt=ae_n_max_trt)
 
   rtn = lst(enrolres, ae) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
@@ -61,7 +62,7 @@ grstat_example = function(N=50, seed=42,
 
 #' @noRd
 #' @keywords internal
-.example_ae = function(enrolres, p_na, p_sae, n_max) {
+.example_ae = function(enrolres, p_na, p_sae, n_max, n_max_trt) {
   if(!is.list(p_na)) {
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
   }
@@ -70,8 +71,7 @@ grstat_example = function(N=50, seed=42,
   grade_prop_sae = c(0.15,0.15,0.3,0.3,0.1)
   ae = enrolres %>%
     mutate(
-      # n_ae = rbinom(n=n(), size=ifelse(arm=="Control", n_max, n_max_trt), prob=0.2),
-      n_ae = rbinom(n=N, size=ae_n_max, prob=0.2),
+      n_ae = rbinom(n=n(), size=ifelse(arm=="Control", n_max, n_max_trt), prob=0.2),
       x = map(n_ae, ~seq_len(.x))
     ) %>%
     unnest(x) %>%
