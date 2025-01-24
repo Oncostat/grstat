@@ -6,10 +6,8 @@
 #'
 #' @param N the number of patients
 #' @param seed the random seed (can be `NULL`)
-#' @param ae_n_max maximum number of AE per patient
-#' @param ae_p_sae proportion of serious AE
-#' @param ae_p_na proportion of missing values (can be a list with a number for each column)
-#' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3`
+#' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
+#' @param ... passed on to internal functions. See [example_ae()] for control over Adverse Events.
 #'
 #' @returns A list of datasets, like in EDCimport.
 #'
@@ -19,15 +17,20 @@
 #' @importFrom stats rbinom runif
 #' @importFrom tibble enframe lst tibble
 #' @importFrom tidyr unnest unpack
-grstat_example = function(N=50, seed=42,
-                          ae_n_max=15, ae_n_max_trt=ae_n_max, ae_p_sae=0.1, ae_p_na=0,
+grstat_example = function(N=50, ..., seed=42,
+                          # ae_n_max=15, ae_n_max_trt=ae_n_max,
+                          # ae_p_sae=0.1, ae_p_sae_trt=ae_p_sae,
+                          # ae_p_na=0,
                           r=0.5, r2=1/3){
   set.seed(seed)
 
-  enrolres = .example_enrol(N, r, r2)
+  enrolres = example_enrol(N, r, r2)
 
-  ae = .example_ae(enrolres, p_na=ae_p_na, p_sae=ae_p_sae,
-                   n_max=ae_n_max, n_max_trt=ae_n_max_trt)
+  ae = example_ae(enrolres,
+                  # p_na=ae_p_na,
+                  #  n_max=ae_n_max, n_max_trt=ae_n_max_trt,
+                  #  p_sae=ae_p_sae,
+                   ...)
 
   rtn = lst(enrolres, ae) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
@@ -41,9 +44,8 @@ grstat_example = function(N=50, seed=42,
 
 # Internals -----------------------------------------------------------------------------------
 
-#' @noRd
 #' @keywords internal
-.example_enrol = function(N, r, r2){
+example_enrol = function(N, r, r2){
   tibble(
     subjid = seq_len(N),
     arm = sample(c(rep("Control", round(N*r)),
@@ -60,9 +62,21 @@ grstat_example = function(N=50, seed=42,
 }
 
 
-#' @noRd
+#' Generate an Adverse Event table
+#'
+#' @param enrolres the enrolment result table, from `.example_enrol`
+#' @param p_na proportion of missing values (can be a list with a value for each column)
+#' @param p_sae,p_sae_trt proportion of serious AE in control/exp arms
+#' @param n_max,n_max_trt maximum number of AE per patient in control/exp arms (binomial with probability 20%)
+#' @param beta0,beta_trt,beta_sae the intercept, treatement coef and SAE coef to be used in the exponential decay model that generates the AE grade.
+#'
+# ae_n_max ae_n_max_trt=ae_n_max,
+# ae_p_sae=0.1, ae_p_sae_trt=ae_p_sae,
+# ae_p_na=0,
 #' @keywords internal
-.example_ae = function(enrolres, p_na, p_sae, n_max, n_max_trt,
+example_ae = function(enrolres, p_na=0,
+                      p_sae=0.1, p_sae_trt=p_sae,
+                      n_max=15, n_max_trt=n_max,
                       beta0=-0.5, beta_trt=0.3, beta_sae=1) {
   if(!is.list(p_na)) {
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
@@ -75,8 +89,6 @@ grstat_example = function(N=50, seed=42,
     ) %>%
     unnest(x) %>%
     mutate(
-      # aegr = .random_grades(n(), rate=-0.4),
-      # aegr_sae = .random_grades(n(), rate=0.4),
       sae = fct_yesno(runif(n())<ifelse(arm=="Control", p_sae, p_sae_trt)),
       rate = beta0 + beta_trt*(arm!="Control") + beta_sae*(sae=="Yes"),
       aegr = .random_grades_n(rate),
