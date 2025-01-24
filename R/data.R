@@ -75,9 +75,9 @@ grstat_example = function(N=50, seed=42,
     ) %>%
     unnest(x) %>%
     mutate(
-      sae = fct_yesno(runif(n())<p_sae), #TODO p_sae function of treatment
       # aegr = .random_grades(n(), rate=-0.4),
       # aegr_sae = .random_grades(n(), rate=0.4),
+      sae = fct_yesno(runif(n())<ifelse(arm=="Control", p_sae, p_sae_trt)),
       rate = beta0 + beta_trt*(arm!="Control") + beta_sae*(sae=="Yes"),
       aegr = .random_grades_n(rate),
       .sample_term(n()),
