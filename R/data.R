@@ -12,11 +12,9 @@
 #' @returns A list of datasets, like in EDCimport.
 #'
 #' @export
-#' @importFrom dplyr mutate n select
-#' @importFrom purrr imap map
-#' @importFrom stats rbinom runif
-#' @importFrom tibble enframe lst tibble
-#' @importFrom tidyr unnest unpack
+#' @importFrom dplyr mutate
+#' @importFrom purrr imap
+#' @importFrom tibble lst
 grstat_example = function(N=50, ..., seed=42,
                           # ae_n_max=15, ae_n_max_trt=ae_n_max,
                           # ae_p_sae=0.1, ae_p_sae_trt=ae_p_sae,
@@ -45,6 +43,7 @@ grstat_example = function(N=50, ..., seed=42,
 # Internals -----------------------------------------------------------------------------------
 
 #' @keywords internal
+#' @importFrom tibble tibble
 example_enrol = function(N, r, r2){
   tibble(
     subjid = seq_len(N),
@@ -74,6 +73,10 @@ example_enrol = function(N, r, r2){
 # ae_p_sae=0.1, ae_p_sae_trt=ae_p_sae,
 # ae_p_na=0,
 #' @keywords internal
+#' @importFrom dplyr across cur_column if_else mutate n select
+#' @importFrom purrr map
+#' @importFrom stats rbinom runif
+#' @importFrom tidyr unnest
 example_ae = function(enrolres, p_na=0,
                       p_sae=0.1, p_sae_trt=p_sae,
                       n_max=15, n_max_trt=n_max,
@@ -98,6 +101,18 @@ example_ae = function(enrolres, p_na=0,
         if_else(runif(n()) < p, NA, .x)
       })
     )
+  # browser()
+  # #
+  # ae %>% summarise(x=mean(n_ae), .by=arm)
+  # ae %>% count(arm,sae)
+  #
+  #
+  # ae %>%
+  #   summarise(n=n(), .by=c(aegr2,arm,sae))
+  #
+  # ae %>% ggplot(aes(x=aegr, fill=arm)) +
+  #   geom_histogram(position="dodge", bins=9) +
+  #   facet_wrap(arm~sae)
 
   ae %>%
     select(subjid, aesoc, aeterm, aegr, sae, n_ae) %>%
@@ -134,6 +149,8 @@ example_ae = function(enrolres, p_na=0,
 #' @param v_rate a vector of rate
 #' @noRd
 #' @keywords internal
+#' @importFrom dplyr dense_rank
+#' @importFrom purrr map map2_dbl
 .random_grades_n = function(v_rate){
   rates = v_rate %>% unique() %>% sort()
   r = rates %>% map(~.random_grades(length(v_rate), .x))
@@ -145,6 +162,8 @@ example_ae = function(enrolres, p_na=0,
 #' Used in `.example_ae()`
 #' @noRd
 #' @keywords internal
+#' @importFrom purrr map_chr
+#' @importFrom tibble enframe
 .sample_term = function(n){
   sample(sample_ctcae, size=n, replace=TRUE) %>%
     map_chr(~sample(.x, 1)) %>%

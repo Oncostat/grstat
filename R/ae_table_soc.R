@@ -29,7 +29,7 @@
 #'
 #' @importFrom cli cli_abort cli_warn
 #' @importFrom dplyr across any_of arrange count cur_group filter if_else left_join mutate pick pull rename select summarise
-#' @importFrom forcats fct_infreq
+#' @importFrom forcats fct_infreq fct_relevel
 #' @importFrom glue glue
 #' @importFrom purrr iwalk keep map
 #' @importFrom rlang arg_match check_dots_empty ensym is_empty set_names
