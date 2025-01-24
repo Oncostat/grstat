@@ -62,7 +62,8 @@ grstat_example = function(N=50, seed=42,
 
 #' @noRd
 #' @keywords internal
-.example_ae = function(enrolres, p_na, p_sae, n_max, n_max_trt) {
+.example_ae = function(enrolres, p_na, p_sae, n_max, n_max_trt,
+                      beta0=-0.5, beta_trt=0.3, beta_sae=1) {
   if(!is.list(p_na)) {
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
   }
@@ -77,7 +78,7 @@ grstat_example = function(N=50, seed=42,
       sae = fct_yesno(runif(n())<p_sae), #TODO p_sae function of treatment
       # aegr = .random_grades(n(), rate=-0.4),
       # aegr_sae = .random_grades(n(), rate=0.4),
-      rate = 0 - 0.5*(arm=="Control") + 1*(sae=="Yes"),
+      rate = beta0 + beta_trt*(arm!="Control") + beta_sae*(sae=="Yes"),
       aegr = .random_grades_n(rate),
       .sample_term(n()),
       across(names(p_na), ~{
