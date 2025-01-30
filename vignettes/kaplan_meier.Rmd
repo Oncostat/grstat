@@ -8,13 +8,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+# 1. Data
+
 ```{r, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>")
-
- # 1. Data
-# j arrive pas a mettre le title data??? pourquoi?
 
 library(tidyverse)
 t0 = ISOdate(2020, 01, 01, tz="EST")
