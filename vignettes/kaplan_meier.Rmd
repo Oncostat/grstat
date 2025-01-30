@@ -11,21 +11,10 @@ vignette: >
 ```{r, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
-)
+  comment = "#>")
 
-# library(tidyverse)
- # t0 = ISOdate(2020, 01, 01, tz="EST")
- # data_surv = ggsurvfit::df_colon %>% 
- #   mutate(
- #    date_enrol = t0 + abs(rnorm(n(), 100, 10)), 
- #    date_eos = date_enrol + time,
- #    death_eos = status,
- #    date_progression = date_enrol + time*runif(n(), 0.6, 0.8),
- #    date_progression = if_else(runif(n())>0.2, NA, date_progression), 
- #   ) %>% 
- #   select(subijd=id, arm=rx, surg, 
- #          date_enrol, date_progression, date_eos, death_eos)
+ # 1. Data
+# j arrive pas a mettre le title data??? pourquoi?
 
 library(tidyverse)
 t0 = ISOdate(2020, 01, 01, tz="EST")
@@ -46,6 +35,19 @@ length(unique(data_surv$subijd))
 # rnorm(50,mean=5,sd=2)
 print(data_surv)
 
+# library(tidyverse)
+ # t0 = ISOdate(2020, 01, 01, tz="EST")
+ # data_surv = ggsurvfit::df_colon %>% 
+ #   mutate(
+ #    date_enrol = t0 + abs(rnorm(n(), 100, 10)), 
+ #    date_eos = date_enrol + time,
+ #    death_eos = status,
+ #    date_progression = date_enrol + time*runif(n(), 0.6, 0.8),
+ #    date_progression = if_else(runif(n())>0.2, NA, date_progression), 
+ #   ) %>% 
+ #   select(subijd=id, arm=rx, surg, 
+ #          date_enrol, date_progression, date_eos, death_eos)
+
 ```
 
 ```{r setup}
@@ -55,7 +57,7 @@ library(survival)
 library(ggsurvfit)
 ```
 
-# 1. Variable Creation
+# 2. Variable Creation
 
 First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
 
