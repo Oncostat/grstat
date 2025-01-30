@@ -14,19 +14,38 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
+# library(tidyverse)
+ # t0 = ISOdate(2020, 01, 01, tz="EST")
+ # data_surv = ggsurvfit::df_colon %>% 
+ #   mutate(
+ #    date_enrol = t0 + abs(rnorm(n(), 100, 10)), 
+ #    date_eos = date_enrol + time,
+ #    death_eos = status,
+ #    date_progression = date_enrol + time*runif(n(), 0.6, 0.8),
+ #    date_progression = if_else(runif(n())>0.2, NA, date_progression), 
+ #   ) %>% 
+ #   select(subijd=id, arm=rx, surg, 
+ #          date_enrol, date_progression, date_eos, death_eos)
+
 library(tidyverse)
 t0 = ISOdate(2020, 01, 01, tz="EST")
+t0_v2=as.Date(t0, format =  "%Y/%m/%d")
+# , format(Sys.time(), "%*Y/%m/%d"
 data_surv = ggsurvfit::df_colon %>% 
   mutate(
-    date_enrol = t0 + abs(rnorm(n(), 100, 10)), 
-    date_eos = date_enrol + time,
-    death_eos = status,
-    date_progression = date_enrol + time*runif(n(), 0.6, 0.8),
-    date_progression = if_else(runif(n())>0.2, NA, date_progression), 
+    date_first_visit = t0_v2 + abs(rnorm(n(), 500, 20)), 
+    date_of_last_visit = date_first_visit + time,
+    death = status,
+    date_progression = date_first_visit + time*runif(n(), 0.6, 0.8),
+    # date_progression = if_else(runif(n())>0.2, NA, date_progression), 
   ) %>% 
-  select(subijd=id, arm=rx, surg, 
-         date_enrol, date_progression, date_eos, death_eos)
-#data_surv est caché (include=FALSE), il suffit donc de présenter le dataset et ses colonnes (comme tu le ferais avec df_colon), puis d'expliquer comment utiliser pmin() pour créer time_os, event_os, time_pfs, event_pfs
+  select(subijd=id,arm=rx, surg, 
+         date_first_visit,time, date_progression, date_of_last_visit, death)
+  
+length(unique(data_surv$subijd))
+# rnorm(50,mean=5,sd=2)
+print(data_surv)
+
 ```
 
 ```{r setup}
@@ -56,30 +75,29 @@ Censored (0) refers to those subjects who did not experience the event during th
 ### Example
 
 ```{r}
-data <- data.frame(
-  id = 1:5,
-  date_of_death = as.Date(c('2023-05-01', '2023-07-15', NA, '2023-09-10', '2023-06-20')),
-  date_of_relapse = as.Date(c('2023-04-10', NA, '2023-06-01', '2023-08-01', NA)),
-  date_of_last_visit = as.Date(c('2023-04-15', '2023-06-28', '2023-06-10', '2023-08-01', '2023-06-15')),
-  date_first_visit = as.Date(c('2023-01-15', '2023-05-20', '2023-03-01', '2023-07-05', '2023-02-10')),
-  # Event column: 1 for death or relapse, 0 for no event
-  event = c(1, 0, 1, 1, 0)
-)
+# data <- data.frame(
+#   id = 1:5,
+#   date_of_death = as.Date(c('2023-05-01', '2023-07-15', NA, '2023-09-10', '2023-06-20')),
+#   date_of_relapse = as.Date(c('2023-04-10', NA, '2023-06-01', '2023-08-01', NA)),
+#   date_of_last_visit = as.Date(c('2023-04-15', '2023-06-28', '2023-06-10', '2023-08-01', '2023-06-15')),
+#   date_first_visit = as.Date(c('2023-01-15', '2023-05-20', '2023-03-01', '2023-07-05', '2023-02-10')),
+#   # Event column: 1 for death or relapse, 0 for no event
+#   event = c(1, 0, 1, 1, 0)
+# )
+# 
+# # Print the data frame
+# print(data)
 
-# Print the data frame
-print(data)
-
-
-ds=data %>%
-  mutate(status= ifelse(event=="death", 1, 0 )) %>%
+data_surv_v2=data_surv %>%
+  mutate(status= ifelse(death==1, 1, 0 )) %>%
   mutate(status_date = case_when(
-    status == 1  ~ pmin(date_of_relapse,date_of_death, na.rm = T), 
+    status == 1  ~ pmin(date_progression, na.rm = T), 
     status == 0  ~ pmax(date_of_last_visit,na.rm = T)
   )) %>% 
   mutate(time_days=status_date-date_first_visit ) %>%  
-  mutate(time_years=time_days/365.25 )  
+  mutate(time_months=time_days/30.5 )  
 
-print(ds)
+head(data_surv_v2)
 ```
 
 # 2.Generate the summary of the survival
@@ -88,8 +106,9 @@ We recommend using the survival package with the survfit2 function instead of su
 
 
 ```{r}
-km.model_PFS <- survfit2(Surv(time, status) ~ surg,data = df_colon)
+km.model_PFS <- survfit2(Surv(time_months, status) ~ surg,data = data_surv_v2)
 print(km.model_PFS)
+# il y a beaucoup de NA, c pas genial
 summary(km.model_PFS)
 
 ```
@@ -106,7 +125,7 @@ Kaplan-Meier by Daniel D. Sjoberg, Mark Baillie, Charlotta Fruechtenicht, Steven
 
 ```{r}
 
-km = survfit2(Surv(time, status) ~ surg, data = df_colon) %>%
+km = survfit2(Surv(time_days, status) ~ surg, data = data_surv_v2) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +
   add_risktable(
@@ -122,15 +141,15 @@ km
 
 
 
-### Extra codes to make the plot better
+### Extra codes to improve the plot
 
 ```{r}
 km +
   add_censor_mark(size = 4, alpha = 0.4) +
-  scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 10)) +
+  scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 8)) +
   scale_y_continuous(labels=scales::label_percent(), limits=c(0,1)) +
   labs(
-    x = "Time from begining of treatment to progression or death (months)",
+    x = "Time from begining of treatment to progression or death (days)",
     y = "Progression Free Survival",
     title="Progression Free Survival, (N=X, n event=X)"
   ) +
