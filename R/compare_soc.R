@@ -4,14 +4,14 @@
 # author: Nusaibah
 
 compare_soc <- function(tabR,tabSAS){
-# ae_table_soc() affiche toutes les colonnes grade 1à 5 NA et total(option) (pour chaque bras si le bras est indiqué)
-# supprimée les colonnes et lignes vides pour optimiser l'algorithme
+  # ae_table_soc() affiche toutes les colonnes grade 1à 5 NA et total(option) (pour chaque bras si le bras est indiqué)
+  # supprimée les colonnes et lignes vides pour optimiser l'algorithme
   tabR = tabR[,!apply(is.na(tabR), 2, all)]
   tabR = tabR[!apply(is.na(tabR%>%select(-soc)), 1, all),]
   if ("term_"%in% c(colnames(tabR),colnames(tabSAS))){
     tabR = tabR %>% arrange(soc,term_)
   }else{
-  tabR = tabR %>% arrange(soc)
+    tabR = tabR %>% arrange(soc)
   }
 
   tab=list()
@@ -84,7 +84,7 @@ compare_soc <- function(tabR,tabSAS){
       tab$grade=c(tab$grade,paste(colnames(tabR)[-(which(colnames(tabR) %in% colnames(tabSAS)))],collapse = " & "))
       if(any(grepl("bras",colnames(tabR)))){
         tab$arm=c(tab$arm,paste(unique(str_extract(colnames(tabR)[which(!(colnames(tabR)%in% colnames(tabSAS)))],"bras[:alnum:]+")),collapse = " & "))
-        }
+      }
       tab$table=c(tab$table,"SAS")
       tab$main=c(tab$main,"Missing grade")
       tab$valueR=c(tab$valueR,"Filled")
@@ -146,12 +146,53 @@ compare_soc <- function(tabR,tabSAS){
                    select(-c("table.r","table.sas")))
 
 
-      tab=as.data.frame(tab)%>%distinct(level,grade,table,main,soc,.keep_all = TRUE)
-    }else{     warning("Comparison result: same outputs")
-      tab=cbind(data.frame("R table"=""),tabR,data.frame("SAS table"=""),tabSAS)
+      tab=as.data.frame(tab)%>%
+        distinct(level,grade,table,main,soc,.keep_all = TRUE)%>%
+        flextable()%>%
+        bold(part="header") %>%
+        align(part="body", align="right",i=~str_detect(valueR,pattern="[:digit:]"),j="valueR")%>%
+        align(part="body", align="right",i=~str_detect(valueSAS,pattern="[:digit:]"),j="valueSAS")%>%
+        autofit() %>%
+        bg(i=~level=="MAJEUR",bg="#f06d4d")
+
+    }else{
+      # warning("Comparison result: same outputs")
+      # tab=cbind(data.frame("R table"=""),tabR,data.frame("SAS table"=""),tabSAS)
+
+      if ("term_" %in% colnames(tabR)){ jointure=c("soc","term_")
+      colsize=c(1,1,ncol(tabR)-2,ncol(tabSAS)-2)}else{jointure="soc"
+      colsize=c(1,ncol(tabR)-1,ncol(tabSAS)-1) }
+      tab = tabR%>%
+        full_join(tabSAS,
+                  by=jointure,
+                  suffix = c("_r","_sas"))%>%
+        flextable()%>%
+        add_footer_lines( "Comparison result: same outputs", top=TRUE) %>%
+        autofit() %>%
+        add_header_row( values = c(jointure,"R table", "SAS table"), colwidths = colsize) %>%
+        align(part="header", align="center",i=1)%>%
+        bold(part="header") %>%
+        # bold(i=~N1_r!=N1_sas,j=c(2,4))%>%
+        vline(j=ncol(tabR), part = "body") %>%
+
+        set_header_labels(values= c(colnames(tabR),colnames(tabSAS)[-c(1:length(jointure))])) %>%
+        merge_at(i=c(1,2),j=1,  part = "header")%>%
+        align(part="body", align="left",j=1)
+
+      if ("term_" %in% colnames(tabR)){  tab = tab %>%  merge_at(i=c(1,2), j=2,  part = "header")%>%  align(part="body", align="left",j=2)}
     }
+  }else{
+    tab=as.data.frame(tab)%>%
+      distinct(level,grade,table,main,soc,.keep_all = TRUE)%>%
+      flextable()%>%
+      bold(part="header") %>%
+      align(part="body", align="right",i=~str_detect(valueR,pattern="[:digit:]"),j="valueR")%>%
+      align(part="body", align="right",i=~str_detect(valueSAS,pattern="[:digit:]"),j="valueSAS")%>%
+      autofit() %>%
+      bg(i=~level=="MAJEUR",bg="#f06d4d")
+
   }
-  return(as.data.frame(tab))
+  return(tab)
 
 
 }
