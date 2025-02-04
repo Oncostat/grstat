@@ -121,14 +121,18 @@ ae_table_soc = function(
   arm_count2 = arm_count %>%
     set_names(to_snake_case)
 
+  extra_cols = if(total) c("NA", "Tot") else c("NA")
   rtn = df %>%
     summarise(calc = evaluate_grades(grade_, variant),
               .by=any_of(c("subjid_", "arm_", "soc_", "term_"))) %>%
     unnest(calc) %>%
-    mutate(soc_ = soc_ %>% fct_infreq(w=Tot) %>%
-             fct_last(label_missing_soc, label_missing_pat)) %>%
+    mutate(
+      # Tot = ifelse(total, Tot, 0),
+      soc_ = soc_ %>% fct_infreq(w=Tot) %>%
+             fct_last(label_missing_soc, label_missing_pat)
+    ) %>%
     summarise(
-      across(c(matches("^G\\d$"), any_of(c("NA", "Tot"))), ~{
+      across(c(matches("^G\\d$"), any_of(extra_cols)), ~{
         n = sum(.x)
         n_arm = arm_count2[[cur_group()$arm_]]
         label = glue("{n} ({p})", p=percent(n/n_arm, digits))
