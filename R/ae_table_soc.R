@@ -143,8 +143,8 @@ ae_table_soc = function(
     ) %>%
     arrange(arm_, soc_)
 
-  if(!total) rtn = rtn %>% select(-Tot)
-  if(!showNA) rtn = rtn %>% select(-"NA")
+  if(!total) rtn = rtn %>% select(-any_of("Tot"))
+  if(!showNA) rtn = rtn %>% select(-any_of("NA"))
   if(!sort_by_count) {
     rtn = rtn %>%
       mutate(across(any_of(c("soc_", "term_")), ~factor(as.character(.x))),
