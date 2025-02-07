@@ -61,7 +61,7 @@ An event (1) indicates that the subjects experienced the event of interest (e.g.
 
 Censored (0) refers to those subjects who did not experience the event during the study. For these individuals, the 'time-to-event' is considered censored, indicating that we only know they did not experience the event up to a certain point.
 
-### Example
+## Example
 
 ```{r}
 data_surv_v2=data_surv %>%
@@ -113,7 +113,7 @@ km
 
 
 
-### Extra codes to improve the plot
+## Extra codes to improve the plot
 
 ```{r fig.width = 5 ,fig.height=5}
 km +
