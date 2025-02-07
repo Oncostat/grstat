@@ -2,12 +2,13 @@
 title: "Kaplan Meier instruction suggestion"
 author: "Livia Pierotti"
 date: "2024-11-26"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   
-
 ---
 
 # Data
