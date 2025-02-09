@@ -254,7 +254,8 @@ ae_plot_grade = function(
 #' @export
 #' @importFrom dplyr across any_of arrange count left_join mutate rename_with select
 #' @importFrom forcats fct_infreq fct_rev
-#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_fill_manual theme vars
+#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_color_manual scale_fill_manual theme theme_minimal vars
+#' @importFrom glue glue
 #' @importFrom rlang check_dots_empty int
 #' @importFrom tibble deframe lst
 #' @importFrom tidyr replace_na
@@ -296,6 +297,7 @@ ae_plot_grade_sum = function(
     npat = deframe(count(df_enrol, arm))
     npat["Total"] = sum(npat)
   } else {
+    df$arm = default_arm
     npat = int(!!default_arm:=nrow(df_enrol))
   }
 
@@ -310,17 +312,23 @@ ae_plot_grade_sum = function(
 
   rtn =
     df %>%
-    mutate(subjid = fct_infreq(factor(subjid), w=weight)) %>%
+    mutate(
+      arm = glue("{arm} (N={npat[arm]})"),
+      subjid = fct_infreq(factor(subjid), w=weight)
+    ) %>%
     count(across(c(subjid, grade, any_of("arm"))), wt=weight) %>%
     mutate(
       n = ifelse(is.na(grade), 0.1, n),
       grade = fct_rev(factor(grade))
     ) %>%
-    ggplot(aes(x=subjid, y=n, fill=grade)) +
+    ggplot(aes(x=subjid, y=n, fill=grade, color=grade)) +
     scale_fill_manual(values=rev(pal)) +
+    scale_color_manual(values=rev(pal), guide="none") +
     geom_col() +
+    theme_minimal() +
     theme(axis.text.x=element_blank(),
-          axis.ticks.x=element_blank()) +
+          axis.ticks.x=element_blank(),
+          panel.grid.major.x = element_blank()) +
     labs(x="Patient", y=y_lab, fill="AE grade", caption=caption)
 
   if(!is.null(arm)) rtn = rtn + facet_grid(cols=vars(arm), scales="free_x")
@@ -333,6 +341,7 @@ ae_plot_grade_sum = function(
 #' @usage NULL
 #' @export
 ae_plot_grade_n = ae_plot_grade_sum
+
 
 
 # Utils ---------------------------------------------------------------------------------------

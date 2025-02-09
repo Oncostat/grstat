@@ -80,7 +80,7 @@ ae_table_soc = function(
 
   if(variant!="max" && missing(total) && total){
     cli_warn("Total has been set to `FALSE` as totals are not very interpretable
-             when {.arg variant} is {.val sup} or {.val eq}. Set `total=TRUE`
+             when {.arg variant} is {.val sup} or {.val eq}. Set `total=FALSE`
              explicitly to silence this warning.")
     total=FALSE
   }
