@@ -102,6 +102,7 @@ example_ae = function(enrolres, p_na=0,
   ae = enrolres %>%
     mutate(
       n_ae = rbinom(n=n(), size=ifelse(arm=="Control", n_max, n_max_trt), prob=0.2),
+      # n_ae = rpois(n=n(), lambda=ifelse(arm=="Control", n_max, n_max_trt)),
       x = map(n_ae, ~seq_len(.x))
     ) %>%
     unnest(x) %>%
@@ -117,18 +118,6 @@ example_ae = function(enrolres, p_na=0,
         if_else(runif(n()) < p, NA, .x)
       })
     )
-  # browser()
-  # #
-  # ae %>% summarise(x=mean(n_ae), .by=arm)
-  # ae %>% count(arm,sae)
-  #
-  #
-  # ae %>%
-  #   summarise(n=n(), .by=c(aegr2,arm,sae))
-  #
-  # ae %>% ggplot(aes(x=aegr, fill=arm)) +
-  #   geom_histogram(position="dodge", bins=9) +
-  #   facet_wrap(arm~sae)
 
   ae %>%
     select(subjid, aesoc, aeterm, aegr, sae, aerel) %>%
@@ -142,14 +131,12 @@ example_ae = function(enrolres, p_na=0,
 }
 
 
-#' Used in `.example_ae()`
+#' Used in `.random_grades_n()`
 #' Construit un vecteur de grade avec exponential decay
+#' @param rate length 1
 #' @noRd
 #' @keywords internal
 .random_grades = function(n, rate=-1) {
-  # probs = exp(rate * c(1:5))
-  # rightness = sum(probs/cumsum(probs)) #1 if rate=-Inf, to 5 if rate=Inf
-  # print(rightness)
   probs = exp(rate * c(1:4))
   probs = c(probs, probs[4]/7) #grade 5 always minor
   probs = probs / sum(probs)   #normalize to sum to 1
@@ -174,9 +161,10 @@ example_ae = function(enrolres, p_na=0,
 }
 
 
-#' Used in `.example_ae()`
-#' Take `n` items from `sample_ctcae` (length 27), then take one random child of each.
-#' The probability is exponentially decreasing along `names(sample_ctcae)`.
+#' Used in `.sample_term_n()`
+#' Construit un vecteur de SOC avec un weight prédéfini
+#' Utilise le global `specific_soc`
+#' @param w length 1 weight
 #' @noRd
 #' @keywords internal
 #' @importFrom purrr map_chr
