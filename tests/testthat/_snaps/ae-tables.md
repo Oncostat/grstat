@@ -1,4 +1,66 @@
-# ae_table_grade() works
+# ae_tables simplest snapshot
+
+    Code
+      df_ae = tibble(subjid = rep(1:2, each = 4), aesoc = rep("Soc1", 8), aegr = c(1:4, 2:5))
+      df_enrolres = tibble(subjid = 1:2, arm = "Foobar")
+      ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
+    Output
+      # A tibble: 1 x 8
+        soc   all_patients_G1 all_patients_G2 all_patients_G3 all_patients_G4 all_patients_G5 all_patients_NA all_patients_Tot
+        <fct> <glue>          <glue>          <glue>          <glue>          <glue>          <glue>          <glue>          
+      1 Soc1  <NA>            <NA>            <NA>            1 (50%)         1 (50%)         <NA>            2 (100%)        
+    Code
+      ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
+    Condition
+      Warning:
+      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
+    Output
+      # A tibble: 1 x 7
+        soc   all_patients_G1 all_patients_G2 all_patients_G3 all_patients_G4 all_patients_G5 all_patients_NA
+        <fct> <glue>          <glue>          <glue>          <glue>          <glue>          <glue>         
+      1 Soc1  2 (100%)        2 (100%)        2 (100%)        2 (100%)        1 (50%)         <NA>           
+    Code
+      ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
+    Condition
+      Warning:
+      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
+    Output
+      # A tibble: 1 x 7
+        soc   all_patients_G1 all_patients_G2 all_patients_G3 all_patients_G4 all_patients_G5 all_patients_NA
+        <fct> <glue>          <glue>          <glue>          <glue>          <glue>          <glue>         
+      1 Soc1  1 (50%)         2 (100%)        2 (100%)        2 (100%)        1 (50%)         <NA>           
+    Code
+      ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
+    Output
+      # A tibble: 2 x 4
+        .id       label                    variable `All patients`
+        <fct>     <fct>                    <fct>    <chr>         
+      1 max_grade Patient maximum AE grade Grade 4  1 (50%)       
+      2 max_grade Patient maximum AE grade Grade 5  1 (50%)       
+    Code
+      ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
+    Output
+      # A tibble: 5 x 4
+        .id           label                                variable  `All patients`
+        <fct>         <fct>                                <fct>     <chr>         
+      1 any_grade_sup Patient had at least one AE of grade Grade ≥ 1 2 (100%)      
+      2 any_grade_sup Patient had at least one AE of grade Grade ≥ 2 2 (100%)      
+      3 any_grade_sup Patient had at least one AE of grade Grade ≥ 3 2 (100%)      
+      4 any_grade_sup Patient had at least one AE of grade Grade ≥ 4 2 (100%)      
+      5 any_grade_sup Patient had at least one AE of grade Grade = 5 1 (50%)       
+    Code
+      ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
+    Output
+      # A tibble: 5 x 4
+        .id          label                                   variable `All patients`
+        <fct>        <fct>                                   <fct>    <chr>         
+      1 any_grade_eq "Patient had at least one AE of grade " Grade 1  1 (50%)       
+      2 any_grade_eq "Patient had at least one AE of grade " Grade 2  2 (100%)      
+      3 any_grade_eq "Patient had at least one AE of grade " Grade 3  2 (100%)      
+      4 any_grade_eq "Patient had at least one AE of grade " Grade 4  2 (100%)      
+      5 any_grade_eq "Patient had at least one AE of grade " Grade 5  1 (50%)       
+
+# ae_table_grade() default snapshot
 
     Code
       tm = grstat_example()
@@ -93,7 +155,7 @@
       17 any_grade_eq  "Patient had at least one AE of grade " Grade 4        15      29       
       18 any_grade_eq  "Patient had at least one AE of grade " Grade 5        1       9        
 
-# ae_table_soc() works
+# ae_table_soc() default snapshot
 
     Code
       tm = grstat_example()
@@ -355,7 +417,7 @@
       ae_table_soc(ae, df_enrol = enrolres, arm = "ARM", variant = "sup")
     Condition
       Warning:
-      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=TRUE` explicitly to silence this warning.
+      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
     Output
       # A tibble: 27 x 13
          soc                                                  control_G1 control_G2 control_G3 control_G4 control_G5 control_NA
@@ -420,7 +482,7 @@
       ae_table_soc(ae, df_enrol = enrolres, arm = "ARM", variant = "eq")
     Condition
       Warning:
-      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=TRUE` explicitly to silence this warning.
+      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
     Output
       # A tibble: 27 x 13
          soc                                                  control_G1 control_G2 control_G3 control_G4 control_G5 control_NA

@@ -1,5 +1,27 @@
 
-test_that("ae_table_grade() works", {
+
+test_that("ae_tables simplest snapshot", {
+  local_reproducible_output(width=125)
+
+  expect_snapshot({
+
+      df_ae = tibble(subjid=rep(1:2, each=4),
+                     aesoc=rep("Soc1", 8),
+                     aegr=c(1:4, 2:5))
+      df_enrolres = tibble(subjid=1:2, arm="Foobar")
+      ae_table_soc(df_ae=df_ae, df_enrol=df_enrolres, variant="max")
+      ae_table_soc(df_ae=df_ae, df_enrol=df_enrolres, variant="sup")
+      ae_table_soc(df_ae=df_ae, df_enrol=df_enrolres, variant="eq")
+
+      ae_table_grade(df_ae=df_ae, df_enrol=df_enrolres, variant="max")
+      ae_table_grade(df_ae=df_ae, df_enrol=df_enrolres, variant="sup")
+      ae_table_grade(df_ae=df_ae, df_enrol=df_enrolres, variant="eq")
+
+  })
+})
+
+
+test_that("ae_table_grade() default snapshot", {
   local_reproducible_output(width=125)
 
   expect_snapshot({
@@ -44,7 +66,7 @@ test_that("ae_table_grade() errors", {
 })
 
 
-test_that("ae_table_soc() works", {
+test_that("ae_table_soc() default snapshot", {
   local_reproducible_output(width=125)
 
   expect_snapshot({
