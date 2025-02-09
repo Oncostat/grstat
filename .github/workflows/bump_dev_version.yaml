@@ -4,7 +4,7 @@ on:
     branches:
       - main
 
-name: Bump dev version
+name: "Bump dev version"
 
 jobs:
   update_version:
