@@ -4,28 +4,16 @@
 \alias{grstat_example}
 \title{Example databases}
 \usage{
-grstat_example(
-  N = 50,
-  seed = 42,
-  ae_n_max = 15,
-  ae_p_sae = 0.1,
-  ae_p_na = 0,
-  r = 0.5,
-  r2 = 1/3
-)
+grstat_example(N = 50, ..., seed = 42, r = 0.5, r2 = 1/3)
 }
 \arguments{
 \item{N}{the number of patients}
 
+\item{...}{passed on to internal functions. See \code{\link[=example_ae]{example_ae()}} for control over Adverse Events.}
+
 \item{seed}{the random seed (can be \code{NULL})}
 
-\item{ae_n_max}{maximum number of AE per patient}
-
-\item{ae_p_sae}{proportion of serious AE}
-
-\item{ae_p_na}{proportion of missing values (can be a list with a number for each column)}
-
-\item{r, r2}{proportion of the "Control" arm in \code{enrolres$arm} and \code{enrolres$arm3}}
+\item{r, r2}{proportion of the "Control" arm in \code{enrolres$arm} and \code{enrolres$arm3} respectively}
 }
 \value{
 A list of datasets, like in EDCimport.
