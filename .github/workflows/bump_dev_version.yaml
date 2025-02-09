@@ -14,8 +14,8 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@v4
-        with:
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
+      with:
+        ssh-key: ${{ secrets.DEPLOY_KEY }}
 
     - name: Set up R
       uses: r-lib/actions/setup-r@v2
