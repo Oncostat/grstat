@@ -14,7 +14,7 @@ example_ae(
   w_soc = 1,
   w_soc_trt = 1,
   beta0 = -1,
-  beta_trt = 0.3,
+  beta_trt = 0.4,
   beta_sae = 1
 )
 }
