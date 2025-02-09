@@ -93,7 +93,11 @@ get_label = function(x, default=names(x)){
 
 #' @noRd
 #' @keywords internal
+#' @importFrom cli cli_warn
+#' @importFrom dplyr across cur_column mutate setdiff
 #' @importFrom rlang current_env
+#' @importFrom tibble lst
+#' @importFrom tidyselect everything
 apply_labels = function(data, ..., warn_missing=FALSE) {
   args = lst(...)
   unknowns = setdiff(names(args), names(data))
