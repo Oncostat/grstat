@@ -92,6 +92,7 @@ example_ae = function(enrolres, p_na=0,
     ) %>%
     unnest(x) %>%
     mutate(
+      aerel = sample(causality, n(), replace=TRUE),
       sae = fct_yesno(runif(n())<ifelse(arm=="Control", p_sae, p_sae_trt)),
       rate = beta0 + beta_trt*(arm!="Control") + beta_sae*(sae=="Yes"),
       aegr = .random_grades_n(rate),
@@ -115,7 +116,7 @@ example_ae = function(enrolres, p_na=0,
   #   facet_wrap(arm~sae)
 
   ae %>%
-    select(subjid, aesoc, aeterm, aegr, sae, n_ae) %>%
+    select(subjid, aesoc, aeterm, aegr, sae, aerel) %>%
     apply_labels(
       subjid = "Subject ID",
       aesoc = "AE SOC",
@@ -171,6 +172,10 @@ example_ae = function(enrolres, p_na=0,
 }
 
 # CTCAE Data ----------------------------------------------------------------------------------
+
+
+causality =c("Experimental treatment", "Standard treatment",
+             "Radiotherapy", "Cancer", "Other")
 
 #Courtesy to ChatGPT.
 #Prompt: "give me an R list with 4 examples of HLGT per SOC"
