@@ -40,7 +40,9 @@ grstat_example = function(N=50, ..., seed=42,
 }
 
 
+
 # Internals -----------------------------------------------------------------------------------
+
 
 #' @keywords internal
 #' @importFrom tibble tibble
@@ -69,9 +71,19 @@ example_enrol = function(N, r, r2){
 #' @param n_max,n_max_trt maximum number of AE per patient in control/exp arms (binomial with probability 20%)
 #' @param beta0,beta_trt,beta_sae the intercept, treatement coef and SAE coef to be used in the exponential decay model that generates the AE grade.
 #'
-# ae_n_max ae_n_max_trt=ae_n_max,
-# ae_p_sae=0.1, ae_p_sae_trt=ae_p_sae,
-# ae_p_na=0,
+#' @section Columns:
+#'   - `subjid`: the patient identifier. Each patient has a number of AE simulated with a binomial
+#'   distribution with size `n_max` or `n_max_trt` and probability 20%.
+#'   - `aesoc`: the CTCAE System Organ Class. Lazily simulated with an uniform probability.
+#'   - `aeterm`: the CTCAE High Level Group Term. Lazily simulated with an uniform probability. Four examples of HLGT per SOC are provided.
+#'   - `aegr`: the CTCAE grade, ranging from 1 to 5. The probability is simulated using
+#'   an exponential decay rate for grades 1 to 4 (`probs = exp(rate * c(1:4))`), with probability for
+#'   grade 5 being the one for grade 4 divided by 7. The probability vector is then normalized
+#'   to sum to 1. The rate is calculated as `rate = beta0 + beta_trt*(arm!="Control") + beta_sae*(sae=="Yes")`.
+#'   - `aerel`: the causality of the AE. Lazily simulated with an uniform probability.
+#'   - `sae`: Indicator of Serious AE. Simulated using `p_sae` and `p_sae_trt`.
+#'
+#'
 #' @keywords internal
 #' @importFrom dplyr across cur_column if_else mutate n select
 #' @importFrom purrr map
@@ -143,7 +155,6 @@ example_ae = function(enrolres, p_na=0,
 }
 
 
-
 #' Used in `.example_ae()`
 #' Construit un vecteur de grade par rate possible puis attribue selon le rate.
 #' impossible d'indexer sur un numeric (pas de names) donc j'indexe sur le dense_rank
@@ -208,3 +219,5 @@ sample_ctcae = list(
   "Pregnancy, puerperium and perinatal conditions" = c("Pregnancy complications", "Labor and delivery complications", "Fetal complications", "Breastfeeding issues"),
   "Immune system disorders" = c("Autoimmune disorders", "Alloimmune responses", "Immunodeficiency", "Inflammatory responses")
 )
+
+stopifnot(unique(lengths(sample_ctcae)) == 4)
