@@ -17,6 +17,7 @@
 #' @importFrom cli cli_abort
 #' @importFrom dplyr arrange case_match case_when cur_group filter left_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
+#' @importFrom glue glue
 #' @importFrom rlang check_dots_empty check_installed
 #' @importFrom stringr str_remove str_starts str_subset
 #' @importFrom tibble lst
@@ -76,7 +77,13 @@ ae_table_grade = function(
     select(subjid=tolower(subjid), arm=tolower(arm)) %>%
     mutate(arm=if(is.null(.env$arm)) default_arm else .data$arm)
   if(!is.numeric(df_ae$grade)){
-    cli_abort("Grade ({.val {grade}}) should be a numeric column.")
+    cli_abort("Grade ({.val {grade}}) must be a {.cls numeric} column, not a {.cls {class(df_ae$grade)}}.",
+              class="ae_table_grade_not_num")
+  }
+  if(any(!df_ae$grade %in% 1:5, na.rm=TRUE)){
+    cli_abort(c("Grade ({.val {grade}}) must be an integer between 1 and 5.",
+                i="Wrong values: {.val {setdiff(tm$ae$aegr, 1:5)}}"),
+              class="ae_table_grade_not_1to5")
   }
 
   df = df_enrol %>%

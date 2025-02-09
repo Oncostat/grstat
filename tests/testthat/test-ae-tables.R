@@ -29,6 +29,21 @@ test_that("ae_table_grade() with different colnames", {
 })
 
 
+test_that("ae_table_grade() errors", {
+
+  tm = grstat_example()
+
+  tm$ae$aegr[1:10] = 1:10
+  ae_table_grade(tm$ae, df_enrol=tm$enrolres) %>%
+    expect_error(class="ae_table_grade_not_1to5")
+
+  tm$ae$aegr[1] = "foobar"
+  ae_table_grade(tm$ae, df_enrol=tm$enrolres) %>%
+    expect_error(class="ae_table_grade_not_num")
+
+})
+
+
 test_that("ae_table_soc() works", {
   local_reproducible_output(width=125)
 
