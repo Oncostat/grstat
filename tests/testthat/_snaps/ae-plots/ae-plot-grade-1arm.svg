@@ -192,6 +192,6 @@
 <polyline points='42.77,169.52 45.51,169.52 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='42.77,61.12 45.51,61.12 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <text transform='translate(13.05,277.93) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='86.84px' lengthAdjust='spacingAndGlyphs'>Patient proportion</text>
-<text x='45.51' y='14.56' style='font-size: 13.20px; font-family: sans;' textLength='90.26px' lengthAdjust='spacingAndGlyphs'>ae-plot-grade-1</text>
+<text x='45.51' y='14.56' style='font-size: 13.20px; font-family: sans;' textLength='112.99px' lengthAdjust='spacingAndGlyphs'>ae-plot-grade-1arm</text>
 </g>
 </svg>

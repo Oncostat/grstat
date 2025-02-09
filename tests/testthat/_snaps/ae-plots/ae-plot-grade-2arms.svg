@@ -157,6 +157,6 @@
 <rect x='377.60' y='28.97' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
 <text x='308.55' y='39.93' style='font-size: 8.80px; font-family: sans;' textLength='62.86px' lengthAdjust='spacingAndGlyphs'>Control (N=100)</text>
 <text x='399.65' y='39.93' style='font-size: 8.80px; font-family: sans;' textLength='74.60px' lengthAdjust='spacingAndGlyphs'>Treatment (N=100)</text>
-<text x='45.51' y='14.56' style='font-size: 13.20px; font-family: sans;' textLength='90.26px' lengthAdjust='spacingAndGlyphs'>ae-plot-grade-2</text>
+<text x='45.51' y='14.56' style='font-size: 13.20px; font-family: sans;' textLength='119.60px' lengthAdjust='spacingAndGlyphs'>ae-plot-grade-2arms</text>
 </g>
 </svg>
