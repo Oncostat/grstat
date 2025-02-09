@@ -69,6 +69,7 @@ example_enrol = function(N, r, r2){
 #' @param p_na proportion of missing values (can be a list with a value for each column)
 #' @param p_sae,p_sae_trt proportion of serious AE in control/exp arms
 #' @param n_max,n_max_trt maximum number of AE per patient in control/exp arms (binomial with probability 20%)
+#' @param w_soc,w_soc_trt log-weights for SOC that should be over-representated in control/exp arms.
 #' @param beta0,beta_trt,beta_sae the intercept, treatement coef and SAE coef to be used in the exponential decay model that generates the AE grade.
 #'
 #' @section Columns:
@@ -92,7 +93,8 @@ example_enrol = function(N, r, r2){
 example_ae = function(enrolres, p_na=0,
                       p_sae=0.1, p_sae_trt=p_sae,
                       n_max=15, n_max_trt=n_max,
-                      beta0=-0.5, beta_trt=0.3, beta_sae=1) {
+                      w_soc = 1, w_soc_trt = 1,
+                      beta0=-1, beta_trt=0.3, beta_sae=1) {
   if(!is.list(p_na)) {
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
   }
@@ -108,7 +110,8 @@ example_ae = function(enrolres, p_na=0,
       sae = fct_yesno(runif(n())<ifelse(arm=="Control", p_sae, p_sae_trt)),
       rate = beta0 + beta_trt*(arm!="Control") + beta_sae*(sae=="Yes"),
       aegr = .random_grades_n(rate),
-      .sample_term(n()), #creates `aesoc` and `aeterm`
+      soc_weight = ifelse(arm=="Control", w_soc, w_soc_trt),
+      .sample_term_n(soc_weight), #creates `aesoc` and `aeterm`
       across(names(p_na), ~{
         p = p_na[[cur_column()]]
         if_else(runif(n()) < p, NA, .x)
@@ -178,12 +181,34 @@ example_ae = function(enrolres, p_na=0,
 #' @keywords internal
 #' @importFrom purrr map_chr
 #' @importFrom tibble enframe
-.sample_term = function(n){
-  sample(sample_ctcae, size=n, replace=TRUE) %>%
-  proba = exp(rev(seq_along(sample_ctcae))/10)
+.sample_term = function(n, w=1){
+  specific_soc = getOption("grstat_specific_soc", specific_soc)
+
+  v = seq_along(names(sample_ctcae))
+  v = v * ifelse(names(sample_ctcae) %in% specific_soc, w, 1)
+  log_proba = v/sum(v) * 30
+  proba = exp(log_proba)
+
   sample(sample_ctcae, size=n, replace=TRUE, prob=proba) %>%
     map_chr(~sample(.x, 1)) %>%
     enframe(name="aesoc", value="aeterm")
+}
+
+#' Used in `.example_ae()`
+#' Take `n` items from `sample_ctcae` (length 27), then take one random child of each.
+#' The probability of each SOC is exponentially decreasing along `names(sample_ctcae)`, with increased probability for some specific soc.
+#' @param v_weight a vector of weights
+#' @noRd
+#' @keywords internal
+#' @importFrom dplyr dense_rank
+#' @importFrom purrr list_rbind map map2
+#' @importFrom rlang set_names
+.sample_term_n =  function(v_weight){
+  weights = v_weight %>% unique() %>% sort()
+  r = weights %>% set_names() %>% map(~.sample_term(length(v_weight), .x))
+  x = dense_rank(v_weight)
+  map2(x, seq_along(x), ~ r[[.x]][.y,]) %>%
+    list_rbind()
 }
 
 # CTCAE Data ----------------------------------------------------------------------------------
@@ -191,6 +216,13 @@ example_ae = function(enrolres, p_na=0,
 
 causality =c("Experimental treatment", "Standard treatment",
              "Radiotherapy", "Cancer", "Other")
+
+#Default SOC that are simulated as over-representated in treatment ARM
+specific_soc = c("Blood and lymphatic system disorders",
+                 "Endocrine disorders",
+                 "Infections and infestations",
+                 "Respiratory, thoracic and mediastinal disorders",
+                 "Skin and subcutaneous tissue disorders")
 
 #Courtesy to ChatGPT.
 #Prompt: "give me an R list with 4 examples of HLGT per SOC"
