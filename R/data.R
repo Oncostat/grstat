@@ -15,10 +15,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom purrr imap
 #' @importFrom tibble lst
-grstat_example = function(N=50, ..., seed=42,
-                          # ae_n_max=15, ae_n_max_trt=ae_n_max,
-                          # ae_p_sae=0.1, ae_p_sae_trt=ae_p_sae,
-                          # ae_p_na=0,
+grstat_example = function(N=200, ..., seed=42,
                           r=0.5, r2=1/3){
   set.seed(seed)
 
@@ -94,9 +91,9 @@ example_ae = function(enrolres, p_na=0,
                       p_sae=0.1, p_sae_trt=p_sae,
                       n_max=15, n_max_trt=n_max,
                       w_soc = 1, w_soc_trt = 1,
-                      beta0=-1, beta_trt=0.3, beta_sae=1) {
+                      beta0=-1, beta_trt=0.4, beta_sae=1) {
   if(!is.list(p_na)) {
-    p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, sae=p_na)
+    p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, aerel=p_na, sae=p_na)
   }
 
   ae = enrolres %>%
@@ -141,7 +138,6 @@ example_ae = function(enrolres, p_na=0,
   probs = c(probs, probs[4]/7) #grade 5 always minor
   probs = probs / sum(probs)   #normalize to sum to 1
   sample(1:5, size=n, replace=TRUE, prob=probs)
-  # probs
 }
 
 
