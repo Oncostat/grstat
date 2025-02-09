@@ -325,7 +325,6 @@ ae_plot_grade_sum = function(
     scale_fill_manual(values=rev(pal)) +
     scale_color_manual(values=rev(pal), guide="none") +
     geom_col() +
-    theme_minimal() +
     theme(axis.text.x=element_blank(),
           axis.ticks.x=element_blank(),
           panel.grid.major.x = element_blank()) +

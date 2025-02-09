@@ -28,8 +28,6 @@ test_that("ae_plot_grade_sum() works", {
   p = ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM", weights=c(1,1,3,6,10))
   vdiffr::expect_doppelganger("ae-plot-grade-sum-2arms-weighted", p)
 
-
-
 })
 
 
@@ -45,6 +43,7 @@ test_that("butterfly_plot() works", {
   vdiffr::expect_doppelganger("butterfly-plot-severe", p)
   p = butterfly_plot(ae2, df_enrol=enrolres, range_min=1)
   vdiffr::expect_doppelganger("butterfly-plot-range", p)
+
 })
 
 test_that("butterfly_plot() errors", {
