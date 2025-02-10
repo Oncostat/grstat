@@ -8,6 +8,7 @@ name: "Bump dev version"
 
 jobs:
   update_version:
+    if: "!contains(github.event.head_commit.message, 'Update dev version')"
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
