@@ -84,7 +84,7 @@ ae_table_grade = function(
     cli_abort("Grade ({.val {grade}}) must be a {.cls numeric} column, not a {.cls {class(df_ae$grade)}}.",
               class="ae_table_grade_not_num")
   }
-  if(any(!df_ae$grade %in% 1:5, na.rm=TRUE)){
+  if(any(!df_ae$grade %in% c(1:5, NA), na.rm=TRUE)){
     cli_abort(c("Grade ({.val {grade}}) must be an integer between 1 and 5.",
                 i="Wrong values: {.val {setdiff(df_ae$grade, 1:5)}}"),
               class="ae_table_grade_not_1to5")
