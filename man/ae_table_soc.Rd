@@ -70,7 +70,8 @@ a dataframe (\code{ae_table_soc()}) or a flextable (\code{as_flextable()}).
 a formatted flextable
 }
 \description{
-The function \code{ae_table_soc()} creates a summary table of maximum AE grades for each patient according to term and SOC CTCAE.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}\cr
+The function \code{ae_table_soc()} creates a summary table of AE grades for each patient according to term and SOC CTCAE.
 The resulting dataframe can be piped to \code{as_flextable()} to get a nicely formatted flextable.
 }
 \examples{

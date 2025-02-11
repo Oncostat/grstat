@@ -8,6 +8,10 @@
 
 #' Summary tables for AE
 #'
+#' `r lifecycle::badge("stable")`\cr
+#' The function `ae_table_grade()` creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
+#' The resulting dataframe can be piped to `as_flextable()` to get a nicely formatted flextable.
+#'
 #' @param percent whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.
 #' @param ae_label the label of adverse events, usually "AE" or "SAE".
 #' @inheritParams ae_table_soc
@@ -242,6 +246,7 @@ ae_plot_grade = function(
 
 #' Graphic representation of AEs
 #'
+#' `r lifecycle::badge("stable")`\cr
 #' Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
 #'
 #' @param weights (optional) a length 5 numeric vector, giving the weights of each grade

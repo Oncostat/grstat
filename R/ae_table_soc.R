@@ -5,7 +5,9 @@
 
 #' Summary tables for AE by SOC
 #'
-#' The function `ae_table_soc()` creates a summary table of maximum AE grades for each patient according to term and SOC CTCAE.
+#' @description
+#' `r lifecycle::badge("stable")`\cr
+#' The function `ae_table_soc()` creates a summary table of AE grades for each patient according to term and SOC CTCAE.
 #' The resulting dataframe can be piped to `as_flextable()` to get a nicely formatted flextable.
 #'
 #' @param df_ae adverse event dataset, one row per AE, containing subjid, soc, and grade.

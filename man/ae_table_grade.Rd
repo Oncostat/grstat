@@ -45,7 +45,9 @@ ae_table_grade(
 a crosstable
 }
 \description{
-Summary tables for AE
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}\cr
+The function \code{ae_table_grade()} creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
+The resulting dataframe can be piped to \code{as_flextable()} to get a nicely formatted flextable.
 }
 \examples{
 tm = grstat_example()
