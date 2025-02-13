@@ -246,7 +246,7 @@ ae_plot_grade = function(
 
 #' Graphic representation of AEs
 #'
-#' `r lifecycle::badge("stable")`\cr
+#' `r lifecycle::badge("experimental")`\cr
 #' Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
 #'
 #' @param weights (optional) a length 5 numeric vector, giving the weights of each grade
