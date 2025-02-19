@@ -119,7 +119,7 @@ km
 
 ## Extra codes to improve the plot
 
-```{r fig.width = 5 ,fig.height=5}
+```{r fig.width = 7 ,fig.height=5}
 km +
   add_censor_mark(size = 4, alpha = 0.4) +
   scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 8)) +
@@ -129,8 +129,6 @@ km +
     y = "Progression Free Survival",
     title="Progression Free Survival, (N=X, n event=X)"
   ) 
-  # theme(legend.position = "top")
-  
 
 ```
 
