@@ -1,0 +1,39 @@
+---
+title: "Adverse Event (AE)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+date: "2025-01-30"
+---
+
+<!-- https://oncostat.github.io/grstat/articles/adverse_events_sas.html -->
+
+# 1. Data
+
+```{r}
+
+library(grstat)
+library(flextable)
+library(dplyr)
+
+# tm = EDCimport::read_trialmaster("path/to/file.zip")
+tm = grstat_example()
+attach(tm)
+
+head(ae)
+
+```
+# 2.Tables Grade
+
+use  ae_table_grade()
+
+```{r}
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="max") %>% 
+  as_flextable(header_show_n=TRUE) %>% 
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
+```
+
+
+
+
