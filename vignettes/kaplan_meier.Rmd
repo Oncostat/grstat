@@ -13,6 +13,8 @@ vignette: >
 
 # Data
 
+In order to use a data example, a dataset is constructed as follows.
+
 ```{r, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
