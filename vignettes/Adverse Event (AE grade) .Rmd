@@ -15,12 +15,12 @@ date: "2025-01-30"
 # Data
 
 The function grstat_example() is used as an example dataset to illustrate the data usage.
-However, in practice, the suggested approach would be to utilise if needed: EDCimport::read_trialmaster("path/to/file.zip").
 
 This analysis focuses on two datasets:
 
-ae, which contains data on adverse events.
-enrolres, which includes all patients and their respective treatment arms."
+- ae, which contains data on adverse events.
+
+- enrolres, which includes all patients and their respective treatment arms."
 
 ```{r setup}
 library(grstat)
@@ -37,7 +37,6 @@ library(dplyr)
 # library(flextable)
 # library(dplyr)
 
-# tm = EDCimport::read_trialmaster("path/to/file.zip")
 tm = grstat_example()
 attach(tm)
 
@@ -48,14 +47,38 @@ head(enrolres)
 ```
 # Tables Grade
 
-use  ae_table_grade()
+create table adverse event grades by using  ae_table_grade()
+
+## Table of maximum grades per patient
 
 ```{r}
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="max") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+  as_flextable(header_show_n=TRUE) %>%
+  # comment tu peux changer la size des footnotes?
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
 
+## Table of maximum grades per patient by arms
 
+```{r}
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>% 
+  as_flextable(header_show_n=TRUE) %>% 
+  add_footer_lines("Percentages reflect the proportion of patients presenting at most one AE of given grade")
+```
 
+## Table of all grades per patient 
+
+```{r}
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>% 
+  as_flextable(header_show_n=TRUE) %>% 
+  add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
+```
+
+## Table of all grades per patient by arms
+
+```{r}
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="eq") %>% 
+  as_flextable(header_show_n=TRUE) %>% 
+  add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
+```
 
