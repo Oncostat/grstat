@@ -1,21 +1,41 @@
 ---
 title: "Adverse Event (AE)"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 date: "2025-01-30"
+
 ---
 
 <!-- https://oncostat.github.io/grstat/articles/adverse_events_sas.html -->
 
-# 1. Data
+# Data
 
-```{r}
+The function grstat_example() is used for an example of data.
+However, in practice, the suggested approach would be to utilise if needed. EDCimport::read_trialmaster("path/to/file.zip").
 
+This analysis focuses on two datasets:
+
+ae, which contains data on adverse events.
+enrolres, which includes all patients and their respective treatment arms."
+
+```{r setup}
 library(grstat)
 library(flextable)
 library(dplyr)
+```
+
+
+```{r}
+# #| label: "setup"
+# #| message: false
+# #| warning: false
+# library(grstat)
+# library(flextable)
+# library(dplyr)
 
 # tm = EDCimport::read_trialmaster("path/to/file.zip")
 tm = grstat_example()
@@ -24,7 +44,7 @@ attach(tm)
 head(ae)
 
 ```
-# 2.Tables Grade
+# Tables Grade
 
 use  ae_table_grade()
 

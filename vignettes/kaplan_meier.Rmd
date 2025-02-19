@@ -1,0 +1,134 @@
+---
+title: "Kaplan Meier instruction suggestion"
+author: "Livia Pierotti"
+date: "2024-11-26"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+# Data
+
+```{r, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>")
+
+library(tidyverse)
+t0 = ISOdate(2020, 01, 01, tz="EST")
+t0_v2=as.Date(t0, format =  "%Y/%m/%d")
+# , format(Sys.time(), "%*Y/%m/%d"
+data_surv = ggsurvfit::df_colon %>% 
+  mutate(
+    date_first_visit = t0_v2 + abs(rnorm(n(), 500, 20)), 
+    date_of_last_visit = date_first_visit + time,
+    death = status,
+    date_progression = date_first_visit + time*runif(n(), 0.6, 0.8),
+    # date_progression = if_else(runif(n())>0.2, NA, date_progression), 
+  ) %>% 
+  select(subijd=id,arm=rx, surg, 
+         date_first_visit, date_progression, date_of_last_visit, death)
+  
+length(unique(data_surv$subijd))
+
+```
+
+```{r setup}
+library(grstat)
+library(tidyverse)
+library(survival)
+library(ggsurvfit)
+```
+
+# Variable Creation
+
+First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
+
+
+* Time variable:
+
+The time variable represents the duration from a defined starting point (e.g., diagnosis, study enrollment, or start of treatment) to the time at which the patient's status is recorded. It is a numeric variable measured in units such as days, months, or years, depending on the study's duration and requirements.
+
+* Status variable:
+
+The status variable is binary, indicating whether the event has occurred (event = 1) or not (censored = 0) for each subject by the end of the study period.
+
+An event (1) indicates that the subjects experienced the event of interest (e.g., death, relapse, transplant failure, etc.).
+
+Censored (0) refers to those subjects who did not experience the event during the study. For these individuals, the 'time-to-event' is considered censored, indicating that we only know they did not experience the event up to a certain point.
+
+## Example
+
+```{r}
+data_surv_v2=data_surv %>%
+  mutate(status= ifelse(death==1, 1, 0 )) %>%
+  mutate(status_date = case_when(
+    status == 1  ~ pmin(date_progression, na.rm = T), 
+    status == 0  ~ pmax(date_of_last_visit,na.rm = T)
+  )) %>% 
+  mutate(time_days=status_date-date_first_visit ) %>%  
+  mutate(time_months=time_days/30.5 )  
+
+head(data_surv_v2)
+```
+
+# Generate the summary of the survival
+
+We recommend using the survival package with the survfit2 function instead of survfit function.
+
+
+```{r}
+km.model_PFS <- survfit2(Surv(time_months, status) ~ surg,data = data_surv_v2)
+km.model_PFS
+```
+
+
+# Generate survival curves using ggsurvfit package
+
+
+Please follow the following link to obtain your kaplan Meier Curves
+https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html
+
+Kaplan-Meier by Daniel D. Sjoberg, Mark Baillie, Charlotta Fruechtenicht, Steven Haesendonckx, Tim Treis.
+
+
+```{r fig.width = 7 , fig.height=5}
+
+km = survfit2(Surv(time_days, status) ~ surg, data = data_surv_v2) %>%
+  ggsurvfit(linetype_aes = TRUE) +
+  add_confidence_interval() +
+  add_risktable(
+    risktable_stats = c("n.risk", "cum.censor", "cum.event" )
+  ) +
+  theme_ggsurvfit_KMunicate() +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(expand = c(0.02, 0)) +
+theme(legend.position="inside", legend.position.inside = c(0.85, 0.85))
+km
+```
+
+
+
+## Extra codes to improve the plot
+
+```{r fig.width = 5 ,fig.height=5}
+km +
+  add_censor_mark(size = 4, alpha = 0.4) +
+  scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 8)) +
+  scale_y_continuous(labels=scales::label_percent(), limits=c(0,1)) +
+  labs(
+    x = "Time from begining of treatment to progression or death (days)",
+    y = "Progression Free Survival",
+    title="Progression Free Survival, (N=X, n event=X)"
+  ) +
+  theme(legend.position = "top")
+  
+
+```
+
+
+
