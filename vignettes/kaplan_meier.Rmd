@@ -84,6 +84,10 @@ We recommend using the survival package with the survfit2 function instead of su
 ```{r}
 km.model_PFS <- survfit2(Surv(time_months, status) ~ surg,data = data_surv_v2)
 km.model_PFS
+
+
+tidy_survfit(km.model_PFS, times=c(0.05, 0.10, 0.20)) %>% 
+    select(strata, time, n.risk, n.event, estimate, conf.high, conf.low)
 ```
 
 
@@ -124,8 +128,8 @@ km +
     x = "Time from begining of treatment to progression or death (days)",
     y = "Progression Free Survival",
     title="Progression Free Survival, (N=X, n event=X)"
-  ) +
-  theme(legend.position = "top")
+  ) 
+  # theme(legend.position = "top")
   
 
 ```
