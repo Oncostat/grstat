@@ -14,8 +14,8 @@ date: "2025-01-30"
 
 # Data
 
-The function grstat_example() is used for an example of data.
-However, in practice, the suggested approach would be to utilise if needed. EDCimport::read_trialmaster("path/to/file.zip").
+The function grstat_example() is used as an example dataset to illustrate the data usage.
+However, in practice, the suggested approach would be to utilise if needed: EDCimport::read_trialmaster("path/to/file.zip").
 
 This analysis focuses on two datasets:
 
@@ -42,6 +42,8 @@ tm = grstat_example()
 attach(tm)
 
 head(ae)
+
+head(enrolres)
 
 ```
 # Tables Grade
