@@ -19,21 +19,37 @@ knitr::opts_chunk$set(
   comment = "#>")
 
 library(tidyverse)
-t0 = ISOdate(2020, 01, 01, tz="EST")
-t0_v2=as.Date(t0, format =  "%Y/%m/%d")
+# t0 = ISOdate(2020, 01, 01, tz="EST")
+# t0_v2=as.Date(t0, format =  "%Y/%m/%d")
 # , format(Sys.time(), "%*Y/%m/%d"
-data_surv = ggsurvfit::df_colon %>% 
-  mutate(
-    date_first_visit = t0_v2 + abs(rnorm(n(), 500, 20)), 
-    date_of_last_visit = date_first_visit + time,
-    death = status,
-    date_progression = date_first_visit + time*runif(n(), 0.6, 0.8),
-    # date_progression = if_else(runif(n())>0.2, NA, date_progression), 
-  ) %>% 
-  select(subijd=id,arm=rx, surg, 
-         date_first_visit, date_progression, date_of_last_visit, death)
+#  data_surv = ggsurvfit::df_colon %>% 
+#    mutate(
+#     date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
+#      date_end = date_start + time,
+#      death = status,
+#      date_progression = date_start + time*runif(n(), 0.6, 0.8),  )
+#    select(subijd=id,arm=rx, surg, 
+#           date_start, date_progression, date_end, death)
   
-length(unique(data_surv$subijd))
+
+# Generate the dataset with progression and death dates
+# set.seed(42)
+data_surv = ggsurvfit::df_colon %>% 
+ mutate(
+    date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
+   date_end = date_start + time,
+    death = status,
+    # Add date of progression to random patients only, as a proper date
+    date_progression = as.Date(ifelse(runif(n()) < 0.5, date_start + time * runif(n(), 0.6, 0.8), NA), origin = "1970-01-01"),
+#     # Add date of death only when death == 1, as a proper date
+    date_death = as.Date(ifelse(death == 1, date_start + time, NA), origin = "1970-01-01")
+ )
+ 
+length(unique(data_surv$id))
+
+# # Display the first few rows of the dataset
+head(data_surv)
+# 
 
 ```
 
@@ -64,14 +80,29 @@ Censored (0) refers to those subjects who did not experience the event during th
 ## Example
 
 ```{r}
+# data_surv_v2=data_surv %>%
+#   mutate(status_date = case_when(
+#     status == 1  ~ pmin(date_progression, na.rm = T), 
+#     status == 0  ~ pmax(date_end,na.rm = T)
+#   )) %>% 
+#   mutate(time_days=status_date-date_start ) %>%  
+#   mutate(time_months=time_days/30.5 )  
+
 data_surv_v2=data_surv %>%
-  mutate(status= ifelse(death==1, 1, 0 )) %>%
-  mutate(status_date = case_when(
-    status == 1  ~ pmin(date_progression, na.rm = T), 
-    status == 0  ~ pmax(date_of_last_visit,na.rm = T)
+ mutate(status_PFS= ifelse(!is.na(date_progression), 1, 0 )) %>%
+  mutate(status_OS= ifelse(death!=1, 1, 0 )) %>%
+  mutate(date_status_pfs = case_when(
+    status_PFS == 1  ~ pmin(date_progression,date_death, na.rm = T), 
+    status_PFS == 0  ~ pmax(date_end,na.rm = T)
   )) %>% 
-  mutate(time_days=status_date-date_first_visit ) %>%  
-  mutate(time_months=time_days/30.5 )  
+  mutate(time_pfs_days=date_status_pfs-date_start ) %>%  
+  mutate(time_pfs_months=time_pfs_days/30.5 )  %>% 
+    mutate(date_status_OS = case_when(
+    status_OS == 1  ~ pmin(date_death, na.rm = T), 
+    status_OS == 0  ~ pmax(date_end,na.rm = T)
+  )) %>% 
+  mutate(time_OS_days=date_status_OS-date_start ) %>%  
+  mutate(time_OS_months=time_OS_days/30.5 )  
 
 head(data_surv_v2)
 ```
@@ -102,7 +133,7 @@ Kaplan-Meier by Daniel D. Sjoberg, Mark Baillie, Charlotta Fruechtenicht, Steven
 
 ```{r fig.width = 7 , fig.height=5}
 
-km = survfit2(Surv(time_days, status) ~ surg, data = data_surv_v2) %>%
+km = survfit2(Surv(time_pfs_days, status_PFS) ~ surg, data = data_surv_v2) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +
   add_risktable(
