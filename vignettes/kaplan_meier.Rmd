@@ -1,5 +1,5 @@
 ---
-title: "Kaplan Meier instruction suggestion"
+title: "Kaplan-Meier Guideline Suggestions"
 author: "Livia Pierotti"
 date: "2024-11-26"
 output: 
@@ -19,8 +19,8 @@ knitr::opts_chunk$set(
   comment = "#>")
 
 library(tidyverse)
-# t0 = ISOdate(2020, 01, 01, tz="EST")
-# t0_v2=as.Date(t0, format =  "%Y/%m/%d")
+ t0 = ISOdate(2020, 01, 01, tz="EST")
+ t0_v2=as.Date(t0, format =  "%Y/%m/%d")
 # , format(Sys.time(), "%*Y/%m/%d"
 #  data_surv = ggsurvfit::df_colon %>% 
 #    mutate(
@@ -113,7 +113,7 @@ We recommend using the survival package with the survfit2 function instead of su
 
 
 ```{r}
-km.model_PFS <- survfit2(Surv(time_months, status) ~ surg,data = data_surv_v2)
+km.model_PFS <- survfit2(Surv(time_pfs_months, status_PFS) ~ surg,data = data_surv_v2)
 km.model_PFS
 
 
