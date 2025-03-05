@@ -6,81 +6,81 @@ output:
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
+%\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   
----
-
-# Data
-
-```{r, include=FALSE, warning=FALSE}
-knitr::opts_chunk$set(
+  ---
+  
+  # Data
+  
+  ```{r, include=FALSE, warning=FALSE}
+  knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>")
-
-library(tidyverse)
- t0 = ISOdate(2020, 01, 01, tz="EST")
- t0_v2=as.Date(t0, format =  "%Y/%m/%d")
-# , format(Sys.time(), "%*Y/%m/%d"
-#  data_surv = ggsurvfit::df_colon %>% 
-#    mutate(
-#     date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
-#      date_end = date_start + time,
-#      death = status,
-#      date_progression = date_start + time*runif(n(), 0.6, 0.8),  )
-#    select(subijd=id,arm=rx, surg, 
-#           date_start, date_progression, date_end, death)
   
-
-# Generate the dataset with progression and death dates
-# set.seed(42)
-data_surv = ggsurvfit::df_colon %>% 
- mutate(
-    date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
-   date_end = date_start + time,
-    death = status,
-    # Add date of progression to random patients only, as a proper date
-    date_progression = as.Date(ifelse(runif(n()) < 0.5, date_start + time * runif(n(), 0.6, 0.8), NA), origin = "1970-01-01"),
-#     # Add date of death only when death == 1, as a proper date
-    date_death = as.Date(ifelse(death == 1, date_start + time, NA), origin = "1970-01-01")
- )
- 
-length(unique(data_surv$id))
-
-# # Display the first few rows of the dataset
-head(data_surv)
-# 
-
-```
-
-```{r setup}
-library(grstat)
-library(tidyverse)
-library(survival)
-library(ggsurvfit)
-```
-
-# Variable Creation
-
-First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
-
-
-* Time variable:
-
-The time variable represents the duration from a defined starting point (e.g., diagnosis, study enrollment, or start of treatment) to the time at which the patient's status is recorded. It is a numeric variable measured in units such as days, months, or years, depending on the study's duration and requirements.
-
-* Status variable:
-
-The status variable is binary, indicating whether the event has occurred (event = 1) or not (censored = 0) for each subject by the end of the study period.
-
-An event (1) indicates that the subjects experienced the event of interest (e.g., death, relapse, transplant failure, etc.).
-
-Censored (0) refers to those subjects who did not experience the event during the study. For these individuals, the 'time-to-event' is considered censored, indicating that we only know they did not experience the event up to a certain point.
-
-## Example
-
-```{r}
-# data_surv_v2=data_surv %>%
+  library(tidyverse)
+  t0 = ISOdate(2020, 01, 01, tz="EST")
+  t0_v2=as.Date(t0, format =  "%Y/%m/%d")
+  # , format(Sys.time(), "%*Y/%m/%d"
+  #  data_surv = ggsurvfit::df_colon %>% 
+  #    mutate(
+  #     date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
+  #      date_end = date_start + time,
+  #      death = status,
+  #      date_progression = date_start + time*runif(n(), 0.6, 0.8),  )
+  #    select(subijd=id,arm=rx, surg, 
+  #           date_start, date_progression, date_end, death)
+  
+  
+  # Generate the dataset with progression and death dates
+  # set.seed(42)
+  data_surv = ggsurvfit::df_colon %>% 
+  mutate(
+  date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
+  date_end = date_start + time,
+  death = status,
+  # Add date of progression to random patients only, as a proper date
+  date_progression = as.Date(ifelse(runif(n()) < 0.5, date_start + time * runif(n(), 0.6, 0.8), NA), origin = "1970-01-01"),
+  #     # Add date of death only when death == 1, as a proper date
+  date_death = as.Date(ifelse(death == 1, date_start + time, NA), origin = "1970-01-01")
+  )
+  
+  length(unique(data_surv$id))
+  
+  # # Display the first few rows of the dataset
+  head(data_surv)
+  # 
+  
+  ```
+  
+  ```{r setup}
+  library(grstat)
+  library(tidyverse)
+  library(survival)
+  library(ggsurvfit)
+  ```
+  
+  # Variable Creation
+  
+  First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
+  
+  
+  * Time variable:
+  
+  The time variable represents the duration from a defined starting point (e.g., diagnosis, study enrollment, or start of treatment) to the time at which the patient's status is recorded. It is a numeric variable measured in units such as days, months, or years, depending on the study's duration and requirements.
+  
+  * Status variable:
+  
+  The status variable is binary, indicating whether the event has occurred (event = 1) or not (censored = 0) for each subject by the end of the study period.
+  
+  An event (1) indicates that the subjects experienced the event of interest (e.g., death, relapse, transplant failure, etc.).
+  
+  Censored (0) refers to those subjects who did not experience the event during the study. For these individuals, the 'time-to-event' is considered censored, indicating that we only know they did not experience the event up to a certain point.
+  
+  ## Example
+  
+  ```{r}
+  # data_surv_v2=data_surv %>%
 #   mutate(status_date = case_when(
 #     status == 1  ~ pmin(date_progression, na.rm = T), 
 #     status == 0  ~ pmax(date_end,na.rm = T)
@@ -89,20 +89,20 @@ Censored (0) refers to those subjects who did not experience the event during th
 #   mutate(time_months=time_days/30.5 )  
 
 data_surv_v2=data_surv %>%
- mutate(status_PFS= ifelse(!is.na(date_progression), 1, 0 )) %>%
-  mutate(status_OS= ifelse(death!=1, 1, 0 )) %>%
-  mutate(date_status_pfs = case_when(
-    status_PFS == 1  ~ pmin(date_progression,date_death, na.rm = T), 
-    status_PFS == 0  ~ pmax(date_end,na.rm = T)
-  )) %>% 
-  mutate(time_pfs_days=date_status_pfs-date_start ) %>%  
-  mutate(time_pfs_months=time_pfs_days/30.5 )  %>% 
-    mutate(date_status_OS = case_when(
-    status_OS == 1  ~ pmin(date_death, na.rm = T), 
-    status_OS == 0  ~ pmax(date_end,na.rm = T)
-  )) %>% 
-  mutate(time_OS_days=date_status_OS-date_start ) %>%  
-  mutate(time_OS_months=time_OS_days/30.5 )  
+mutate(status_PFS= ifelse(!is.na(date_progression), 1, 0 )) %>%
+mutate(status_OS= ifelse(death!=1, 1, 0 )) %>%
+mutate(date_status_pfs = case_when(
+status_PFS == 1  ~ pmin(date_progression,date_death, na.rm = T), 
+status_PFS == 0  ~ pmax(date_end,na.rm = T)
+)) %>% 
+mutate(time_pfs_days=date_status_pfs-date_start ) %>%  
+mutate(time_pfs_months=time_pfs_days/30.5 )  %>% 
+mutate(date_status_OS = case_when(
+status_OS == 1  ~ pmin(date_death, na.rm = T), 
+status_OS == 0  ~ pmax(date_end,na.rm = T)
+)) %>% 
+mutate(time_OS_days=date_status_OS-date_start ) %>%  
+mutate(time_OS_months=time_OS_days/30.5 )  
 
 head(data_surv_v2)
 ```
@@ -118,7 +118,7 @@ km.model_PFS
 
 
 tidy_survfit(km.model_PFS, times=c(0.05, 0.10, 0.20)) %>% 
-    select(strata, time, n.risk, n.event, estimate, conf.high, conf.low)
+  select(strata, time, n.risk, n.event, estimate, conf.high, conf.low)
 ```
 
 
@@ -142,7 +142,7 @@ km = survfit2(Surv(time_pfs_days, status_PFS) ~ surg, data = data_surv_v2) %>%
   theme_ggsurvfit_KMunicate() +
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(expand = c(0.02, 0)) +
-theme(legend.position="inside", legend.position.inside = c(0.85, 0.85))
+  theme(legend.position="inside", legend.position.inside = c(0.85, 0.85))
 km
 ```
 
