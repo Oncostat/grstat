@@ -10,6 +10,9 @@ navbar:
     left:  [reference, articles, news]
     right: [search, github]
 
+authors:
+  Team Oncostat:
+    href: "https://www.gustaveroussy.fr/fr/oncostat"
 
 reference:
 

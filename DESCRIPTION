@@ -3,6 +3,8 @@ Type: Package
 Title: Clinical Research Tools
 Version: 0.1.0.9004
 Authors@R: c(
+      person("Team Oncostat", role = c("cph", "fnd"),
+             comment = c(ROR = "01ed4t417")),
       person("Dan", "Chaltiel", role = c("aut", "cre"),
              email = "dan.chaltiel@gustaveroussy.fr",
              comment = c(ORCID = "0000-0003-3488-779X")),
