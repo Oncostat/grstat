@@ -17,6 +17,6 @@ jobs:
         ssh-key: ${{ secrets.DEPLOY_KEY }}
 
     - name: Bump dev version
-      uses: DanChaltiel/actions/bump-dev-version@v2
+      uses: DanChaltiel/actions/bump-dev-version@v3
       with:
         create-tag: 'true'
