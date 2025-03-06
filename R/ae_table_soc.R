@@ -58,7 +58,7 @@
 #' ae_table_soc(ae, df_enrol=enrolres, term=NULL, sort_by_count=FALSE) %>%
 #'   as_flextable() %>%
 #'   bold(i=~soc=="Eye disorders")
-#' ae_table_soc(ae, df_enrol=enrolres, term=NULL, arm=NULL) %>%
+#' ae_table_soc(ae, df_enrol=enrolres, term="aeterm", arm=NULL) %>%
 #'   as_flextable() %>%
 #'   highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
 ae_table_soc = function(
@@ -256,6 +256,13 @@ as_flextable.ae_table_soc = function(x,
   }
   if (length(padding_v) == 2) {
     rtn = padding(rtn, padding.top=padding_v[2], padding.bottom=padding_v[2], part="header")
+  }
+  if (!is.null(x[["term"]])) {
+    b = structure(list(width=1, color="grey", style="solid"), class="fp_border")
+    rtn = rtn %>%
+      merge_v(j="soc") %>%
+      valign(j="soc", valign="top") %>%
+      hline(i=~soc!=lead(soc), border=b)
   }
   # a = cumsum(colwidths)[-1]
   a = sep_cols
