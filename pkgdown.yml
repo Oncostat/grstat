@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   adverse_events_sas: adverse_events_sas.html
-last_built: 2025-03-06T15:33Z
+last_built: 2025-03-07T11:46Z
 urls:
   reference: https://oncostat.github.io/grstat/reference
   article: https://oncostat.github.io/grstat/articles
