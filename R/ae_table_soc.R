@@ -263,7 +263,7 @@ as_flextable.ae_table_soc = function(x,
     rtn = rtn %>%
       merge_v(j="soc") %>%
       valign(j="soc", valign="top") %>%
-      hline(i=~soc!=lead(soc), border=b)
+      hline(i=~soc!=dplyr::lead(soc), border=b)
   }
   # a = cumsum(colwidths)[-1]
   a = sep_cols
