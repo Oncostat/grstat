@@ -20,3 +20,4 @@ jobs:
       uses: DanChaltiel/actions/bump-dev-version@v3
       with:
         create-tag: 'true'
+        update-readme: 'true'

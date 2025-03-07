@@ -188,7 +188,7 @@ ae_table_soc = function(
 #' @export
 #'
 #' @importFrom dplyr case_match lag lead transmute
-#' @importFrom flextable align bg bold flextable fontsize hline_bottom merge_h padding set_header_df set_table_properties
+#' @importFrom flextable align bg bold flextable fontsize hline hline_bottom merge_h merge_v padding set_header_df set_table_properties valign
 #' @importFrom purrr map map_int
 #' @importFrom rlang check_dots_empty set_names
 #' @importFrom stringr str_detect str_replace_all
@@ -219,7 +219,8 @@ as_flextable.ae_table_soc = function(x,
   # https://github.com/tidyverse/tidyr/issues/1551
   header_df = names(x) %>%
     as_tibble_col("col_keys") %>%
-    separate_wider_regex(col_keys, c(h1 = ".*", "_", h2 = ".*"), too_few="align_start", cols_remove=FALSE) %>%
+    separate_wider_regex(col_keys, c(h1 = ".*", "_", h2 = ".*"),
+                         too_few="align_start", cols_remove=FALSE) %>%
     transmute(
       col_keys,
       row1 = case_match(h1,
