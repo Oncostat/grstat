@@ -20,9 +20,6 @@ The package is not on CRAN, so you should install from GitHub:
 ``` r
 # Install development version on Github
 pak::pak("Oncostat/grstat@v0.1.0.9006")
-
-# Install specific tagged version (for reproducibility purpose)
-pak::pak("Oncostat/grstat@v0.1.0.9006")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
