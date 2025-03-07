@@ -1,7 +1,7 @@
 # ae_tables simplest snapshot
 
     Code
-      df_ae = tibble(subjid = rep(1:2, each = 4), aesoc = rep("Soc1", 8), aegr = c(1:4, 2:5))
+      df_ae = tibble(subjid = rep(1:2, each = 5), aesoc = rep("Soc1", 10), aegr = c(1:4, NA, 2:5, NA))
       df_enrolres = tibble(subjid = 1:2, arm = "Foobar")
       ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
     Output
@@ -40,25 +40,27 @@
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
     Output
-      # A tibble: 5 x 4
-        .id           label                                variable  `All patients`
-        <fct>         <fct>                                <fct>     <chr>         
-      1 any_grade_sup Patient had at least one AE of grade Grade ≥ 1 2 (100%)      
-      2 any_grade_sup Patient had at least one AE of grade Grade ≥ 2 2 (100%)      
-      3 any_grade_sup Patient had at least one AE of grade Grade ≥ 3 2 (100%)      
-      4 any_grade_sup Patient had at least one AE of grade Grade ≥ 4 2 (100%)      
-      5 any_grade_sup Patient had at least one AE of grade Grade = 5 1 (50%)       
+      # A tibble: 6 x 4
+        .id           label                                variable          `All patients`
+        <fct>         <fct>                                <fct>             <chr>         
+      1 any_grade_sup Patient had at least one AE of grade Grade ≥ 1         2 (100%)      
+      2 any_grade_sup Patient had at least one AE of grade Grade ≥ 2         2 (100%)      
+      3 any_grade_sup Patient had at least one AE of grade Grade ≥ 3         2 (100%)      
+      4 any_grade_sup Patient had at least one AE of grade Grade ≥ 4         2 (100%)      
+      5 any_grade_sup Patient had at least one AE of grade Grade = 5         1 (50%)       
+      6 any_grade_sup Patient had at least one AE of grade Any missing grade 2 (100%)      
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
     Output
-      # A tibble: 5 x 4
-        .id          label                                   variable `All patients`
-        <fct>        <fct>                                   <fct>    <chr>         
-      1 any_grade_eq "Patient had at least one AE of grade " Grade 1  1 (50%)       
-      2 any_grade_eq "Patient had at least one AE of grade " Grade 2  2 (100%)      
-      3 any_grade_eq "Patient had at least one AE of grade " Grade 3  2 (100%)      
-      4 any_grade_eq "Patient had at least one AE of grade " Grade 4  2 (100%)      
-      5 any_grade_eq "Patient had at least one AE of grade " Grade 5  1 (50%)       
+      # A tibble: 6 x 4
+        .id          label                                   variable          `All patients`
+        <fct>        <fct>                                   <fct>             <chr>         
+      1 any_grade_eq "Patient had at least one AE of grade " Grade 1           1 (50%)       
+      2 any_grade_eq "Patient had at least one AE of grade " Grade 2           2 (100%)      
+      3 any_grade_eq "Patient had at least one AE of grade " Grade 3           2 (100%)      
+      4 any_grade_eq "Patient had at least one AE of grade " Grade 4           2 (100%)      
+      5 any_grade_eq "Patient had at least one AE of grade " Grade 5           1 (50%)       
+      6 any_grade_eq "Patient had at least one AE of grade " Any missing grade 2 (100%)      
 
 # ae_table_grade() default snapshot
 
