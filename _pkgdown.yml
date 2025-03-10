@@ -25,7 +25,6 @@ reference:
 
   - title: "Utils"
   - contents:
-    - fct_yesno
     - gr_new_project
     - grstat_example
 

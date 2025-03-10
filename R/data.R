@@ -105,7 +105,8 @@ example_ae = function(enrolres, p_na=0,
     unnest(x) %>%
     mutate(
       aerel = sample(causality, n(), replace=TRUE),
-      sae = fct_yesno(runif(n())<ifelse(arm=="Control", p_sae, p_sae_trt)),
+      sae = runif(n())<ifelse(arm=="Control", p_sae, p_sae_trt),
+      sae = ifelse(sae, "Yes", "No"),
       rate = beta0 + beta_trt*(arm!="Control") + beta_sae*(sae=="Yes"),
       aegr = .random_grades_n(rate),
       soc_weight = ifelse(arm=="Control", w_soc, w_soc_trt),
