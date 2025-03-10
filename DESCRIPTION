@@ -1,7 +1,7 @@
 Package: grstat
 Type: Package
 Title: Clinical Research Tools
-Version: 0.1.0.9006
+Version: 0.1.0.9007
 Authors@R: c(
       person("Team Oncostat", role = c("cph", "fnd"),
              comment = c(ROR = "01ed4t417")),
