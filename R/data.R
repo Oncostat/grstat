@@ -129,6 +129,20 @@ example_ae = function(enrolres, p_na=0,
 }
 
 
+#' Used in `()`
+#' @keywords internal
+example_rc = function(enrolres, xxx) {
+  print(1)
+}
+
+
+# Internals RC ------------------------------------------------------------
+
+
+
+# Internals AE ------------------------------------------------------------
+
+
 #' Used in `.random_grades_n()`
 #' Construit un vecteur de grade avec exponential decay
 #' @param rate length 1
