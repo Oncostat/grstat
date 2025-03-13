@@ -137,6 +137,47 @@ example_rc = function(enrolres, xxx) {
 
 
 # Internals RC ------------------------------------------------------------
+#' Used in `.example_rc()`
+#' Permet de verifier que les parametres pour la base recist sont bon
+#' @param num_patients Integer. Number of patients to simulate.
+#' @param num_timepoints Integer. Number of timepoints for each patient.
+#' @param num_arm Integer. Number of arm for the study.
+#' @param seed Integer. Seed for the simulation
+#' @noRd
+#' @keywords internal
+#' @importFrom cli cli_abort
+
+.check_arguments = function(num_timepoints){
+  if (!is.numeric(num_timepoints)){
+    cli_abort("num_timepoints should be a number (not a vector or a data.frame) and greater than 0")
+  }
+  if (num_timepoints == 0){
+    cli_abort("num_timepoints should be a number (not a vector or a data.frame) and greater than 0")
+  }
+  if (num_timepoints == 1){
+    timepoint <- "Baseline"
+  } else if (num_timepoints ==2){
+    timepoint <- c("Baseline","Follow-up")
+  } else if(num_timepoints > 2){
+    timepoint <- c("Baseline",rep("Treatment Period",num_timepoints-3),"End of Treatment","Follow-up")
+  }
+  timepoint
+  # if (!is.numeric(num_patients)){
+  #   cli_abort("num_patients should be a number (not a vector or a data.frame) and greater than 2")
+  # }
+  # if (num_patients <1){
+  #   cli_abort("num_patients should be a number (not a vector or a data.frame) and greater than 2")
+  # }
+  # if (!is.numeric(num_arm)){
+  #   cli_abort("num_arm should be a number (not a vector or a data.frame) 1 or 2")
+  # }
+  # if (!(num_arm %in% 1:2)){
+  #   cli_abort("num_arm should be 1 or 2")
+  # }
+  # if (!is.numeric(seed)){
+  #   cli_abort("seed should be a number")
+  # }
+}
 
 
 
