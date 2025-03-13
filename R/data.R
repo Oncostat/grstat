@@ -26,13 +26,12 @@ grstat_example = function(N=200, ..., seed=42,
                   #  n_max=ae_n_max, n_max_trt=ae_n_max_trt,
                   #  p_sae=ae_p_sae,
                    ...)
-
-  rtn = lst(enrolres, ae) %>%
+  recist = example_rc(enrolres)
+  rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
   rtn$date_extraction = "2024/01/01"
   rtn$datetime_extraction = structure(1704067200, class = c("POSIXct", "POSIXt"),
                                       tzone = "Europe/Paris")
-
   rtn
 }
 
