@@ -179,6 +179,21 @@ example_rc = function(enrolres, xxx) {
   # }
 }
 
+#' Used in `.example_rc()`
+#' Permet de determiner quelle sera la variation de la taille de la tumeur
+#' @param change Integer. Parametre pour determiner le pourcentage de variation de la taille de la tumeur
+#' @noRd
+#' @keywords internal
+#' @importFrom dplyr case_when
+.classify_recist <- function(change) {
+  case_when(
+    change <= -98 ~ "Not evaluable",
+    change <= -90 ~ "Complete response",
+    change <= -30  ~ "Partial response",
+    change >= 20   ~ "Progressive disease",
+    TRUE           ~ "Stable disease"
+  )
+}
 
 
 # Internals AE ------------------------------------------------------------
