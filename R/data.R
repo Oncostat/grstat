@@ -195,6 +195,22 @@ example_rc = function(enrolres, xxx) {
   )
 }
 
+#' Used in `.example_rc()`
+#' Permet de determiner la reponse en fonction de la taille de la tumeur
+#' @param baseline_size Integer. taille initiale de la tumeur
+#' @noRd
+#' @keywords internal
+#' @importFrom tibble tibble
+.simulate_patient <- function(baseline_size) {
+  changes <- runif(10, -100, 50) # Modifier le 10 avec num_timepoints
+  sizes <- accumulate(changes, ~ .x * (1 + .y / 100), .init = baseline_size)[-1]
+  responses <- map_chr(changes, .classify_recist)
+  tibble(
+    Tumor_Size_mm = round(sizes, 1),
+    Percent_Change = round(changes, 1),
+    Response_Category = responses
+  )
+}
 
 # Internals AE ------------------------------------------------------------
 
