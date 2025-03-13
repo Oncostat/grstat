@@ -130,9 +130,45 @@ example_ae = function(enrolres, p_na=0,
 
 
 #' Used in `()`
+#' Simulate a RECIST dataset
+#'
 #' @keywords internal
-example_rc = function(enrolres, xxx) {
-  print(1)
+#' This function generates a synthetic RECIST dataset following the conventions of clinical oncology trials.
+#' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
+#'
+#' @param enrolres the enrolment result table, from `.example_enrol`
+#' @param num_timepoints Integer. Number of timepoints for each patient.
+#' @return A tibble containing the simulated RECIST dataset.
+#' @importFrom dplyr select mutate filter
+example_rc = function(enrolres) {
+  # library(dplyr)
+  # library(purrr)
+  # library(tidyr)
+  # library(cli)
+  num_timepoints = 10 #Modifier le 10 avec num_timepoints ici et dans .simulate_patientl
+  timepoint <- .check_arguments(num_timepoints)
+  recist_data <- enrolres %>%
+    mutate(
+      Baseline_Tumor_Size = runif(n(), 10, 100),
+      Data = map(Baseline_Tumor_Size, .simulate_patient)
+    ) %>%
+    unnest(Data) %>%
+    mutate(
+      RCVISIT = rep(timepoint, length.out = n()),
+      RCRESP = ifelse(Response_Category == "PR" & runif(n()) < 0.2, "CR", Response_Category),
+      RCDT = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
+      .by=subjid
+    ) %>%
+    mutate(RCDT = RCDT + runif(length(RCDT),-7,7))
+
+  recist_data$RCRESP = factor(recist_data$RCRESP,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
+  recist_data = recist_data %>%
+    mutate(suivi = row_number() <= which(RCRESP == 'Progressive disease')[1],
+           suivi = ifelse(is.na(suivi),TRUE,suivi),
+           .by=subjid
+    ) %>%
+    filter(suivi) %>%
+    select(subjid,Baseline_Tumor_Size,Tumor_Size_mm,Percent_Change,Response_Category,RCVISIT,RCRESP,RCDT,arm)
 }
 
 
