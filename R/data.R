@@ -7,6 +7,7 @@
 #' @param N the number of patients
 #' @param seed the random seed (can be `NULL`)
 #' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
+#' @param t number of visit for the recist base
 #' @param ... passed on to internal functions. See [example_ae()] for control over Adverse Events.
 #'
 #' @returns A list of datasets, like in EDCimport.
@@ -16,7 +17,7 @@
 #' @importFrom purrr imap
 #' @importFrom tibble lst
 grstat_example = function(N=200, ..., seed=42,
-                          r=0.5, r2=1/3){
+                          r=0.5, r2=1/3,t=10 ){
   set.seed(seed)
 
   enrolres = example_enrol(N, r, r2)
@@ -26,7 +27,7 @@ grstat_example = function(N=200, ..., seed=42,
                   #  n_max=ae_n_max, n_max_trt=ae_n_max_trt,
                   #  p_sae=ae_p_sae,
                    ...)
-  recist = example_rc(enrolres)
+  recist = example_rc(enrolres,t)
   rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
   rtn$date_extraction = "2024/01/01"
@@ -139,17 +140,14 @@ example_ae = function(enrolres, p_na=0,
 #' @param num_timepoints Integer. Number of timepoints for each patient.
 #' @return A tibble containing the simulated RECIST dataset.
 #' @importFrom dplyr select mutate filter
-example_rc = function(enrolres) {
-  # library(dplyr)
-  # library(purrr)
-  # library(tidyr)
-  # library(cli)
-  num_timepoints = 10 #Modifier le 10 avec num_timepoints ici et dans .simulate_patientl
-  timepoint <- .check_arguments(num_timepoints)
+example_rc = function(enrolres, t) {
+  num_timepoints <- t
+  timepoint <- 1:num_timepoints
   recist_data <- enrolres %>%
     mutate(
       Baseline_Tumor_Size = runif(n(), 10, 100),
-      Data = map(Baseline_Tumor_Size, .simulate_patient)
+      Data = list(.simulate_patient(Baseline_Tumor_Size,num_timepoints)),
+      .by=subjid
     ) %>%
     unnest(Data) %>%
     mutate(
@@ -158,7 +156,7 @@ example_rc = function(enrolres) {
       RCDT = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
       .by=subjid
     ) %>%
-    mutate(RCDT = RCDT + runif(length(RCDT),-7,7))
+    mutate(RCDT = RCDT + runif(n(),-7,7))
 
   recist_data$RCRESP = factor(recist_data$RCRESP,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
   recist_data = recist_data %>%
@@ -168,55 +166,26 @@ example_rc = function(enrolres) {
     ) %>%
     filter(suivi) %>%
     select(subjid,Baseline_Tumor_Size,Tumor_Size_mm,Percent_Change,Response_Category,RCVISIT,RCRESP,RCDT,arm)
+
+  recist_baseline = recist_data %>%
+    filter(RCVISIT==1)%>%
+    mutate(Tumor_Size_mm = NA,
+           Percent_Change=NA,
+           Response_Category=NA,
+           RCVISIT=0,
+           RCRESP=NA,
+           RCDT = RCDT -42 + runif(n(),-7,7)
+    )
+  recist_data = recist_data %>%
+    rbind(recist_baseline) %>%
+    arrange(subjid, RCDT)
 }
 
 
 # Internals RC ------------------------------------------------------------
 #' Used in `.example_rc()`
-#' Permet de verifier que les parametres pour la base recist sont bon
-#' @param num_patients Integer. Number of patients to simulate.
-#' @param num_timepoints Integer. Number of timepoints for each patient.
-#' @param num_arm Integer. Number of arm for the study.
-#' @param seed Integer. Seed for the simulation
-#' @noRd
-#' @keywords internal
-#' @importFrom cli cli_abort
-
-.check_arguments = function(num_timepoints){
-  if (!is.numeric(num_timepoints)){
-    cli_abort("num_timepoints should be a number (not a vector or a data.frame) and greater than 0")
-  }
-  if (num_timepoints == 0){
-    cli_abort("num_timepoints should be a number (not a vector or a data.frame) and greater than 0")
-  }
-  if (num_timepoints == 1){
-    timepoint <- "Baseline"
-  } else if (num_timepoints ==2){
-    timepoint <- c("Baseline","Follow-up")
-  } else if(num_timepoints > 2){
-    timepoint <- c("Baseline",rep("Treatment Period",num_timepoints-3),"End of Treatment","Follow-up")
-  }
-  timepoint
-  # if (!is.numeric(num_patients)){
-  #   cli_abort("num_patients should be a number (not a vector or a data.frame) and greater than 2")
-  # }
-  # if (num_patients <1){
-  #   cli_abort("num_patients should be a number (not a vector or a data.frame) and greater than 2")
-  # }
-  # if (!is.numeric(num_arm)){
-  #   cli_abort("num_arm should be a number (not a vector or a data.frame) 1 or 2")
-  # }
-  # if (!(num_arm %in% 1:2)){
-  #   cli_abort("num_arm should be 1 or 2")
-  # }
-  # if (!is.numeric(seed)){
-  #   cli_abort("seed should be a number")
-  # }
-}
-
-#' Used in `.example_rc()`
-#' Permet de determiner quelle sera la variation de la taille de la tumeur
-#' @param change Integer. Parametre pour determiner le pourcentage de variation de la taille de la tumeur
+#' Determines the variation in tumor size
+#' @param change Integer. Parameter for determining the percentage change in tumor size
 #' @noRd
 #' @keywords internal
 #' @importFrom dplyr case_when
@@ -231,13 +200,13 @@ example_rc = function(enrolres) {
 }
 
 #' Used in `.example_rc()`
-#' Permet de determiner la reponse en fonction de la taille de la tumeur
-#' @param baseline_size Integer. taille initiale de la tumeur
+#' Determines response based on tumor size
+#' @param baseline_size Integer. Initial tumor size
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-.simulate_patient <- function(baseline_size) {
-  changes <- runif(10, -100, 50) # Modifier le 10 avec num_timepoints
+.simulate_patient <- function(baseline_size,num_timepoints) {
+  changes <- runif(num_timepoints, -100, 50)
   sizes <- accumulate(changes, ~ .x * (1 + .y / 100), .init = baseline_size)[-1]
   responses <- map_chr(changes, .classify_recist)
   tibble(
