@@ -7,6 +7,7 @@
 #' @param N the number of patients
 #' @param seed the random seed (can be `NULL`)
 #' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
+#' @param t number of visit for the recist base
 #' @param ... passed on to internal functions. See [example_ae()] for control over Adverse Events.
 #'
 #' @returns A list of datasets, like in EDCimport.
@@ -16,7 +17,7 @@
 #' @importFrom purrr imap
 #' @importFrom tibble lst
 grstat_example = function(N=200, ..., seed=42,
-                          r=0.5, r2=1/3){
+                          r=0.5, r2=1/3,t=10 ){
   set.seed(seed)
 
   enrolres = example_enrol(N, r, r2)
@@ -26,13 +27,12 @@ grstat_example = function(N=200, ..., seed=42,
                   #  n_max=ae_n_max, n_max_trt=ae_n_max_trt,
                   #  p_sae=ae_p_sae,
                    ...)
-
-  rtn = lst(enrolres, ae) %>%
+  recist = example_rc(enrolres,t)
+  rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
   rtn$date_extraction = "2024/01/01"
   rtn$datetime_extraction = structure(1704067200, class = c("POSIXct", "POSIXt"),
                                       tzone = "Europe/Paris")
-
   rtn
 }
 
@@ -131,6 +131,96 @@ example_ae = function(enrolres, p_na=0,
       sae = "Serious AE",
     )
 }
+
+
+#' Used in `()`
+#' Simulate a RECIST dataset
+#'
+#' @keywords internal
+#' This function generates a synthetic RECIST dataset following the conventions of clinical oncology trials.
+#' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
+#'
+#' @param enrolres the enrolment result table, from `.example_enrol`
+#' @param num_timepoints Integer. Number of timepoints for each patient.
+#' @return A tibble containing the simulated RECIST dataset.
+#' @importFrom dplyr select mutate filter
+example_rc = function(enrolres, t) {
+  num_timepoints <- t
+  timepoint <- 1:num_timepoints
+  recist_data <- enrolres %>%
+    mutate(
+      Baseline_Tumor_Size = runif(n(), 10, 100),
+      Data = list(.simulate_patient(Baseline_Tumor_Size,num_timepoints)),
+      .by=subjid
+    ) %>%
+    unnest(Data) %>%
+    mutate(
+      RCVISIT = rep(timepoint, length.out = n()),
+      RCRESP = ifelse(Response_Category == "PR" & runif(n()) < 0.2, "CR", Response_Category),
+      RCDT = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
+      .by=subjid
+    ) %>%
+    mutate(RCDT = RCDT + runif(n(),-7,7))
+
+  recist_data$RCRESP = factor(recist_data$RCRESP,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
+  recist_data = recist_data %>%
+    mutate(suivi = row_number() <= which(RCRESP == 'Progressive disease')[1],
+           suivi = ifelse(is.na(suivi),TRUE,suivi),
+           .by=subjid
+    ) %>%
+    filter(suivi) %>%
+    select(subjid,Baseline_Tumor_Size,Tumor_Size_mm,Percent_Change,Response_Category,RCVISIT,RCRESP,RCDT,arm)
+
+  recist_baseline = recist_data %>%
+    filter(RCVISIT==1)%>%
+    mutate(Tumor_Size_mm = NA,
+           Percent_Change=NA,
+           Response_Category=NA,
+           RCVISIT=0,
+           RCRESP=NA,
+           RCDT = RCDT -42 + runif(n(),-7,7)
+    )
+  recist_data = recist_data %>%
+    rbind(recist_baseline) %>%
+    arrange(subjid, RCDT)
+}
+
+
+# Internals RC ------------------------------------------------------------
+#' Used in `.example_rc()`
+#' Determines the variation in tumor size
+#' @param change Integer. Parameter for determining the percentage change in tumor size
+#' @noRd
+#' @keywords internal
+#' @importFrom dplyr case_when
+.classify_recist <- function(change) {
+  case_when(
+    change <= -98 ~ "Not evaluable",
+    change <= -90 ~ "Complete response",
+    change <= -30  ~ "Partial response",
+    change >= 20   ~ "Progressive disease",
+    TRUE           ~ "Stable disease"
+  )
+}
+
+#' Used in `.example_rc()`
+#' Determines response based on tumor size
+#' @param baseline_size Integer. Initial tumor size
+#' @noRd
+#' @keywords internal
+#' @importFrom tibble tibble
+.simulate_patient <- function(baseline_size,num_timepoints) {
+  changes <- runif(num_timepoints, -100, 50)
+  sizes <- accumulate(changes, ~ .x * (1 + .y / 100), .init = baseline_size)[-1]
+  responses <- map_chr(changes, .classify_recist)
+  tibble(
+    Tumor_Size_mm = round(sizes, 1),
+    Percent_Change = round(changes, 1),
+    Response_Category = responses
+  )
+}
+
+# Internals AE ------------------------------------------------------------
 
 
 #' Used in `.random_grades_n()`
