@@ -28,6 +28,152 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
   invisible(rtn)
 }
 
+check_bare_recist = function(rc, mapping=gr_recist_mapping()){
+
+  rtn = list()
+
+  rc = rc %>%
+    as_tibble() %>%
+    select(!!!mapping)
+
+  #recalcul/vérification des TL sum Baseline et Nadir
+  rc %>%
+    arrange(subjid) %>%
+    filter(any(target_sum_bl != unify(target_sum[crf_n==1])), .by=subjid) %>%
+    select(subjid, rc_date, crf_n, target_sum, target_sum_bl, everything()) %>%
+    .add_to_recist_issues("RCTLBL is incorrect", level="WARNING")
+
+  rc %>%
+    arrange(subjid, crf_n, grp_n) %>%
+    mutate(sum_nadir = cummin(target_sum),
+           .by = subjid, .after=target_sum) %>%
+    filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
+    select(subjid, crf_n, grp_n, rc_date, crf_n, target_sum, target_sum_min, sum_nadir, everything()) %>%
+    .add_to_recist_issues("RCTLMIN is incorrect", level="WARNING")
+
+  #en cas de correction de la valeur baseline, le calcul automatique peut être faux par endroits
+  rc %>%
+    arrange(subjid) %>%
+    filter(length(unique(na.omit(target_sum_bl)))>1, .by=subjid) %>%
+    .add_to_recist_issues("RCTLBL has multiple values", level="WARNING")
+
+  #taille minimale pour être mesurable: 10mm si CTscan ou clinique (caliper), 20mm si Xray
+  #TODO calcul différent selon la technique?
+  rc %>%
+    filter(crf_n==1 & target_sum<10) %>%
+    .add_to_recist_issues("Non measurable (<10mm) target lesions at baseline", level="ERROR")
+
+  #cf hypothèses RECIST: est-ce que <10 ça peut être CR?
+  rc %>%
+    arrange(subjid) %>%
+    filter(str_detect(target_resp, "Complete") & target_sum>0) %>%
+    select(subjid, target_resp, target_sum) %>%
+    distinct() %>%
+    .add_to_recist_issues("RCTLRESP=CR avec des lésions restantes", level="ERROR")
+
+  #Là aucun doute, sauf à la limite en Xray
+  rc %>%
+    arrange(subjid) %>%
+    filter(str_detect(target_resp, "Complete") & target_sum>10) %>%
+    .add_to_recist_issues("RCTLRESP=CR avec des lésions >10", level="ERROR")
+
+  #one date = one sum
+  rc %>%
+    filter(n_distinct(target_sum, na.rm=TRUE)>1,
+           .by=c(subjid, rc_date)) %>%
+    .add_to_recist_issues("Plusieurs valeurs par date ?", level="ERROR")
+
+  #new lesion == progression non?
+  rc %>%
+    filter(new_lesions == "1-Yes" & global_resp!="4-Progressive disease") %>%
+    .add_to_recist_issues("Nouvelles lésions mais pas de progression", level="ERROR")
+
+  #structure du CRF, à transformer?
+  rc %>%
+    filter(is.na(target_order)+is.na(new_lesions_order)+is.na(nontarget_order) < 2) %>%
+    .add_to_recist_issues("CRF structure issue: missing orders", level="ERROR")
+  rc %>%
+    filter(is.na(target_site)+is.na(nontarget_site)+is.na(new_lesions_site) < 2) %>%
+    .add_to_recist_issues("CRF structure issue: missing sites", level="ERROR")
+
+  #Hypothèses très importante, sinon `crf_n==1` ne marche pas
+  rc %>%
+    arrange(subjid) %>%
+    filter(crf_n==1) %>%
+    select(subjid, target_resp, nontarget_resp, global_resp) %>%
+    pivot_longer(-subjid) %>%
+    filter(!is.na(value)) %>%
+    .add_to_recist_issues("Baseline response is not missing", level="ERROR")
+  rc %>%
+    arrange(subjid) %>%
+    filter((crf_n==1) != (rc_date==min(rc_date)), .by=subjid) %>%
+    .add_to_recist_issues("Visit before baseline", level="ERROR")
+}
+
+
+check_response = function(db_recist){
+
+
+  db_recist %>%
+    # filter(!post_pd) %>% #on verra après pour les post PD
+    filter(global_resp_check_num != global_resp_num) %>%
+    distinct(subjid, rc_date, crf_n, target_resp,
+             nontarget_present, nontarget_resp, new_lesions,
+             global_resp, global_resp_check)
+  # %>%
+  # .add_to_recist_issues("Global response RCRESP incohérente avec RCTLRESP et RCNTLRES")
+
+
+  # db_recist %>%
+  #   filter(subjid==6) %>%
+  #   select(subjid, crf_n, grp_n, target_resp, post_pd) %>% vv
+  # db_recist %>%
+  #   filter(subjid==6) %>%
+  #   distinct(subjid, crf_n, target_resp, post_pd, target_sum)
+
+  pb = db_recist %>%
+    filter(!post_pd) %>% #on verra après pour les post PD
+    distinct(subjid, rc_date, crf_n, target_resp, target_resp2) %>%
+    # select(-c(RCNTLYN:global_resp), -CRFSTAT)  %>%
+    # arrange(target_resp)%>%
+    filter(target_resp != target_resp2)
+
+  pb %>%
+    .add_to_recist_issues("Différences de Target Lesions response", level="ERROR")
+
+  cli_inform("There are {nrow(pb)} Target Lesions differences, in {n_distinct(pb$subjid)} patients.")
+
+  # rc_short ----
+  #une ligne par patient+date+lésion
+  db_recist %>%
+    summarise(
+      .by = c(subjid, crf_n, rc_date)
+    )
+
+  # rc_short ----
+  #une ligne par patient+date+lésion
+  rc_short =
+    db_recist %>%
+    filter(!is.na(target_site) | !is.na(nontarget_site) | !is.na(new_lesions_site)) %>%
+    group_by(subjid, crf_n, grp_n, rc_date) %>%
+    fill(everything(), .direction="updown") %>%
+    ungroup() %>%
+    distinct() %>%
+    mutate(target_node = str_detect(target_site, "Lymph node"), .after=target_site) %>%
+    mutate(nontarget_node = str_detect(nontarget_site, "Lymph node"), .after=nontarget_site) %>%
+    arrange(subjid)
+
+  rc_short %>%
+    semi_join(pb, by=c("subjid", "rc_date", "crf_n")) %>%
+    select(subjid, crf_n, grp_n, rc_date, post_pd, target_resp, target_resp_dan=target_resp2, target_site,
+           target_node, target_diam, target_sum, starts_with("target_"))
+
+}
+
+# Data ----------------------------------------------------------------------------------------
+
+
+
 .get_recist_data = function(rc, mapping){
 
   rtn = rc %>%
@@ -134,157 +280,22 @@ gr_recist_mapping = function(){
   )
 }
 
+# Issues --------------------------------------------------------------------------------------
 
 
-check_response = function(db_recist){
-
-
-  db_recist %>%
-    # filter(!post_pd) %>% #on verra après pour les post PD
-    filter(global_resp_check_num != global_resp_num) %>%
-    distinct(subjid, rc_date, crf_n, target_resp,
-             nontarget_present, nontarget_resp, new_lesions,
-             global_resp, global_resp_check)
-  # %>%
-  # .add_to_recist_issues("Global response RCRESP incohérente avec RCTLRESP et RCNTLRES")
-
-
-  # db_recist %>%
-  #   filter(subjid==6) %>%
-  #   select(subjid, crf_n, grp_n, target_resp, post_pd) %>% vv
-  # db_recist %>%
-  #   filter(subjid==6) %>%
-  #   distinct(subjid, crf_n, target_resp, post_pd, target_sum)
-
-  pb = db_recist %>%
-    filter(!post_pd) %>% #on verra après pour les post PD
-    distinct(subjid, rc_date, crf_n, target_resp, target_resp2) %>%
-    # select(-c(RCNTLYN:global_resp), -CRFSTAT)  %>%
-    # arrange(target_resp)%>%
-    filter(target_resp != target_resp2)
-
-  pb %>%
-    .add_to_recist_issues("Différences de Target Lesions response", level="ERROR")
-
-  cli_inform("There are {nrow(pb)} Target Lesions differences, in {n_distinct(pb$subjid)} patients.")
-
-  # rc_short ----
-  #une ligne par patient+date+lésion
-  db_recist %>%
-    summarise(
-      .by = c(subjid, crf_n, rc_date)
-    )
-
-  # rc_short ----
-  #une ligne par patient+date+lésion
-  rc_short =
-    db_recist %>%
-    filter(!is.na(target_site) | !is.na(nontarget_site) | !is.na(new_lesions_site)) %>%
-    group_by(subjid, crf_n, grp_n, rc_date) %>%
-    fill(everything(), .direction="updown") %>%
-    ungroup() %>%
-    distinct() %>%
-    mutate(target_node = str_detect(target_site, "Lymph node"), .after=target_site) %>%
-    mutate(nontarget_node = str_detect(nontarget_site, "Lymph node"), .after=nontarget_site) %>%
-    arrange(subjid)
-
-  rc_short %>%
-    semi_join(pb, by=c("subjid", "rc_date", "crf_n")) %>%
-    select(subjid, crf_n, grp_n, rc_date, post_pd, target_resp, target_resp_dan=target_resp2, target_site,
-           target_node, target_diam, target_sum, starts_with("target_"))
-
-}
-check_bare_recist = function(rc, mapping=gr_recist_mapping()){
-
-  rc = rc %>%
-    as_tibble() %>%
-    select(!!!mapping)
-
-  #recalcul/vérification des TL sum Baseline et Nadir
-  # browser()
-  rc %>%
-    arrange(subjid) %>%
-    filter(any(target_sum_bl != unify(target_sum[crf_n==1])), .by=subjid) %>%
-    select(subjid, rc_date, crf_n, target_sum, target_sum_bl, everything()) %>%
-    .add_to_recist_issues("RCTLBL is incorrect", level="WARNING")
-  rc %>%
-    arrange(subjid, crf_n, grp_n) %>%
-    mutate(sum_nadir = cummin(target_sum),
-           .by = subjid, .after=target_sum) %>%
-    filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
-    select(subjid, crf_n, grp_n, rc_date, crf_n, target_sum, target_sum_min, sum_nadir, everything()) %>%
-    .add_to_recist_issues("RCTLMIN is incorrect", level="WARNING")
-
-  #en cas de correction de la valeur baseline, le calcul automatique peut être faux par endroits
-  rc %>%
-    arrange(subjid) %>%
-    filter(length(unique(na.omit(target_sum_bl)))>1, .by=subjid) %>%
-    .add_to_recist_issues("RCTLBL has multiple values", level="WARNING")
-
-  #taille minimale pour être mesurable: 10mm si CTscan ou clinique (caliper), 20mm si Xray
-  #TODO calcul différent selon la technique?
-  rc %>%
-    filter(crf_n==1 & target_sum<10) %>%
-    .add_to_recist_issues("Non measurable (<10mm) target lesions at baseline", level="ERROR")
-
-  #cf hypothèses RECIST: est-ce que <10 ça peut être CR?
-  rc %>%
-    arrange(subjid) %>%
-    filter(str_detect(target_resp, "Complete") & target_sum>0) %>%
-    select(subjid, target_resp, target_sum) %>%
-    distinct() %>%
-    .add_to_recist_issues("RCTLRESP=CR avec des lésions restantes", level="ERROR")
-
-  #Là aucun doute, sauf à la limite en Xray
-  rc %>%
-    arrange(subjid) %>%
-    filter(str_detect(target_resp, "Complete") & target_sum>10) %>%
-    .add_to_recist_issues("RCTLRESP=CR avec des lésions >10", level="ERROR")
-
-  #one date = one sum
-  rc %>%
-    filter(n_distinct(target_sum, na.rm=TRUE)>1,
-           .by=c(subjid, rc_date)) %>%
-    .add_to_recist_issues("Plusieurs valeurs par date ?", level="ERROR")
-
-  #new lesion == progression non?
-  rc %>%
-    filter(new_lesions == "1-Yes" & global_resp!="4-Progressive disease") %>%
-    .add_to_recist_issues("Nouvelles lésions mais pas de progression", level="ERROR")
-
-  #structure du CRF, à transformer?
-  rc %>%
-    filter(is.na(target_order)+is.na(new_lesions_order)+is.na(nontarget_order) < 2) %>%
-    .add_to_recist_issues("CRF structure issue: missing orders", level="ERROR")
-  rc %>%
-    filter(is.na(target_site)+is.na(nontarget_site)+is.na(new_lesions_site) < 2) %>%
-    .add_to_recist_issues("CRF structure issue: missing sites", level="ERROR")
-
-  #Hypothèses très importante, sinon `crf_n==1` ne marche pas
-  rc %>%
-    arrange(subjid) %>%
-    filter(crf_n==1) %>%
-    select(subjid, target_resp, nontarget_resp, global_resp) %>%
-    pivot_longer(-subjid) %>%
-    filter(!is.na(value)) %>%
-    .add_to_recist_issues("Baseline response is not missing", level="ERROR")
-  rc %>%
-    arrange(subjid) %>%
-    filter((crf_n==1) != (rc_date==min(rc_date)), .by=subjid) %>%
-    .add_to_recist_issues("Visit before baseline", level="ERROR")
-}
-
-.add_to_recist_issues = function(data, message, level="ERROR"){
-  code = .make_clean_name(message)
+recist_issue = function(data, message, level="ERROR"){
   data = if(nrow(data)>0) data else NULL
-  issue = tibble(
+  tibble(
     message,
     n_subjid=length(unique(data$subjid)),
     level,
     data=list(data)
   )
+}
 
-  grstat_env$rc_list[[code]] = issue
+.add_to_recist_issues = function(data, message, level="ERROR"){
+  code = .make_clean_name(message)
+  grstat_env$rc_list[[code]] = recist_issue(data, message, level)
   invisible(issue)
 }
 
