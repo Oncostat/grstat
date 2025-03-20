@@ -1,5 +1,7 @@
+align = flextable
 all_of = dplyr
 attr = base
+bold = flextable
 dir_create = fs
 intersect = dplyr
 isFALSE = base

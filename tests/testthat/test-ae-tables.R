@@ -1,5 +1,27 @@
 
-test_that("ae_table_grade() works", {
+
+test_that("ae_tables simplest snapshot", {
+  local_reproducible_output(width=125)
+
+  expect_snapshot({
+
+      df_ae = tibble(subjid=rep(1:2, each=5),
+                     aesoc=rep("Soc1", 10),
+                     aegr=c(1:4, NA, 2:5, NA))
+      df_enrolres = tibble(subjid=1:2, arm="Foobar")
+      ae_table_soc(df_ae=df_ae, df_enrol=df_enrolres, variant="max")
+      ae_table_soc(df_ae=df_ae, df_enrol=df_enrolres, variant="sup")
+      ae_table_soc(df_ae=df_ae, df_enrol=df_enrolres, variant="eq")
+
+      ae_table_grade(df_ae=df_ae, df_enrol=df_enrolres, variant="max")
+      ae_table_grade(df_ae=df_ae, df_enrol=df_enrolres, variant="sup")
+      ae_table_grade(df_ae=df_ae, df_enrol=df_enrolres, variant="eq")
+
+  })
+})
+
+
+test_that("ae_table_grade() default snapshot", {
   local_reproducible_output(width=125)
 
   expect_snapshot({
@@ -25,11 +47,26 @@ test_that("ae_table_grade() with different colnames", {
   rslt = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, subjid="ENROLLID2", grade="grade", arm="TRT") %>%
     expect_silent()
 
-  expect_setequal(names(rslt), c(".id", "label", "variable", "Ctl", "Trt", "Total"))
+  expect_setequal(names(rslt), c(".id", "label", "variable", "Control", "Treatment", "Total"))
 })
 
 
-test_that("ae_table_soc() works", {
+test_that("ae_table_grade() errors", {
+
+  tm = grstat_example()
+
+  tm$ae$aegr[1:10] = 1:10
+  ae_table_grade(tm$ae, df_enrol=tm$enrolres) %>%
+    expect_error(class="ae_table_grade_not_1to5")
+
+  tm$ae$aegr[1] = "foobar"
+  ae_table_grade(tm$ae, df_enrol=tm$enrolres) %>%
+    expect_error(class="ae_table_grade_not_num")
+
+})
+
+
+test_that("ae_table_soc() default snapshot", {
   local_reproducible_output(width=125)
 
   expect_snapshot({
@@ -43,6 +80,15 @@ test_that("ae_table_soc() works", {
     ae_table_soc(ae, df_enrol=enrolres, arm="ARM", variant="sup")
     ae_table_soc(ae, df_enrol=enrolres, arm="ARM", variant="eq")
 
+    # with term
+    ae_table_soc(ae, df_enrol=enrolres, arm="ARM", term="aeterm", sort_by_count=TRUE)
+    ae_table_soc(ae, df_enrol=enrolres, arm="ARM", term="aeterm", sort_by_count=FALSE)
+
+    # with a soc only in one arm
+    ctl = tm$enrolres %>% filter(arm=="Control") %>% pull(subjid)
+    x=tm$ae %>%
+      filter(aesoc=="Cardiac disorders" | !subjid %in% ctl) %>%
+      ae_table_soc(df_enrol=tm$enrolres, arm="ARM")
   })
 
   ae_table_soc(df_ae=ae, df_enrol=enrolres,

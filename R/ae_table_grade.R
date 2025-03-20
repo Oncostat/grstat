@@ -8,13 +8,20 @@
 
 #' Summary tables for AE
 #'
+#' `r lifecycle::badge("stable")`\cr
+#' The function `ae_table_grade()` creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
+#' The resulting dataframe can be piped to `as_flextable()` to get a nicely formatted flextable.
+#'
 #' @param percent whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.
+#' @param ae_label the label of adverse events, usually "AE" or "SAE".
 #' @inheritParams ae_table_soc
 #' @inherit ae_table_soc seealso
 #'
 #' @return a crosstable
+#' @importFrom cli cli_abort
 #' @importFrom dplyr arrange case_match case_when cur_group filter left_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
+#' @importFrom glue glue
 #' @importFrom rlang check_dots_empty check_installed
 #' @importFrom stringr str_remove str_starts str_subset
 #' @importFrom tibble lst
@@ -28,20 +35,32 @@
 #' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
-#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="ARM") %>%
+#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm") %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
 #' #To get SAE only, filter df_ae first
-#' library(dplyr)
 #' ae %>%
-#'   filter(sae=="Yes") %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="ARM") %>%
-#'   mutate_all(~stringr::str_replace(.x, "AE", "SAE")) %>%
+#'   dplyr::filter(sae=="Yes") %>%
+#'   ae_table_grade(df_enrol=enrolres, arm="arm", ae_label="SAE") %>%
+#'   as_flextable(header_show_n=TRUE)
+#'
+#' #To describe a sub-population, filter df_enrol first
+#' enrolres2 = enrolres %>%
+#'   dplyr::filter(arm=="Control")
+#' ae %>%
+#'   ae_table_grade(df_enrol=enrolres2, arm="arm") %>%
+#'   as_flextable(header_show_n=TRUE)
+#'
+#' #You can also filter the AE table
+#' ae %>%
+#'   ae_table_grade(df_enrol=enrolres, arm="arm") %>%
+#'   dplyr::filter(!variable %in% c("Grade 1", "Grade 2")) %>%
 #'   as_flextable(header_show_n=TRUE)
 ae_table_grade = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
     arm=NULL, grade="AEGR", subjid="SUBJID",
+    ae_label="AE",
     percent=TRUE, digits=2,
     total=TRUE
 ){
@@ -62,14 +81,20 @@ ae_table_grade = function(
     select(subjid=tolower(subjid), arm=tolower(arm)) %>%
     mutate(arm=if(is.null(.env$arm)) default_arm else .data$arm)
   if(!is.numeric(df_ae$grade)){
-    cli_abort("Grade ({.val {grade}}) should be a numeric column.")
+    cli_abort("Grade ({.val {grade}}) must be a {.cls numeric} column, not a {.cls {class(df_ae$grade)}}.",
+              class="ae_table_grade_not_num")
+  }
+  if(any(!df_ae$grade %in% c(1:5, NA), na.rm=TRUE)){
+    cli_abort(c("Grade ({.val {grade}}) must be an integer between 1 and 5.",
+                i="Wrong values: {.val {setdiff(df_ae$grade, 1:5)}}"),
+              class="ae_table_grade_not_1to5")
   }
 
   df = df_enrol %>%
     left_join(df_ae, by="subjid") %>%
     arrange(subjid) %>%
     mutate(
-      grade = fix_grade(grade),
+      grade = .fix_grade_na(grade),
     )
 
   variant = case_match(variant, "max"~"max_grade", "sup"~"any_grade_sup",
@@ -80,7 +105,7 @@ ae_table_grade = function(
                     else if(percent=="only") "{n/n_col}" else "{n}"
   percent_pattern = list(body=percent_pattern, total_col=percent_pattern)
 
-  lab_no_ae = "No declared AE"
+  lab_no_ae = glue("No declared {ae_label}")
 
   rtn = df %>%
     summarise(
@@ -114,10 +139,12 @@ ae_table_grade = function(
                percent_pattern=percent_pattern) %>%
     filter(variable!="foobar" & variable!="NA") %>%
     mutate(
-      label=case_when(str_starts(.id, "max_grade_") ~ "Patient maximum AE grade",
-                      str_starts(.id, "any_grade_sup_") ~ "Patient had at least one AE of grade",
-                      str_starts(.id, "any_grade_eq_") ~ "Patient had at least one AE of grade ",
-                      .default="ERROR"),
+      label=case_when(
+        str_starts(.id, "max_grade_") ~ glue("Patient maximum {ae_label} grade"),
+        str_starts(.id, "any_grade_sup_") ~ glue("Patient had at least one {ae_label} of grade"),
+        str_starts(.id, "any_grade_eq_") ~ glue("Patient had at least one {ae_label} of grade "),
+        .default="ERROR"
+      ),
       .id = str_remove(.id, "_[^_]*$") %>% factor(levels=variant),
       label = fct_reorder(label, as.numeric(.id)),
       variable = suppressWarnings(fct_relevel(variable, lab_no_ae, after=0)),
@@ -219,6 +246,7 @@ ae_plot_grade = function(
 
 #' Graphic representation of AEs
 #'
+#' `r lifecycle::badge("experimental")`\cr
 #' Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
 #'
 #' @param weights (optional) a length 5 numeric vector, giving the weights of each grade
@@ -231,7 +259,8 @@ ae_plot_grade = function(
 #' @export
 #' @importFrom dplyr across any_of arrange count left_join mutate rename_with select
 #' @importFrom forcats fct_infreq fct_rev
-#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_fill_manual theme vars
+#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_color_manual scale_fill_manual theme theme_minimal vars
+#' @importFrom glue glue
 #' @importFrom rlang check_dots_empty int
 #' @importFrom tibble deframe lst
 #' @importFrom tidyr replace_na
@@ -264,7 +293,7 @@ ae_plot_grade_sum = function(
 
   df = df_enrol %>%
     left_join(df_ae, by=tolower(subjid)) %>%
-    mutate(grade = fix_grade(grade),
+    mutate(grade = .fix_grade_na(grade),
            weight = weights[grade] %>% replace_na(0.1)) %>%
     arrange(subjid)
 
@@ -273,6 +302,7 @@ ae_plot_grade_sum = function(
     npat = deframe(count(df_enrol, arm))
     npat["Total"] = sum(npat)
   } else {
+    df$arm = default_arm
     npat = int(!!default_arm:=nrow(df_enrol))
   }
 
@@ -287,17 +317,22 @@ ae_plot_grade_sum = function(
 
   rtn =
     df %>%
-    mutate(subjid = fct_infreq(factor(subjid), w=weight)) %>%
+    mutate(
+      arm = glue("{arm} (N={npat[arm]})"),
+      subjid = fct_infreq(factor(subjid), w=weight)
+    ) %>%
     count(across(c(subjid, grade, any_of("arm"))), wt=weight) %>%
     mutate(
       n = ifelse(is.na(grade), 0.1, n),
       grade = fct_rev(factor(grade))
     ) %>%
-    ggplot(aes(x=subjid, y=n, fill=grade)) +
+    ggplot(aes(x=subjid, y=n, fill=grade, color=grade)) +
     scale_fill_manual(values=rev(pal)) +
+    scale_color_manual(values=rev(pal), guide="none") +
     geom_col() +
     theme(axis.text.x=element_blank(),
-          axis.ticks.x=element_blank()) +
+          axis.ticks.x=element_blank(),
+          panel.grid.major.x = element_blank()) +
     labs(x="Patient", y=y_lab, fill="AE grade", caption=caption)
 
   if(!is.null(arm)) rtn = rtn + facet_grid(cols=vars(arm), scales="free_x")
@@ -312,9 +347,10 @@ ae_plot_grade_sum = function(
 ae_plot_grade_n = ae_plot_grade_sum
 
 
+
 # Utils ---------------------------------------------------------------------------------------
 
 #' @importFrom dplyr na_if
-fix_grade = function(x){
+.fix_grade_na = function(x){
   as.numeric(na_if(as.character(x), "NA"))
 }

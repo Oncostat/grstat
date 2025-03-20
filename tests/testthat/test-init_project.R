@@ -7,6 +7,8 @@ test_that("gr_new_project works", {
 
   gr_new_project(path, open=FALSE, verbose=FALSE)
 
+  # fs::dir_tree(path)
+
   copied_files = dir_ls(path, type="file", recurse=TRUE)
   templ_dir = path_package("/init_proj", package="grstat")
   pkg_files = dir_ls(templ_dir, type="file", recurse=TRUE)

@@ -14,8 +14,46 @@ gr_new_project(path, open = TRUE, verbose = TRUE)
 \item{verbose}{If \code{TRUE}, shows diagnostics.}
 }
 \value{
-Path to the project, invisibly.
+The path to the project, invisibly.
 }
 \description{
-Create a standardized, empty clinical research project.
+Create a clinical research project with a standardized structure:
+\preformatted{
+├── main.R
+├── NEWS.md
+├── R
+│   ├── init.R
+│   ├── read.R
+│   ├── check.R
+│   ├── description.R
+│   ├── graph.R
+│   └── report.R
+├── README.md
+└── my_proj.Rproj
+}
+}
+\section{Structure}{
+
+At the root of the project:
+\itemize{
+\item \code{README.md} contains a short description of the project
+\item \code{NEWS.md} contains the descriptions of the versions of the project
+\item \code{main.R} is the central script that sequentially calls all the others
+}
+
+In the R folder:
+\itemize{
+\item \code{init.R} loads all used packages and set options
+\item \code{read.R} reads the data and sets global variables
+\item \code{check.R} checks the data, e.g. using \code{edc_data_warn()}
+\item \code{description.R} describe the data, e.g. using \code{\link[crosstable:crosstable]{crosstable::crosstable()}}
+\item \code{graph.R} create plots, and saves them on the disk or in the \code{plots} global list
+\item \code{report.R} creat the report, e.g. using the \code{officer} package
+}
+}
+
+\examples{
+\dontrun{
+  gr_new_project("projects/my_project_folder")
+}
 }

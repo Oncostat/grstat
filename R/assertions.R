@@ -51,6 +51,9 @@ assert_names_exists = function(df, l){
   }
 }
 
+#' @importFrom cli cli_abort
+#' @importFrom purrr keep
+#' @importFrom tibble lst
 assert_not_null = function(...){
   nulls = lst(...) %>% keep(is.null) %>% names()
   if(length(nulls)>0){

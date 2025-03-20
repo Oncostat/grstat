@@ -1,8 +1,10 @@
 Package: grstat
 Type: Package
 Title: Clinical Research Tools
-Version: 0.1.0.9006
+Version: 0.1.0.9008
 Authors@R: c(
+      person("Team Oncostat", role = c("cph", "fnd"),
+             comment = c(ROR = "01ed4t417")),
       person("Dan", "Chaltiel", role = c("aut", "cre"),
              email = "dan.chaltiel@gustaveroussy.fr",
              comment = c(ORCID = "0000-0003-3488-779X")),
@@ -24,7 +26,7 @@ License: GPL-3
 URL: https://oncostat.github.io/grstat/, https://github.com/oncostat/grstat/
 BugReports: https://github.com/oncostat/grstat/issues/
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.5.0)
 Imports: 
     cli,
     dplyr,
@@ -45,8 +47,10 @@ Suggests:
     callr,
     crosstable,
     gtools,
+    knitr,
     patchwork,
     plotly,
+    rmarkdown,
     rstudioapi,
     testthat (>= 3.0.0),
     usethis,
@@ -56,3 +60,4 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Config/testthat/edition: 3
 Config/testthat/parallel: true
+VignetteBuilder: knitr

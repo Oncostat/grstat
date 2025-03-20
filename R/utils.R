@@ -91,6 +91,26 @@ get_label = function(x, default=names(x)){
   lab
 }
 
+#' @noRd
+#' @keywords internal
+#' @importFrom cli cli_warn
+#' @importFrom dplyr across cur_column mutate setdiff
+#' @importFrom rlang current_env
+#' @importFrom tibble lst
+#' @importFrom tidyselect everything
+apply_labels = function(data, ..., warn_missing=FALSE) {
+  args = lst(...)
+  unknowns = setdiff(names(args), names(data))
+  if (length(unknowns) && warn_missing) {
+    cli_warn("Cannot find column{?s} in `data`: {.var {unknowns}}",
+             class="crosstable_missing_label_warning",
+             call=current_env())
+  }
+
+  data %>%
+    mutate(across(everything(),
+                  ~set_label(.x, args[[cur_column()]])))
+}
 
 # NA.RM ---------------------------------------------------------------------------------------
 

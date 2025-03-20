@@ -3,6 +3,7 @@
 
 #' Generate a waterfall plot
 #'
+#' `r lifecycle::badge("experimental")`\cr
 #' @param data_recist recist dataset
 #' @param rc_sum name of the target lesions length sum column in `data_recist`, usually "RCTLSUM".
 #' @param rc_resp name of the response column in `data_recist`, usually "RCRESP".
@@ -152,7 +153,7 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
 
 #' @noRd
 #' @keywords internal
-#' @importFrom dplyr all_of filter n_distinct
+#' @importFrom dplyr filter n_distinct
 waterfall_check = function(df, subjid="SUBJID") {
   assert_names_exists(df, subjid)
   df %>%
