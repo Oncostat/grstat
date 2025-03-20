@@ -13,11 +13,11 @@ grstat_env$rc_list = list()
 #' @importFrom tidyselect all_of everything where
 check_recist = function(rc, mapping=gr_recist_mapping()){
 
-
+  rc = .apply_recist_mapping(rc, mapping)
 
   check_bare_recist(rc)
 
-  db_recist = .get_recist_data(rc, mapping)
+  db_recist = .get_recist_data(rc)
   check_response(db_recist)
 
 
@@ -28,13 +28,9 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
   invisible(rtn)
 }
 
-check_bare_recist = function(rc, mapping=gr_recist_mapping()){
+check_bare_recist = function(rc){
 
   rtn = list()
-
-  rc = rc %>%
-    as_tibble() %>%
-    select(!!!mapping)
 
   #recalcul/vérification des TL sum Baseline et Nadir
   rc %>%
@@ -174,11 +170,9 @@ check_response = function(db_recist){
 
 
 
-.get_recist_data = function(rc, mapping){
+.get_recist_data = function(rc){
 
   rtn = rc %>%
-    as_tibble() %>%
-    select(!!!mapping) %>%
     mutate(target_site = str_remove(target_site, "\\(.*\\)")) %>% #TODO: remove in final version
     arrange(subjid, crf_n, grp_n, rc_date) %>%
     mutate(target_resp_num = recist_encode(target_resp), .after=target_resp) %>%
@@ -264,12 +258,15 @@ check_response = function(db_recist){
 
 
 
+#' TODO document
+#' @export
 gr_recist_mapping = function(){
-  list(
+  c(
     subjid="SUBJID", crf_n="CRFINSNO", grp_n="GRPINSNO", rc_date="RCDT",
 
-    target_order="RCTLORD", target_site="RCTLSITE", target_method="RCTLMOD", target_diam="RCTLDIAM",
-    target_sum="RCTLSUM", target_sum_bl="RCTLBL", target_sum_min="RCTLMIN", target_resp="RCTLRESP",
+    target_order="RCTLORD", target_site="RCTLSITE", target_is_node="RCTLNODE",
+    target_method="RCTLMOD", target_diam="RCTLDIAM", target_sum="RCTLSUM",
+    target_sum_bl="RCTLBL", target_sum_min="RCTLMIN", target_resp="RCTLRESP",
 
     nontarget_yn="RCNTLYN", nontarget_resp="RCNTLRES", nontarget_site="RCNTLSIT",
     nontarget_present="RCNTLPRE", nontarget_order="RCNTLORD",
@@ -278,6 +275,19 @@ gr_recist_mapping = function(){
 
     global_resp="RCRESP"
   )
+}
+
+.apply_recist_mapping = function(data, mapping){
+  mapping = gr_recist_mapping()
+  rtn = data %>%
+    as_tibble() %>%
+    select(any_of(mapping))
+
+  if(is.null(rtn[["target_is_node"]])){
+    rtn$target_is_node = str_detect(target_site, "node")
+  }
+
+  rtn
 }
 
 # Issues --------------------------------------------------------------------------------------
