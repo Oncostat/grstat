@@ -6,104 +6,78 @@ output:
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
-%\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+---
   
-  ---
-  
-  # Data
-  
-  ```{r, include=FALSE, warning=FALSE}
-  knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>")
-  
-  
-  library(tidyverse)
-  t0 = ISOdate(2020, 01, 01, tz="EST")
-  t0_v2=as.Date(t0, format =  "%Y/%m/%d")
-  # , format(Sys.time(), "%*Y/%m/%d"
-  #  data_surv = ggsurvfit::df_colon %>% 
-  #    mutate(
-  #     date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
-  #      date_end = date_start + time,
-  #      death = status,
-  #      date_progression = date_start + time*runif(n(), 0.6, 0.8),  )
-  #    select(subijd=id,arm=rx, surg, 
-  #           date_start, date_progression, date_end, death)
-  
-  
-  # Generate the dataset with progression and death dates
-  # set.seed(42)
-  data_surv = ggsurvfit::df_colon %>% 
+# Data
+
+```{r, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(collapse = TRUE,
+                      comment = "#>")
+
+library(tidyverse)
+t0 = ISOdate(2020, 01, 01, tz="EST")
+t0_v2=as.Date(t0, format =  "%Y/%m/%d")
+
+# Generate the dataset with progression and death dates
+# set.seed(42)
+data_surv = ggsurvfit::df_colon %>% 
   mutate(
-  date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
-  date_end = date_start + time,
-  death = status,
-  # Add date of progression to random patients only, as a proper date
-  date_progression = as.Date(ifelse(runif(n()) < 0.5, date_start + time * runif(n(), 0.6, 0.8), NA), origin = "1970-01-01"),
-  #     # Add date of death only when death == 1, as a proper date
-  date_death = as.Date(ifelse(death == 1, date_start + time, NA), origin = "1970-01-01")
+    date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
+    date_end = date_start + time,
+    death = status,
+    # Add date of progression to random patients only, as a proper date
+    date_progression = as.Date(ifelse(runif(n()) < 0.5, date_start + time * runif(n(), 0.6, 0.8), NA), origin = "1970-01-01"),
   )
-  
-  length(unique(data_surv$id))
-  
-  # # Display the first few rows of the dataset
-  head(data_surv)
-  # 
-  
-  ```
-  
-  ```{r setup}
+
+length(unique(data_surv$id))
+
+```
+
+```{r setup}
   library(grstat)
   library(tidyverse)
   library(survival)
   library(ggsurvfit)
-  ```
+```
   
-  # Variable Creation
-  
-  First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
-  
-  
-  * Time variable:
+```{r}
+# # Display the first few rows of the dataset
+head(data_surv)
+# 
+```
+
+# Variable Creation
+
+First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
+
+
+* Time variable:
   
   The time variable represents the duration from a defined starting point (e.g., diagnosis, study enrollment, or start of treatment) to the time at which the patient's status is recorded. It is a numeric variable measured in units such as days, months, or years, depending on the study's duration and requirements.
-  
-  * Status variable:
+
+* Status variable:
   
   The status variable is binary, indicating whether the event has occurred (event = 1) or not (censored = 0) for each subject by the end of the study period.
-  
-  An event (1) indicates that the subjects experienced the event of interest (e.g., death, relapse, transplant failure, etc.).
-  
-  Censored (0) refers to those subjects who did not experience the event during the study. For these individuals, the 'time-to-event' is considered censored, indicating that we only know they did not experience the event up to a certain point.
-  
-  ## Example
-  
-  ```{r}
-  # data_surv_v2=data_surv %>%
-#   mutate(status_date = case_when(
-#     status == 1  ~ pmin(date_progression, na.rm = T), 
-#     status == 0  ~ pmax(date_end,na.rm = T)
-#   )) %>% 
-#   mutate(time_days=status_date-date_start ) %>%  
-#   mutate(time_months=time_days/30.5 )  
+
+An event (1) indicates that the subjects experienced the event of interest (e.g., death, relapse, transplant failure, etc.).
+
+Censored (0) refers to those subjects who did not experience the event during the study. For these individuals, the 'time-to-event' is considered censored, indicating that we only know they did not experience the event up to a certain point.
+
+
+```{r}
+## Example
 
 data_surv_v2=data_surv %>%
-mutate(status_PFS= ifelse(!is.na(date_progression), 1, 0 )) %>%
-mutate(status_OS= ifelse(death!=1, 1, 0 )) %>%
-mutate(date_status_pfs = case_when(
-status_PFS == 1  ~ pmin(date_progression,date_death, na.rm = T), 
-status_PFS == 0  ~ pmax(date_end,na.rm = T)
-)) %>% 
-mutate(time_pfs_days=date_status_pfs-date_start ) %>%  
-mutate(time_pfs_months=time_pfs_days/30.5 )  %>% 
-mutate(date_status_OS = case_when(
-status_OS == 1  ~ pmin(date_death, na.rm = T), 
-status_OS == 0  ~ pmax(date_end,na.rm = T)
-)) %>% 
-mutate(time_OS_days=date_status_OS-date_start ) %>%  
-mutate(time_OS_months=time_OS_days/30.5 )  
+  mutate(
+    status_PFS= ifelse(!is.na(date_progression), 1, 0 ),
+    date_status_pfs=pmin(date_progression,date_end, na.rm = T),
+    status_OS= death,
+    date_status_OS=date_end,
+    time_pfs=as.numeric(date_status_pfs-date_start)/30.5,
+    time_OS=as.numeric(date_status_OS-date_start)/30.5
+  )
 
 head(data_surv_v2)
 ```
@@ -114,7 +88,7 @@ We recommend using the survival package with the survfit2 function instead of su
 
 
 ```{r}
-km.model_PFS <- survfit2(Surv(time_pfs_months, status_PFS) ~ surg,data = data_surv_v2)
+km.model_PFS <- survfit2(Surv(time_pfs, status_PFS) ~ surg,data = data_surv_v2)
 km.model_PFS
 
 
@@ -131,10 +105,11 @@ https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html
 
 Kaplan-Meier by Daniel D. Sjoberg, Mark Baillie, Charlotta Fruechtenicht, Steven Haesendonckx, Tim Treis.
 
+## Progression Free Disease (PFS)
 
 ```{r fig.width = 7 , fig.height=5}
 
-km = survfit2(Surv(time_pfs_days, status_PFS) ~ surg, data = data_surv_v2) %>%
+km_PFS = survfit2(Surv(time_pfs, status_PFS) ~ surg, data = data_surv_v2) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +
   add_risktable(
@@ -144,25 +119,50 @@ km = survfit2(Surv(time_pfs_days, status_PFS) ~ surg, data = data_surv_v2) %>%
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(expand = c(0.02, 0)) +
   theme(legend.position="inside", legend.position.inside = c(0.85, 0.85))
-km
+km_PFS
 ```
 
 
-
-## Extra codes to improve the plot
+ Extra codes to improve the plot
 
 ```{r fig.width = 7 ,fig.height=5}
-km +
+km_PFS +
   add_censor_mark(size = 4, alpha = 0.4) +
-  scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 8)) +
-  scale_y_continuous(labels=scales::label_percent(), limits=c(0,1)) +
+  # scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 8)) +
+  # scale_y_continuous(labels=scales::label_percent(), limits=c(0,1)) +
   labs(
-    x = "Time from begining of treatment to progression or death (days)",
+    x = "Time from begining of treatment to progression or death (months)",
     y = "Progression Free Survival",
     title="Progression Free Survival, (N=X, n event=X)"
   ) 
 
 ```
 
+
+## Overall Survival OS
+
+```{r fig.width = 7 , fig.height=5}
+names(data_surv_v2)
+km_OS = survfit2(Surv(time_OS, status_OS) ~ surg, data = data_surv_v2) %>%
+  ggsurvfit(linetype_aes = TRUE) +
+  add_confidence_interval() +
+  add_risktable(
+    risktable_stats = c("n.risk", "cum.censor", "cum.event" )
+  ) +
+  theme_ggsurvfit_KMunicate() +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(expand = c(0.02, 0)) +
+  theme(legend.position="inside", legend.position.inside = c(0.85, 0.85))
+
+km_OS +
+  add_censor_mark(size = 4, alpha = 0.4) +
+  # scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 8)) +
+  # scale_y_continuous(labels=scales::label_percent(), limits=c(0,1)) +
+  labs(
+    x = "Time from begining of treatment to death (months)",
+    y = "Overall Survival",
+    title="Overall Survival, (N=X, n event=X)"
+  ) 
+```
 
 
