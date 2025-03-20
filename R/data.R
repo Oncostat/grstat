@@ -137,82 +137,81 @@ example_ae = function(enrolres, p_na=0,
 #' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
-#' @param num_timepoints Integer. Number of timepoints for each patient.
+#' @param t Integer. Number of timepoints for each patient.
 #' @return A tibble containing the simulated RECIST dataset.
 #' @importFrom dplyr select mutate filter
 example_rc = function(enrolres, t) {
   num_timepoints <- t
-  timepoint <- 1:num_timepoints
+  timepoint <- seq_len(num_timepoints)
   recist_data <- enrolres %>%
     mutate(
-      Baseline_Tumor_Size = runif(n(), 10, 100),
-      Data = list(.simulate_patient(Baseline_Tumor_Size,num_timepoints)),
+      RCTLSUM_b= rnorm(n(),50,20),
+      RCTLSUM_b = ifelse(RCTLSUM_b <10, runif(1, 70, 180),RCTLSUM_b),
+      Data = list(.simulate_patient(RCTLSUM_b,num_timepoints)),
       .by=subjid
     ) %>%
     unnest(Data) %>%
     mutate(
-      RCVISIT = rep(timepoint, length.out = n()),
-      RCRESP = ifelse(Response_Category == "PR" & runif(n()) < 0.2, "CR", Response_Category),
+      RCTLMIN = min(RCTLSUM_b),
+      RCTLMIN = ifelse(RCTLMIN > RCTLSUM,RCTLSUM,RCTLMIN),
+      RCTLSUM_precedent = lag(RCTLSUM),
+      RCRESP = ifelse(RCTLSUM == 0,"Complete response",
+                        ifelse((RCTLSUM_b - RCTLSUM)/RCTLSUM_b > 0.3,"Partial response",
+                               ifelse((RCTLMIN - RCTLSUM)/RCTLMIN < -0.2,"Progressive disease",
+                                      "Stable disease"))),
+      RCVISIT = row_number(),
       RCDT = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
       .by=subjid
     ) %>%
-    mutate(RCDT = RCDT + runif(n(),-7,7))
-
-  recist_data$RCRESP = factor(recist_data$RCRESP,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
-  recist_data = recist_data %>%
+    mutate(RCDT = RCDT + runif(n(),-7,7),
+           RCNEW = runif(n(),0,1),
+           RCNEW = ifelse(RCNEW<0.01,"1-Yes","0-No"),
+           Not_evaluable = runif(n(),0,1),
+           RCRESP = ifelse(Not_evaluable<0.01,"Not evaluable",RCRESP),
+           RCRESP = ifelse(RCNEW=="1-Yes","Progressive disease",RCRESP),
+           RCRESP = factor(RCRESP,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
+    ) %>%
     mutate(suivi = row_number() <= which(RCRESP == 'Progressive disease')[1],
            suivi = ifelse(is.na(suivi),TRUE,suivi),
            .by=subjid
     ) %>%
-    filter(suivi) %>%
-    select(subjid,Baseline_Tumor_Size,Tumor_Size_mm,Percent_Change,Response_Category,RCVISIT,RCRESP,RCDT,arm)
+    filter(suivi)# %>%
+    #select(subjid,RCTLSUM,Baseline_Tumor_Size,Tumor_Size_mm,Percent_Change,Response_Category,RCVISIT,RCRESP,RCDT,arm)
 
   recist_baseline = recist_data %>%
     filter(RCVISIT==1)%>%
-    mutate(Tumor_Size_mm = NA,
+    mutate(RCTLSUM = NA,
            Percent_Change=NA,
-           Response_Category=NA,
            RCVISIT=0,
            RCRESP=NA,
-           RCDT = RCDT -42 + runif(n(),-7,7)
+           RCDT = RCDT -42 + runif(n(),-7,7),
+           RCTLMIN = RCTLSUM_b
     )
   recist_data = recist_data %>%
-    rbind(recist_baseline) %>%
+    bind_rows(recist_baseline) %>%
     arrange(subjid, RCDT)
 }
 
 
 # Internals RC ------------------------------------------------------------
 #' Used in `.example_rc()`
-#' Determines the variation in tumor size
-#' @param change Integer. Parameter for determining the percentage change in tumor size
-#' @noRd
-#' @keywords internal
-#' @importFrom dplyr case_when
-.classify_recist <- function(change) {
-  case_when(
-    change <= -98 ~ "Not evaluable",
-    change <= -90 ~ "Complete response",
-    change <= -30  ~ "Partial response",
-    change >= 20   ~ "Progressive disease",
-    TRUE           ~ "Stable disease"
-  )
-}
-
-#' Used in `.example_rc()`
 #' Determines response based on tumor size
-#' @param baseline_size Integer. Initial tumor size
+#' @param RCTLSUM_b Integer. Initial tumor size
+#' @param num_timepoints Integer. Number of timepoints for each patient.
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-.simulate_patient <- function(baseline_size,num_timepoints) {
-  changes <- runif(num_timepoints, -100, 50)
-  sizes <- accumulate(changes, ~ .x * (1 + .y / 100), .init = baseline_size)[-1]
-  responses <- map_chr(changes, .classify_recist)
+#' @importFrom purr accumulate
+.simulate_patient <- function(RCTLSUM_b,num_timepoints) {
+  delai <- 42 + runif(n(),-7,7)
+  percent_change_per_month <-runif(n(),-50,50)
+  changes <- rep(percent_change_per_month * delai / 30.5, num_timepoints)
+  changes <- changes + rnorm(num_timepoints,0,7)
+  sizes <- accumulate(changes, ~ .x * (1 + .y / 100), .init = RCTLSUM_b)[-1]
+  sizes <- ifelse(sizes <1,0,sizes)
   tibble(
-    Tumor_Size_mm = round(sizes, 1),
-    Percent_Change = round(changes, 1),
-    Response_Category = responses
+    RCTLSUM = round(sizes, 1),
+    Percent_Change = round(changes, 1)
   )
 }
 
