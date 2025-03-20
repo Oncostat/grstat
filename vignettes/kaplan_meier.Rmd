@@ -18,6 +18,7 @@ vignette: >
   collapse = TRUE,
   comment = "#>")
   
+  
   library(tidyverse)
   t0 = ISOdate(2020, 01, 01, tz="EST")
   t0_v2=as.Date(t0, format =  "%Y/%m/%d")
