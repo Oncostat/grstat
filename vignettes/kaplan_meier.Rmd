@@ -21,7 +21,6 @@ t0 = ISOdate(2020, 01, 01, tz="EST")
 t0_v2=as.Date(t0, format =  "%Y/%m/%d")
 
 # Generate the dataset with progression and death dates
-# set.seed(42)
 data_surv = ggsurvfit::df_colon %>% 
   mutate(
     date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
@@ -43,9 +42,11 @@ length(unique(data_surv$id))
 ```
   
 ```{r}
-# # Display the first few rows of the dataset
+#### Display the first few rows of the dataset
+## Note that the end date corresponds to the latest of the following date: date of death,
+## last visit, last recist scan, last news, end of treatment, or last follow-up.
 head(data_surv)
-# 
+
 ```
 
 # Variable Creation
@@ -67,7 +68,7 @@ Censored (0) refers to those subjects who did not experience the event during th
 
 
 ```{r}
-## Example
+#### Example
 
 data_surv_v2=data_surv %>%
   mutate(
@@ -90,7 +91,6 @@ We recommend using the survival package with the survfit2 function instead of su
 ```{r}
 km.model_PFS <- survfit2(Surv(time_pfs, status_PFS) ~ surg,data = data_surv_v2)
 km.model_PFS
-
 
 tidy_survfit(km.model_PFS, times=c(0.05, 0.10, 0.20)) %>% 
   select(strata, time, n.risk, n.event, estimate, conf.high, conf.low)
@@ -128,8 +128,6 @@ km_PFS
 ```{r fig.width = 7 ,fig.height=5}
 km_PFS +
   add_censor_mark(size = 4, alpha = 0.4) +
-  # scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 8)) +
-  # scale_y_continuous(labels=scales::label_percent(), limits=c(0,1)) +
   labs(
     x = "Time from begining of treatment to progression or death (months)",
     y = "Progression Free Survival",
@@ -147,7 +145,7 @@ km_OS = survfit2(Surv(time_OS, status_OS) ~ surg, data = data_surv_v2) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +
   add_risktable(
-    risktable_stats = c("n.risk", "cum.censor", "cum.event" )
+    risktable_stats = c("n.risk", "cum.event" )
   ) +
   theme_ggsurvfit_KMunicate() +
   scale_y_continuous(limits = c(0, 1)) +
@@ -156,8 +154,6 @@ km_OS = survfit2(Surv(time_OS, status_OS) ~ surg, data = data_surv_v2) %>%
 
 km_OS +
   add_censor_mark(size = 4, alpha = 0.4) +
-  # scale_x_continuous(breaks = scales::breaks_width(2), limits=c(0, 8)) +
-  # scale_y_continuous(labels=scales::label_percent(), limits=c(0,1)) +
   labs(
     x = "Time from begining of treatment to death (months)",
     y = "Overall Survival",
