@@ -323,13 +323,13 @@ gr_recist_mapping = function(){
 }
 
 .apply_recist_mapping = function(data, mapping){
-  mapping = gr_recist_mapping()
   rtn = data %>%
     as_tibble() %>%
-    select(any_of(mapping))
+    select(any_of(mapping)) %>%
+    arrange(subjid, rc_date)
 
-  if(is.null(rtn[["target_is_node"]])){
-    rtn$target_is_node = str_detect(target_site, "node")
+  if(!has_name(rtn, "target_is_node")){
+    rtn$target_is_node = str_detect(tolower(rtn$target_site), "node")
   }
 
   rtn
