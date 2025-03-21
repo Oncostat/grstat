@@ -32,6 +32,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
   checks = c(
     check_lesion_number(rc),
     check_constancy(rc),
+    check_baseline_lesions(rc),
   )
 
   browser()
@@ -108,6 +109,33 @@ check_constancy = function(rc){
   rtn
 }
 
+
+#' #Baseline target lesions should be at least 10mm or 15mm (lymph node)
+#' @noRd
+check_baseline_lesions = function(rc){
+
+  x = rc %>%
+    filter(!is.na(target_diam) | !is.na(target_site)) %>%
+    filter(rc_date==min(rc_date, na.rm=TRUE),
+           .by=subjid) %>%
+    arrange(subjid) %>%
+    select(subjid, rc_date, target_site, target_is_node, target_diam) %>%
+    mutate(non_measurable_node = target_is_node & target_diam < 15,
+           non_measurable_lesion = !target_is_node & target_diam < 10) %>%
+    distinct()
+
+  rtn$target_non_measurable_node = x %>%
+    filter(non_measurable_node) %>%
+    recist_issue("Target lesion: Non measurable (<15mm) lymph node at baseline", level="ERROR")
+  rtn$target_non_measurable_lesion = x %>%
+    filter(non_measurable_lesion) %>%
+    recist_issue("Target lesion: Non measurable (<10mm) lesion at baseline", level="ERROR")
+
+  rtn
+}
+
+
+#TODO changer nom: on calcule les variables dérivées (sum, nadir...)
 check_bare_recist = function(rc){
 
   rtn = list()
