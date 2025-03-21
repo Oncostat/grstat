@@ -51,6 +51,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 #' @noRd
 #' @importFrom tidyr nest
 check_lesion_number = function(rc){
+  rtn = list()
 
   #missing values
   rtn$target_missing_values = rc %>%
@@ -79,6 +80,7 @@ check_lesion_number = function(rc){
 #' Target Lesion site and evaluation method should have one value per patient
 #' @keywords internal
 check_constancy = function(rc){
+  rtn = list()
 
   #Target Lesion sites should be constant
   rtn$target_constant_sites = rc %>%
@@ -113,6 +115,7 @@ check_constancy = function(rc){
 #' #Baseline target lesions should be at least 10mm or 15mm (lymph node)
 #' @noRd
 check_baseline_lesions = function(rc){
+  rtn = list()
 
   x = rc %>%
     filter(!is.na(target_diam) | !is.na(target_site)) %>%
