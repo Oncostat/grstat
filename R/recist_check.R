@@ -31,6 +31,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 
   checks = c(
     check_lesion_number(rc),
+    check_constancy(rc),
   )
 
   browser()
@@ -71,6 +72,40 @@ check_lesion_number = function(rc){
     nest(dates=rc_date) %>%
     recist_issue("Target lesion: More than 2 lesions per site", level="ERROR")
 
+}
+
+
+#' Target Lesion site and evaluation method should have one value per patient
+#' @keywords internal
+check_constancy = function(rc){
+
+  #Target Lesion sites should be constant
+  rtn$target_constant_sites = rc %>%
+    select(subjid, rc_date, target_site, target_is_node, target_diam) %>%
+    arrange(subjid, rc_date) %>%
+    summarise(
+      n_sites = length(na.omit(target_site)),
+      target_sites = toString(unique(sort(target_site))),
+      .by=c(subjid, rc_date)
+    ) %>%
+    filter(n_distinct(n_sites)>1, .by=subjid) %>%
+    nest(dates=rc_date) %>%
+    recist_issue("Target lesion: Inconsistent sites", level="ERROR")
+
+  #Target Lesion evaluation method should be constant (if provided)
+  if(has_name(rc, "target_method")){
+    rtn$target_method_no_dup = rc %>%
+      filter(!is.na(target_method)) %>%
+      select(subjid, rc_date, target_site, target_method) %>%
+      filter(n_distinct(target_method)>1, .by=c(subjid, target_site)) %>%
+      nest(dates=rc_date) %>%
+      recist_issue("Target lesion: More than 1 method", level="ERROR")
+  } else {
+    rtn$target_method_no_dup = recist_issue_ne("Target lesion: More than 1 method",
+                                               level="ERROR")
+  }
+
+  rtn
 }
 
 check_bare_recist = function(rc){
