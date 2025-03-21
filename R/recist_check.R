@@ -30,7 +30,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
   db_recist = .get_recist_data(rc)
 
   checks = c(
-    check_lesion_number(rc),
+    check_target_lesions(rc),
     check_constancy(rc),
     check_baseline_lesions(rc),
     check_derived_columns(rc),
@@ -44,14 +44,18 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
   invisible(rtn)
 }
 
+
+
 # Checks --------------------------------------------------------------------------------------
 
 
-
-#' Up to a maximum of five lesions total (and a maximum of two lesions per organ)
+#' Target Lesions
+#' * Up to a maximum of five lesions total (and a maximum of two lesions per organ)
+#' * Consistant missing values on `target_diam` & `target_site`
+#' * Should not be bone lesions
 #' @noRd
 #' @importFrom tidyr nest
-check_lesion_number = function(rc){
+check_target_lesions = function(rc){
   rtn = list()
 
   #missing values
@@ -74,6 +78,13 @@ check_lesion_number = function(rc){
     filter(n>2) %>%
     nest(dates=rc_date) %>%
     recist_issue("Target lesion: More than 2 lesions per site", level="ERROR")
+
+  #Should not be bone lesions
+  rtn$target_bone_lesion = rc %>%
+    filter(str_detect(tolower(target_site), "bone")) %>%
+    filter(!str_detect(tolower(target_site), "marrow")) %>%
+    select(subjid, rc_date, target_site) %>%
+    recist_issue("Target lesions should not be bone lesions", level="CHECK")
 
 }
 
