@@ -3,6 +3,17 @@ grstat_env = rlang::new_environment()
 grstat_env$rc_list = list()
 
 
+
+#' Check RECIST data
+#'
+#' Check RECIST datasets
+#'
+#' @param rc the recist dataset
+#' @param mapping the result of [gr_recist_mapping()]
+#'
+#' @returns a tibble of nested checks
+#' @export
+#'
 #' @importFrom cli cli_inform
 #' @importFrom dplyr across any_of arrange case_when count distinct filter group_by mutate n_distinct recode select semi_join summarise ungroup
 #' @importFrom rlang env
@@ -11,21 +22,55 @@ grstat_env$rc_list = list()
 #' @importFrom tidyr fill pivot_longer replace_na
 #' @importFrom tibble as_tibble
 #' @importFrom tidyselect all_of everything where
+#' @seealso [RECIST guidelines](https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf)
+#'
 check_recist = function(rc, mapping=gr_recist_mapping()){
 
   rc = .apply_recist_mapping(rc, mapping)
-
-  check_bare_recist(rc)
-
   db_recist = .get_recist_data(rc)
-  check_response(db_recist)
 
+  checks = c(
+    check_lesion_number(rc),
+  )
 
   browser()
-  rtn = grstat_env$rc_list %>%
+  rtn = checks %>%
     bind_rows() %>%
     arrange(desc(n_subjid))
+
   invisible(rtn)
+}
+
+# Checks --------------------------------------------------------------------------------------
+
+
+
+#' Up to a maximum of five lesions total (and a maximum of two lesions per organ)
+#' @noRd
+#' @importFrom tidyr nest
+check_lesion_number = function(rc){
+
+  #missing values
+  rtn$target_missing_values = rc %>%
+    filter(is.na(target_diam) != is.na(target_site)) %>%
+    recist_issue("Target lesion: Missing values (diameter/site)", level="ERROR")
+
+  #Target Lesion should be <5
+  rtn$target_lesions_sup5 = rc %>%
+    filter(!is.na(target_site) & !is.na(target_diam)) %>%
+    count(subjid, rc_date) %>%
+    filter(n>5) %>%
+    nest(dates=rc_date) %>%
+    recist_issue("Target lesion: More than 5 sites", level="ERROR")
+
+  #Target Lesion should be <2 per site
+  rtn$target_sites_sup2 = rc %>%
+    filter(!is.na(target_site)) %>%
+    count(subjid, rc_date, target_site) %>%
+    filter(n>2) %>%
+    nest(dates=rc_date) %>%
+    recist_issue("Target lesion: More than 2 lesions per site", level="ERROR")
+
 }
 
 check_bare_recist = function(rc){
