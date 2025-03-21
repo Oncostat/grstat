@@ -126,7 +126,7 @@ check_constancy = function(rc){
 }
 
 
-#' #Baseline target lesions should be at least 10mm or 15mm (lymph node)
+#' Baseline target lesions should be at least 10mm or 15mm (lymph node)
 #' @noRd
 check_baseline_lesions = function(rc){
   rtn = list()
@@ -147,6 +147,18 @@ check_baseline_lesions = function(rc){
   rtn$target_non_measurable_lesion = x %>%
     filter(non_measurable_lesion) %>%
     recist_issue("Target lesion: Non measurable (<10mm) lesion at baseline", level="ERROR")
+
+  #baseline response should be missing
+  rtn$baseline_resp_nonmissing = rc %>%
+    arrange(subjid) %>%
+    filter(rc_date==min_narm(rc_date), .by=subjid) %>%
+    select(subjid, baseline_rc_date=rc_date, target_resp, nontarget_resp, global_resp) %>%
+    pivot_longer(-c(subjid, baseline_rc_date),
+                 names_to="response_column", values_to="response_value") %>%
+    distinct() %>%
+    filter(!is.na(response_value)) %>%
+    recist_issue("Baseline response should be missing", level="ERROR")
+
 
   rtn
 }
