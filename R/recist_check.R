@@ -78,13 +78,13 @@ check_lesion_number = function(rc){
 
 
 #' Target Lesion site and evaluation method should have one value per patient
+#' Responses should have one value per date
 #' @keywords internal
 check_constancy = function(rc){
   rtn = list()
 
   #Target Lesion sites should be constant
   rtn$target_constant_sites = rc %>%
-    select(subjid, rc_date, target_site, target_is_node, target_diam) %>%
     arrange(subjid, rc_date) %>%
     summarise(
       n_sites = length(na.omit(target_site)),
@@ -93,7 +93,21 @@ check_constancy = function(rc){
     ) %>%
     filter(n_distinct(n_sites)>1, .by=subjid) %>%
     nest(dates=rc_date) %>%
-    recist_issue("Target lesion: Inconsistent sites", level="ERROR")
+    recist_issue("Target lesion: Inconsistent sites per subjid", level="ERROR")
+
+  #Response should be constant per date
+  rc %>%
+    distinct(subjid, rc_date, target_resp) %>%
+    filter(n()>1, .by=c(subjid, rc_date)) %>%
+    recist_issue("Target lesion: Inconsistent response per date", level="ERROR")
+  rc %>%
+    distinct(subjid, rc_date, nontarget_resp) %>%
+    filter(n()>1, .by=c(subjid, rc_date)) %>%
+    recist_issue("Non-Target lesion: Inconsistent response per date", level="ERROR")
+  rc %>%
+    distinct(subjid, rc_date, global_resp) %>%
+    filter(n()>1, .by=c(subjid, rc_date)) %>%
+    recist_issue("Global response: Inconsistent response per date", level="ERROR")
 
   #Target Lesion evaluation method should be constant (if provided)
   if(has_name(rc, "target_method")){
