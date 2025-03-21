@@ -33,6 +33,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
     check_lesion_number(rc),
     check_constancy(rc),
     check_baseline_lesions(rc),
+    check_derived_columns(rc),
   )
 
   browser()
@@ -163,6 +164,13 @@ check_baseline_lesions = function(rc){
   rtn
 }
 
+#' Checks on values calculated in the EDC software
+#' Check target sum at any time, at baseline, and at Nadir
+#' In TrialMaster, if `target_sum` is modified, `target_sum_bl` & `target_sum_min` are not
+#' updated automatically.
+#' This also makes duplicates possible.
+#' @keywords internal
+check_derived_columns = function(rc){
 
 #TODO changer nom: on calcule les variables dérivées (sum, nadir...)
 check_bare_recist = function(rc){
@@ -183,12 +191,49 @@ check_bare_recist = function(rc){
     filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
     select(subjid, crf_n, grp_n, rc_date, crf_n, target_sum, target_sum_min, sum_nadir, everything()) %>%
     .add_to_recist_issues("RCTLMIN is incorrect", level="WARNING")
+  #check for duplicates
+  rtn$target_sum_bl_dupl = rc %>%
+    arrange(subjid, rc_date) %>%
+    filter(!is.na(target_sum_bl)) %>%
+    distinct(subjid, rc_date, target_sum_bl) %>%
+    filter(n_distinct(target_sum_bl)>1, .by=subjid) %>%
+    nest(rc_dates=rc_date) %>%
+    recist_issue("Dataset's baseline target lesion length sum has multiple values",
+                 level="WARNING")
+
+  rtn$target_sum_min_dupl = rc %>%
+    arrange(subjid, rc_date) %>%
+    filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
+    select(subjid, crf_n, rc_date, target_sum_min) %>%
+    recist_issue("Dataset's minimum target lesion length sum (nadir) has multiple values",
+                 level="WARNING")
 
   #en cas de correction de la valeur baseline, le calcul automatique peut être faux par endroits
   rc %>%
+  rtn$target_sum_bl_real_dupl = rc %>%
+    arrange(subjid, rc_date) %>%
+    filter(rc_date==min(rc_date, na.rm=TRUE),
+           .by=subjid) %>%
+    filter(length(unique(na.omit(target_sum)))>1, .by=subjid) %>%
+    select(subjid, crf_n, rc_date, target_sum) %>%
+    recist_issue("Real baseline target lesion length sum has multiple values",
+                 level="WARNING")
+
+  #check for wrong values
+  rtn$target_sum_wrong = rc %>%
     arrange(subjid) %>%
     filter(length(unique(na.omit(target_sum_bl)))>1, .by=subjid) %>%
     .add_to_recist_issues("RCTLBL has multiple values", level="WARNING")
+    mutate(
+      target_sum = target_sum[1],
+      target_sum_real = sum(target_diam, na.rm=TRUE),
+      .by=c(subjid, rc_date)
+    ) %>%
+    filter((target_sum != target_sum_real)) %>%
+    distinct(subjid, rc_date, target_sum, target_sum_real) %>%
+    nest(rc_dates=rc_date) %>%
+    recist_issue("Target lesion length sum is incorrect",
+                 level="WARNING")
 
   #taille minimale pour être mesurable: 10mm si CTscan ou clinique (caliper), 20mm si Xray
   #TODO calcul différent selon la technique?
@@ -203,6 +248,23 @@ check_bare_recist = function(rc){
     select(subjid, target_resp, target_sum) %>%
     distinct() %>%
     .add_to_recist_issues("RCTLRESP=CR avec des lésions restantes", level="ERROR")
+    mutate(target_sum_bl_real = target_sum[rc_date==min(rc_date, na.rm=TRUE)][1],
+           .by=subjid) %>%
+    filter((target_sum_bl != target_sum_bl_real)) %>%
+    distinct(subjid, rc_date, target_sum_bl, target_sum_bl_real) %>%
+    nest(rc_dates=rc_date) %>%
+    recist_issue("Baseline target lesion length sum is incorrect",
+                 level="WARNING")
+
+  rtn$target_sum_min_wrong = rc %>%
+    arrange(subjid, crf_n, grp_n) %>%
+    mutate(sum_nadir = cummin(target_sum),
+           .by = subjid, .after=target_sum) %>%
+    filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
+    select(subjid, crf_n, grp_n, rc_date, crf_n, target_sum, target_sum_min,
+           sum_nadir, everything()) %>%
+    recist_issue("Minimum target lesion length sum (nadir) is incorrect",
+                 level="WARNING")
 
   #Là aucun doute, sauf à la limite en Xray
   rc %>%
@@ -212,9 +274,15 @@ check_bare_recist = function(rc){
 
   #one date = one sum
   rc %>%
+  rtn$target_sum_date_dup = rc %>%
     filter(n_distinct(target_sum, na.rm=TRUE)>1,
            .by=c(subjid, rc_date)) %>%
     .add_to_recist_issues("Plusieurs valeurs par date ?", level="ERROR")
+    recist_issue("Several target_sum values per date", level="ERROR")
+
+  rtn
+}
+
 
   #new lesion == progression non?
   rc %>%
