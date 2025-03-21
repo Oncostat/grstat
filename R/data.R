@@ -145,51 +145,50 @@ example_rc = function(enrolres, t) {
   timepoint <- seq_len(num_timepoints)
   recist_data <- enrolres %>%
     mutate(
-      RCTLSUM_b= rnorm(n(),50,20),
-      RCTLSUM_b = ifelse(RCTLSUM_b <10, runif(1, 70, 180),RCTLSUM_b),
-      Data = list(.simulate_patient(RCTLSUM_b,num_timepoints)),
+      rctlsum_b= rnorm(n(),50,30),
+      rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180),rctlsum_b),
+      data = list(.simulate_patient(rctlsum_b,num_timepoints)),
       .by=subjid
     ) %>%
-    unnest(Data) %>%
+    unnest(data) %>%
     mutate(
-      RCTLMIN = min(RCTLSUM_b),
-      RCTLMIN = ifelse(RCTLMIN > RCTLSUM,RCTLSUM,RCTLMIN),
-      RCTLSUM_precedent = lag(RCTLSUM),
-      RCRESP = ifelse(RCTLSUM == 0,"Complete response",
-                        ifelse((RCTLSUM_b - RCTLSUM)/RCTLSUM_b > 0.3,"Partial response",
-                               ifelse((RCTLMIN - RCTLSUM)/RCTLMIN < -0.2,"Progressive disease",
-                                      "Stable disease"))),
-      RCVISIT = row_number(),
-      RCDT = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
+      rctlmin= ifelse(rctlsum_b < rctlsum,rctlsum_b,rctlsum),
+      rctlmin = cummin(rctlmin),
+      rcresp = ifelse(rctlsum == 0,"Complete response",
+                      ifelse((rctlmin - rctlsum)/rctlmin < -0.2,"Progressive disease",
+                             ifelse((rctlsum_b - rctlsum)/rctlsum_b > 0.3,"Partial response",
+                                    "Stable disease"))),
+      rcvisit = row_number(),
+      rcdt = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
       .by=subjid
     ) %>%
-    mutate(RCDT = RCDT + runif(n(),-7,7),
-           RCNEW = runif(n(),0,1),
-           RCNEW = ifelse(RCNEW<0.01,"1-Yes","0-No"),
-           Not_evaluable = runif(n(),0,1),
-           RCRESP = ifelse(Not_evaluable<0.01,"Not evaluable",RCRESP),
-           RCRESP = ifelse(RCNEW=="1-Yes","Progressive disease",RCRESP),
-           RCRESP = factor(RCRESP,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
+    mutate(rcdt = rcdt + runif(n(),-7,7),
+           rcnew = runif(n(),0,1),
+           rcnew = ifelse(rcnew<0.01,"1-Yes","0-No"),
+           not_evaluable = runif(n(),0,1),
+           rcresp = ifelse(not_evaluable<0.01,"Not evaluable",rcresp),
+           rcresp = ifelse(rcnew=="1-Yes","Progressive disease",rcresp),
+           rcresp = factor(rcresp,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
     ) %>%
-    mutate(suivi = row_number() <= which(RCRESP == 'Progressive disease')[1],
+    mutate(suivi = row_number() <= which(rcresp == 'Progressive disease')[1],
            suivi = ifelse(is.na(suivi),TRUE,suivi),
            .by=subjid
     ) %>%
-    filter(suivi)# %>%
-    #select(subjid,RCTLSUM,Baseline_Tumor_Size,Tumor_Size_mm,Percent_Change,Response_Category,RCVISIT,RCRESP,RCDT,arm)
+    filter(suivi) %>%
+    select(subjid,arm,arm3,rctlsum_b,rctlsum,rctlmin,rcresp,rcvisit,rcdt,rcnew)
 
   recist_baseline = recist_data %>%
-    filter(RCVISIT==1)%>%
-    mutate(RCTLSUM = NA,
-           Percent_Change=NA,
-           RCVISIT=0,
-           RCRESP=NA,
-           RCDT = RCDT -42 + runif(n(),-7,7),
-           RCTLMIN = RCTLSUM_b
+    filter(rcvisit==1)%>%
+    mutate(rctlsum = rctlsum_b,
+           rcvisit=0,
+           rcresp=NA,
+           rcdt = rcdt -42 + runif(n(),-7,7),
+           rctlmin = rctlsum_b,
+           rcnew = NA
     )
   recist_data = recist_data %>%
     bind_rows(recist_baseline) %>%
-    arrange(subjid, RCDT)
+    arrange(subjid, rcdt)
 }
 
 
@@ -202,16 +201,16 @@ example_rc = function(enrolres, t) {
 #' @keywords internal
 #' @importFrom tibble tibble
 #' @importFrom purr accumulate
-.simulate_patient <- function(RCTLSUM_b,num_timepoints) {
+.simulate_patient <- function(rctlsum_b,num_timepoints,v_bruits=25) {
   delai <- 42 + runif(n(),-7,7)
-  percent_change_per_month <-runif(n(),-50,50)
+  percent_change_per_month <-runif(n(),-30,30)
   changes <- rep(percent_change_per_month * delai / 30.5, num_timepoints)
-  changes <- changes + rnorm(num_timepoints,0,7)
-  sizes <- accumulate(changes, ~ .x * (1 + .y / 100), .init = RCTLSUM_b)[-1]
+  changes <- changes + rnorm(num_timepoints,0,v_bruits)
+  sizes <- accumulate(changes, ~ .x * (1 + .y / 100), .init = rctlsum_b)[-1]
   sizes <- ifelse(sizes <1,0,sizes)
   tibble(
-    RCTLSUM = round(sizes, 1),
-    Percent_Change = round(changes, 1)
+    rctlsum = round(sizes, 1),
+    percent_change = round(changes, 1)
   )
 }
 
