@@ -26,7 +26,6 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 
   rc = .apply_recist_mapping(rc, mapping)
   rc_short = .summarise_recist(rc)
-  # db_recist = .get_recist_data(rc)
 
   checks = c(
     check_missing(rc),
@@ -49,6 +48,29 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 }
 
 
+#' Default mapping for RECIST dataset
+#'
+#' Generates the default mapping for the RECIST dataset. Values from `subjid`
+#' to `global_resp` are mandatory. Other values will only trigger specified
+#' checks if set. For `target_is_node`, if not set, it will be guessed from
+#' the presence of "node" in `target_site`.
+#'
+#' @returns a named character vector
+#' @export
+#'
+#' @examples
+#' gr_recist_mapping()
+gr_recist_mapping = function(){
+  c(
+    subjid="SUBJID", rc_date="RCDT",
+    target_site="RCTLSITE", target_diam="RCTLDIAM", target_resp="RCTLRESP",
+    nontarget_yn="RCNTLYN", nontarget_resp="RCNTLRES",
+    new_lesions="RCNEW", global_resp="RCRESP",
+
+    target_is_node="RCTLNODE", target_method="RCTLMOD",
+    target_sum="RCTLSUM", target_sum_bl="RCTLBL", target_sum_min="RCTLMIN"
+  )
+}
 
 # Checks --------------------------------------------------------------------------------------
 
@@ -232,7 +254,7 @@ check_derived_columns = function(rc){
   rtn$target_sum_min_dupl = rc %>%
     arrange(subjid, rc_date) %>%
     filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
-    select(subjid, crf_n, rc_date, target_sum_min) %>%
+    select(subjid, rc_date, target_sum_min) %>%
     recist_issue("Dataset's minimum target lesion length sum (nadir) has multiple values",
                  level="WARNING")
 
@@ -241,7 +263,7 @@ check_derived_columns = function(rc){
     filter(rc_date==min(rc_date, na.rm=TRUE),
            .by=subjid) %>%
     filter(length(unique(na.omit(target_sum)))>1, .by=subjid) %>%
-    select(subjid, crf_n, rc_date, target_sum) %>%
+    select(subjid, rc_date, target_sum) %>%
     recist_issue("Real baseline target lesion length sum has multiple values",
                  level="WARNING")
 
@@ -270,11 +292,11 @@ check_derived_columns = function(rc){
                  level="WARNING")
 
   rtn$target_sum_min_wrong = rc %>%
-    arrange(subjid, crf_n, grp_n) %>%
+    arrange(subjid, rc_date) %>%
     mutate(sum_nadir = cummin(target_sum),
            .by = subjid, .after=target_sum) %>%
     filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
-    select(subjid, crf_n, grp_n, rc_date, crf_n, target_sum, target_sum_min,
+    select(subjid, rc_date, target_sum, target_sum_min,
            sum_nadir, everything()) %>%
     recist_issue("Minimum target lesion length sum (nadir) is incorrect",
                  level="WARNING")
@@ -319,7 +341,7 @@ check_target_response = function(rc, rc_short){
     mutate(remaining_node = target_is_node & target_diam>=10,
            remaining_lesion = !target_is_node & target_diam>0) %>%
     filter(remaining_node | remaining_lesion) %>%
-    distinct(subjid, crf_n, rc_date, target_resp, target_site, target_diam) %>%
+    distinct(subjid, rc_date, target_resp, target_site, target_diam) %>%
     recist_issue("Complete Responses should not have any lesion left and should
                  not have lymph nodes larger than 10 mm.", level="ERROR")
 
@@ -433,30 +455,11 @@ check_global_response = function(rc_short){
 }
 
 
-#' TODO document
-#' @export
-gr_recist_mapping = function(){
-  c(
-    subjid="SUBJID", crf_n="CRFINSNO", grp_n="GRPINSNO", rc_date="RCDT",
-
-    target_order="RCTLORD", target_site="RCTLSITE", target_is_node="RCTLNODE",
-    target_method="RCTLMOD", target_diam="RCTLDIAM", target_sum="RCTLSUM",
-    target_sum_bl="RCTLBL", target_sum_min="RCTLMIN", target_resp="RCTLRESP",
-
-    nontarget_yn="RCNTLYN", nontarget_resp="RCNTLRES", nontarget_site="RCNTLSIT",
-    nontarget_present="RCNTLPRE", nontarget_order="RCNTLORD",
-
-    new_lesions="RCNEW", new_lesions_order="RCNEWORD", new_lesions_site="RCNEWSIT",
-
-    global_resp="RCRESP"
-  )
-}
-
 .apply_recist_mapping = function(data, mapping){
 
   mandatory = c("subjid", "rc_date",
                 "target_site", "target_diam", "target_resp",
-                "nontarget_yn", "nontarget_resp", #"nontarget_present",
+                "nontarget_yn", "nontarget_resp",
                 "new_lesions", "global_resp")
 
   rtn = data %>%
