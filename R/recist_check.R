@@ -535,6 +535,8 @@ recist_decode = function(x) {
 print.check_recist = function(x, n=Inf, ...){
   cat_rule("RECIST check", col="violet")
   x_tbl = remove_class(x, "check_recist") %>%
+    select(-code) %>%
+    filter(n_subjid>0) %>%
     format(n=n) %>%
     tail(-1) #remove "A tibble: n × p"
   cat(x_tbl, sep="\n")
