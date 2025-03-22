@@ -30,6 +30,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
   db_recist = .get_recist_data(rc)
 
   checks = c(
+    check_missing(rc),
     check_target_lesions(rc),
     check_constancy(rc),
     check_baseline_lesions(rc),
@@ -49,19 +50,39 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 # Checks --------------------------------------------------------------------------------------
 
 
+#' * Consistant missing values on `target_diam` & `target_site`
+#' @noRd
+#' @importFrom tidyr nest
+check_missing = function(rc){
+  rtn = lst()
+
+  #missing values target_diam & target_site
+  rtn$target_missing_values = rc %>%
+    filter(is.na(target_diam) != is.na(target_site)) %>%
+    recist_issue("Target lesion diameter and site should not be missing",
+                 level="ERROR")
+
+  #missing values on responses: all or nothing
+  resp_cols = c("new_lesions", "target_resp", "nontarget_resp", "global_resp")
+  rtn$resp_missing_values = response_valuerc %>%
+    filter(!(nontarget_yn=="No" & is.na(nontarget_resp))) %>%
+    select(subjid, rc_date, nontarget_yn, all_of(resp_cols)) %>%
+    filter(rowSums(across(all_of(resp_cols), is.na)) < 4) %>%
+    filter(rowSums(across(all_of(resp_cols), is.na)) > 0) %>%
+    distinct() %>%
+    recist_issue("Response should not be missing.", level="WARNING")
+
+  rtn
+}
+
+
 #' Target Lesions
 #' * Up to a maximum of five lesions total (and a maximum of two lesions per organ)
-#' * Consistant missing values on `target_diam` & `target_site`
 #' * Should not be bone lesions
 #' @noRd
 #' @importFrom tidyr nest
 check_target_lesions = function(rc){
   rtn = list()
-
-  #missing values
-  rtn$target_missing_values = rc %>%
-    filter(is.na(target_diam) != is.na(target_site)) %>%
-    recist_issue("Target lesion: Missing values (diameter/site)", level="ERROR")
 
   #Target Lesion should be <5
   rtn$target_lesions_sup5 = rc %>%
