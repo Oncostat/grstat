@@ -382,6 +382,40 @@ check_target_response = function(rc, rc_short){
 }
 
 
+#' Check impossible cases for Target Lesions response
+#' @keywords internal
+check_global_response = function(rc, rc_short){
+  rtn = list()
+
+  rtn$global_response = rc_short %>%
+    mutate(
+      # no non-target lesion = CR
+      nontarget_resp_num = ifelse(!nontarget_yn, 1, nontarget_resp_num),
+      global_resp_check = case_when(
+        target_resp_num == 4 | nontarget_resp_num == 4 |  new_lesion ~ 4,
+        target_resp_num == 1 & nontarget_resp_num == 1 ~ 1,
+        target_resp_num <= 2 ~ 2,
+        target_resp_num <= 3 ~ 3,
+        target_resp_num == 99 ~ 99,
+        .default = -99
+      )
+    ) %>%
+    filter(global_resp_num != global_resp_check) %>%
+    arrange(desc(global_resp_check)) %>%
+    transmute(subjid, rc_date,
+              target_resp,
+              nontarget_yn=fct_yesno(nontarget_yn),
+              nontarget_resp,
+              new_lesion=fct_yesno(new_lesion),
+              global_resp,
+              global_resp_check=recist_decode(global_resp_check)) %>%
+    recist_issue("Global Response should be consistant with TL response,
+                 NTL response, and presence of new lesions", level="CHECK")
+
+
+  rtn
+}
+
   #Hypothèses très importante, sinon `crf_n==1` ne marche pas
   rc %>%
     arrange(subjid) %>%
