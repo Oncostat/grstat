@@ -494,6 +494,37 @@ check_response = function(db_recist){
 
 
 
+.summarise_recist = function(rc){
+
+  # col_bak = c("target_sum_bak"="target_sum",
+  #             "target_sum_bl_bak"="target_sum_bl",
+  #             "target_sum_min_bak"="target_sum_min")
+  # col_bak = NULL
+
+  rc_short = rc %>%
+    # rename(any_of(col_bak)) %>%
+    # mutate(across(any_of(col_bak), ~.x[1]),
+    #        .by=c(subjid, rc_date)) %>% #in case of duplicates
+    summarise(
+      target_resp = target_resp[1],
+      nontarget_resp = nontarget_resp[1],
+      global_resp = global_resp[1],
+      new_lesion = any(new_lesions=="Yes"),
+      nontarget_yn = any(nontarget_yn=="Yes"),
+      target_sum = sum(target_diam, na.rm=TRUE),
+      .by=c(subjid, rc_date)
+      # .by=c(subjid, rc_date, any_of(names(col_bak)))
+    ) %>%
+    mutate(
+      across(ends_with("_resp"), recist_encode, .names="{.col}_num"),
+      baseline = rc_date == min_narm(rc_date),
+      post_pd = rc_date > min_narm(rc_date[global_resp_num==4]),
+      sum_bl = target_sum[baseline],
+      sum_nadir = cummin(replace_na(target_sum, Inf)),
+      .by=c(subjid)
+    )
+}
+
 .get_recist_data = function(rc){
 
   rtn = rc %>%
