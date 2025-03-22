@@ -130,6 +130,13 @@ check_constancy = function(rc){
     nest(dates=rc_date) %>%
     recist_issue("Target lesion: Inconsistent sites per subjid", level="ERROR")
 
+  #Non-Target Lesion YN should be constant
+  rc %>%
+    distinct(subjid, rc_date, nontarget_yn) %>%
+    filter(n_distinct(nontarget_yn, na.rm=TRUE)>1, .by=c(subjid)) %>%
+    nest(rc_dates=rc_date) %>%
+    recist_issue("Non-Target lesion: Inconsistent Yes/No per subjid", level="ERROR")
+
   #Response should be constant per date
   rc %>%
     distinct(subjid, rc_date, target_resp) %>%
@@ -198,10 +205,11 @@ check_baseline_lesions = function(rc){
   rtn
 }
 
+
 #' Checks on values calculated in the EDC software
 #' Check target sum at any time, at baseline, and at Nadir
-#' In TrialMaster, if `target_sum` is modified, `target_sum_bl` & `target_sum_min` are not
-#' updated automatically.
+#' In TrialMaster, if `target_sum` is modified, `target_sum_bl` & `target_sum_min`
+#' are not updated automatically.
 #' This also makes duplicates possible.
 #' @keywords internal
 check_derived_columns = function(rc){
