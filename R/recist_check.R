@@ -37,6 +37,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
     check_baseline_lesions(rc),
     check_derived_columns(rc), #TODO conditional checks
     check_target_response(rc, rc_short),
+    check_nontarget_response(rc),
     check_global_response(rc_short)
   )
 
@@ -288,6 +289,22 @@ check_derived_columns = function(rc){
     filter(n_distinct(target_sum, na.rm=TRUE)>1,
            .by=c(subjid, rc_date)) %>%
     recist_issue("Several target_sum values per date", level="ERROR")
+
+  rtn
+}
+
+
+#' Check impossible cases for Non-Target Lesions response
+#' @keywords internal
+check_nontarget_response = function(rc){
+  rtn = list()
+
+  rtn$nonmissing_ntl = rc %>%
+    filter(nontarget_yn == "No" & !is.na(nontarget_resp)) %>%
+    distinct(subjid, rc_date, nontarget_yn, nontarget_resp) %>%
+    arrange(nontarget_yn) %>%
+    recist_issue("Patients with no Non-Target Lesions should not have a
+                 NTL response.", level="ERROR")
 
   rtn
 }
