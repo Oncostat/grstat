@@ -37,6 +37,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
     check_baseline_lesions(rc),
     check_derived_columns(rc), #TODO conditional checks
     check_target_response(rc, rc_short),
+    check_global_response(rc_short)
   )
 
   rtn = checks %>%
@@ -384,7 +385,7 @@ check_target_response = function(rc, rc_short){
 
 #' Check impossible cases for Target Lesions response
 #' @keywords internal
-check_global_response = function(rc, rc_short){
+check_global_response = function(rc_short){
   rtn = list()
 
   rtn$global_response = rc_short %>%
