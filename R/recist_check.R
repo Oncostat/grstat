@@ -65,7 +65,7 @@ check_missing = function(rc){
 
   #missing values on responses: all or nothing
   resp_cols = c("new_lesions", "target_resp", "nontarget_resp", "global_resp")
-  rtn$resp_missing_values = response_valuerc %>%
+  rtn$resp_missing_values = rc %>%
     filter(!(nontarget_yn=="No" & is.na(nontarget_resp))) %>%
     select(subjid, rc_date, nontarget_yn, all_of(resp_cols)) %>%
     filter(rowSums(across(all_of(resp_cols), is.na)) < 4) %>%
@@ -108,6 +108,7 @@ check_target_lesions = function(rc){
     select(subjid, rc_date, target_site) %>%
     recist_issue("Target lesions should not be bone lesions", level="CHECK")
 
+  rtn
 }
 
 
