@@ -1,0 +1,132 @@
+---
+title: "RECIST Check"
+output: 
+  html_document:
+    toc: true
+params:
+  recist_check: NULL
+---
+
+```{r init, include=FALSE}
+library(dplyr)
+library(flextable)
+
+knitr::opts_chunk$set(echo = FALSE)
+
+
+flextable2 = function(x, autofit=TRUE, fontsize_body=8, fontsize_head=9, padding_v=0, ...){
+  x = flextable(x, ...)
+  if(autofit) x = set_table_properties(x, layout="autofit")
+  x %>% 
+    fontsize(size=fontsize_body) %>% 
+    fontsize(size=fontsize_head, part="head") %>% 
+    padding(padding.top=padding_v, padding.bottom=padding_v) %>% 
+    set_header_labels(message = "Message",
+                      n_subjid = "Number of patients")
+}
+
+show_summaries = function(x){
+  sup0 = which(x$n_subjid>0)
+  for(i in sup0){
+    d = x %>% slice(i)
+    cat(glue("<details><summary><h5 style='display:inline-block'> {d$message} (N = {d$n_subjid} patients)</h5></summary>\n\n"))
+    print(htmltools::tagList(DT::datatable(d$data[[1]])))
+    cat("</details>\n\n")
+  }
+}
+
+recist_check = params$recist_check
+rc_errors = as_tibble(recist_check) %>% 
+  filter(level=="ERROR")
+rc_warnings = as_tibble(recist_check) %>% 
+  filter(level=="WARNING")
+rc_checks = as_tibble(recist_check) %>% 
+  filter(level=="CHECK")
+
+```
+
+<button id="toggleButton" onclick="toggleDetails()">Open all </button>
+
+
+# Errors
+
+These checks signal errors that should be corrected in the CRF.
+
+```{r}
+rc_errors %>% 
+  select(message, n_subjid) %>% 
+  mutate(n_subjid = ifelse(n_subjid==0, "\U2713", n_subjid)) %>% 
+  flextable2()
+```
+
+```{r, results='asis'}
+show_summaries(rc_errors)
+```
+
+
+# Warnings
+
+These checks signal issues that can be problematic, but that can be worked around.
+
+```{r}
+rc_warnings %>% 
+  select(message, n_subjid) %>% 
+  mutate(n_subjid = ifelse(n_subjid==0, "\U2713", n_subjid)) %>% 
+  flextable2()
+```
+
+```{r, results='asis'}
+show_summaries(rc_warnings)
+```
+
+# Checks
+
+These checks signal cases that are possible but should probably be confirmed.
+
+```{r}
+rc_checks %>% 
+  select(message, n_subjid) %>% 
+  mutate(n_subjid = ifelse(n_subjid==0, "\U2713", n_subjid)) %>% 
+  flextable2()
+```
+
+```{r, results='asis'}
+show_summaries(rc_checks)
+```
+
+
+```{r, results='asis'}
+#I don't know why, but rendering fails if this is removed...
+DT::datatable(tibble())
+```
+
+
+# Appendix
+
+## Mapping
+
+The following mapping table was used to map the checks and the RECIST dataset's columns.
+
+```{r}
+recist_check %>% 
+  attr("mapping") %>% 
+  tibble::enframe() %>% 
+  flextable2() %>% 
+  set_header_labels(name="Check column", value="Dataset column")
+```
+
+
+<script>
+function toggleDetails() {
+    const detailsElements = document.querySelectorAll("details");
+    const button = document.getElementById("toggleButton");
+    
+    const allOpen = Array.from(detailsElements).every(details => details.open);
+    
+    detailsElements.forEach(details => {
+        details.open = !allOpen; // Si tout est ouvert, on ferme, sinon on ouvre
+    });
+    
+    button.textContent = allOpen ? "Open all" : "Close all";
+}
+</script>

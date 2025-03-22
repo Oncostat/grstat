@@ -566,3 +566,35 @@ print.check_recist = function(x, n=Inf, ...){
   cat(x_tbl, sep="\n")
 }
 
+
+#' @importFrom fs path_ext path_ext_remove
+recist_report = function(recist_check, output_file="recist_check.html", open=TRUE){
+  check_installed("rmarkdown", "for `recist_report()` to work.")
+  assert_class(recist_check, "check_recist")
+  assert(fs::path_ext(output_file)=="html",
+         msg="{.arg output_file} should be a {.val .html} file.")
+  output_file = path(getwd(), output_file)
+  if(file.exists(output_file)){
+    output_file2 = paste0(path_ext_remove(output_file), "_bak.", path_ext(output_file))
+    cli_warn("{.arg output_file} already exists and was renamed
+             to {.path {output_file2}}.")
+    if(file.exists(output_file2)){
+      cli_warn("{.arg output_file2} already exists and was overwritten.")
+    }
+    file.rename(output_file, output_file2)
+  }
+
+  rmd_path = system.file("templates", "template_recist_check.Rmd", package="grstat")
+  if(!file.exists(rmd_path)){
+    cli_abort("Recist check template doesn't exists: {.path {rmd_path}}.",
+              .internal=TRUE)
+  }
+
+  rmarkdown::render(rmd_path, output_file=output_file, quiet=TRUE,
+                    params=list(recist_check=recist_check))
+
+  if(open){
+    browseURL(output_file)
+  }
+  invisible(TRUE)
+}
