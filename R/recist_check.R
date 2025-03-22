@@ -43,7 +43,8 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 
   rtn = checks %>%
     list_rbind(names_to="code") %>%
-    arrange(desc(n_subjid)) %>%
+    mutate(level = factor(level, levels=c("ERROR", "WARNING", "CHECK"))) %>%
+    arrange(level, desc(n_subjid)) %>%
     add_class("check_recist")
 
   rtn
@@ -527,3 +528,14 @@ recist_decode = function(x) {
   x[x==99] = 5
   factor(x, levels=c(1:5), labels=c("CR", "PR", "SD", "PD", "Not evaluable"))
 }
+
+# Print ---------------------------------------------------------------------------------------
+
+print.check_recist = function(x, n=Inf, ...){
+  cat_rule("RECIST check", col="violet")
+  x_tbl = remove_class(x, "check_recist") %>%
+    format(n=n) %>%
+    tail(-1) #remove "A tibble: n × p"
+  cat(x_tbl, sep="\n")
+}
+
