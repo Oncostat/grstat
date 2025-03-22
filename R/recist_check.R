@@ -634,10 +634,19 @@ gr_recist_mapping = function(){
 }
 
 .apply_recist_mapping = function(data, mapping){
+
+  mandatory = c("subjid", "rc_date",
+                "target_site", "target_diam", "target_resp",
+                "nontarget_yn", "nontarget_resp", #"nontarget_present",
+                "new_lesions", "global_resp")
+
   rtn = data %>%
     as_tibble() %>%
     select(any_of(mapping)) %>%
-    arrange(subjid, rc_date)
+    select(all_of(mandatory), everything()) %>%
+    arrange(subjid, rc_date) %>%
+    mutate(new_lesions = fct_yesno(new_lesions),
+           nontarget_yn = fct_yesno(nontarget_yn))
 
   if(!has_name(rtn, "target_is_node")){
     rtn$target_is_node = str_detect(tolower(rtn$target_site), "node")
