@@ -330,6 +330,10 @@ check_bare_recist = function(rc){
   rc %>%
     filter(new_lesions == "1-Yes" & global_resp!="4-Progressive disease") %>%
     .add_to_recist_issues("Nouvelles lésions mais pas de progression", level="ERROR")
+#' Check impossible cases for Target Lesions response
+#' @keywords internal
+check_target_response = function(rc, rc_short){
+  rtn = list()
 
   #structure du CRF, à transformer?
   rc %>%
@@ -338,6 +342,45 @@ check_bare_recist = function(rc){
   rc %>%
     filter(is.na(target_site)+is.na(nontarget_site)+is.na(new_lesions_site) < 2) %>%
     .add_to_recist_issues("CRF structure issue: missing sites", level="ERROR")
+  #Complete Response
+  #CR = Disappearance of all target lesions. Lymph nodes must be <10 mm.
+  rtn$target_cr_remaining = rc %>%
+    arrange(subjid) %>%
+    filter(recist_encode(target_resp) == 1) %>%
+    mutate(remaining_node = target_is_node & target_diam>=10,
+           remaining_lesion = !target_is_node & target_diam>0) %>%
+    filter(remaining_node | remaining_lesion) %>%
+    distinct(subjid, crf_n, rc_date, target_resp, target_site, target_diam) %>%
+    recist_issue("Complete Responses should not have any lesion left and should
+                 not have lymph nodes larger than 10 mm.", level="ERROR")
+
+  #Partial Response
+  rtn$target_pr_wrong = rc_short %>%
+    mutate(diff_rel_bl = (target_sum-sum_bl)/sum_bl) %>%
+    filter(target_resp_num==2) %>%
+    filter(diff_rel_bl > -0.3) %>%
+    select(subjid, rc_date, target_resp, target_sum_baseline=sum_bl, target_sum,
+           diff_rel_bl) %>%
+    recist_issue("Partial response should have an at least 30% decrease in TL
+                 tumor length sum",
+                 level="ERROR")
+
+  #Partial Response
+  rtn$target_pd_wrong = rc_short %>%
+    mutate(diff_abs_nad = target_sum-sum_nadir,
+           diff_rel_nad = diff_abs_nad/sum_nadir) %>%
+    filter(target_resp_num!=4 & !post_pd) %>%
+    filter(diff_rel_nad >= 1.2 & diff_abs_nad >= 5) %>%
+    select(subjid, rc_date, target_resp, target_sum_nadir=sum_nadir, target_sum,
+           diff_rel_nad, diff_abs_nad) %>%
+    recist_issue("Target lesions that are at least 20% and 5mm larger than the
+    nadir should
+                 be classified as Progressive Disease.",
+                 level="ERROR")
+
+  rtn
+}
+
 
   #Hypothèses très importante, sinon `crf_n==1` ne marche pas
   rc %>%
