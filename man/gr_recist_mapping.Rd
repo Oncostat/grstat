@@ -10,11 +10,40 @@ gr_recist_mapping()
 a named character vector
 }
 \description{
-Generates the default mapping for the RECIST dataset. Values from \code{subjid}
-to \code{global_resp} are mandatory. Other values will only trigger specified
-checks if set. For \code{target_is_node}, if not set, it will be guessed from
-the presence of "node" in \code{target_site}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
+Generates the default mapping for a RECIST dataset. See sections below for
+information on which columns are mandatory.
 }
+\section{Mandatory Columns}{
+
+These columns \strong{must} be present in the dataset for proper RECIST assessment.
+\itemize{
+\item \strong{\code{subjid}}: Subject ID.
+\item \strong{\code{rc_date}}: Date of response assessment.
+\item \strong{\code{target_site}}: Site of the target lesion.
+\item \strong{\code{target_diam}}: Diameter of the target lesion.
+\item \strong{\code{target_resp}}: Response of the target lesion.
+\item \strong{\code{nontarget_yn}}: Presence (\code{Yes/No}) of non-target lesions.
+\item \strong{\code{nontarget_resp}}: Response of non-target lesions.
+\item \strong{\code{new_lesions}}: Presence of new lesions (\code{Yes/No}).
+\item \strong{\code{global_resp}}: Overall response assessment.
+}
+}
+
+\section{Optional Columns}{
+
+These columns are used for additional checks but are \strong{not required}.
+\itemize{
+\item \strong{\code{target_is_node}}: Indicates whether the target lesion is a lymph node.
+If not set, it will be inferred based on the presence of the substring \code{"node"}
+in \code{target_site}
+\item \strong{\code{target_method}}: Imaging method used for target lesion assessment.
+\item \strong{\code{target_sum}}: Sum of diameters of target lesions.
+\item \strong{\code{target_sum_bl}}: Baseline sum of target lesion diameters.
+\item \strong{\code{target_sum_min}}: Minimum sum of target lesion diameters observed.
+}
+}
+
 \examples{
 gr_recist_mapping()
 }

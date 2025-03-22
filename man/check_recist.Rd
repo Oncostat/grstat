@@ -2,20 +2,32 @@
 % Please edit documentation in R/recist_check.R
 \name{check_recist}
 \alias{check_recist}
-\title{Check RECIST data}
+\title{Check a RECIST dataset}
 \usage{
 check_recist(rc, mapping = gr_recist_mapping())
 }
 \arguments{
-\item{rc}{the recist dataset}
+\item{rc}{The recist dataset to check}
 
-\item{mapping}{the result of \code{\link[=gr_recist_mapping]{gr_recist_mapping()}}}
+\item{mapping}{The character vector defining the variable mapping. Refer to \code{\link[=gr_recist_mapping]{gr_recist_mapping()}} for default values and adjust as needed.}
 }
 \value{
-a tibble of nested checks
+a tibble of nested checks, of class \code{check_recist}
 }
 \description{
-Check RECIST datasets
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
+Perform multiple checks on a RECIST dataset. Use \code{\link[=recist_report]{recist_report()}} to output
+the checks as an HTML report.
+}
+\examples{
+⁠\dontrun{
+ #we unfortunately cannot provide a flawed simulated recist dataset
+ mapping = gr_recist_mapping()
+ recist_check = check_recist(rc, mapping=mapping)
+ recist_check
+ recist_report(recist_check)
+}⁠
+
 }
 \seealso{
 \href{https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf}{RECIST guidelines}

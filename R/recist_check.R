@@ -2,19 +2,29 @@
 
 
 
-#' Check RECIST data
+#' Check a RECIST dataset
 #'
-#' Check RECIST datasets
+#' `r lifecycle::badge("experimental")`\cr
+#' Perform multiple checks on a RECIST dataset. Use [recist_report()] to output
+#' the checks as an HTML report.
 #'
-#' @param rc the recist dataset
-#' @param mapping the result of [gr_recist_mapping()]
+#' @param rc The recist dataset to check
+#' @param mapping The character vector defining the variable mapping. Refer to [gr_recist_mapping()] for default values and adjust as needed.
 #'
-#' @returns a tibble of nested checks
+#' @returns a tibble of nested checks, of class `check_recist`
 #' @export
 #'
 #' @importFrom dplyr arrange desc mutate
 #' @importFrom purrr list_rbind
 #' @seealso [RECIST guidelines](https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf)
+#' @examples
+#' ⁠\dontrun{
+#'  #we unfortunately cannot provide a flawed simulated recist dataset
+#'  mapping = gr_recist_mapping()
+#'  recist_check = check_recist(rc, mapping=mapping)
+#'  recist_check
+#'  recist_report(recist_check)
+#' }⁠
 #'
 check_recist = function(rc, mapping=gr_recist_mapping()){
 
@@ -45,10 +55,31 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 
 #' Default mapping for RECIST dataset
 #'
-#' Generates the default mapping for the RECIST dataset. Values from `subjid`
-#' to `global_resp` are mandatory. Other values will only trigger specified
-#' checks if set. For `target_is_node`, if not set, it will be guessed from
-#' the presence of "node" in `target_site`.
+#' `r lifecycle::badge("experimental")`\cr
+#' Generates the default mapping for a RECIST dataset. See sections below for
+#' information on which columns are mandatory.
+#'
+#' @section Mandatory Columns:
+#' These columns **must** be present in the dataset for proper RECIST assessment.
+#' - **`subjid`**: Subject ID.
+#' - **`rc_date`**: Date of response assessment.
+#' - **`target_site`**: Site of the target lesion.
+#' - **`target_diam`**: Diameter of the target lesion.
+#' - **`target_resp`**: Response of the target lesion.
+#' - **`nontarget_yn`**: Presence (`Yes/No`) of non-target lesions.
+#' - **`nontarget_resp`**: Response of non-target lesions.
+#' - **`new_lesions`**: Presence of new lesions (`Yes/No`).
+#' - **`global_resp`**: Overall response assessment.
+#'
+#' @section Optional Columns:
+#' These columns are used for additional checks but are **not required**.
+#' - **`target_is_node`**: Indicates whether the target lesion is a lymph node.
+#' If not set, it will be inferred based on the presence of the substring `"node"`
+#' in `target_site`
+#' - **`target_method`**: Imaging method used for target lesion assessment.
+#' - **`target_sum`**: Sum of diameters of target lesions.
+#' - **`target_sum_bl`**: Baseline sum of target lesion diameters.
+#' - **`target_sum_min`**: Minimum sum of target lesion diameters observed.
 #'
 #' @returns a named character vector
 #' @export
@@ -66,6 +97,56 @@ gr_recist_mapping = function(){
     target_sum="RCTLSUM", target_sum_bl="RCTLBL", target_sum_min="RCTLMIN"
   )
 }
+
+
+#' Create a RECIST check HTML report
+#'
+#' `r lifecycle::badge("experimental")`\cr
+#' Turn the table created by [check_recist()] into an HTML report.
+#'
+#' @param recist_check the output of [check_recist()]
+#' @param output_file the HTML report file name.
+#' @param open whether to open the report afterward.
+#'
+#' @returns `output_file` invisibly. Called for side effects.
+#' @export
+#' @importFrom cli cli_abort cli_warn
+#' @importFrom fs path path_ext path_ext_remove
+#' @importFrom rlang check_installed
+#'
+#' @inherit check_recist examples
+recist_report = function(recist_check, output_file="recist_check.html", open=TRUE){
+  check_installed("rmarkdown", "for `recist_report()` to work.")
+  assert_class(recist_check, "check_recist")
+  assert(path_ext(output_file)=="html",
+         msg="{.arg output_file} should be a {.val .html} file.")
+  output_file = path(getwd(), output_file)
+  if(file.exists(output_file)){
+    output_file2 = paste0(path_ext_remove(output_file), "_bak.", path_ext(output_file))
+    cli_warn("{.arg output_file} already exists and was renamed
+             to {.path {output_file2}}.")
+    if(file.exists(output_file2)){
+      cli_warn("{.arg output_file2} already exists and was overwritten.")
+    }
+    file.rename(output_file, output_file2)
+  }
+
+  rmd_path = system.file("templates", "template_recist_check.Rmd", package="grstat")
+  if(!file.exists(rmd_path)){
+    cli_abort("Recist check template doesn't exists: {.path {rmd_path}}.",
+              .internal=TRUE)
+  }
+
+  rmarkdown::render(rmd_path, output_file=output_file, quiet=TRUE,
+                    params=list(recist_check=recist_check))
+
+  if(open){
+    utils::browseURL(output_file)
+  }
+  invisible(output_file)
+}
+
+
 
 # Checks --------------------------------------------------------------------------------------
 
@@ -601,37 +682,3 @@ print.check_recist = function(x, n=Inf, ...){
   cat(x_tbl[-1], sep="\n") #remove "A tibble: n × p"
 }
 
-
-#' @importFrom cli cli_abort cli_warn
-#' @importFrom fs path path_ext path_ext_remove
-#' @importFrom rlang check_installed
-recist_report = function(recist_check, output_file="recist_check.html", open=TRUE){
-  check_installed("rmarkdown", "for `recist_report()` to work.")
-  assert_class(recist_check, "check_recist")
-  assert(path_ext(output_file)=="html",
-         msg="{.arg output_file} should be a {.val .html} file.")
-  output_file = path(getwd(), output_file)
-  if(file.exists(output_file)){
-    output_file2 = paste0(path_ext_remove(output_file), "_bak.", path_ext(output_file))
-    cli_warn("{.arg output_file} already exists and was renamed
-             to {.path {output_file2}}.")
-    if(file.exists(output_file2)){
-      cli_warn("{.arg output_file2} already exists and was overwritten.")
-    }
-    file.rename(output_file, output_file2)
-  }
-
-  rmd_path = system.file("templates", "template_recist_check.Rmd", package="grstat")
-  if(!file.exists(rmd_path)){
-    cli_abort("Recist check template doesn't exists: {.path {rmd_path}}.",
-              .internal=TRUE)
-  }
-
-  rmarkdown::render(rmd_path, output_file=output_file, quiet=TRUE,
-                    params=list(recist_check=recist_check))
-
-  if(open){
-    utils::browseURL(output_file)
-  }
-  invisible(TRUE)
-}
