@@ -42,7 +42,8 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
     list_rbind(names_to="code") %>%
     mutate(level = factor(level, levels=c("ERROR", "WARNING", "CHECK"))) %>%
     arrange(level, desc(n_subjid)) %>%
-    add_class("check_recist")
+    add_class("check_recist") %>%
+    structure(mapping = mapping)
 
   rtn
 }
