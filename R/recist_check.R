@@ -28,21 +28,22 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 
   rc = .apply_recist_mapping(rc, mapping)
   db_recist = .get_recist_data(rc)
+  rc_short = .summarise_recist(rc)
 
   checks = c(
     check_missing(rc),
     check_target_lesions(rc),
     check_constancy(rc),
     check_baseline_lesions(rc),
-    check_derived_columns(rc),
+    check_derived_columns(rc), #TODO conditional checks
+    check_target_response(rc, rc_short),
   )
 
-  browser()
   rtn = checks %>%
-    bind_rows() %>%
+    list_rbind() %>%
     arrange(desc(n_subjid))
 
-  invisible(rtn)
+  rtn
 }
 
 
