@@ -262,7 +262,6 @@ check_derived_columns = function(rc){
     recist_issue("Target lesion length sum is incorrect",
                  level="WARNING")
 
-
   rtn$target_sum_bl_wrong = rc %>%
     arrange(subjid) %>%
     mutate(target_sum_bl_real = target_sum[rc_date==min(rc_date, na.rm=TRUE)][1],
@@ -384,6 +383,16 @@ check_global_response = function(rc_short){
               global_resp_check=recist_decode(global_resp_check)) %>%
     recist_issue("Global Response should be consistant with TL response,
                  NTL response, and presence of new lesions", level="CHECK")
+
+  rtn$nlt_progression = rc_short %>%
+    filter(nontarget_resp_num == 4) %>%
+    filter(target_resp_num != 4 | !new_lesion) %>%
+    transmute(subjid, rc_date,
+              target_resp,
+              nontarget_yn=fct_yesno(nontarget_yn),
+              nontarget_resp, new_lesion) %>%
+    recist_issue("Progressions due only to Non-Target Lesions are seldom and
+               should be checked", level="CHECK")
 
 
   rtn
