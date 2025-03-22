@@ -85,7 +85,8 @@ check_missing = function(rc){
   #missing values target_diam & target_site
   rtn$target_missing_values = rc %>%
     filter(is.na(target_diam) != is.na(target_site)) %>%
-    recist_issue("Target lesion diameter and site should not be missing",
+    select(subjid, rc_date, target_site, target_diam) %>%
+    recist_issue("Target Lesion diameter and site should not be missing",
                  level="ERROR")
 
   #missing values on responses: all or nothing
@@ -115,23 +116,25 @@ check_target_lesions = function(rc){
     filter(!is.na(target_site) & !is.na(target_diam)) %>%
     count(subjid, rc_date) %>%
     filter(n>5) %>%
-    nest(dates=rc_date) %>%
-    recist_issue("Target lesion: More than 5 sites", level="ERROR")
+    # nest(dates=rc_date) %>%
+    summarise(dates = toString(rc_date), .by=-rc_date) %>%
+    recist_issue("Target Lesion: More than 5 sites", level="ERROR")
 
   #Target Lesion should be <2 per site
   rtn$target_sites_sup2 = rc %>%
     filter(!is.na(target_site)) %>%
     count(subjid, rc_date, target_site) %>%
     filter(n>2) %>%
-    nest(dates=rc_date) %>%
-    recist_issue("Target lesion: More than 2 lesions per site", level="ERROR")
+    # nest(dates=rc_date) %>%
+    summarise(dates = toString(rc_date), .by=-rc_date) %>%
+    recist_issue("Target Lesion: More than 2 lesions per site", level="ERROR")
 
   #Should not be bone lesions
   rtn$target_bone_lesion = rc %>%
     filter(str_detect(tolower(target_site), "bone")) %>%
     filter(!str_detect(tolower(target_site), "marrow")) %>%
     select(subjid, rc_date, target_site) %>%
-    recist_issue("Target lesions should not be bone lesions", level="CHECK")
+    recist_issue("Target Lesions should not be bone lesions", level="CHECK")
 
   rtn
 }
@@ -152,29 +155,36 @@ check_constancy = function(rc){
       .by=c(subjid, rc_date)
     ) %>%
     filter(n_distinct(n_sites)>1, .by=subjid) %>%
-    nest(dates=rc_date) %>%
-    recist_issue("Target lesion: Inconsistent sites per subjid", level="ERROR")
+    # nest(dates=rc_date) %>%
+    summarise(dates = toString(rc_date), .by=-rc_date) %>%
+    recist_issue("Target Lesions should remain unchanged  throughout the followup",
+                 level="ERROR")
 
   #Non-Target Lesion YN should be constant
   rc %>%
     distinct(subjid, rc_date, nontarget_yn) %>%
     filter(n_distinct(nontarget_yn, na.rm=TRUE)>1, .by=c(subjid)) %>%
-    nest(rc_dates=rc_date) %>%
-    recist_issue("Non-Target lesion: Inconsistent Yes/No per subjid", level="ERROR")
+    # nest(dates=rc_date) %>%
+    summarise(dates = toString(rc_date), .by=-rc_date) %>%
+    recist_issue("Non-Target Lesions presence or absence should remain unchanged
+                 throughout the followup", level="ERROR")
 
   #Response should be constant per date
   rc %>%
     distinct(subjid, rc_date, target_resp) %>%
     filter(n()>1, .by=c(subjid, rc_date)) %>%
-    recist_issue("Target lesion: Inconsistent response per date", level="ERROR")
+    recist_issue("Target Lesions should have a consistent response per date.",
+                 level="ERROR")
   rc %>%
     distinct(subjid, rc_date, nontarget_resp) %>%
     filter(n()>1, .by=c(subjid, rc_date)) %>%
-    recist_issue("Non-Target lesion: Inconsistent response per date", level="ERROR")
+    recist_issue("Non-Target Lesions should have a consistent response per date.",
+                 level="ERROR")
   rc %>%
     distinct(subjid, rc_date, global_resp) %>%
     filter(n()>1, .by=c(subjid, rc_date)) %>%
-    recist_issue("Global response: Inconsistent response per date", level="ERROR")
+    recist_issue("Global Response should have a consistent value per date.",
+                 level="ERROR")
 
   #Target Lesion evaluation method should be constant (if provided)
   if(has_name(rc, "target_method")){
@@ -182,18 +192,22 @@ check_constancy = function(rc){
       filter(!is.na(target_method)) %>%
       select(subjid, rc_date, target_site, target_method) %>%
       filter(n_distinct(target_method)>1, .by=c(subjid, target_site)) %>%
-      nest(dates=rc_date) %>%
-      recist_issue("Target lesion: More than 1 method", level="ERROR")
+      # nest(dates=rc_date) %>%
+      summarise(dates = toString(rc_date), .by=-rc_date) %>%
+      recist_issue("Target Lesions should not be assessed using more than one method.",
+                   level="ERROR")
   } else {
-    rtn$target_method_no_dup = recist_issue_ne("Target lesion: More than 1 method",
-                                               level="ERROR")
+    rtn$target_method_no_dup = recist_issue_ne(
+      "Target Lesions should not be assessed using more than one method.",
+      level="ERROR"
+    )
   }
 
   rtn
 }
 
 
-#' Baseline target lesions should be at least 10mm or 15mm (lymph node)
+#' Baseline Target Lesions should be at least 10mm or 15mm (lymph node)
 #' @noRd
 check_baseline_lesions = function(rc){
   rtn = list()
@@ -203,17 +217,22 @@ check_baseline_lesions = function(rc){
     filter(rc_date==min(rc_date, na.rm=TRUE),
            .by=subjid) %>%
     arrange(subjid) %>%
-    select(subjid, rc_date, target_site, target_is_node, target_diam) %>%
     mutate(non_measurable_node = target_is_node & target_diam < 15,
            non_measurable_lesion = !target_is_node & target_diam < 10) %>%
     distinct()
 
   rtn$target_non_measurable_node = x %>%
     filter(non_measurable_node) %>%
-    recist_issue("Target lesion: Non measurable (<15mm) lymph node at baseline", level="ERROR")
+    select(subjid, rc_date, target_site, target_diam) %>%
+    recist_issue("Target lymph nodes should be ≥ 15 mm at baseline to be
+                 considered measurable",
+                 level="ERROR")
   rtn$target_non_measurable_lesion = x %>%
     filter(non_measurable_lesion) %>%
-    recist_issue("Target lesion: Non measurable (<10mm) lesion at baseline", level="ERROR")
+    select(subjid, rc_date, target_site, target_diam) %>%
+    recist_issue("Target Lesions should be ≥ 10 mm at baseline to be
+                 considered measurable",
+                 level="ERROR")
 
   #baseline response should be missing
   rtn$baseline_resp_nonmissing = rc %>%
@@ -247,8 +266,9 @@ check_derived_columns = function(rc){
     filter(!is.na(target_sum_bl)) %>%
     distinct(subjid, rc_date, target_sum_bl) %>%
     filter(n_distinct(target_sum_bl)>1, .by=subjid) %>%
-    nest(rc_dates=rc_date) %>%
-    recist_issue("Dataset's baseline target lesion length sum has multiple values",
+    # nest(dates=rc_date) %>%
+    summarise(dates = toString(rc_date), .by=-rc_date) %>%
+    recist_issue("Dataset's baseline Target Lesion length sum has multiple values",
                  level="WARNING")
 
 
@@ -256,7 +276,7 @@ check_derived_columns = function(rc){
     arrange(subjid, rc_date) %>%
     filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
     select(subjid, rc_date, target_sum_min) %>%
-    recist_issue("Dataset's minimum target lesion length sum (nadir) has multiple values",
+    recist_issue("Dataset's minimum Target Lesion length sum (nadir) has multiple values",
                  level="WARNING")
 
   rtn$target_sum_bl_real_dupl = rc %>%
@@ -265,7 +285,7 @@ check_derived_columns = function(rc){
            .by=subjid) %>%
     filter(length(unique(na.omit(target_sum)))>1, .by=subjid) %>%
     select(subjid, rc_date, target_sum) %>%
-    recist_issue("Real baseline target lesion length sum has multiple values",
+    recist_issue("Real baseline Target Lesion length sum has multiple values",
                  level="WARNING")
 
   #check for wrong values
@@ -278,8 +298,9 @@ check_derived_columns = function(rc){
     ) %>%
     filter((target_sum != target_sum_real)) %>%
     distinct(subjid, rc_date, target_sum, target_sum_real) %>%
-    nest(rc_dates=rc_date) %>%
-    recist_issue("Target lesion length sum is incorrect",
+    # nest(dates=rc_date) %>%
+    summarise(dates = toString(rc_date), .by=-rc_date) %>%
+    recist_issue("Dataset's Target Lesion length sum is incorrect",
                  level="WARNING")
 
   rtn$target_sum_bl_wrong = rc %>%
@@ -288,8 +309,9 @@ check_derived_columns = function(rc){
            .by=subjid) %>%
     filter((target_sum_bl != target_sum_bl_real)) %>%
     distinct(subjid, rc_date, target_sum_bl, target_sum_bl_real) %>%
-    nest(rc_dates=rc_date) %>%
-    recist_issue("Baseline target lesion length sum is incorrect",
+    # nest(dates=rc_date) %>%
+    summarise(dates = toString(rc_date), .by=-rc_date) %>%
+    recist_issue("Dataset's baseline Target Lesion length sum is incorrect",
                  level="WARNING")
 
   rtn$target_sum_min_wrong = rc %>%
@@ -299,7 +321,7 @@ check_derived_columns = function(rc){
     filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
     select(subjid, rc_date, target_sum, target_sum_min,
            sum_nadir, everything()) %>%
-    recist_issue("Minimum target lesion length sum (nadir) is incorrect",
+    recist_issue("Target Lesion minimum Target Lesion length sum (nadir) is incorrect",
                  level="WARNING")
 
 
@@ -335,7 +357,7 @@ check_target_response = function(rc, rc_short){
   rtn = list()
 
   #Complete Response
-  #CR = Disappearance of all target lesions. Lymph nodes must be <10 mm.
+  #CR = Disappearance of all Target Lesions. Lymph nodes must be <10 mm.
   rtn$target_cr_remaining = rc %>%
     arrange(subjid) %>%
     filter(recist_encode(target_resp) == 1) %>%
@@ -343,18 +365,19 @@ check_target_response = function(rc, rc_short){
            remaining_lesion = !target_is_node & target_diam>0) %>%
     filter(remaining_node | remaining_lesion) %>%
     distinct(subjid, rc_date, target_resp, target_site, target_diam) %>%
-    recist_issue("Complete Responses should not have any lesion left and should
-                 not have lymph nodes larger than 10 mm.", level="ERROR")
+    recist_issue("Complete Responses should have no Target Lesions remaining
+                 (>0 mm) and no pathological lymph nodes present (≥ 10 mm)",
+                 level="ERROR")
 
   #Partial Response
   rtn$target_pr_wrong = rc_short %>%
     mutate(diff_rel_bl = (target_sum-sum_bl)/sum_bl) %>%
     filter(target_resp_num==2) %>%
     filter(diff_rel_bl > -0.3) %>%
-    select(subjid, rc_date, target_resp, target_sum_baseline=sum_bl, target_sum,
-           diff_rel_bl) %>%
-    recist_issue("Partial response should have an at least 30% decrease in TL
-                 tumor length sum",
+    transmute(subjid, rc_date, target_resp, target_sum_baseline=sum_bl, target_sum,
+              difference=percent(diff_rel_bl, 1)) %>%
+    recist_issue("Partial Responses should have a decrease in TL tumor length sum
+                 higher than 30%",
                  level="ERROR")
 
   #Partial Response
@@ -365,9 +388,8 @@ check_target_response = function(rc, rc_short){
     filter(diff_rel_nad >= 1.2 & diff_abs_nad >= 5) %>%
     select(subjid, rc_date, target_resp, target_sum_nadir=sum_nadir, target_sum,
            diff_rel_nad, diff_abs_nad) %>%
-    recist_issue("Target lesions that are at least 20% and 5mm larger than the
-    nadir should
-                 be classified as Progressive Disease.",
+    recist_issue("Target Lesions that are at least 20% and 5mm larger than the
+                 nadir should be classified as Progressive Disease.",
                  level="ERROR")
 
   rtn
@@ -381,7 +403,7 @@ check_global_response = function(rc_short){
 
   rtn$global_response = rc_short %>%
     mutate(
-      # no non-target lesion = CR
+      # no non-Target Lesion = CR
       nontarget_resp_num = ifelse(!nontarget_yn, 1, nontarget_resp_num),
       global_resp_check = case_when(
         target_resp_num == 4 | nontarget_resp_num == 4 |  new_lesion ~ 4,
@@ -402,7 +424,7 @@ check_global_response = function(rc_short){
               global_resp,
               global_resp_check=recist_decode(global_resp_check)) %>%
     recist_issue("Global Response should be consistant with TL response,
-                 NTL response, and presence of new lesions", level="CHECK")
+                 NTL response, and presence of new lesions", level="ERROR")
 
   rtn$nlt_progression = rc_short %>%
     filter(nontarget_resp_num == 4) %>%
@@ -533,6 +555,7 @@ recist_decode = function(x) {
 
 # Print ---------------------------------------------------------------------------------------
 
+#' @export
 print.check_recist = function(x, n=Inf, ...){
   cat_rule("RECIST check", col="violet")
   x_tbl = remove_class(x, "check_recist") %>%
