@@ -42,11 +42,9 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
   )
 
   rtn = checks %>%
-    list_rbind() %>%
+    list_rbind(names_to="code") %>%
     arrange(desc(n_subjid)) %>%
     add_class("check_recist")
-
-  browser()
 
   rtn
 }
@@ -435,93 +433,6 @@ check_global_response = function(rc_short){
     )
 }
 
-.get_recist_data = function(rc){
-
-  rtn = rc %>%
-    mutate(target_site = str_remove(target_site, "\\(.*\\)")) %>% #TODO: remove in final version
-    arrange(subjid, crf_n, grp_n, rc_date) %>%
-    mutate(target_resp_num = recist_encode(target_resp), .after=target_resp) %>%
-    mutate(nontarget_resp_num = recist_encode(nontarget_resp), .after=nontarget_resp) %>%
-    mutate(global_resp_num = recist_encode(global_resp), .after=global_resp) %>%
-    mutate(sum_bl = unify(target_sum[crf_n==1]),
-           sum_nadir = cummin(replace_na(target_sum, Inf)),
-           .by = subjid, .after=target_sum) %>%
-    # mutate(post_pd = cumsum(replace_na(target_resp, factor("5-Not evaluable"))=="4-Progressive disease"),
-    # .by = subjid, .after=target_resp) %>%
-    mutate(post_pd = crf_n>min_narm(crf_n[target_resp_num==4]),
-           .by = subjid, .after=target_resp) %>%
-    mutate(
-      nodes_sup_10 = case_when(#TODO?
-        str_detect(target_site, "Lymph node") & target_diam>=10 ~ TRUE,
-        # str_detect(nontarget_site, "Lymph node") & nontarget_present=="1-Yes" ~ TRUE,
-        str_detect(nontarget_site, "Lymph node") & nontarget_present=="1-Yes" ~ TRUE,
-        .default=FALSE
-      ),
-
-      diff_abs_bl = target_sum-sum_bl,
-      diff_rel_bl = diff_abs_bl/sum_bl,
-      diff_abs_nad = target_sum-sum_nadir,
-      diff_rel_nad = diff_abs_bl/sum_nadir,
-
-      target_resp22 = case_when(
-        crf_n==1 ~ NA, #baseline
-        diff_rel_nad >= 1.2 & diff_abs_nad >= 5 ~ 4, #progression
-
-        # target_sum<10 ~ 1, #FIXME à vérifier avec Raph! Dépend ptet de la méthode de mesure
-        # target_sum>5 & target_sum>sum_nadir*1.2 ~ 4,
-        target_sum/sum_bl == 0 ~ 1,
-        target_sum/sum_bl < 0.7 ~ 2,
-        target_sum/sum_bl > 1.2 ~ 4,
-        target_sum/sum_bl < 2 ~ 3,
-        .default=-99
-      ),
-      target_resp2 = recist_target_response_bak(crf_n, diff_rel_bl, diff_rel_nad, diff_abs_nad),
-      non_target_resp2 = 1,
-      new_lesions = new_lesions == "1-Yes",
-
-      global_resp2 = case_when(
-        target_resp2 == 1 & non_target_resp2 == 1 & !new_lesions ~ 1,
-        target_resp2 <= 2 & non_target_resp2 <= 3 & !new_lesions ~ 2,
-        target_resp2 <= 3 & non_target_resp2 <= 3 & !new_lesions ~ 3,
-        target_resp2 == 4 | non_target_resp2 == 4 |  new_lesions ~ 4,
-        .default=-99
-      ),
-
-      nontarget_resp_num = ifelse(fct_yesno(nontarget_yn)=="No", 1, nontarget_resp_num),
-      global_resp_check_num = case_when(
-        target_resp_num == 1 & nontarget_resp_num == 1 & !new_lesions ~ 1,
-        target_resp_num <= 2 & nontarget_resp_num <= 3 & !new_lesions ~ 2,
-        target_resp_num <= 3 & nontarget_resp_num <= 3 & !new_lesions ~ 3,
-        target_resp_num == 4 | nontarget_resp_num == 4 |  new_lesions ~ 4,
-        .default=-99
-      ),
-
-      # target_resp_dan = case_when(
-      #   # crf_n==1 ~ "Baseline",
-      #   new_lesions == "1-Yes" ~ "4-PD",
-      #   .default=target_resp_dan
-      # ),
-
-      target_resp2 = recist_decode(target_resp2),
-      target_resp = recist_decode(target_resp_num),
-      global_resp_check = recist_decode(global_resp_check_num),
-
-    ) %>%
-    select(subjid, crf_n, grp_n, rc_date, post_pd, target_resp, target_resp2, target_site,
-           # target_node,
-           target_diam, target_sum, starts_with("target_"), everything())
-
-  rtn %>%
-    filter(global_resp2==-999) %>%
-    .add_to_recist_issues("Problème dans global_resp_check_num")
-  rtn %>%
-    filter(global_resp_check_num==-999) %>%
-    .add_to_recist_issues("Problème dans global_resp_2")
-
-  rtn
-}
-
-
 
 #' TODO document
 #' @export
@@ -588,12 +499,6 @@ recist_issue_ne = function(message, level="ERROR"){
   )
 }
 
-.add_to_recist_issues = function(data, message, level="ERROR"){
-  code = .make_clean_name(message)
-  issue = recist_issue(data, message, level)
-  grstat_env$rc_list[[code]] = issue
-  invisible(issue)
-}
 
 
 # RECIST numeric encoding ---------------------------------------------------------------------
@@ -621,53 +526,4 @@ recist_decode = function(x) {
   assert(is.numeric(x))
   x[x==99] = 5
   factor(x, levels=c(1:5), labels=c("CR", "PR", "SD", "PD", "Not evaluable"))
-}
-
-recist_target_response = function(target_sum, sum_bl, sum_nadir) {
-  # browser()
-  diff_abs_bl = target_sum-sum_bl
-  diff_rel_bl = diff_abs_bl/sum_bl
-  diff_abs_nad = target_sum-sum_nadir
-  diff_rel_nad = diff_abs_bl/sum_nadir
-
-  rtn = case_when(
-    is.na(sum_bl) ~ NA, #baseline
-    diff_rel_nad >= 0.2 & diff_abs_nad >= 5 ~ 4, #PD
-
-    diff_rel_bl == -1 ~ 1, #CR
-    diff_rel_bl <= -0.3 ~ 2, #PR
-    .default=3 #SD
-  )
-
-  rtn
-}
-
-recist_target_response_bak = function(crf_n, diff_rel_bl, diff_rel_nad, diff_abs_nad) {
-  # browser()
-  rtn = case_when(
-    crf_n==1 ~ NA, #baseline
-    diff_rel_nad >= 0.2 & diff_abs_nad >= 5 ~ 4, #PD
-
-    diff_rel_bl == -1 ~ 1, #CR
-    diff_rel_bl <= -0.3 ~ 2, #PR
-    .default=3 #SD
-  )
-
-  rtn
-}
-
-# Utils ---------------------------------------------------------------------------------------
-
-
-#' @importFrom stringr str_remove_all
-.make_clean_name = function (string, from="") {
-  old_names <- string
-  new_names <- old_names %>% gsub("'", "", .) %>% gsub("\"", "", .) %>% gsub("%", "percent", .) %>%
-    gsub("^[ ]+", "", .) %>% make.names(.) %>% gsub("[.]+", "_", .) %>% gsub("[_]+", "_", .) %>%
-    tolower(.) %>% gsub("_$", "", .) %>% iconv(from = from, to = "ASCII//TRANSLIT") %>%
-    str_remove_all("[\r\n]")
-  dupe_count <- vapply(seq_along(new_names), function(i) {sum(new_names[i] == new_names[1:i])},
-                       integer(1))
-  new_names[dupe_count > 1] <- paste(new_names[dupe_count > 1], dupe_count[dupe_count > 1], sep = "_")
-  new_names
 }
