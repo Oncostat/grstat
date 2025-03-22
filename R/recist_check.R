@@ -1,6 +1,4 @@
 
-grstat_env = rlang::new_environment()
-grstat_env$rc_list = list()
 
 
 
