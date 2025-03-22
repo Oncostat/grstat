@@ -660,6 +660,7 @@ gr_recist_mapping = function(){
 
 recist_issue = function(data, message, level="ERROR"){
   data = if(nrow(data)>0) data else NULL
+  message = str_replace_all(message, "\\n *", " ")
   tibble(
     message,
     n_subjid=length(unique(data$subjid)),
