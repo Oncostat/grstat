@@ -156,6 +156,8 @@ remove_class = function(x, value){
 
 
 #' @source EDCimport
+#' @importFrom cli cli_warn
+#' @importFrom stats na.omit
 unify = function (x) {
   rtn = x[1]
   lu = length(unique(na.omit(x)))
@@ -170,6 +172,10 @@ unify = function (x) {
 }
 
 #' @source EDCimport
+#' @importFrom cli cli_abort
+#' @importFrom dplyr case_match case_when setdiff setequal
+#' @importFrom purrr map
+#' @importFrom stringr str_detect
 fct_yesno = function(x,
                      input=list(yes=c("Yes", "Oui"), no=c("No", "Non"), na=c("NA", "")),
                      output=c("Yes", "No"),

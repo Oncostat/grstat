@@ -54,6 +54,7 @@ Suggests:
     rstudioapi,
     testthat (>= 3.0.0),
     usethis,
+    utils,
     vdiffr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

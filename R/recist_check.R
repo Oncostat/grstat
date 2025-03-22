@@ -12,14 +12,8 @@
 #' @returns a tibble of nested checks
 #' @export
 #'
-#' @importFrom cli cli_inform
-#' @importFrom dplyr across any_of arrange case_when count distinct filter group_by mutate n_distinct recode select semi_join summarise ungroup
-#' @importFrom rlang env
-#' @importFrom stats na.omit rnorm
-#' @importFrom stringr str_detect
-#' @importFrom tidyr fill pivot_longer replace_na
-#' @importFrom tibble as_tibble
-#' @importFrom tidyselect all_of everything where
+#' @importFrom dplyr arrange desc mutate
+#' @importFrom purrr list_rbind
 #' @seealso [RECIST guidelines](https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf)
 #'
 check_recist = function(rc, mapping=gr_recist_mapping()){
@@ -78,7 +72,9 @@ gr_recist_mapping = function(){
 
 #' * Consistant missing values on `target_diam` & `target_site`
 #' @noRd
-#' @importFrom tidyr nest
+#' @importFrom dplyr across distinct filter select
+#' @importFrom tibble lst
+#' @importFrom tidyselect all_of
 check_missing = function(rc){
   rtn = lst()
 
@@ -107,7 +103,8 @@ check_missing = function(rc){
 #' * Up to a maximum of five lesions total (and a maximum of two lesions per organ)
 #' * Should not be bone lesions
 #' @noRd
-#' @importFrom tidyr nest
+#' @importFrom dplyr count filter select summarise
+#' @importFrom stringr str_detect
 check_target_lesions = function(rc){
   rtn = list()
 
@@ -143,6 +140,9 @@ check_target_lesions = function(rc){
 #' Target Lesion site and evaluation method should have one value per patient
 #' Responses should have one value per date
 #' @keywords internal
+#' @importFrom dplyr arrange distinct filter n n_distinct select summarise
+#' @importFrom rlang has_name
+#' @importFrom stats na.omit
 check_constancy = function(rc){
   rtn = list()
 
@@ -209,6 +209,8 @@ check_constancy = function(rc){
 
 #' Baseline Target Lesions should be at least 10mm or 15mm (lymph node)
 #' @noRd
+#' @importFrom dplyr arrange distinct filter mutate select
+#' @importFrom tidyr pivot_longer
 check_baseline_lesions = function(rc){
   rtn = list()
 
@@ -256,6 +258,9 @@ check_baseline_lesions = function(rc){
 #' are not updated automatically.
 #' This also makes duplicates possible.
 #' @keywords internal
+#' @importFrom dplyr arrange distinct filter mutate n_distinct select summarise
+#' @importFrom stats na.omit
+#' @importFrom tidyselect everything
 check_derived_columns = function(rc){
 
   rtn = list()
@@ -337,6 +342,7 @@ check_derived_columns = function(rc){
 
 #' Check impossible cases for Non-Target Lesions response
 #' @keywords internal
+#' @importFrom dplyr arrange distinct filter
 check_nontarget_response = function(rc){
   rtn = list()
 
@@ -353,6 +359,7 @@ check_nontarget_response = function(rc){
 
 #' Check impossible cases for Target Lesions response
 #' @keywords internal
+#' @importFrom dplyr arrange distinct filter mutate select transmute
 check_target_response = function(rc, rc_short){
   rtn = list()
 
@@ -398,6 +405,7 @@ check_target_response = function(rc, rc_short){
 
 #' Check impossible cases for Target Lesions response
 #' @keywords internal
+#' @importFrom dplyr arrange case_when desc filter mutate transmute
 check_global_response = function(rc_short){
   rtn = list()
 
@@ -446,6 +454,8 @@ check_global_response = function(rc_short){
 
 
 
+#' @importFrom dplyr across ends_with mutate summarise
+#' @importFrom tidyr replace_na
 .summarise_recist = function(rc){
 
   # col_bak = c("target_sum_bak"="target_sum",
@@ -478,6 +488,11 @@ check_global_response = function(rc_short){
 }
 
 
+#' @importFrom dplyr any_of arrange mutate select
+#' @importFrom rlang has_name
+#' @importFrom stringr str_detect
+#' @importFrom tibble as_tibble
+#' @importFrom tidyselect all_of everything
 .apply_recist_mapping = function(data, mapping){
 
   mandatory = c("subjid", "rc_date",
@@ -503,6 +518,8 @@ check_global_response = function(rc_short){
 # Issues --------------------------------------------------------------------------------------
 
 
+#' @importFrom stringr str_replace_all
+#' @importFrom tibble tibble
 recist_issue = function(data, message, level="ERROR"){
   data = if(nrow(data)>0) data else NULL
   message = str_replace_all(message, "\\n *", " ")
@@ -515,6 +532,7 @@ recist_issue = function(data, message, level="ERROR"){
 }
 
 #Not Evaluable
+#' @importFrom tibble tibble
 recist_issue_ne = function(message, level="ERROR"){
   tibble(
     message,
@@ -528,6 +546,9 @@ recist_issue_ne = function(message, level="ERROR"){
 
 # RECIST numeric encoding ---------------------------------------------------------------------
 
+#' @importFrom cli cli_warn
+#' @importFrom dplyr case_when
+#' @importFrom stringr str_detect
 recist_encode = function(x){
   x2 = tolower(x)
   rtn = case_when(
@@ -556,22 +577,25 @@ recist_decode = function(x) {
 # Print ---------------------------------------------------------------------------------------
 
 #' @export
+#' @importFrom cli cat_rule
+#' @importFrom dplyr filter select
 print.check_recist = function(x, n=Inf, ...){
   cat_rule("RECIST check", col="violet")
   x_tbl = remove_class(x, "check_recist") %>%
     select(-code) %>%
     filter(n_subjid>0) %>%
-    format(n=n) %>%
-    tail(-1) #remove "A tibble: n × p"
-  cat(x_tbl, sep="\n")
+    format(n=n)
+  cat(x_tbl[-1], sep="\n") #remove "A tibble: n × p"
 }
 
 
-#' @importFrom fs path_ext path_ext_remove
+#' @importFrom cli cli_abort cli_warn
+#' @importFrom fs path path_ext path_ext_remove
+#' @importFrom rlang check_installed
 recist_report = function(recist_check, output_file="recist_check.html", open=TRUE){
   check_installed("rmarkdown", "for `recist_report()` to work.")
   assert_class(recist_check, "check_recist")
-  assert(fs::path_ext(output_file)=="html",
+  assert(path_ext(output_file)=="html",
          msg="{.arg output_file} should be a {.val .html} file.")
   output_file = path(getwd(), output_file)
   if(file.exists(output_file)){
@@ -594,7 +618,7 @@ recist_report = function(recist_check, output_file="recist_check.html", open=TRU
                     params=list(recist_check=recist_check))
 
   if(open){
-    browseURL(output_file)
+    utils::browseURL(output_file)
   }
   invisible(TRUE)
 }
