@@ -708,16 +708,6 @@ recist_target_response = function(crf_n, diff_rel_bl, diff_rel_nad, diff_abs_nad
 
 # Utils ---------------------------------------------------------------------------------------
 
-unify = function (x) {
-  rtn = x[1]
-  lu = length(unique(na.omit(x)))
-  if (lu > 1) {
-    cli_warn(c("Unifying multiple values in {.val {caller_arg(x)}}, returning the first one ({.val {rtn})}",
-               i = "Unique values: {.val {unique(na.omit(x))}}"))
-  }
-  rtn_label = get_label(x)
-  if (!is.null(rtn_label))
-    attr(rtn, "label") = rtn_label
   rtn
 }
 
