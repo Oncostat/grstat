@@ -27,8 +27,8 @@ grstat_env$rc_list = list()
 check_recist = function(rc, mapping=gr_recist_mapping()){
 
   rc = .apply_recist_mapping(rc, mapping)
-  db_recist = .get_recist_data(rc)
   rc_short = .summarise_recist(rc)
+  # db_recist = .get_recist_data(rc)
 
   checks = c(
     check_missing(rc),
@@ -42,7 +42,10 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
 
   rtn = checks %>%
     list_rbind() %>%
-    arrange(desc(n_subjid))
+    arrange(desc(n_subjid)) %>%
+    add_class("check_recist")
+
+  browser()
 
   rtn
 }
@@ -215,25 +218,8 @@ check_baseline_lesions = function(rc){
 #' @keywords internal
 check_derived_columns = function(rc){
 
-#TODO changer nom: on calcule les variables dérivées (sum, nadir...)
-check_bare_recist = function(rc){
-
   rtn = list()
 
-  #recalcul/vérification des TL sum Baseline et Nadir
-  rc %>%
-    arrange(subjid) %>%
-    filter(any(target_sum_bl != unify(target_sum[crf_n==1])), .by=subjid) %>%
-    select(subjid, rc_date, crf_n, target_sum, target_sum_bl, everything()) %>%
-    .add_to_recist_issues("RCTLBL is incorrect", level="WARNING")
-
-  rc %>%
-    arrange(subjid, crf_n, grp_n) %>%
-    mutate(sum_nadir = cummin(target_sum),
-           .by = subjid, .after=target_sum) %>%
-    filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
-    select(subjid, crf_n, grp_n, rc_date, crf_n, target_sum, target_sum_min, sum_nadir, everything()) %>%
-    .add_to_recist_issues("RCTLMIN is incorrect", level="WARNING")
   #check for duplicates
   rtn$target_sum_bl_dupl = rc %>%
     arrange(subjid, rc_date) %>%
@@ -244,6 +230,7 @@ check_bare_recist = function(rc){
     recist_issue("Dataset's baseline target lesion length sum has multiple values",
                  level="WARNING")
 
+
   rtn$target_sum_min_dupl = rc %>%
     arrange(subjid, rc_date) %>%
     filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
@@ -251,8 +238,6 @@ check_bare_recist = function(rc){
     recist_issue("Dataset's minimum target lesion length sum (nadir) has multiple values",
                  level="WARNING")
 
-  #en cas de correction de la valeur baseline, le calcul automatique peut être faux par endroits
-  rc %>%
   rtn$target_sum_bl_real_dupl = rc %>%
     arrange(subjid, rc_date) %>%
     filter(rc_date==min(rc_date, na.rm=TRUE),
@@ -265,8 +250,6 @@ check_bare_recist = function(rc){
   #check for wrong values
   rtn$target_sum_wrong = rc %>%
     arrange(subjid) %>%
-    filter(length(unique(na.omit(target_sum_bl)))>1, .by=subjid) %>%
-    .add_to_recist_issues("RCTLBL has multiple values", level="WARNING")
     mutate(
       target_sum = target_sum[1],
       target_sum_real = sum(target_diam, na.rm=TRUE),
@@ -278,19 +261,9 @@ check_bare_recist = function(rc){
     recist_issue("Target lesion length sum is incorrect",
                  level="WARNING")
 
-  #taille minimale pour être mesurable: 10mm si CTscan ou clinique (caliper), 20mm si Xray
-  #TODO calcul différent selon la technique?
-  rc %>%
-    filter(crf_n==1 & target_sum<10) %>%
-    .add_to_recist_issues("Non measurable (<10mm) target lesions at baseline", level="ERROR")
 
-  #cf hypothèses RECIST: est-ce que <10 ça peut être CR?
-  rc %>%
+  rtn$target_sum_bl_wrong = rc %>%
     arrange(subjid) %>%
-    filter(str_detect(target_resp, "Complete") & target_sum>0) %>%
-    select(subjid, target_resp, target_sum) %>%
-    distinct() %>%
-    .add_to_recist_issues("RCTLRESP=CR avec des lésions restantes", level="ERROR")
     mutate(target_sum_bl_real = target_sum[rc_date==min(rc_date, na.rm=TRUE)][1],
            .by=subjid) %>%
     filter((target_sum_bl != target_sum_bl_real)) %>%
@@ -309,40 +282,22 @@ check_bare_recist = function(rc){
     recist_issue("Minimum target lesion length sum (nadir) is incorrect",
                  level="WARNING")
 
-  #Là aucun doute, sauf à la limite en Xray
-  rc %>%
-    arrange(subjid) %>%
-    filter(str_detect(target_resp, "Complete") & target_sum>10) %>%
-    .add_to_recist_issues("RCTLRESP=CR avec des lésions >10", level="ERROR")
 
   #one date = one sum
-  rc %>%
   rtn$target_sum_date_dup = rc %>%
     filter(n_distinct(target_sum, na.rm=TRUE)>1,
            .by=c(subjid, rc_date)) %>%
-    .add_to_recist_issues("Plusieurs valeurs par date ?", level="ERROR")
     recist_issue("Several target_sum values per date", level="ERROR")
 
   rtn
 }
 
 
-  #new lesion == progression non?
-  rc %>%
-    filter(new_lesions == "1-Yes" & global_resp!="4-Progressive disease") %>%
-    .add_to_recist_issues("Nouvelles lésions mais pas de progression", level="ERROR")
 #' Check impossible cases for Target Lesions response
 #' @keywords internal
 check_target_response = function(rc, rc_short){
   rtn = list()
 
-  #structure du CRF, à transformer?
-  rc %>%
-    filter(is.na(target_order)+is.na(new_lesions_order)+is.na(nontarget_order) < 2) %>%
-    .add_to_recist_issues("CRF structure issue: missing orders", level="ERROR")
-  rc %>%
-    filter(is.na(target_site)+is.na(nontarget_site)+is.na(new_lesions_site) < 2) %>%
-    .add_to_recist_issues("CRF structure issue: missing sites", level="ERROR")
   #Complete Response
   #CR = Disappearance of all target lesions. Lymph nodes must be <10 mm.
   rtn$target_cr_remaining = rc %>%
@@ -417,22 +372,48 @@ check_global_response = function(rc_short){
   rtn
 }
 
+#TODO changer nom: on calcule les variables dérivées (sum, nadir...)
+OLD_check_bare_recist = function(rc){
+
+
+
+  #TODO check sur réponse encodée
+  #CR = Disappearance of all target lesions. Lymph nodes must be <10 mm.
+  rtn$target_cr_remaining = rc %>%
+    arrange(subjid) %>%
+    filter(str_detect(target_resp, "Complete")) %>%
+    mutate(remaining_node = target_is_node & target_diam>=10,
+           remaining_lesion = !target_is_node & target_diam>0) %>%
+    filter(remaining_node | remaining_lesion) %>%
+    select(subjid, crf_n, rc_date, target_resp, target_site, target_diam) %>%
+    distinct() %>%
+    recist_issue("Complete response with remaining lesions", level="ERROR")
+
+  #TODO check sur réponse encodée
+  #new lesion == progression
+  rtn$target_newlesion_not_pd = rc %>%
+    filter(fct_yesno(new_lesions) == "Yes" & global_resp!="4-Progressive disease") %>%
+    recist_issue("New lesions should be PD", level="ERROR")
+
   #Hypothèses très importante, sinon `crf_n==1` ne marche pas
-  rc %>%
+  #TODO transformer en erreur du coup ?
+  rtn$target_ = rc %>%
     arrange(subjid) %>%
     filter(crf_n==1) %>%
     select(subjid, target_resp, nontarget_resp, global_resp) %>%
     pivot_longer(-subjid) %>%
     filter(!is.na(value)) %>%
     .add_to_recist_issues("Baseline response is not missing", level="ERROR")
-  rc %>%
+  rtn$target_ = rc %>%
     arrange(subjid) %>%
     filter((crf_n==1) != (rc_date==min(rc_date)), .by=subjid) %>%
     .add_to_recist_issues("Visit before baseline", level="ERROR")
+
+
+  rtn
 }
 
-
-check_response = function(db_recist){
+OLD_check_response = function(db_recist){
 
 
   db_recist %>%
@@ -464,14 +445,12 @@ check_response = function(db_recist){
 
   cli_inform("There are {nrow(pb)} Target Lesions differences, in {n_distinct(pb$subjid)} patients.")
 
-  # rc_short ----
   #une ligne par patient+date+lésion
   db_recist %>%
     summarise(
       .by = c(subjid, crf_n, rc_date)
     )
 
-  # rc_short ----
   #une ligne par patient+date+lésion
   rc_short =
     db_recist %>%
@@ -490,6 +469,21 @@ check_response = function(db_recist){
            target_node, target_diam, target_sum, starts_with("target_"))
 
 }
+
+FIX_check_crf_structure = function(rc){
+
+
+  #structure du CRF, à transformer?
+  rtn$target_ = rc %>%
+    filter(is.na(target_order)+is.na(new_lesions_order)+is.na(nontarget_order) < 2) %>%
+    .add_to_recist_issues("CRF structure issue: missing orders", level="ERROR")
+  rtn$target_ = rc %>%
+    filter(is.na(target_site)+is.na(nontarget_site)+is.na(new_lesions_site) < 2) %>%
+    .add_to_recist_issues("CRF structure issue: missing sites", level="ERROR")
+
+
+}
+
 
 # Data ----------------------------------------------------------------------------------------
 
@@ -566,7 +560,7 @@ check_response = function(db_recist){
         target_sum/sum_bl < 2 ~ 3,
         .default=-99
       ),
-      target_resp2 = recist_target_response(crf_n, diff_rel_bl, diff_rel_nad, diff_abs_nad),
+      target_resp2 = recist_target_response_bak(crf_n, diff_rel_bl, diff_rel_nad, diff_abs_nad),
       non_target_resp2 = 1,
       new_lesions = new_lesions == "1-Yes",
 
@@ -669,9 +663,20 @@ recist_issue = function(data, message, level="ERROR"){
   )
 }
 
+#Not Evaluable
+recist_issue_ne = function(message, level="ERROR"){
+  tibble(
+    message,
+    n_subjid=NA,
+    level,
+    data=NA
+  )
+}
+
 .add_to_recist_issues = function(data, message, level="ERROR"){
   code = .make_clean_name(message)
-  grstat_env$rc_list[[code]] = recist_issue(data, message, level)
+  issue = recist_issue(data, message, level)
+  grstat_env$rc_list[[code]] = issue
   invisible(issue)
 }
 
@@ -703,7 +708,26 @@ recist_decode = function(x) {
   factor(x, levels=c(1:5), labels=c("CR", "PR", "SD", "PD", "Not evaluable"))
 }
 
-recist_target_response = function(crf_n, diff_rel_bl, diff_rel_nad, diff_abs_nad) {
+recist_target_response = function(target_sum, sum_bl, sum_nadir) {
+  # browser()
+  diff_abs_bl = target_sum-sum_bl
+  diff_rel_bl = diff_abs_bl/sum_bl
+  diff_abs_nad = target_sum-sum_nadir
+  diff_rel_nad = diff_abs_bl/sum_nadir
+
+  rtn = case_when(
+    is.na(sum_bl) ~ NA, #baseline
+    diff_rel_nad >= 0.2 & diff_abs_nad >= 5 ~ 4, #PD
+
+    diff_rel_bl == -1 ~ 1, #CR
+    diff_rel_bl <= -0.3 ~ 2, #PR
+    .default=3 #SD
+  )
+
+  rtn
+}
+
+recist_target_response_bak = function(crf_n, diff_rel_bl, diff_rel_nad, diff_abs_nad) {
   # browser()
   rtn = case_when(
     crf_n==1 ~ NA, #baseline
@@ -719,9 +743,8 @@ recist_target_response = function(crf_n, diff_rel_bl, diff_rel_nad, diff_abs_nad
 
 # Utils ---------------------------------------------------------------------------------------
 
-  rtn
-}
 
+#' @importFrom stringr str_remove_all
 .make_clean_name = function (string, from="") {
   old_names <- string
   new_names <- old_names %>% gsub("'", "", .) %>% gsub("\"", "", .) %>% gsub("%", "percent", .) %>%
