@@ -26,7 +26,7 @@ check_recist = function(rc, mapping=gr_recist_mapping()){
     check_target_lesions(rc),
     check_constancy(rc),
     check_baseline_lesions(rc),
-    check_derived_columns(rc), #TODO conditional checks
+    check_derived_columns(rc),
     check_target_response(rc, rc_short),
     check_nontarget_response(rc),
     check_global_response(rc_short)
@@ -265,76 +265,89 @@ check_derived_columns = function(rc){
 
   rtn = list()
 
-  #check for duplicates
-  rtn$target_sum_bl_dupl = rc %>%
-    arrange(subjid, rc_date) %>%
-    filter(!is.na(target_sum_bl)) %>%
-    distinct(subjid, rc_date, target_sum_bl) %>%
-    filter(n_distinct(target_sum_bl)>1, .by=subjid) %>%
-    # nest(dates=rc_date) %>%
-    summarise(dates = toString(rc_date), .by=-rc_date) %>%
-    recist_issue("Dataset's baseline Target Lesion length sum has multiple values",
-                 level="WARNING")
+  if(has_name(rc, "target_sum_bl")){
+    #check for duplicates
+    rtn$target_sum_bl_dupl = rc %>%
+      filter(!is.na(target_sum_bl)) %>%
+      distinct(subjid, rc_date, target_sum_bl) %>%
+      filter(n_distinct(target_sum_bl)>1, .by=subjid) %>%
+      # nest(dates=rc_date) %>%
+      summarise(dates = toString(rc_date), .by=-rc_date) %>%
+      recist_issue("Dataset's baseline Target Lesion length sum has multiple values",
+                   level="WARNING")
 
+    #check for wrong values
+    if(has_name(rc, "target_sum")){
+      rtn$target_sum_bl_wrong = rc %>%
+        arrange(subjid) %>%
+        mutate(target_sum_bl_real = target_sum[rc_date==min(rc_date, na.rm=TRUE)][1],
+               .by=subjid) %>%
+        filter((target_sum_bl != target_sum_bl_real)) %>%
+        distinct(subjid, rc_date, target_sum_bl, target_sum_bl_real) %>%
+        # nest(dates=rc_date) %>%
+        summarise(dates = toString(rc_date), .by=-rc_date) %>%
+        recist_issue("Dataset's baseline Target Lesion length sum is incorrect",
+                     level="WARNING")
+    }
+  }
 
-  rtn$target_sum_min_dupl = rc %>%
-    arrange(subjid, rc_date) %>%
-    filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
-    select(subjid, rc_date, target_sum_min) %>%
-    recist_issue("Dataset's minimum Target Lesion length sum (nadir) has multiple values",
-                 level="WARNING")
+  if(has_name(rc, "target_sum_min")){
+    #check for duplicates
+    rtn$target_sum_min_dupl = rc %>%
+      arrange(subjid, rc_date) %>%
+      filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
+      select(subjid, rc_date, target_sum_min) %>%
+      recist_issue("Dataset's minimum Target Lesion length sum (nadir) has
+                 multiple values",
+                   level="WARNING")
 
-  rtn$target_sum_bl_real_dupl = rc %>%
-    arrange(subjid, rc_date) %>%
-    filter(rc_date==min(rc_date, na.rm=TRUE),
-           .by=subjid) %>%
-    filter(length(unique(na.omit(target_sum)))>1, .by=subjid) %>%
-    select(subjid, rc_date, target_sum) %>%
-    recist_issue("Real baseline Target Lesion length sum has multiple values",
-                 level="WARNING")
+    #check for wrong values
+    if(has_name(rc, "target_sum")){
+      rtn$target_sum_min_wrong = rc %>%
+        arrange(subjid, rc_date) %>%
+        mutate(sum_nadir = cummin(target_sum),
+               .by = subjid, .after=target_sum) %>%
+        filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
+        select(subjid, rc_date, target_sum, target_sum_min,
+               sum_nadir, everything()) %>%
+        recist_issue("Dataset's minimum Target Lesion length sum (nadir) is incorrect",
+                     level="WARNING")
+    }
+  }
 
-  #check for wrong values
-  rtn$target_sum_wrong = rc %>%
-    arrange(subjid) %>%
-    mutate(
-      target_sum = target_sum[1],
-      target_sum_real = sum(target_diam, na.rm=TRUE),
-      .by=c(subjid, rc_date)
-    ) %>%
-    filter((target_sum != target_sum_real)) %>%
-    distinct(subjid, rc_date, target_sum, target_sum_real) %>%
-    # nest(dates=rc_date) %>%
-    summarise(dates = toString(rc_date), .by=-rc_date) %>%
-    recist_issue("Dataset's Target Lesion length sum is incorrect",
-                 level="WARNING")
+  if(has_name(rc, "target_sum")){
+    #check for duplicates on target_sum at baseline (not target_sum_bl)
+    rtn$target_sum_bl_real_dupl = rc %>%
+      filter(rc_date==min(rc_date, na.rm=TRUE), .by=subjid) %>%
+      filter(n_distinct(target_sum, na.rm=TRUE)>1, .by=subjid) %>%
+      distinct(subjid, rc_date, target_sum) %>%
+      recist_issue("Baseline dataset's Target Lesion length sum should not have
+                   multiple values",
+                   level="WARNING")
 
-  rtn$target_sum_bl_wrong = rc %>%
-    arrange(subjid) %>%
-    mutate(target_sum_bl_real = target_sum[rc_date==min(rc_date, na.rm=TRUE)][1],
-           .by=subjid) %>%
-    filter((target_sum_bl != target_sum_bl_real)) %>%
-    distinct(subjid, rc_date, target_sum_bl, target_sum_bl_real) %>%
-    # nest(dates=rc_date) %>%
-    summarise(dates = toString(rc_date), .by=-rc_date) %>%
-    recist_issue("Dataset's baseline Target Lesion length sum is incorrect",
-                 level="WARNING")
+    #check for duplicates of target_sum for a date
+    rtn$target_sum_date_dup = rc %>%
+      filter(n_distinct(target_sum, na.rm=TRUE)>1,
+             .by=c(subjid, rc_date)) %>%
+      recist_issue("Dataset's Target Lesion length sum should not have
+                   multiple values per date", level="ERROR")
 
-  rtn$target_sum_min_wrong = rc %>%
-    arrange(subjid, rc_date) %>%
-    mutate(sum_nadir = cummin(target_sum),
-           .by = subjid, .after=target_sum) %>%
-    filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
-    select(subjid, rc_date, target_sum, target_sum_min,
-           sum_nadir, everything()) %>%
-    recist_issue("Target Lesion minimum Target Lesion length sum (nadir) is incorrect",
-                 level="WARNING")
+    #check for wrong values
+    rtn$target_sum_wrong = rc %>%
+      arrange(subjid) %>%
+      mutate(
+        target_sum = target_sum[1],
+        target_sum_real = sum(target_diam, na.rm=TRUE),
+        .by=c(subjid, rc_date)
+      ) %>%
+      filter((target_sum != target_sum_real)) %>%
+      distinct(subjid, rc_date, target_sum, target_sum_real) %>%
+      # nest(dates=rc_date) %>%
+      summarise(dates = toString(rc_date), .by=-rc_date) %>%
+      recist_issue("Dataset's Target Lesion length sum is incorrect",
+                   level="WARNING")
+  }
 
-
-  #one date = one sum
-  rtn$target_sum_date_dup = rc %>%
-    filter(n_distinct(target_sum, na.rm=TRUE)>1,
-           .by=c(subjid, rc_date)) %>%
-    recist_issue("Several target_sum values per date", level="ERROR")
 
   rtn
 }
