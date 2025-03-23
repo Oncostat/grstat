@@ -17,14 +17,16 @@
 #' @importFrom dplyr arrange desc mutate
 #' @importFrom purrr list_rbind
 #' @seealso [RECIST guidelines](https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf)
+#'
 #' @examples
-#' ⁠\dontrun{
-#'  #we unfortunately cannot provide a flawed simulated recist dataset
-#'  mapping = gr_recist_mapping()
-#'  recist_check = check_recist(rc, mapping=mapping)
-#'  recist_check
-#'  recist_report(recist_check)
-#' }⁠
+#' # we unfortunately cannot provide a flawed simulated recist dataset, at least not yet
+#' \dontrun{
+#' db = read_database()
+#' mapping = gr_recist_mapping()
+#' recist_check = check_recist(db$rc, mapping=mapping)
+#' recist_check
+#' recist_report(recist_check)
+#' }
 #'
 check_recist = function(rc, mapping=gr_recist_mapping()){
 
@@ -310,13 +312,13 @@ check_baseline_lesions = function(rc){
   rtn$target_non_measurable_node = x %>%
     filter(non_measurable_node) %>%
     select(subjid, rc_date, target_site, target_diam) %>%
-    recist_issue("Target lymph nodes should be ≥ 15 mm at baseline to be
+    recist_issue("Target lymph nodes should be \U2265 15 mm at baseline to be
                  considered measurable",
                  level="ERROR")
   rtn$target_non_measurable_lesion = x %>%
     filter(non_measurable_lesion) %>%
     select(subjid, rc_date, target_site, target_diam) %>%
-    recist_issue("Target Lesions should be ≥ 10 mm at baseline to be
+    recist_issue("Target Lesions should be \U2265 10 mm at baseline to be
                  considered measurable",
                  level="ERROR")
 
@@ -470,7 +472,7 @@ check_target_response = function(rc, rc_short){
     filter(remaining_node | remaining_lesion) %>%
     distinct(subjid, rc_date, target_resp, target_site, target_diam) %>%
     recist_issue("Complete Responses should have no Target Lesions remaining
-                 (>0 mm) and no pathological lymph nodes present (≥ 10 mm)",
+                 (>0 mm) and no pathological lymph nodes present (\U2265 10 mm)",
                  level="ERROR")
 
   #Partial Response

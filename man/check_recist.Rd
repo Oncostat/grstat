@@ -20,13 +20,14 @@ Perform multiple checks on a RECIST dataset. Use \code{\link[=recist_report]{rec
 the checks as an HTML report.
 }
 \examples{
-⁠\dontrun{
- #we unfortunately cannot provide a flawed simulated recist dataset
- mapping = gr_recist_mapping()
- recist_check = check_recist(rc, mapping=mapping)
- recist_check
- recist_report(recist_check)
-}⁠
+# we unfortunately cannot provide a flawed simulated recist dataset, at least not yet
+\dontrun{
+db = read_database()
+mapping = gr_recist_mapping()
+recist_check = check_recist(db$rc, mapping=mapping)
+recist_check
+recist_report(recist_check)
+}
 
 }
 \seealso{
