@@ -4,12 +4,19 @@
 \alias{recist_report}
 \title{Create a RECIST check HTML report}
 \usage{
-recist_report(recist_check, output_file = "recist_check.html", open = TRUE)
+recist_report(
+  recist_check,
+  output_file = "recist_check.html",
+  title = "RECIST Check",
+  open = TRUE
+)
 }
 \arguments{
 \item{recist_check}{the output of \code{\link[=check_recist]{check_recist()}}}
 
 \item{output_file}{the HTML report file name.}
+
+\item{title}{the HTML report title.}
 
 \item{open}{whether to open the report afterward.}
 }

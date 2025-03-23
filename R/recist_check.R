@@ -106,6 +106,7 @@ gr_recist_mapping = function(){
 #'
 #' @param recist_check the output of [check_recist()]
 #' @param output_file the HTML report file name.
+#' @param title the HTML report title.
 #' @param open whether to open the report afterward.
 #'
 #' @returns `output_file` invisibly. Called for side effects.
@@ -115,7 +116,9 @@ gr_recist_mapping = function(){
 #' @importFrom rlang check_installed
 #'
 #' @inherit check_recist examples
-recist_report = function(recist_check, output_file="recist_check.html", open=TRUE){
+recist_report = function(recist_check, output_file="recist_check.html",
+                         title = "RECIST Check",
+                         open=TRUE){
   check_installed("rmarkdown", "for `recist_report()` to work.")
   assert_class(recist_check, "check_recist")
   assert(path_ext(output_file)=="html",
@@ -138,7 +141,7 @@ recist_report = function(recist_check, output_file="recist_check.html", open=TRU
   }
 
   rmarkdown::render(rmd_path, output_file=output_file, quiet=TRUE,
-                    params=list(recist_check=recist_check))
+                    params=list(recist_check=recist_check, report_title=title))
 
   if(open){
     utils::browseURL(output_file)

@@ -1,10 +1,11 @@
 ---
-title: "RECIST Check"
 output: 
   html_document:
     toc: true
 params:
   recist_check: NULL
+  report_title: "RECIST Check"
+title: "`r params$report_title`"
 ---
 
 ```{r init, include=FALSE}
