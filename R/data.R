@@ -200,7 +200,7 @@ example_rc = function(enrolres, t) {
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-#' @importFrom purr accumulate
+#' @importFrom purrr accumulate
 .simulate_patient <- function(rctlsum_b,num_timepoints,v_bruits=25) {
   delai <- 42 + runif(n(),-7,7)
   percent_change_per_month <-runif(n(),-30,30)
