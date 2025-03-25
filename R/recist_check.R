@@ -1,5 +1,6 @@
 
 
+#Questions pour Yves
 
 
 #' Check a RECIST dataset
@@ -383,6 +384,8 @@ check_derived_columns = function(rc){
       arrange(subjid, rc_date) %>%
       filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
       select(subjid, rc_date, target_sum_min) %>%
+      distinct(subjid, rc_date, target_sum_min) %>%
+      summarise(dates = toString(rc_date), .by=-rc_date) %>%
       recist_issue("Dataset's minimum Target Lesion length sum (nadir) has
                  multiple values",
                    level="WARNING")
@@ -391,11 +394,10 @@ check_derived_columns = function(rc){
     if(has_name(rc, "target_sum")){
       rtn$target_sum_min_wrong = rc %>%
         arrange(subjid, rc_date) %>%
-        mutate(sum_nadir = cummin(target_sum),
+        mutate(real_target_sum_min = cummin(target_sum),
                .by = subjid, .after=target_sum) %>%
-        filter(any(target_sum_min != sum_nadir), .by=subjid) %>%
-        select(subjid, rc_date, target_sum, target_sum_min,
-               sum_nadir, everything()) %>%
+        filter(any(target_sum_min != real_target_sum_min), .by=subjid) %>%
+        distinct(subjid, rc_date, target_sum, target_sum_min, real_target_sum_min) %>%
         recist_issue("Dataset's minimum Target Lesion length sum (nadir) is incorrect",
                      level="WARNING")
     }
@@ -423,11 +425,11 @@ check_derived_columns = function(rc){
       arrange(subjid) %>%
       mutate(
         target_sum = target_sum[1],
-        target_sum_real = sum(target_diam, na.rm=TRUE),
+        real_target_sum = sum(target_diam, na.rm=TRUE),
         .by=c(subjid, rc_date)
       ) %>%
-      filter((target_sum != target_sum_real)) %>%
-      distinct(subjid, rc_date, target_sum, target_sum_real) %>%
+      filter((target_sum != real_target_sum)) %>%
+      distinct(subjid, rc_date, target_sum, real_target_sum) %>%
       # nest(dates=rc_date) %>%
       summarise(dates = toString(rc_date), .by=-rc_date) %>%
       recist_issue("Dataset's Target Lesion length sum is incorrect",
