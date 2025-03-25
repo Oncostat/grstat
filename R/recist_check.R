@@ -383,7 +383,6 @@ check_derived_columns = function(rc){
     rtn$target_sum_min_dupl = rc %>%
       arrange(subjid, rc_date) %>%
       filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
-      select(subjid, rc_date, target_sum_min) %>%
       distinct(subjid, rc_date, target_sum_min) %>%
       summarise(dates = toString(rc_date), .by=-rc_date) %>%
       recist_issue("Dataset's minimum Target Lesion length sum (nadir) has
@@ -537,13 +536,14 @@ check_global_response = function(rc_short){
 
   rtn$nlt_progression = rc_short %>%
     filter(nontarget_resp_num == 4) %>%
-    filter(target_resp_num != 4 | !new_lesion) %>%
+    filter(target_resp_num != 4 & !new_lesion) %>%
     transmute(subjid, rc_date,
               target_resp,
               nontarget_yn=fct_yesno(nontarget_yn),
-              nontarget_resp, new_lesion) %>%
-    recist_issue("Progressions due only to Non-Target Lesions are seldom and
-               should be checked", level="CHECK")
+              nontarget_resp,
+              new_lesion=fct_yesno(new_lesion)) %>%
+    recist_issue("Progressions due only to Non-Target Lesions are rare and
+               should probably be confirmed", level="CHECK")
 
 
   rtn
