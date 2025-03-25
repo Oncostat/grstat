@@ -14,6 +14,10 @@ library(flextable)
 
 knitr::opts_chunk$set(echo = FALSE)
 
+options(DT.options = list(fixedHeader=TRUE, 
+                          fixedColumns=list(leftColumns=1), 
+                          dom="ltip"))
+
 
 flextable2 = function(x, autofit=TRUE, fontsize_body=8, fontsize_head=9, padding_v=0, ...){
   x = flextable(x, ...)
@@ -31,7 +35,9 @@ show_summaries = function(x){
   for(i in sup0){
     d = x %>% slice(i)
     cat(glue("<details><summary><h5 style='display:inline-block'> {d$message} (N = {d$n_subjid} patients)</h5></summary>\n\n"))
-    print(htmltools::tagList(DT::datatable(d$data[[1]])))
+    print(htmltools::tagList(
+      DT::datatable(d$data[[1]], rownames=FALSE, filter="none")
+    ))
     cat("</details>\n\n")
   }
 }
