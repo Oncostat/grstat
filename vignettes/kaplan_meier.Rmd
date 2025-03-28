@@ -109,7 +109,8 @@ data_surv_v2 = data_surv %>%
     date_status_OS = date_end,
     time_pfs = as.numeric(date_status_pfs-date_start)/30.5,
     time_OS = as.numeric(date_status_OS-date_start)/30.5
-  )
+  ) %>% 
+  select(id,time_pfs,time_OS,status_PFS,status_OS,surg)
 
 head(data_surv_v2)
 ```
@@ -119,7 +120,7 @@ head(data_surv_v2)
 We recommend using the survival package with the survfit2 function instead of survfit function.
 
 ```{r}
-km.model_PFS <- survfit2(Surv(time_pfs, status_PFS) ~ surg,data = data_surv_v2)
+km.model_PFS = survfit2(Surv(time_pfs, status_PFS) ~ surg,data = data_surv_v2)
 km.model_PFS
 
 tidy_survfit(km.model_PFS, times = c(0.05, 0.10, 0.20)) %>% 
