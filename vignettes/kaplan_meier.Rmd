@@ -16,9 +16,9 @@ This vignette illustrates the implementation of Kaplan-Meier survival analysis i
 
 In this example, two key survival endpoints are analysed:
 
-Progression-Free Survival (PFS): Defined as the time from treatment initiation to either disease progression or death.
+*   Progression-Free Survival (PFS): Defined as the time from treatment initiation to either disease progression or death.
 
-Overall Survival (OS): Defined as the time from treatment initiation to death from any cause.
+*   Overall Survival (OS): Defined as the time from treatment initiation to death from any cause.
 
 This vignette covers the following steps:
 
@@ -136,7 +136,7 @@ https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html
 
 Kaplan-Meier by Daniel D. Sjoberg, Mark Baillie, Charlotta Fruechtenicht, Steven Haesendonckx, Tim Treis.
 
-- **Progression-Free Survival (PFS)**
+## Progression-Free Survival (PFS)
 
 ```{r fig.width = 7 , fig.height = 5}
 km_PFS = survfit2(Surv(time_pfs, status_PFS) ~ surg, data = data_surv_v2) %>%
@@ -153,7 +153,7 @@ km_PFS
 ```
 
 
-This plot can be further customised, for example:
+- **This plot can be further customised, for example:**
 
 ```{r fig.width = 7 ,fig.height = 5}
 km_PFS +
@@ -166,7 +166,7 @@ km_PFS +
 ```
 
 
-- **Overall Survival (OS)**
+## Overall Survival (OS)
 
 The function scale_ggsurvfit() can be used to automatically adjust the axes limits of Kaplan-Meier plots to better fit the data and improve visualisation.
 **Note:** The scale_ggsurvfit() function automatically scales the y-axis in percentage.
