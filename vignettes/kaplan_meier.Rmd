@@ -14,7 +14,7 @@ vignette: >
 
 This vignette illustrates the implementation of Kaplan-Meier survival analysis in R using the survival and ggsurvfit packages. The Kaplan-Meier method is a standard approach in clinical research for estimating survival functions and comparing time-to-event outcomes between groups.
 
-In this example, two key survival endpoints are analyzed:
+In this example, two key survival endpoints are analysed:
 
 Progression-Free Survival (PFS): Defined as the time from treatment initiation to either disease progression or death.
 
@@ -32,8 +32,8 @@ Overall Survival (OS): Defined as the time from treatment initiation to death fr
 
 The approach presented here follows the recommendations provided by Daniel Sjoberg's ggsurvfit package for generating publication-ready Kaplan-Meier plots.
   
-# Data Preparation
-
+First, install packages if needed and load them.   
+  
 ```{r setup, warning=FALSE, message=FALSE}
 ##Load libraries
 
@@ -42,6 +42,8 @@ library(tidyverse)
 library(survival)
 library(ggsurvfit)
 ```
+
+# Data Preparation
 
 ## Data Overview
 
