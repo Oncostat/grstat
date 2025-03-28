@@ -1,0 +1,190 @@
+---
+title: "Kaplan-Meier Guideline Suggestions"
+author: "Livia Pierotti"
+date: "2024-11-26"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Kaplan-Meier Guideline Suggestions}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+This vignette illustrates the implementation of Kaplan-Meier survival analysis in R using the survival and `ggsurvfit` packages. The Kaplan-Meier method is a standard approach in clinical research for estimating survival functions and comparing time-to-event outcomes between groups.
+
+In this example, two key survival endpoints are analysed:
+
+-   Progression-Free Survival (PFS): Defined as the time from treatment initiation to either disease progression or death.
+
+-   Overall Survival (OS): Defined as the time from treatment initiation to death from any cause.
+
+This vignette covers the following steps:
+
+-   Preparation of the dataset.
+
+-   Creation of time-to-event and event indicator variables.
+
+-   Fitting of Kaplan-Meier models.
+
+-   Visualization of survival curves accompanied by risk tables.
+
+The approach presented here follows the recommendations provided by Daniel Sjoberg's `ggsurvfit` package for generating publication-ready Kaplan-Meier plots.
+
+First, install packages if needed and load them.
+
+```{r setup, warning=FALSE, message=FALSE}
+## Load libraries
+
+library(grstat)
+library(dplyr)
+library(survival)
+library(ggsurvfit)
+```
+
+# Data Preparation
+
+## Data Overview
+
+```{r, include = FALSE, warning = FALSE}
+knitr::opts_chunk$set(collapse = TRUE,
+                      comment = "#>")
+
+library(dplyr)
+t0 = ISOdate(2020, 01, 01, tz = "EST")
+t0_v2 = as.Date(t0, format =  "%Y/%m/%d")
+
+# Generate the dataset with progression and death dates
+data_surv = ggsurvfit::df_colon %>% 
+  mutate(
+    date_start = t0_v2 + abs(rnorm(n(), 500, 20)), 
+    date_end = date_start + time,
+    death = status,
+    # Add date of progression to random patients only, as a proper date
+    date_progression = as.Date(ifelse(runif(n()) < 0.5, date_start + time * runif(n(), 0.6, 0.8), NA), origin = "1970-01-01"),
+  ) %>% 
+  select(id,death,date_start,date_progression,date_end,surg)
+
+length(unique(data_surv$id))
+
+```
+
+The dataset used is an extension of the dataset provided by the `ggsurvfit` package. Additional variables were simulated to resemble to a typical dataset from an oncology clinical study, including information on progression status, survival times, and treatment characteristics. **Note:** In this example, the end date is determined using the `pmax()` function, which selects the latest available date from the following: date of death, last visit, last RECIST scan, last patient contact, end of treatment, or last follow-up.
+
+```{r}
+## Display dataset
+
+head(data_surv)
+
+dim(data_surv)
+```
+
+## Variable Creation
+
+The purpose of this section is to create status and time status and time variables for Progression-Free Survival (PFS) and Overall Survival (OS).
+
+First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
+
+-   Time variable:
+
+    The time variable represents the duration from a defined starting point (e.g., diagnosis, study enrollment, or start of treatment) to the time at which the patient's status is recorded (e.g. death, disease progression, recurrence or last news). It is a numeric variable measured in units such as days, months, or years, depending on the study's duration and requirements.
+
+-   Status variable: The status variable is binary, indicating whether the event has occurred (event = 1) or not (censored = 0) for each subject by the end of the study period.
+
+An event (1) indicates that the subjects experienced the event of interest (e.g., death, relapse, transplant failure, etc.).
+
+Censored (0) refers to those subjects who did not experience the event during the study. For these individuals, the 'time-to-event' is considered censored, indicating that we only know they did not experience the event up to a certain point.
+
+```{r}
+## Example
+
+data_surv_v2 = data_surv %>%
+  mutate(
+    status_PFS = ifelse(!is.na(date_progression), 1, 0 ),
+    date_status_pfs = pmin(date_progression,date_end, na.rm = TRUE),
+    status_OS = death,
+    date_status_OS = date_end,
+    time_pfs = as.numeric(date_status_pfs-date_start)/30.5,
+    time_OS = as.numeric(date_status_OS-date_start)/30.5
+  ) %>% 
+  select(id,time_pfs,time_OS,status_PFS,status_OS,surg)
+
+head(data_surv_v2)
+```
+
+# Kaplan-Meier Analysis
+
+## Generate survival estimates using `survfit2()`
+
+We recommend using the `ggsurvfit` package which uses `survfit2()`with the following syntax:
+
+```{r}
+km.model_PFS = survfit2(Surv(time_pfs, status_PFS) ~ surg,data = data_surv_v2)
+km.model_PFS
+
+tidy_survfit(km.model_PFS, times = c(0.05, 0.10, 0.20)) %>% 
+  select(strata, time, n.risk, n.event, estimate, conf.high, conf.low)
+```
+
+## Generate survival curves
+
+For full documentation on `ggsurvfit`, visit the [ggsurvfit website](https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html#kmunicate).
+
+To cite their work, refer to the following:
+
+> Sjoberg D, Baillie M, Fruechtenicht C, Haesendonckx S, Treis T (2025). *ggsurvfit: Flexible Time-to-Event Figures.*\
+> R package version 1.1.0. Available at: <https://www.danieldsjoberg.com/ggsurvfit/>.
+
+### Progression-Free Survival (PFS)
+
+```{r fig.width = 7 , fig.height = 5}
+km_PFS = survfit2(Surv(time_pfs, status_PFS) ~ surg, data = data_surv_v2) %>%
+  ggsurvfit(linetype_aes = TRUE) +
+  add_confidence_interval() +
+  add_risktable(
+    risktable_stats = c("n.risk", "cum.censor", "cum.event" )
+  ) +
+  theme_ggsurvfit_KMunicate() +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(expand = c(0.02, 0)) +
+  theme(legend.position="inside", legend.position.inside = c(0.85, 0.85))
+km_PFS
+```
+
+**This plot can be further customised, for example:**
+
+```{r fig.width = 7 ,fig.height = 5}
+km_PFS +
+  add_censor_mark(size = 4, alpha = 0.4) +
+  labs(
+    x = "Time from beginning of treatment to progression or death (months)",
+    y = "Progression-Free Survival",
+    title = "Progression-Free Survival, (N=929, n event=440)"
+  ) 
+```
+
+### Overall Survival (OS)
+
+The function `scale_ggsurvfit()` can be used to automatically adjust the axes limits of Kaplan-Meier plots to better fit the data and improve visualisation. **Note:** The `scale_ggsurvfit()` function automatically scales the y-axis in percentage.
+
+```{r fig.width = 7 , fig.height = 5}
+km_OS = survfit2(Surv(time_OS, status_OS) ~ surg, data = data_surv_v2) %>%
+  ggsurvfit(linetype_aes = TRUE) +
+  add_confidence_interval() +
+  add_risktable(
+    risktable_stats = c("n.risk", "cum.event" )
+  ) +
+  theme_ggsurvfit_KMunicate() +
+  scale_ggsurvfit()+
+  theme(legend.position = "inside", legend.position.inside = c(0.85, 0.85))
+
+km_OS +
+  add_censor_mark(size = 4, alpha = 0.4) +
+  labs(
+    x = "Time from beginning of treatment to death (months)",
+    y = "Overall Survival",
+    title = "Overall Survival, (N=929, n event=468)"
+  ) 
+```
