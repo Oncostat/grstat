@@ -117,7 +117,7 @@ head(data_surv_v2)
 
 # Kaplan-Meier Analysis
 
-We recommend using the survival package with the survfit2 function instead of survfit function.
+We recommend using the `ggsurvfit` package which uses `survfit2()`with the following syntax:
 
 ```{r}
 km.model_PFS = survfit2(Surv(time_pfs, status_PFS) ~ surg,data = data_surv_v2)
@@ -128,13 +128,14 @@ tidy_survfit(km.model_PFS, times = c(0.05, 0.10, 0.20)) %>%
 ```
 
 
- Generate survival curves using ggsurvfit package
+Generate survival curves using ggsurvfit package
 
+For full documentation, visit the [ggsurvfit website](https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html#kmunicate).  
 
-Please follow the following link to obtain your Kaplan-Meier Curves
-https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html
+To cite their work, refer to the following:  
 
-Kaplan-Meier by Daniel D. Sjoberg, Mark Baillie, Charlotta Fruechtenicht, Steven Haesendonckx, Tim Treis.
+Sjoberg D, Baillie M, Fruechtenicht C, Haesendonckx S, Treis T (2025). *ggsurvfit: Flexible Time-to-Event Figures.*  
+R package version 1.1.0. Available at: [https://www.danieldsjoberg.com/ggsurvfit/](https://www.danieldsjoberg.com/ggsurvfit/). 
 
 ## Progression-Free Survival (PFS)
 
@@ -153,7 +154,7 @@ km_PFS
 ```
 
 
-- **This plot can be further customised, for example:**
+**This plot can be further customised, for example:**
 
 ```{r fig.width = 7 ,fig.height = 5}
 km_PFS +
