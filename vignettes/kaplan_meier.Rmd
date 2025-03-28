@@ -12,7 +12,7 @@ vignette: >
   
 # Introduction
 
-This vignette illustrates the implementation of Kaplan-Meier survival analysis in R using the survival and ggsurvfit packages. The Kaplan-Meier method is a standard approach in clinical research for estimating survival functions and comparing time-to-event outcomes between groups.
+This vignette illustrates the implementation of Kaplan-Meier survival analysis in R using the survival and `ggsurvfit` packages. The Kaplan-Meier method is a standard approach in clinical research for estimating survival functions and comparing time-to-event outcomes between groups.
 
 In this example, two key survival endpoints are analysed:
 
@@ -30,7 +30,7 @@ This vignette covers the following steps:
 
 * Visualization of survival curves accompanied by risk tables.
 
-The approach presented here follows the recommendations provided by Daniel Sjoberg's ggsurvfit package for generating publication-ready Kaplan-Meier plots.
+The approach presented here follows the recommendations provided by Daniel Sjoberg's `ggsurvfit` package for generating publication-ready Kaplan-Meier plots.
   
 First, install packages if needed and load them.   
   
@@ -70,8 +70,8 @@ length(unique(data_surv$id))
 
 ```
 
-The dataset used is an extension of the dataset provided by the ggsurvfit package. Additional variables were simulated to resemble to a typical dataset from an oncology clinical study, including information on progression status, survival times, and treatment characteristics.
-**Note:** In this example, the end date is determined using the pmax function, which selects the latest available date from the following: date of death, last visit, last RECIST scan, last patient contact, end of treatment, or last follow-up.
+The dataset used is an extension of the dataset provided by the `ggsurvfit` package. Additional variables were simulated to resemble to a typical dataset from an oncology clinical study, including information on progression status, survival times, and treatment characteristics.
+**Note:** In this example, the end date is determined using the `pmax()` function, which selects the latest available date from the following: date of death, last visit, last RECIST scan, last patient contact, end of treatment, or last follow-up.
 
 ```{r}
 ## Display dataset
@@ -128,7 +128,7 @@ tidy_survfit(km.model_PFS, times = c(0.05, 0.10, 0.20)) %>%
 ```
 
 
-Generate survival curves using ggsurvfit package
+Generate survival curves using `ggsurvfit` package
 
 For full documentation, visit the [ggsurvfit website](https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html#kmunicate).  
 
