@@ -170,7 +170,7 @@ km_PFS +
 ## Overall Survival (OS)
 
 The function scale_ggsurvfit() can be used to automatically adjust the axes limits of Kaplan-Meier plots to better fit the data and improve visualisation.
-**Note:** The scale_ggsurvfit() function automatically scales the y-axis in percentage.
+**Note:** The `scale_ggsurvfit()` function automatically scales the y-axis in percentage.
 
 ```{r fig.width = 7 , fig.height = 5}
 km_OS = survfit2(Surv(time_OS, status_OS) ~ surg, data = data_surv_v2) %>%
