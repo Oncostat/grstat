@@ -12,6 +12,7 @@ ae_table_grade(
   arm = NULL,
   grade = "AEGR",
   subjid = "SUBJID",
+  ae_label = "AE",
   percent = TRUE,
   digits = 2,
   total = TRUE
@@ -32,6 +33,8 @@ ae_table_grade(
 
 \item{subjid}{name of the patient ID in both \code{df_ae} and \code{df_enrol}. Case-insensitive.}
 
+\item{ae_label}{the label of adverse events, usually "AE" or "SAE".}
+
 \item{percent}{whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.}
 
 \item{digits}{significant digits for percentages.}
@@ -42,7 +45,9 @@ ae_table_grade(
 a crosstable
 }
 \description{
-Summary tables for AE
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}\cr
+The function \code{ae_table_grade()} creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
+The resulting dataframe can be piped to \code{as_flextable()} to get a nicely formatted flextable.
 }
 \examples{
 tm = grstat_example()
@@ -51,15 +56,26 @@ attach(tm, warn.conflicts=FALSE)
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) \%>\%
   as_flextable(header_show_n=TRUE)
 
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="ARM") \%>\%
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm") \%>\%
   as_flextable(header_show_n=TRUE)
 
 #To get SAE only, filter df_ae first
-library(dplyr)
 ae \%>\%
-  filter(sae=="Yes") \%>\%
-  ae_table_grade(df_enrol=enrolres, arm="ARM") \%>\%
-  mutate_all(~stringr::str_replace(.x, "AE", "SAE")) \%>\%
+  dplyr::filter(sae=="Yes") \%>\%
+  ae_table_grade(df_enrol=enrolres, arm="arm", ae_label="SAE") \%>\%
+  as_flextable(header_show_n=TRUE)
+
+#To describe a sub-population, filter df_enrol first
+enrolres2 = enrolres \%>\%
+  dplyr::filter(arm=="Control")
+ae \%>\%
+  ae_table_grade(df_enrol=enrolres2, arm="arm") \%>\%
+  as_flextable(header_show_n=TRUE)
+
+#You can also filter the AE table
+ae \%>\%
+  ae_table_grade(df_enrol=enrolres, arm="arm") \%>\%
+  dplyr::filter(!variable \%in\% c("Grade 1", "Grade 2")) \%>\%
   as_flextable(header_show_n=TRUE)
 }
 \seealso{

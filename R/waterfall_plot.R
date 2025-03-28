@@ -3,6 +3,7 @@
 
 #' Generate a waterfall plot
 #'
+#' `r lifecycle::badge("experimental")`\cr
 #' @param data_recist recist dataset
 #' @param rc_sum name of the target lesions length sum column in `data_recist`, usually "RCTLSUM".
 #' @param rc_resp name of the response column in `data_recist`, usually "RCRESP".
