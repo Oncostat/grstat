@@ -83,7 +83,7 @@ dim(data_surv)
 
 ## Variable Creation
 
-### Create status and time variables for Progression-Free Survival (PFS) and Overall Survival (OS)
+The purpose of this section is to create status and time status and time variables for Progression-Free Survival (PFS) and Overall Survival (OS).
 
 First, the variables time and status (indicating whether an event occurred or was censored) need to be created to enable the use of various functions.
 
