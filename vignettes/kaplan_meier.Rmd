@@ -20,7 +20,7 @@ Progression-Free Survival (PFS): Defined as the time from treatment initiation t
 
 Overall Survival (OS): Defined as the time from treatment initiation to death from any cause.
 
-* This vignette covers the following steps:
+This vignette covers the following steps:
 
 * Preparation of the dataset.
 
@@ -71,7 +71,7 @@ length(unique(data_surv$id))
 ```
 
 The dataset used is an extension of the dataset provided by the ggsurvfit package. Additional variables were simulated to resemble to a typical dataset from an oncology clinical study, including information on progression status, survival times, and treatment characteristics.
-**Note:** In this example, the end date is defined as the latest available date among the following: date of death, last visit, last RECIST scan, last patient contact, end of treatment, or last follow-up.
+**Note:** In this example, the end date is determined using the pmax function, which selects the latest available date from the following: date of death, last visit, last RECIST scan, last patient contact, end of treatment, or last follow-up.
 
 ```{r}
 ## Display dataset
@@ -89,7 +89,7 @@ First, the variables time and status (indicating whether an event occurred or wa
 
 * Time variable:
   
-  The time variable represents the duration from a defined starting point (e.g., diagnosis, study enrollment, or start of treatment) to the time at which the patient's status is recorded. It is a numeric variable measured in units such as days, months, or years, depending on the study's duration and requirements.
+  The time variable represents the duration from a defined starting point (e.g., diagnosis, study enrollment, or start of treatment) to the time at which the patient's status is recorded (e.g. death, disease progression, recurrence or last news). It is a numeric variable measured in units such as days, months, or years, depending on the study's duration and requirements.
 
 * Status variable:
   The status variable is binary, indicating whether the event has occurred (event = 1) or not (censored = 0) for each subject by the end of the study period.
