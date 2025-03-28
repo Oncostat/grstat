@@ -35,7 +35,7 @@ The approach presented here follows the recommendations provided by Daniel Sjobe
 First, install packages if needed and load them.   
   
 ```{r setup, warning=FALSE, message=FALSE}
-##Load libraries
+## Load libraries
 
 library(grstat)
 library(tidyverse)
