@@ -134,8 +134,8 @@ For full documentation, visit the [ggsurvfit website](https://www.danieldsjoberg
 
 To cite their work, refer to the following:  
 
-Sjoberg D, Baillie M, Fruechtenicht C, Haesendonckx S, Treis T (2025). *ggsurvfit: Flexible Time-to-Event Figures.*  
-R package version 1.1.0. Available at: [https://www.danieldsjoberg.com/ggsurvfit/](https://www.danieldsjoberg.com/ggsurvfit/). 
+>Sjoberg D, Baillie M, Fruechtenicht C, Haesendonckx S, Treis T (2025). *ggsurvfit: Flexible Time-to-Event Figures.*  
+>R package version 1.1.0. Available at: [https://www.danieldsjoberg.com/ggsurvfit/](https://www.danieldsjoberg.com/ggsurvfit/). 
 
 ## Progression-Free Survival (PFS)
 
