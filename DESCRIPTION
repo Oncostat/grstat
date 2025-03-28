@@ -46,12 +46,14 @@ Imports:
 Suggests: 
     callr,
     crosstable,
+    ggsurvfit,
     gtools,
     knitr,
     patchwork,
     plotly,
     rmarkdown,
     rstudioapi,
+    survival,
     testthat (>= 3.0.0),
     usethis,
     vdiffr
