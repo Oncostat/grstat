@@ -128,9 +128,9 @@ km.model_PFS
 tidy_survfit(km.model_PFS, times = c(0.05, 0.10, 0.20)) %>% 
   select(strata, time, n.risk, n.event, estimate, conf.high, conf.low)
 ```
-## Generate survival curves using `ggsurvfit` package**
+## Generate survival curves
 
-For full documentation, visit the [ggsurvfit website](https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html#kmunicate).  
+For full documentation on `ggsurvfit`, visit the [ggsurvfit website](https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html#kmunicate).  
 
 To cite their work, refer to the following:  
 
