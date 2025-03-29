@@ -7,6 +7,7 @@
 #' @param N the number of patients
 #' @param seed the random seed (can be `NULL`)
 #' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
+#' @param t number of visit for the recist base
 #' @param ... passed on to internal functions. See [example_ae()] for control over Adverse Events.
 #'
 #' @returns A list of datasets, like in EDCimport.
@@ -16,7 +17,7 @@
 #' @importFrom purrr imap
 #' @importFrom tibble lst
 grstat_example = function(N=200, ..., seed=42,
-                          r=0.5, r2=1/3){
+                          r=0.5, r2=1/3,t=10 ){
   set.seed(seed)
 
   enrolres = example_enrol(N, r, r2)
@@ -26,13 +27,12 @@ grstat_example = function(N=200, ..., seed=42,
                   #  n_max=ae_n_max, n_max_trt=ae_n_max_trt,
                   #  p_sae=ae_p_sae,
                    ...)
-
-  rtn = lst(enrolres, ae) %>%
+  recist = example_rc(enrolres,t)
+  rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
   rtn$date_extraction = "2024/01/01"
   rtn$datetime_extraction = structure(1704067200, class = c("POSIXct", "POSIXt"),
                                       tzone = "Europe/Paris")
-
   rtn
 }
 
@@ -131,6 +131,116 @@ example_ae = function(enrolres, p_na=0,
       sae = "Serious AE",
     )
 }
+
+
+#' Simulate a RECIST dataset
+#'
+#' Used in `grstat_example()`. \cr
+#' This function generates a synthetic RECIST dataset following the conventions of clinical oncology trials.
+#' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
+#'
+#' @param enrolres the enrolment result table, from `.example_enrol`
+#' @param t Integer. Number of timepoints for each patient.
+#' @return A tibble containing the simulated RECIST dataset.
+#' @importFrom dplyr bind_rows select mutate filter row_number
+#' @keywords internal
+example_rc = function(enrolres, t) {
+  num_timepoints <- t
+  timepoint <- seq_len(num_timepoints)
+  recist_data <- enrolres %>%
+    mutate(
+      rctlsum_b= rnorm(n(),50,30),
+      rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180),rctlsum_b),
+      data = list(.simulate_patient(rctlsum_b,num_timepoints)),
+      .by=subjid
+    ) %>%
+    unnest(data) %>%
+    mutate(
+      rctlmin= ifelse(rctlsum_b < rctlsum,rctlsum_b,rctlsum),
+      rctlmin = cummin(rctlmin),
+      rctlresp = case_when(
+        rctlsum == 0 ~ "Complete response",
+        (rctlmin - rctlsum)/rctlmin < -0.2 ~ "Progressive disease",
+        (rctlsum_b - rctlsum)/rctlsum_b > 0.3 ~ "Partial response",
+        .default = "Stable disease"
+      ),
+      rcntlresp =sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA), n(), replace=TRUE, prob=c(0.27, 0.09, 0.003, 0.65)),
+      rcvisit = row_number(),
+      rcdt = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
+      .by=subjid
+    ) %>%
+    mutate(rcdt = rcdt + runif(n(),-7,7),
+           rcnew = runif(n(),0,1),
+           rcnew = ifelse(rcnew<0.01,"1-Yes","0-No"),
+           not_evaluable = runif(n(),0,1),
+           rctlresp = ifelse(not_evaluable<0.01,"Not evaluable",rctlresp),
+           rcresp = case_when(
+             rctlresp == "Complete response" & (rcntlresp == "Complete response" | is.na(rcntlresp))
+             & rcnew == "0-No"
+             ~ "Complete response",
+             rctlresp == "Complete response" & rcntlresp == "Non-CR / Non-PD" & rcnew == "0-No"
+             ~ "Partial response",
+             rctlresp == "Partial response" & (rcntlresp != "Progressive disease" | is.na(rcntlresp))
+             & rcnew == "0-No"
+             ~ "Partial response",
+             rctlresp == "Stable disease" & (rcntlresp != "Progressive disease" | is.na(rcntlresp))
+             & rcnew == "0-No"
+             ~ "Stable disease",
+             rctlresp == "Not evaluable" & (rcntlresp != "Progressive disease" | is.na(rcntlresp))
+             & rcnew == "0-No"
+             ~ "Not evaluable",
+             .default = "Progressive disease"
+           ),
+           rcresp = factor(rcresp,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
+    ) %>%
+    mutate(suivi = row_number() <= which(rcresp == 'Progressive disease')[1],
+           suivi = replace_na(suivi, TRUE),
+           .by=subjid
+    ) %>%
+    filter(suivi) %>%
+    select(subjid,arm,arm3,rctlsum_b,rctlsum,rctlmin,rctlresp,rcntlresp,rcnew,rcresp,rcvisit,rcdt)
+
+  recist_baseline = recist_data %>%
+    filter(rcvisit==1)%>%
+    mutate(rctlsum = rctlsum_b,
+           rcvisit=0,
+           rctlresp = NA,
+           rcntlresp = NA,
+           rcresp=NA,
+           rcdt = rcdt -42 + runif(n(),-7,7),
+           rctlmin = rctlsum_b,
+           rcnew = NA
+    )
+  recist_data = recist_data %>%
+    bind_rows(recist_baseline) %>%
+    arrange(subjid, rcdt)
+}
+
+
+# Internals RC ------------------------------------------------------------
+#' Used in `example_rc()`
+#' Determines response based on tumor size
+#' @param RCTLSUM_b Integer. Initial tumor size
+#' @param num_timepoints Integer. Number of timepoints for each patient.
+#' @noRd
+#' @keywords internal
+#' @importFrom tibble tibble
+#' @importFrom purrr accumulate
+.simulate_patient <- function(rctlsum_b,num_timepoints,v_bruits=25) {
+  delai <- 42 + runif(n(),-7,7)
+  percent_change_per_month <-runif(n(),-30,30)
+  changes <- rep(percent_change_per_month * delai / 30.5, num_timepoints)
+  changes <- changes + rnorm(num_timepoints,0,v_bruits)
+  base <- rep(rctlsum_b,num_timepoints)
+  sizes <- base * cumprod(1+changes/100)
+  sizes <- ifelse(sizes <1,0,sizes)
+  tibble(
+    rctlsum = round(sizes, 1),
+    percent_change = round(changes, 1)
+  )
+}
+
+# Internals AE ------------------------------------------------------------
 
 
 #' Used in `.random_grades_n()`

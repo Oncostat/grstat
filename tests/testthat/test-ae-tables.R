@@ -71,7 +71,7 @@ test_that("ae_table_soc() default snapshot", {
 
   expect_snapshot({
     tm = grstat_example()
-    attach(tm)
+    attach(tm, warn.conflicts = FALSE)
 
     ae_table_soc(ae, df_enrol=enrolres)
     ae_table_soc(ae, df_enrol=enrolres, sort_by_count=FALSE)

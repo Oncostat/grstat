@@ -161,13 +161,7 @@
 
     Code
       tm = grstat_example()
-      attach(tm)
-    Message
-      The following objects are masked from tm (pos = 3):
-      
-          ae, date_extraction, datetime_extraction, enrolres
-      
-    Code
+      attach(tm, warn.conflicts = FALSE)
       ae_table_soc(ae, df_enrol = enrolres)
     Output
       # A tibble: 27 x 8
