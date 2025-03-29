@@ -28,6 +28,12 @@ reference:
     - gr_new_project
     - grstat_example
 
+  - title: "Checks"
+  - contents:
+    - check_recist
+    - gr_recist_mapping
+    - recist_report
+
   - title: "Work in progress"
   - contents:
     - ae_plot_grade_sum
