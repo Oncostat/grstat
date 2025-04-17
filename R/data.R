@@ -17,7 +17,7 @@
 #' @importFrom purrr imap
 #' @importFrom tibble lst
 grstat_example = function(N=200, ..., seed=42,
-                          r=0.5, r2=1/3,t=10 ){
+                          r=0.5, r2=1/3, num_timepoints=10 ){
   set.seed(seed)
 
   enrolres = example_enrol(N, r, r2)
@@ -26,8 +26,8 @@ grstat_example = function(N=200, ..., seed=42,
                   # p_na=ae_p_na,
                   #  n_max=ae_n_max, n_max_trt=ae_n_max_trt,
                   #  p_sae=ae_p_sae,
-                   ...)
-  recist = example_rc(enrolres,t)
+                  ...)
+  recist = example_rc(enrolres, num_timepoints)
   rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
   rtn$date_extraction = "2024/01/01"
@@ -140,7 +140,6 @@ example_ae = function(enrolres, p_na=0,
 #' @return A tibble containing the simulated RECIST dataset.
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @keywords internal
-example_rc = function(enrolres, t) {
   num_timepoints <- t
   timepoint <- seq_len(num_timepoints)
   recist_data <- enrolres %>%
