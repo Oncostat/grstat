@@ -153,38 +153,34 @@ example_rc = function(enrolres, num_timepoints) {
     mutate(
       rctlmin = ifelse(rctlsum_b < rctlsum, rctlsum_b, rctlsum),
       rctlmin = cummin(rctlmin),
-      rctlresp = case_when(
-        rctlsum == 0 ~ "Complete response",
-        (rctlmin - rctlsum)/rctlmin < -0.2 ~ "Progressive disease",
-        (rctlsum_b - rctlsum)/rctlsum_b > 0.3 ~ "Partial response",
-        .default = "Stable disease"
-      ),
-      rcntlresp =sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA), n(), replace=TRUE, prob=c(0.27, 0.09, 0.003, 0.65)),
       rcvisit = row_number(),
       rcdt = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
       .by = subjid
     ) %>%
-    mutate(rcdt = rcdt + runif(n(),-7,7),
-           rcnew = runif(n(),0,1),
-           rcnew = ifelse(rcnew<0.01,"1-Yes","0-No"),
-           not_evaluable = runif(n(),0,1),
-           rctlresp = ifelse(not_evaluable<0.01,"Not evaluable",rctlresp),
+    mutate(rctlresp = case_when(
+           rctlsum == 0 ~ "Complete response",
+           (rctlmin - rctlsum)/rctlmin < -0.2 ~ "Progressive disease",
+           (rctlsum_b - rctlsum)/rctlsum_b > 0.3 ~ "Partial response",
+           .default = "Stable disease"
+           ),
+           rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
+                              n(), replace=TRUE, prob=c(0.27, 0.09, 0.003, 0.65)),rcdt = rcdt + runif(n(), -7, 7),
+           rcnew = runif(n(), 0, 1),
+           rcnew = ifelse(rcnew<0.01, "Yes","No"),
+           not_evaluable = runif(n(), 0, 1),
+           rctlresp = ifelse(not_evaluable<0.01, "Not evaluable", rctlresp),
            rcresp = case_when(
+             rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
+             ~ "Progressive disease",
              rctlresp == "Complete response" & (rcntlresp == "Complete response" | is.na(rcntlresp))
-             & rcnew == "0-No"
              ~ "Complete response",
-             rctlresp == "Complete response" & rcntlresp == "Non-CR / Non-PD" & rcnew == "0-No"
+             rctlresp %in% c("Complete response", "Partial response")
              ~ "Partial response",
-             rctlresp == "Partial response" & (rcntlresp != "Progressive disease" | is.na(rcntlresp))
-             & rcnew == "0-No"
-             ~ "Partial response",
-             rctlresp == "Stable disease" & (rcntlresp != "Progressive disease" | is.na(rcntlresp))
-             & rcnew == "0-No"
+             rctlresp == "Stable disease"
              ~ "Stable disease",
-             rctlresp == "Not evaluable" & (rcntlresp != "Progressive disease" | is.na(rcntlresp))
-             & rcnew == "0-No"
+             rctlresp == "Not evaluable"
              ~ "Not evaluable",
-             .default = "Progressive disease"
+             .default = "ERROR"
            ),
            rcresp = factor(rcresp, levels=c("Complete response", "Partial response",
                                             "Stable disease", "Progressive disease",
