@@ -70,7 +70,8 @@ a dataframe (\code{ae_table_soc()}) or a flextable (\code{as_flextable()}).
 a formatted flextable
 }
 \description{
-The function \code{ae_table_soc()} creates a summary table of maximum AE grades for each patient according to term and SOC CTCAE.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}\cr
+The function \code{ae_table_soc()} creates a summary table of AE grades for each patient according to term and SOC CTCAE.
 The resulting dataframe can be piped to \code{as_flextable()} to get a nicely formatted flextable.
 }
 \examples{
@@ -91,7 +92,7 @@ ae_table_soc(ae, df_enrol=enrolres, total=FALSE) \%>\%
 ae_table_soc(ae, df_enrol=enrolres, term=NULL, sort_by_count=FALSE) \%>\%
   as_flextable() \%>\%
   bold(i=~soc=="Eye disorders")
-ae_table_soc(ae, df_enrol=enrolres, term=NULL, arm=NULL) \%>\%
+ae_table_soc(ae, df_enrol=enrolres, term="aeterm", arm=NULL) \%>\%
   as_flextable() \%>\%
   highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
 }

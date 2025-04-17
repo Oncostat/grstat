@@ -1,0 +1,34 @@
+url: https://oncostat.github.io/grstat/
+template:
+  bootstrap: 5
+  params:
+    bootswatch: flatly
+
+
+navbar:
+  structure:
+    left:  [reference, articles, news]
+    right: [search, github]
+
+authors:
+  Team Oncostat:
+    href: "https://www.gustaveroussy.fr/fr/oncostat"
+
+reference:
+
+  - title: "Adverse events"
+  - contents:
+    - ae_table_grade
+    - ae_table_soc
+    - ae_plot_grade
+    - butterfly_plot
+
+  - title: "Utils"
+  - contents:
+    - gr_new_project
+    - grstat_example
+
+  - title: "Work in progress"
+  - contents:
+    - ae_plot_grade_sum
+    - waterfall_plot
