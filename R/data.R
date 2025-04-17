@@ -140,9 +140,9 @@ example_ae = function(enrolres, p_na=0,
 #' @return A tibble containing the simulated RECIST dataset.
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @keywords internal
-  num_timepoints <- t
-  timepoint <- seq_len(num_timepoints)
-  recist_data <- enrolres %>%
+example_rc = function(enrolres, num_timepoints) {
+  timepoint = seq_len(num_timepoints)
+  recist_data = enrolres %>%
     mutate(
       rctlsum_b= rnorm(n(),50,30),
       rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180),rctlsum_b),
