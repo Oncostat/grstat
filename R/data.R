@@ -144,14 +144,14 @@ example_rc = function(enrolres, num_timepoints) {
   timepoint = seq_len(num_timepoints)
   recist_data = enrolres %>%
     mutate(
-      rctlsum_b= rnorm(n(),50,30),
-      rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180),rctlsum_b),
-      data = list(.simulate_patient(rctlsum_b,num_timepoints)),
-      .by=subjid
+      rctlsum_b = rnorm(n(),50,30),
+      rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180), rctlsum_b),
+      data = list(.simulate_patient(rctlsum_b, num_timepoints)),
+      .by = subjid
     ) %>%
     unnest(data) %>%
     mutate(
-      rctlmin= ifelse(rctlsum_b < rctlsum,rctlsum_b,rctlsum),
+      rctlmin = ifelse(rctlsum_b < rctlsum, rctlsum_b, rctlsum),
       rctlmin = cummin(rctlmin),
       rctlresp = case_when(
         rctlsum == 0 ~ "Complete response",
@@ -162,7 +162,7 @@ example_rc = function(enrolres, num_timepoints) {
       rcntlresp =sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA), n(), replace=TRUE, prob=c(0.27, 0.09, 0.003, 0.65)),
       rcvisit = row_number(),
       rcdt = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
-      .by=subjid
+      .by = subjid
     ) %>%
     mutate(rcdt = rcdt + runif(n(),-7,7),
            rcnew = runif(n(),0,1),
@@ -186,23 +186,26 @@ example_rc = function(enrolres, num_timepoints) {
              ~ "Not evaluable",
              .default = "Progressive disease"
            ),
-           rcresp = factor(rcresp,levels=c("Complete response", "Partial response","Stable disease","Progressive disease","Not evaluable"))
+           rcresp = factor(rcresp, levels=c("Complete response", "Partial response",
+                                            "Stable disease", "Progressive disease",
+                                            "Not evaluable"))
     ) %>%
     mutate(suivi = row_number() <= which(rcresp == 'Progressive disease')[1],
            suivi = replace_na(suivi, TRUE),
-           .by=subjid
+           .by = subjid
     ) %>%
     filter(suivi) %>%
-    select(subjid,arm,arm3,rctlsum_b,rctlsum,rctlmin,rctlresp,rcntlresp,rcnew,rcresp,rcvisit,rcdt)
+    select(subjid, arm, arm3, rctlsum_b, rctlsum, rctlmin,
+           rctlresp, rcntlresp, rcnew, rcresp, rcvisit, rcdt)
 
   recist_baseline = recist_data %>%
-    filter(rcvisit==1)%>%
+    filter(rcvisit == 1)%>%
     mutate(rctlsum = rctlsum_b,
-           rcvisit=0,
+           rcvisit = 0,
            rctlresp = NA,
            rcntlresp = NA,
-           rcresp=NA,
-           rcdt = rcdt -42 + runif(n(),-7,7),
+           rcresp = NA,
+           rcdt = rcdt -42 + runif(n(), -7, 7),
            rctlmin = rctlsum_b,
            rcnew = NA
     )
@@ -220,15 +223,14 @@ example_rc = function(enrolres, num_timepoints) {
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-#' @importFrom purrr accumulate
-.simulate_patient <- function(rctlsum_b,num_timepoints,v_bruits=25) {
-  delai <- 42 + runif(n(),-7,7)
-  percent_change_per_month <-runif(n(),-30,30)
-  changes <- rep(percent_change_per_month * delai / 30.5, num_timepoints)
-  changes <- changes + rnorm(num_timepoints,0,v_bruits)
-  base <- rep(rctlsum_b,num_timepoints)
-  sizes <- base * cumprod(1+changes/100)
-  sizes <- ifelse(sizes <1,0,sizes)
+.simulate_patient = function(rctlsum_b, num_timepoints, v_bruits=25) {
+  delai = 42 + runif(n(), -7, 7)
+  percent_change_per_month = runif(n(), -30, 30)
+  changes = rep(percent_change_per_month * delai / 30.5, num_timepoints)
+  changes = changes + rnorm(num_timepoints, 0, v_bruits)
+  base = rep(rctlsum_b, num_timepoints)
+  sizes = base * cumprod(1+changes/100)
+  sizes = ifelse(sizes <1, 0, sizes)
   tibble(
     rctlsum = round(sizes, 1),
     percent_change = round(changes, 1)
