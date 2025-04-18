@@ -136,6 +136,24 @@ example_ae = function(enrolres, p_na=0,
 #' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
+#' @param num_timepoints Integer. Number of timepoints for each patient.
+#' @param p_new_lesions Integer. Probability of a new lesion
+#' @param p_not_evaluable Integer. Probability of a Not Evaluable measurev_bruits_variation_taille_tumeur=25
+#' @param v_bruits_variation_taille_tumeur Integer. Standard deviation for the evolution of the tumeur size
+#'
+#' @section Columns:
+#'   - `subjid`: The patient identifier.
+#'   - `arm` and `arm3`: The treatment arm for the patient.
+#'   - `rctlsum_b`: Baseline tumor size for patients. The size is simulated following a normal distribution with a mean of 50 and a standard deviation of 30. If the result is <10, it is replaced with a value drawn from a uniform distribution between 70 and 180.
+#'   - `rctlsum`: The size of the tumor at each time point. The evolution of the tumor is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of `v_bruits_variation_taille_tumeur`).
+#'   - `rctlmin`: The minimal tumor size observed so far.
+#'   - `rctlresp`: The response associated with the variation in tumor size, following the RECIST criteria.
+#'   - `rcntlresp`: The response associated with non-target lesions.
+#'   - `rcnew`: The response associated with the appearance of a new lesion.
+#'   - `rcresp`: The global response.
+#'   - `rcvisit`: The number of visits.
+#'   - `rcdt`: The date of the visits.
+#'
 #' @return A tibble containing the simulated RECIST dataset.
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @keywords internal
