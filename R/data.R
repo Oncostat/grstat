@@ -140,13 +140,12 @@ example_ae = function(enrolres, p_na=0,
 #' @return A tibble containing the simulated RECIST dataset.
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @keywords internal
-example_rc = function(enrolres, num_timepoints) {
   timepoint = seq_len(num_timepoints)
   recist_data = enrolres %>%
     mutate(
       rctlsum_b = rnorm(n(),50,30),
       rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180), rctlsum_b),
-      data = list(.simulate_patient(rctlsum_b, num_timepoints)),
+      data = list(.simulate_patient(rctlsum_b, num_timepoints, v_bruits_variation_taille_tumeur)),
       .by = subjid
     ) %>%
     unnest(data) %>%
@@ -165,10 +164,8 @@ example_rc = function(enrolres, num_timepoints) {
            ),
            rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
                               n(), replace=TRUE, prob=c(0.27, 0.09, 0.003, 0.65)),rcdt = rcdt + runif(n(), -7, 7),
-           rcnew = runif(n(), 0, 1),
-           rcnew = ifelse(rcnew<0.01, "Yes","No"),
-           not_evaluable = runif(n(), 0, 1),
-           rctlresp = ifelse(not_evaluable<0.01, "Not evaluable", rctlresp),
+           rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(p_new_lesions, 1-p_new_lesions)),
+           not_evaluable = ifelse(runif(n())<p_not_evaluable, "Not evaluable", rctlresp),
            rcresp = case_when(
              rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
              ~ "Progressive disease",
@@ -219,11 +216,11 @@ example_rc = function(enrolres, num_timepoints) {
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-.simulate_patient = function(rctlsum_b, num_timepoints, v_bruits=25) {
+.simulate_patient = function(rctlsum_b, num_timepoints, v_bruits_variation_taille_tumeur) {
   delai = 42 + runif(n(), -7, 7)
   percent_change_per_month = runif(n(), -30, 30)
   changes = rep(percent_change_per_month * delai / 30.5, num_timepoints)
-  changes = changes + rnorm(num_timepoints, 0, v_bruits)
+  changes = changes + rnorm(num_timepoints, 0, v_bruits_variation_taille_tumeur)
   base = rep(rctlsum_b, num_timepoints)
   sizes = base * cumprod(1+changes/100)
   sizes = ifelse(sizes <1, 0, sizes)
