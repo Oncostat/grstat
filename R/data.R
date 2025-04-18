@@ -136,10 +136,13 @@ example_ae = function(enrolres, p_na=0,
 #' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
-#' @param t Integer. Number of timepoints for each patient.
 #' @return A tibble containing the simulated RECIST dataset.
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @keywords internal
+example_rc = function(enrolres, num_timepoints,
+                      p_new_lesions = 0.01,
+                      p_not_evaluable = 0.01,
+                      v_bruits_variation_taille_tumeur = 25) {
   timepoint = seq_len(num_timepoints)
   recist_data = enrolres %>%
     mutate(
