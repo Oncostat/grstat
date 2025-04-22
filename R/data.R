@@ -163,6 +163,7 @@ example_ae = function(enrolres, p_na=0,
 example_rc = function(enrolres, num_timepoints=10,
                       p_new_lesions = 0.01,
                       p_not_evaluable = 0.01,
+                      p_list_lesion_non_cibles = list(0.27, 0.09, 0.003, 0.65),
                       v_bruits_variation_taille_tumeur = 25) {
   timepoint = seq_len(num_timepoints)
   recist_data = enrolres %>%
@@ -187,7 +188,7 @@ example_rc = function(enrolres, num_timepoints=10,
            .default = "Stable disease"
            ),
            rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
-                              n(), replace=TRUE, prob=c(0.27, 0.09, 0.003, 0.65)),
+                              n(), replace=TRUE, prob=p_list_lesion_non_cibles),
            rcdt = rcdt + runif(n(), -7, 7),
            rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(p_new_lesions, 1-p_new_lesions)),
            not_evaluable = ifelse(runif(n())<p_not_evaluable, "Not evaluable", rctlresp),
