@@ -30,5 +30,9 @@ utils::globalVariables(
     "any_severe", "arm_", "calc", "col_keys", "diff_first", "first_date", "arm", "rate", "aerel",
     "first_sum", "grade_", "h1", "h2", "label", "min_sum", "aegr_sae", "aeterm", "soc_weight",
     "n_ae", "n_arm", "n_severe", "name", "pct_ae", "pct_severe", "resp", "resp2", "resp_num",
-    "sae", "severe_", "soc_", "subjid", "subjid_", "value", "variable", "weight", "x")
+    "sae", "severe_", "soc_", "subjid", "subjid_", "value", "variable", "weight", "x",
+    "num_timepoints", "timepoint", "rctlsum_b", "v_bruits_variation_taille_tumeur", "delai",
+    "percent_change_per_month", "changes", "base", "sizes", "rctlsum", "percent_change",
+    "rctlmin", "rcvisit", "rcdt", "rctlresp", "rcntlresp", "rcnew", "p_new_lesions", "not_evaluable",
+    "p_not_evaluable", "rcresp", "suivi", "arm3")
 )
