@@ -34,5 +34,5 @@ utils::globalVariables(
     "num_timepoints", "timepoint", "rctlsum_b", "v_bruits_variation_taille_tumeur", "delai",
     "percent_change_per_month", "changes", "base", "sizes", "rctlsum", "percent_change",
     "rctlmin", "rcvisit", "rcdt", "rctlresp", "rcntlresp", "rcnew", "p_new_lesions", "not_evaluable",
-    "p_not_evaluable", "rcresp", "suivi", "arm3")
+    "p_not_evaluable", "rcresp", "suivi", "arm3", "date_inclusion")
 )

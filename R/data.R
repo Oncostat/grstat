@@ -50,12 +50,14 @@ example_enrol = function(N, r, r2){
                    rep("Treatment", round(N*(1-r))) )),
     arm3 = sample(c(rep("Control", round(N*r2)),
                     rep("Treatment A", round(N*(1-r2)/2)),
-                    rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) ))
+                    rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) )),
+    date_inclusion = sample(as.Date("2023-01-01") +subjid*10 + runif(N, 0, 10))
   ) %>%
     apply_labels(
       subjid = "Subject ID",
       arm = "Treatment arm",
-      arm3 = "Treatment arm"
+      arm3 = "Treatment arm",
+      date_inclusion = "Inclusion date"
     )
 }
 
@@ -175,7 +177,7 @@ example_rc = function(enrolres, num_timepoints=10,
       rctlmin = ifelse(rctlsum_b < rctlsum, rctlsum_b, rctlsum),
       rctlmin = cummin(rctlmin),
       rcvisit = row_number(),
-      rcdt = seq.Date(from = as.Date("2023-01-01"), by = 42, length.out = n()),
+      rcdt = date_inclusion +(42*rcvisit),
       .by = subjid
     ) %>%
     mutate(rctlresp = case_when(
@@ -185,7 +187,8 @@ example_rc = function(enrolres, num_timepoints=10,
            .default = "Stable disease"
            ),
            rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
-                              n(), replace=TRUE, prob=c(0.27, 0.09, 0.003, 0.65)),rcdt = rcdt + runif(n(), -7, 7),
+                              n(), replace=TRUE, prob=c(0.27, 0.09, 0.003, 0.65)),
+           rcdt = rcdt + runif(n(), -7, 7),
            rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(p_new_lesions, 1-p_new_lesions)),
            not_evaluable = ifelse(runif(n())<p_not_evaluable, "Not evaluable", rctlresp),
            rcresp = case_when(
@@ -211,7 +214,21 @@ example_rc = function(enrolres, num_timepoints=10,
     ) %>%
     filter(suivi) %>%
     select(subjid, arm, arm3, rctlsum_b, rctlsum, rctlmin,
-           rctlresp, rcntlresp, rcnew, rcresp, rcvisit, rcdt)
+           rctlresp, rcntlresp, rcnew, rcresp, rcvisit, date_inclusion, rcdt) %>%
+    apply_labels(
+      subjid = "Subject ID",
+      arm = "Treatment arm",
+      arm3 = "Treatment arm",
+      rctlsum_b = "Baseline tumor size",
+      rctlsum = "Tumor size",
+      rctlmin = "Minimal tumor size",
+      rctlresp = "Response of target lesions",
+      rcntlresp = "Response of non target lesions",
+      rcnew = "New lesions",
+      rcresp = "Global response",
+      rcvisit = "Visit number",
+      rcdt = "Date of local evaluation"
+    )
 
   recist_baseline = recist_data %>%
     filter(rcvisit == 1)%>%
@@ -220,7 +237,7 @@ example_rc = function(enrolres, num_timepoints=10,
            rctlresp = NA,
            rcntlresp = NA,
            rcresp = NA,
-           rcdt = rcdt -42 + runif(n(), -7, 7),
+           rcdt = date_inclusion,
            rctlmin = rctlsum_b,
            rcnew = NA
     )
