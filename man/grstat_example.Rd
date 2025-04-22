@@ -14,6 +14,8 @@ grstat_example(N = 200, ..., seed = 42, r = 0.5, r2 = 1/3)
 \item{seed}{the random seed (can be \code{NULL})}
 
 \item{r, r2}{proportion of the "Control" arm in \code{enrolres$arm} and \code{enrolres$arm3} respectively}
+
+\item{t}{number of visit for the recist base}
 }
 \value{
 A list of datasets, like in EDCimport.
