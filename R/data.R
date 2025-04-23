@@ -16,18 +16,17 @@
 #' @importFrom dplyr mutate
 #' @importFrom purrr imap
 #' @importFrom tibble lst
-grstat_example = function(N=200, ..., seed=42,
+#' @importFrom base do.call
+grstat_example = function(N=200, args_ae = list(), args_rc = list(), seed=42,
                           r=0.5, r2=1/3){
   set.seed(seed)
 
   enrolres = example_enrol(N, r, r2)
 
-  ae = example_ae(enrolres,
-                  # p_na=ae_p_na,
-                  #  n_max=ae_n_max, n_max_trt=ae_n_max_trt,
-                  #  p_sae=ae_p_sae,
-                  ...)
-  recist = example_rc(enrolres, ...)
+  ae = do.call(example_ae, c(list(enrolres = enrolres), args_ae))
+
+  recist = do.call(example_rc, c(list(enrolres = enrolres), args_rc))
+
   rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
   rtn$date_extraction = "2024/01/01"

@@ -9,6 +9,7 @@ example_rc(
   num_timepoints = 10,
   p_new_lesions = 0.01,
   p_not_evaluable = 0.01,
+  p_list_lesion_non_cibles = list(0.27, 0.09, 0.003, 0.65),
   v_bruits_variation_taille_tumeur = 25
 )
 }
