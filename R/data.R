@@ -236,7 +236,7 @@ example_rc = function(enrolres, rc_num_timepoints=10,
            rctlresp = NA,
            rcntlresp = NA,
            rcresp = NA,
-           rcdt = date_inclusion,
+           rcdt = enrolres$date_inclusion,
            rctlmin = rctlsum_b,
            rcnew = NA
     )
