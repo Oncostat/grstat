@@ -214,12 +214,10 @@ example_rc = function(enrolres, rc_num_timepoints=10,
            .by = subjid
     ) %>%
     filter(suivi) %>%
-    select(subjid, arm, arm3, rctlsum_b, rctlsum, rctlmin,
+    select(subjid, rctlsum_b, rctlsum, rctlmin,
            rctlresp, rcntlresp, rcnew, rcresp, rcvisit, rcdt) %>%
     apply_labels(
       subjid = "Subject ID",
-      arm = "Treatment arm",
-      arm3 = "Treatment arm",
       rctlsum_b = "Baseline tumor size",
       rctlsum = "Tumor size",
       rctlmin = "Minimal tumor size",
