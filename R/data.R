@@ -16,16 +16,14 @@
 #' @importFrom dplyr mutate
 #' @importFrom purrr imap
 #' @importFrom tibble lst
-#' @importFrom base do.call
-grstat_example = function(N=200, args_ae = list(), args_rc = list(), seed=42,
-                          r=0.5, r2=1/3){
+grstat_example = function(N=200, seed=42, ... ,r=0.5, r2=1/3){
   set.seed(seed)
 
-  enrolres = example_enrol(N, r, r2)
+  enrolres = example_enrol(N, r, r2, ...)
 
-  ae = do.call(example_ae, c(list(enrolres = enrolres), args_ae))
+  ae = example_ae(enrolres, ...)
 
-  recist = do.call(example_rc, c(list(enrolres = enrolres), args_rc))
+  recist = example_rc(enrolres, ...)
 
   rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
@@ -42,7 +40,7 @@ grstat_example = function(N=200, args_ae = list(), args_rc = list(), seed=42,
 
 #' @keywords internal
 #' @importFrom tibble tibble
-example_enrol = function(N, r, r2){
+example_enrol = function(N, r, r2, ...){
   tibble(
     subjid = seq_len(N),
     arm = sample(c(rep("Control", round(N*r)),
@@ -92,7 +90,8 @@ example_ae = function(enrolres, p_na=0,
                       p_sae=0.1, p_sae_trt=p_sae,
                       n_max=15, n_max_trt=n_max,
                       w_soc = 1, w_soc_trt = 1,
-                      beta0=-1, beta_trt=0.4, beta_sae=1) {
+                      beta0=-1, beta_trt=0.4, beta_sae=1,
+                      ...) {
   if(!is.list(p_na)) {
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, aerel=p_na, sae=p_na)
   }
@@ -137,16 +136,16 @@ example_ae = function(enrolres, p_na=0,
 #' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
-#' @param num_timepoints Integer. Number of timepoints for each patient.
-#' @param p_new_lesions Integer. Probability of a new lesion
-#' @param p_not_evaluable Integer. Probability of a Not Evaluable measurev_bruits_variation_taille_tumeur=25
-#' @param v_bruits_variation_taille_tumeur Integer. Standard deviation for the evolution of the tumeur size
+#' @param rc_num_timepoints Integer. Number of timepoints for each patient.
+#' @param rc_p_new_lesions Integer. Probability of a new lesion
+#' @param rc_p_not_evaluable Integer. Probability of a Not Evaluable measurerc_v_bruits_variation_taille_tumeur=25
+#' @param rc_v_bruits_variation_taille_tumeur Integer. Standard deviation for the evolution of the tumeur size
 #'
 #' @section Columns:
 #'   - `subjid`: The patient identifier.
 #'   - `arm` and `arm3`: The treatment arm for the patient.
 #'   - `rctlsum_b`: Baseline tumor size for patients. The size is simulated following a normal distribution with a mean of 50 and a standard deviation of 30. If the result is <10, it is replaced with a value drawn from a uniform distribution between 70 and 180.
-#'   - `rctlsum`: The size of the tumor at each time point. The evolution of the tumor is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of `v_bruits_variation_taille_tumeur`).
+#'   - `rctlsum`: The size of the tumor at each time point. The evolution of the tumor is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of `rc_v_bruits_variation_taille_tumeur`).
 #'   - `rctlmin`: The minimal tumor size observed so far.
 #'   - `rctlresp`: The response associated with the variation in tumor size, following the RECIST criteria.
 #'   - `rcntlresp`: The response associated with non-target lesions.
@@ -159,17 +158,18 @@ example_ae = function(enrolres, p_na=0,
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @importFrom stats rnorm
 #' @keywords internal
-example_rc = function(enrolres, num_timepoints=10,
-                      p_new_lesions = 0.01,
-                      p_not_evaluable = 0.01,
-                      p_list_lesion_non_cibles = list(0.27, 0.09, 0.003, 0.65),
-                      v_bruits_variation_taille_tumeur = 25) {
-  timepoint = seq_len(num_timepoints)
+example_rc = function(enrolres, rc_num_timepoints=10,
+                      rc_p_new_lesions = 0.01,
+                      rc_p_not_evaluable = 0.01,
+                      rc_p_nt_lesions  = list("CR"=0.27, "SD"=0.09, "PD"=0.003, "NE"=0.65),
+                      rc_v_bruits_variation_taille_tumeur = 25,
+                      ...) {
+  timepoint = seq_len(rc_num_timepoints)
   recist_data = enrolres %>%
     mutate(
       rctlsum_b = rnorm(n(),50,30),
       rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180), rctlsum_b),
-      data = list(.simulate_patient(rctlsum_b, num_timepoints, v_bruits_variation_taille_tumeur)),
+      data = list(.simulate_patient(rctlsum_b, rc_num_timepoints, rc_v_bruits_variation_taille_tumeur)),
       .by = subjid
     ) %>%
     unnest(data) %>%
@@ -187,10 +187,11 @@ example_rc = function(enrolres, num_timepoints=10,
            .default = "Stable disease"
            ),
            rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
-                              n(), replace=TRUE, prob=p_list_lesion_non_cibles),
+                              n(), replace=TRUE, prob=c(rc_p_nt_lesions $CR, rc_p_nt_lesions $SD,
+                                                        rc_p_nt_lesions $PD, rc_p_nt_lesions $NE)),
            rcdt = rcdt + runif(n(), -7, 7),
-           rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(p_new_lesions, 1-p_new_lesions)),
-           not_evaluable = ifelse(runif(n())<p_not_evaluable, "Not evaluable", rctlresp),
+           rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(rc_p_new_lesions, 1-rc_p_new_lesions)),
+           not_evaluable = ifelse(runif(n())<rc_p_not_evaluable, "Not evaluable", rctlresp),
            rcresp = case_when(
              rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
              ~ "Progressive disease",
@@ -214,7 +215,7 @@ example_rc = function(enrolres, num_timepoints=10,
     ) %>%
     filter(suivi) %>%
     select(subjid, arm, arm3, rctlsum_b, rctlsum, rctlmin,
-           rctlresp, rcntlresp, rcnew, rcresp, rcvisit, date_inclusion, rcdt) %>%
+           rctlresp, rcntlresp, rcnew, rcresp, rcvisit, rcdt) %>%
     apply_labels(
       subjid = "Subject ID",
       arm = "Treatment arm",
@@ -251,16 +252,16 @@ example_rc = function(enrolres, num_timepoints=10,
 #' Used in `example_rc()`
 #' Determines response based on tumor size
 #' @param RCTLSUM_b Integer. Initial tumor size
-#' @param num_timepoints Integer. Number of timepoints for each patient.
+#' @param rc_num_timepoints Integer. Number of timepoints for each patient.
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-.simulate_patient = function(rctlsum_b, num_timepoints, v_bruits_variation_taille_tumeur) {
+.simulate_patient = function(rctlsum_b, rc_num_timepoints, rc_v_bruits_variation_taille_tumeur) {
   delai = 42 + runif(n(), -7, 7)
   percent_change_per_month = runif(n(), -30, 30)
-  changes = rep(percent_change_per_month * delai / 30.5, num_timepoints)
-  changes = changes + rnorm(num_timepoints, 0, v_bruits_variation_taille_tumeur)
-  base = rep(rctlsum_b, num_timepoints)
+  changes = rep(percent_change_per_month * delai / 30.5, rc_num_timepoints)
+  changes = changes + rnorm(rc_num_timepoints, 0, rc_v_bruits_variation_taille_tumeur)
+  base = rep(rctlsum_b, rc_num_timepoints)
   sizes = base * cumprod(1+changes/100)
   sizes = ifelse(sizes <1, 0, sizes)
   tibble(
