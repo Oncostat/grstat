@@ -4,14 +4,7 @@
 \alias{grstat_example}
 \title{Example databases}
 \usage{
-grstat_example(
-  N = 200,
-  args_ae = list(),
-  args_rc = list(),
-  seed = 42,
-  r = 0.5,
-  r2 = 1/3
-)
+grstat_example(N = 200, seed = 42, r = 0.5, r2 = 1/3)
 }
 \arguments{
 \item{N}{the number of patients}

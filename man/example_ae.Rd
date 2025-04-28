@@ -15,7 +15,8 @@ example_ae(
   w_soc_trt = 1,
   beta0 = -1,
   beta_trt = 0.4,
-  beta_sae = 1
+  beta_sae = 1,
+  ...
 )
 }
 \arguments{
