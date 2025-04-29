@@ -23,6 +23,8 @@ example_ae(
 \arguments{
 \item{enrolres}{the enrolment result table, from \code{.example_enrol}}
 
+\item{seed}{the random seed (can be \code{NULL})}
+
 \item{p_na}{proportion of missing values (can be a list with a value for each column)}
 
 \item{p_sae, p_sae_trt}{proportion of serious AE in control/exp arms}

@@ -13,8 +13,6 @@ grstat_example(N = 200, seed = 42, ...)
 
 \item{...}{passed on to internal functions. See \code{\link[=example_ae]{example_ae()}} for control over Adverse Events.}
 
-\item{r, r2}{proportion of the "Control" arm in \code{enrolres$arm} and \code{enrolres$arm3} respectively}
-
 \item{t}{number of visit for the recist base}
 }
 \value{

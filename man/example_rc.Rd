@@ -18,6 +18,8 @@ example_rc(
 \arguments{
 \item{enrolres}{the enrolment result table, from \code{.example_enrol}}
 
+\item{seed}{the random seed (can be \code{NULL})}
+
 \item{rc_num_timepoints}{Integer. Number of timepoints for each patient.}
 
 \item{rc_p_new_lesions}{Integer. Probability of a new lesion}

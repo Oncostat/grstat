@@ -6,7 +6,7 @@
 #'
 #' @param N the number of patients
 #' @param seed the random seed (can be `NULL`)
-#' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
+
 #' @param t number of visit for the recist base
 #' @param ... passed on to internal functions. See [example_ae()] for control over Adverse Events.
 #'
@@ -36,7 +36,8 @@ grstat_example = function(N=200, seed=42, ...){
 
 # Internals -----------------------------------------------------------------------------------
 
-
+#' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
+#' @param seed the random seed (can be `NULL`)
 #' @keywords internal
 #' @importFrom tibble tibble
 example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
@@ -63,6 +64,7 @@ example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
 #' @param p_na proportion of missing values (can be a list with a value for each column)
+#' @param seed the random seed (can be `NULL`)
 #' @param p_sae,p_sae_trt proportion of serious AE in control/exp arms
 #' @param n_max,n_max_trt maximum number of AE per patient in control/exp arms (binomial with probability 20%)
 #' @param w_soc,w_soc_trt log-weights for SOC that should be over-representated in control/exp arms.
@@ -137,6 +139,7 @@ example_ae = function(enrolres, seed, p_na=0,
 #' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
+#' @param seed the random seed (can be `NULL`)
 #' @param rc_num_timepoints Integer. Number of timepoints for each patient.
 #' @param rc_p_new_lesions Integer. Probability of a new lesion
 #' @param rc_p_not_evaluable Integer. Probability of a Not Evaluable measurerc_v_bruits_variation_taille_tumeur=25
