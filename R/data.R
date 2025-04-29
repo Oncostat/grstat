@@ -6,8 +6,6 @@
 #'
 #' @param N the number of patients
 #' @param seed the random seed (can be `NULL`)
-
-#' @param t number of visit for the recist base
 #' @param ... passed on to internal functions. See [example_ae()] for control over Adverse Events.
 #'
 #' @returns A list of datasets, like in EDCimport.
