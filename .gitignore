@@ -4,8 +4,9 @@
 .Ruserdata
 
 *local*
-inst/doc
 *ssh*
+
+inst/doc
 /doc/
 /Meta/
 docs

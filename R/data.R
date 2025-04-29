@@ -39,16 +39,19 @@ grstat_example = function(N=200, seed=42, ...){
 #' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
 #' @param seed the random seed (can be `NULL`)
 #' @keywords internal
+#' @importFrom forcats fct_relevel
 #' @importFrom tibble tibble
 example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
   set.seed(seed)
   tibble(
     subjid = seq_len(N),
     arm = sample(c(rep("Control", round(N*r)),
-                   rep("Treatment", round(N*(1-r))) )),
+                   rep("Treatment", round(N*(1-r))) )) %>%
+      fct_relevel("Control"),
     arm3 = sample(c(rep("Control", round(N*r2)),
                     rep("Treatment A", round(N*(1-r2)/2)),
-                    rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) )),
+                    rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) )) %>%
+      fct_relevel("Control"),
     date_inclusion = sample(as.Date("2023-01-01") +subjid*10 + runif(N, 0, 10))
   ) %>%
     apply_labels(
@@ -85,6 +88,7 @@ example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
 #'
 #' @keywords internal
 #' @importFrom dplyr across cur_column if_else mutate n select
+#' @importFrom forcats fct_relevel
 #' @importFrom purrr map
 #' @importFrom stats rbinom runif
 #' @importFrom tidyr unnest
@@ -109,7 +113,7 @@ example_ae = function(enrolres, seed, p_na=0,
     mutate(
       aerel = sample(causality, n(), replace=TRUE),
       sae = runif(n())<ifelse(arm=="Control", p_sae, p_sae_trt),
-      sae = ifelse(sae, "Yes", "No"),
+      sae = ifelse(sae, "Yes", "No") %>% fct_relevel("Yes"),
       rate = beta0 + beta_trt*(arm!="Control") + beta_sae*(sae=="Yes"),
       aegr = .random_grades_n(rate),
       soc_weight = ifelse(arm=="Control", w_soc, w_soc_trt),
