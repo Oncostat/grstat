@@ -4,18 +4,18 @@
 \alias{grstat_example}
 \title{Example databases}
 \usage{
-grstat_example(N = 200, seed = 42, r = 0.5, r2 = 1/3)
+grstat_example(N = 200, seed = 42, ...)
 }
 \arguments{
 \item{N}{the number of patients}
 
 \item{seed}{the random seed (can be \code{NULL})}
 
+\item{...}{passed on to internal functions. See \code{\link[=example_ae]{example_ae()}} for control over Adverse Events.}
+
 \item{r, r2}{proportion of the "Control" arm in \code{enrolres$arm} and \code{enrolres$arm3} respectively}
 
 \item{t}{number of visit for the recist base}
-
-\item{...}{passed on to internal functions. See \code{\link[=example_ae]{example_ae()}} for control over Adverse Events.}
 }
 \value{
 A list of datasets, like in EDCimport.

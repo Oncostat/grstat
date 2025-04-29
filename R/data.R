@@ -16,14 +16,13 @@
 #' @importFrom dplyr mutate
 #' @importFrom purrr imap
 #' @importFrom tibble lst
-grstat_example = function(N=200, seed=42, ... ,r=0.5, r2=1/3){
-  set.seed(seed)
+grstat_example = function(N=200, seed=42, ...){
 
-  enrolres = example_enrol(N, r, r2, ...)
+  enrolres = example_enrol(N, seed, ...)
 
-  ae = example_ae(enrolres, ...)
+  ae = example_ae(enrolres, seed, ...)
 
-  recist = example_rc(enrolres, ...)
+  recist = example_rc(enrolres, seed, ...)
 
   rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
@@ -40,7 +39,8 @@ grstat_example = function(N=200, seed=42, ... ,r=0.5, r2=1/3){
 
 #' @keywords internal
 #' @importFrom tibble tibble
-example_enrol = function(N, r, r2, ...){
+example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
+  set.seed(seed)
   tibble(
     subjid = seq_len(N),
     arm = sample(c(rep("Control", round(N*r)),
@@ -86,12 +86,13 @@ example_enrol = function(N, r, r2, ...){
 #' @importFrom purrr map
 #' @importFrom stats rbinom runif
 #' @importFrom tidyr unnest
-example_ae = function(enrolres, p_na=0,
+example_ae = function(enrolres, seed, p_na=0,
                       p_sae=0.1, p_sae_trt=p_sae,
                       n_max=15, n_max_trt=n_max,
                       w_soc = 1, w_soc_trt = 1,
                       beta0=-1, beta_trt=0.4, beta_sae=1,
                       ...) {
+  set.seed(seed)
   if(!is.list(p_na)) {
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, aerel=p_na, sae=p_na)
   }
@@ -158,12 +159,13 @@ example_ae = function(enrolres, p_na=0,
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @importFrom stats rnorm
 #' @keywords internal
-example_rc = function(enrolres, rc_num_timepoints=10,
+example_rc = function(enrolres, seed, rc_num_timepoints=10,
                       rc_p_new_lesions = 0.01,
                       rc_p_not_evaluable = 0.01,
                       rc_p_nt_lesions  = list("CR"=0.27, "SD"=0.09, "PD"=0.003, "NE"=0.65),
                       rc_v_bruits_variation_taille_tumeur = 25,
                       ...) {
+  set.seed(seed)
   timepoint = seq_len(rc_num_timepoints)
   recist_data = enrolres %>%
     mutate(

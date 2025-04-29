@@ -6,7 +6,8 @@
 \usage{
 example_rc(
   enrolres,
-  num_timepoints = 10,
+  seed,
+  rc_num_timepoints = 10,
   rc_p_new_lesions = 0.01,
   rc_p_not_evaluable = 0.01,
   rc_p_nt_lesions = list(CR = 0.27, SD = 0.09, PD = 0.003, NE = 0.65),
@@ -17,7 +18,7 @@ example_rc(
 \arguments{
 \item{enrolres}{the enrolment result table, from \code{.example_enrol}}
 
-\item{num_timepoints}{Integer. Number of timepoints for each patient.}
+\item{rc_num_timepoints}{Integer. Number of timepoints for each patient.}
 
 \item{rc_p_new_lesions}{Integer. Probability of a new lesion}
 

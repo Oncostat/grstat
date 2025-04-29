@@ -6,6 +6,7 @@
 \usage{
 example_ae(
   enrolres,
+  seed,
   p_na = 0,
   p_sae = 0.1,
   p_sae_trt = p_sae,
