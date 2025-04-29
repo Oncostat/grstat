@@ -6,7 +6,6 @@
 #'
 #' @param N the number of patients
 #' @param seed the random seed (can be `NULL`)
-#' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
 #' @param ... passed on to internal functions. See [example_ae()] for control over Adverse Events.
 #'
 #' @returns A list of datasets, like in EDCimport.
@@ -15,24 +14,19 @@
 #' @importFrom dplyr mutate
 #' @importFrom purrr imap
 #' @importFrom tibble lst
-grstat_example = function(N=200, ..., seed=42,
-                          r=0.5, r2=1/3){
-  set.seed(seed)
+grstat_example = function(N=200, seed=42, ...){
 
-  enrolres = example_enrol(N, r, r2)
+  enrolres = example_enrol(N, seed, ...)
 
-  ae = example_ae(enrolres,
-                  # p_na=ae_p_na,
-                  #  n_max=ae_n_max, n_max_trt=ae_n_max_trt,
-                  #  p_sae=ae_p_sae,
-                   ...)
+  ae = example_ae(enrolres, seed, ...)
 
-  rtn = lst(enrolres, ae) %>%
+  recist = example_rc(enrolres, seed, ...)
+
+  rtn = lst(enrolres, ae, recist) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
   rtn$date_extraction = "2024/01/01"
   rtn$datetime_extraction = structure(1704067200, class = c("POSIXct", "POSIXt"),
                                       tzone = "Europe/Paris")
-
   rtn
 }
 
@@ -40,11 +34,13 @@ grstat_example = function(N=200, ..., seed=42,
 
 # Internals -----------------------------------------------------------------------------------
 
-
+#' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
+#' @param seed the random seed (can be `NULL`)
 #' @keywords internal
 #' @importFrom forcats fct_relevel
 #' @importFrom tibble tibble
-example_enrol = function(N, r, r2){
+example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
+  set.seed(seed)
   tibble(
     subjid = seq_len(N),
     arm = sample(c(rep("Control", round(N*r)),
@@ -53,12 +49,14 @@ example_enrol = function(N, r, r2){
     arm3 = sample(c(rep("Control", round(N*r2)),
                     rep("Treatment A", round(N*(1-r2)/2)),
                     rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) )) %>%
-      fct_relevel("Control")
+      fct_relevel("Control"),
+    date_inclusion = sample(as.Date("2023-01-01") +subjid*10 + runif(N, 0, 10))
   ) %>%
     apply_labels(
       subjid = "Subject ID",
       arm = "Treatment arm",
-      arm3 = "Treatment arm"
+      arm3 = "Treatment arm",
+      date_inclusion = "Inclusion date"
     )
 }
 
@@ -67,6 +65,7 @@ example_enrol = function(N, r, r2){
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
 #' @param p_na proportion of missing values (can be a list with a value for each column)
+#' @param seed the random seed (can be `NULL`)
 #' @param p_sae,p_sae_trt proportion of serious AE in control/exp arms
 #' @param n_max,n_max_trt maximum number of AE per patient in control/exp arms (binomial with probability 20%)
 #' @param w_soc,w_soc_trt log-weights for SOC that should be over-representated in control/exp arms.
@@ -91,11 +90,13 @@ example_enrol = function(N, r, r2){
 #' @importFrom purrr map
 #' @importFrom stats rbinom runif
 #' @importFrom tidyr unnest
-example_ae = function(enrolres, p_na=0,
+example_ae = function(enrolres, seed, p_na=0,
                       p_sae=0.1, p_sae_trt=p_sae,
                       n_max=15, n_max_trt=n_max,
                       w_soc = 1, w_soc_trt = 1,
-                      beta0=-1, beta_trt=0.4, beta_sae=1) {
+                      beta0=-1, beta_trt=0.4, beta_sae=1,
+                      ...) {
+  set.seed(seed)
   if(!is.list(p_na)) {
     p_na = list(aesoc=p_na, aeterm=p_na, aegr=p_na, aerel=p_na, sae=p_na)
   }
@@ -131,6 +132,155 @@ example_ae = function(enrolres, p_na=0,
       sae = "Serious AE",
     )
 }
+
+
+#' Simulate a RECIST dataset
+#'
+#' Used in `grstat_example()`. \cr
+#' This function generates a synthetic RECIST dataset following the conventions of clinical oncology trials.
+#' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
+#'
+#' @param enrolres the enrolment result table, from `.example_enrol`
+#' @param seed the random seed (can be `NULL`)
+#' @param rc_num_timepoints Integer. Number of timepoints for each patient.
+#' @param rc_p_new_lesions Integer. Probability of a new lesion
+#' @param rc_p_not_evaluable Integer. Probability of a Not Evaluable measure
+#' @param rc_sd_tlsum_noise Integer. Standard deviation for the evolution of the target lesion sum of width
+#' @param rc_coef_treatement Integer. Differentiates the difference in effect between the control and treatment arms (for example, `rc_coef_treatement` = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2). Only for 2 arm study
+#'
+#' @section Columns:
+#'   - `subjid`: The patient identifier.
+#'   - `arm` and `arm3`: The treatment arm for the patient.
+#'   - `rctlsum_b`: Baseline tumor size for patients. The size is simulated following a normal distribution with a mean of 50 and a standard deviation of 30. If the result is <10, it is replaced with a value drawn from a uniform distribution between 70 and 180.
+#'   - `rctlsum`: The size of the tumor at each time point. The evolution of the tumor is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of `rc_sd_tlsum_noise`).
+#'   - `rctlmin`: The minimal tumor size observed so far.
+#'   - `rctlresp`: The response associated with the variation in tumor size, following the RECIST criteria.
+#'   - `rcntlresp`: The response associated with non-target lesions.
+#'   - `rcnew`: The response associated with the appearance of a new lesion.
+#'   - `rcresp`: The global response.
+#'   - `rcvisit`: The number of visits.
+#'   - `rcdt`: The date of the visits.
+#'
+#' @return A tibble containing the simulated RECIST dataset.
+#' @importFrom dplyr bind_rows select mutate filter row_number
+#' @importFrom stats rnorm
+#' @keywords internal
+example_rc = function(enrolres, seed, rc_num_timepoints=10,
+                      rc_p_new_lesions = 0.01,
+                      rc_p_not_evaluable = 0.01,
+                      rc_p_nt_lesions  = list("CR"=0.27, "SD"=0.09, "PD"=0.003, "NE"=0.65),
+                      rc_sd_tlsum_noise = 25,
+                      rc_coef_treatement = 3,
+                      ...) {
+  set.seed(seed)
+  timepoint = seq_len(rc_num_timepoints)
+  recist_data = enrolres %>%
+    mutate(
+      rctlsum_b = rnorm(n(),50,30),
+      rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180), rctlsum_b),
+      data = list(.simulate_patient(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise, arm, rc_coef_treatement)),
+      .by = subjid
+    ) %>%
+    unnest(data) %>%
+    mutate(
+      rctlmin = ifelse(rctlsum_b < rctlsum, rctlsum_b, rctlsum),
+      rctlmin = cummin(rctlmin),
+      rcvisit = row_number(),
+      rcdt = date_inclusion +(42*rcvisit),
+      .by = subjid
+    ) %>%
+    mutate(rctlresp = case_when(
+           rctlsum == 0 ~ "Complete response",
+           (rctlmin - rctlsum)/rctlmin < -0.2 ~ "Progressive disease",
+           (rctlsum_b - rctlsum)/rctlsum_b > 0.3 ~ "Partial response",
+           .default = "Stable disease"
+           ),
+           rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
+                              n(), replace=TRUE, prob=c(rc_p_nt_lesions$CR, rc_p_nt_lesions$SD,
+                                                        rc_p_nt_lesions$PD, rc_p_nt_lesions$NE)),
+           rcdt = rcdt + runif(n(), -7, 7),
+           rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(rc_p_new_lesions, 1-rc_p_new_lesions)),
+           not_evaluable = ifelse(runif(n())<rc_p_not_evaluable, "Not evaluable", rctlresp),
+           rcresp = case_when(
+             rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
+             ~ "Progressive disease",
+             rctlresp == "Complete response" & (rcntlresp == "Complete response" | is.na(rcntlresp))
+             ~ "Complete response",
+             rctlresp %in% c("Complete response", "Partial response")
+             ~ "Partial response",
+             rctlresp == "Stable disease"
+             ~ "Stable disease",
+             rctlresp == "Not evaluable"
+             ~ "Not evaluable",
+             .default = "ERROR"
+           ),
+           rcresp = factor(rcresp, levels=c("Complete response", "Partial response",
+                                            "Stable disease", "Progressive disease",
+                                            "Not evaluable"))
+    ) %>%
+    mutate(suivi = row_number() <= which(rcresp == 'Progressive disease')[1],
+           suivi = replace_na(suivi, TRUE),
+           .by = subjid
+    ) %>%
+    filter(suivi) %>%
+    select(subjid, rctlsum_b, rctlsum, rctlmin,
+           rctlresp, rcntlresp, rcnew, rcresp, rcvisit, rcdt) %>%
+    apply_labels(
+      subjid = "Subject ID",
+      rctlsum_b = "Baseline tumor size",
+      rctlsum = "Tumor size",
+      rctlmin = "Minimal tumor size",
+      rctlresp = "Response of target lesions",
+      rcntlresp = "Response of non target lesions",
+      rcnew = "New lesions",
+      rcresp = "Global response",
+      rcvisit = "Visit number",
+      rcdt = "Date of local evaluation"
+    )
+
+  recist_baseline = recist_data %>%
+    filter(rcvisit == 1)%>%
+    mutate(rctlsum = rctlsum_b,
+           rcvisit = 0,
+           rctlresp = NA,
+           rcntlresp = NA,
+           rcresp = NA,
+           rcdt = enrolres$date_inclusion,
+           rctlmin = rctlsum_b,
+           rcnew = NA
+    )
+  recist_data = recist_data %>%
+    bind_rows(recist_baseline) %>%
+    arrange(subjid, rcdt)
+}
+
+
+# Internals RC ------------------------------------------------------------
+#' Used in `example_rc()`
+#' Determines response based on tumor size
+#' @param RCTLSUM_b Integer. Initial tumor size
+#' @param rc_num_timepoints Integer. Number of timepoints for each patient.
+#' @noRd
+#' @keywords internal
+#' @importFrom tibble tibble
+.simulate_patient = function(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise,arm,rc_coef_treatement) {
+  delai = 42 + runif(n(), -7, 7)
+  percent_change_per_month = runif(n(), -30, 30)
+  rc_coef_treatement = ifelse(percent_change_per_month>0, 1/rc_coef_treatement, rc_coef_treatement)
+  rc_coef_treatement = ifelse(arm=="Control", 1, rc_coef_treatement)
+  percent_change_per_month = percent_change_per_month*rc_coef_treatement
+  changes = rep(percent_change_per_month * delai / 30.5, rc_num_timepoints)
+  changes = changes + rnorm(rc_num_timepoints, 0, rc_sd_tlsum_noise)
+  base = rep(rctlsum_b, rc_num_timepoints)
+  sizes = base * cumprod(1+changes/100)
+  sizes = ifelse(sizes <1, 0, sizes)
+  tibble(
+    rctlsum = round(sizes, 1),
+    percent_change = round(changes, 1)
+  )
+}
+
+# Internals AE ------------------------------------------------------------
 
 
 #' Used in `.random_grades_n()`
