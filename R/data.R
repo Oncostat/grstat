@@ -269,6 +269,8 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
   delai = 42 + runif(n(), -7, 7)
   percent_change_per_month = runif(n(), -30, 30)
   rc_coef_treatement = ifelse(percent_change_per_month>0, 1/rc_coef_treatement, rc_coef_treatement)
+  rc_coef_treatement = ifelse(arm=="Control", 1, rc_coef_treatement)
+  percent_change_per_month = percent_change_per_month*rc_coef_treatement
   changes = rep(percent_change_per_month * delai / 30.5, rc_num_timepoints)
   changes = changes + rnorm(rc_num_timepoints, 0, rc_sd_tlsum_noise)
   base = rep(rctlsum_b, rc_num_timepoints)

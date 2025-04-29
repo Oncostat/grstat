@@ -11,7 +11,8 @@ example_rc(
   rc_p_new_lesions = 0.01,
   rc_p_not_evaluable = 0.01,
   rc_p_nt_lesions = list(CR = 0.27, SD = 0.09, PD = 0.003, NE = 0.65),
-  rc_v_bruits_variation_taille_tumeur = 25,
+  rc_sd_tlsum_noise = 25,
+  rc_coef_treatement = 3,
   ...
 )
 }
@@ -24,9 +25,11 @@ example_rc(
 
 \item{rc_p_new_lesions}{Integer. Probability of a new lesion}
 
-\item{rc_p_not_evaluable}{Integer. Probability of a Not Evaluable measurerc_v_bruits_variation_taille_tumeur=25}
+\item{rc_p_not_evaluable}{Integer. Probability of a Not Evaluable measure}
 
-\item{rc_v_bruits_variation_taille_tumeur}{Integer. Standard deviation for the evolution of the tumeur size}
+\item{rc_sd_tlsum_noise}{Integer. Standard deviation for the evolution of the target lesion sum of width}
+
+\item{rc_coef_treatement}{Integer. Differentiates the difference in effect between the control and treatment arms (for example, \code{rc_coef_treatement} = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2). Only for 2 arm study}
 }
 \value{
 A tibble containing the simulated RECIST dataset.
@@ -42,7 +45,7 @@ It includes patient tumor size measurements over time and categorizes responses 
 \item \code{subjid}: The patient identifier.
 \item \code{arm} and \code{arm3}: The treatment arm for the patient.
 \item \code{rctlsum_b}: Baseline tumor size for patients. The size is simulated following a normal distribution with a mean of 50 and a standard deviation of 30. If the result is <10, it is replaced with a value drawn from a uniform distribution between 70 and 180.
-\item \code{rctlsum}: The size of the tumor at each time point. The evolution of the tumor is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of \code{rc_v_bruits_variation_taille_tumeur}).
+\item \code{rctlsum}: The size of the tumor at each time point. The evolution of the tumor is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of \code{rc_sd_tlsum_noise}).
 \item \code{rctlmin}: The minimal tumor size observed so far.
 \item \code{rctlresp}: The response associated with the variation in tumor size, following the RECIST criteria.
 \item \code{rcntlresp}: The response associated with non-target lesions.
