@@ -6,6 +6,7 @@
 \usage{
 example_ae(
   enrolres,
+  seed,
   p_na = 0,
   p_sae = 0.1,
   p_sae_trt = p_sae,
@@ -15,11 +16,14 @@ example_ae(
   w_soc_trt = 1,
   beta0 = -1,
   beta_trt = 0.4,
-  beta_sae = 1
+  beta_sae = 1,
+  ...
 )
 }
 \arguments{
 \item{enrolres}{the enrolment result table, from \code{.example_enrol}}
+
+\item{seed}{the random seed (can be \code{NULL})}
 
 \item{p_na}{proportion of missing values (can be a list with a value for each column)}
 

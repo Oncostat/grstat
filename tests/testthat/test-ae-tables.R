@@ -5,9 +5,9 @@ test_that("ae_tables simplest snapshot", {
 
   expect_snapshot({
 
-      df_ae = tibble(subjid=rep(1:2, each=4),
-                     aesoc=rep("Soc1", 8),
-                     aegr=c(1:4, 2:5))
+      df_ae = tibble(subjid=rep(1:2, each=5),
+                     aesoc=rep("Soc1", 10),
+                     aegr=c(1:4, NA, 2:5, NA))
       df_enrolres = tibble(subjid=1:2, arm="Foobar")
       ae_table_soc(df_ae=df_ae, df_enrol=df_enrolres, variant="max")
       ae_table_soc(df_ae=df_ae, df_enrol=df_enrolres, variant="sup")
@@ -71,7 +71,7 @@ test_that("ae_table_soc() default snapshot", {
 
   expect_snapshot({
     tm = grstat_example()
-    attach(tm)
+    attach(tm, warn.conflicts = FALSE)
 
     ae_table_soc(ae, df_enrol=enrolres)
     ae_table_soc(ae, df_enrol=enrolres, sort_by_count=FALSE)
