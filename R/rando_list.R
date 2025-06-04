@@ -56,3 +56,10 @@ randomisation_list = function(n, arms, strata, block.sizes=c(2,4), ...){
     add_class("rando_list")
 }
 
+#' @export
+print.rando_list = function(x, ...){
+  a = attributes(x)
+  cli_inform("Randomisation list for {.val {a$n}} patients randomized in arms {.val {a$arms}} across {.val {a$n_strata}} strata with blocks of length {.val {a$block.sizes}}.")
+  cli_inform("The maximum imbalance per strata is {.val {a$max_imbalance}}, so the theoretical global maximum imbalance is {.val {a$n_strata*a$max_imbalance}} patients.")
+  print(as_tibble(x))
+}
