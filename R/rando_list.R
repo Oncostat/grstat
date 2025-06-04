@@ -31,6 +31,9 @@
 #' rando
 randomisation_list = function(n, arms, strata, block.sizes=c(2,4), ...){
   check_installed("blockrand", "for `randomisation_list()` to work.")
+  .check_n(n, arms)
+  .check_arms(block.sizes, arms)
+  .check_blocks(block.sizes)
   n_strata = prod(lengths(strata))
   max_imbalance = max(block.sizes)/length(arms)
 
@@ -62,4 +65,34 @@ print.rando_list = function(x, ...){
   cli_inform("Randomisation list for {.val {a$n}} patients randomized in arms {.val {a$arms}} across {.val {a$n_strata}} strata with blocks of length {.val {a$block.sizes}}.")
   cli_inform("The maximum imbalance per strata is {.val {a$max_imbalance}}, so the theoretical global maximum imbalance is {.val {a$n_strata*a$max_imbalance}} patients.")
   print(as_tibble(x))
+}
+
+# Checks --------------------------------------------------------------------------------------
+
+.check_n = function(n, arms){
+  if(n%%length(arms)!=0){
+    cli_warn(c(
+      "Number of patients {.arg n}={.val {n}} is not divisible by the number of treatment arms",
+      i="There are {.val {length(arms)}} treatment arms: {.val {arms}}"
+    ))
+  }
+}
+.check_blocks = function(block.sizes){
+  odds = block.sizes[block.sizes%%2!=0]
+  if(length(odds)>0){
+    cli_warn(c(
+      "Block sizes should be even for treatments to be balanced. {.arg block.sizes}={.val {odds}} is even."
+    ))
+  }
+}
+.check_arms = function(block.sizes, arms){
+  wrong = block.sizes%%length(arms)!=0
+  if(any(wrong)){
+    cli_abort(c(
+      "Some {.arg block.sizes} are not divisible by the number of treatment arms",
+      i="There are {.val {length(arms)}} treatment arms: {.val {arms}}",
+      i="{.arg block.sizes} {.val {block.sizes[wrong]}} {cli::qty(sum(wrong))} {?is/are} not
+         divisible by {.val {length(arms)}}"
+    ))
+  }
 }
