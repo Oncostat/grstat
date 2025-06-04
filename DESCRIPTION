@@ -44,6 +44,7 @@ Imports:
     tidyr,
     tidyselect
 Suggests: 
+    blockrand,
     callr,
     crosstable,
     ggsurvfit,
