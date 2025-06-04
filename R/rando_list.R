@@ -31,6 +31,7 @@
 #' rando
 randomisation_list = function(n, arms, strata, block.sizes=c(2,4), ...){
   check_installed("blockrand", "for `randomisation_list()` to work.")
+  grstat_dev_warn()
   .check_n(n, arms)
   .check_arms(block.sizes, arms)
   .check_blocks(block.sizes)
