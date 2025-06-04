@@ -64,12 +64,15 @@ assert_not_null = function(...){
 
 # Checks --------------------------------------------------------------------------------------
 
+#' @importFrom cli cli_warn
+#' @importFrom rlang caller_call
 grstat_dev_warn = function(){
   fn_name =as.character(caller_call()[[1]])
   cli_warn(c("The function {.fn {fn_name}} is currently under development
               and is not validated yet.",
              "Always check the result, and give a feedback to the dev team if possible."),
-           .frequency = "regularly", .frequency_id=paste0("grstat_warn_dev__", fn_name))
+           .frequency = "regularly", .frequency_id=paste0("grstat_warn_dev__", fn_name),
+           class="grstat_dev_warn")
 }
 
 #' @importFrom cli cli_abort cli_vec cli_warn format_inline

@@ -73,9 +73,10 @@ print.rando_list = function(x, ...){
 .check_n = function(n, arms){
   if(n%%length(arms)!=0){
     cli_warn(c(
-      "Number of patients {.arg n}={.val {n}} is not divisible by the number of treatment arms",
+      "Number of patients {.arg n}={.val {n}} is not divisible by the number of treatment arms.",
       i="There are {.val {length(arms)}} treatment arms: {.val {arms}}"
-    ))
+    ),
+    class="randomisation_list_n_warn")
   }
 }
 .check_blocks = function(block.sizes){
@@ -83,7 +84,8 @@ print.rando_list = function(x, ...){
   if(length(odds)>0){
     cli_warn(c(
       "Block sizes should be even for treatments to be balanced. {.arg block.sizes}={.val {odds}} is even."
-    ))
+    ),
+    class="randomisation_list_even_block_warn")
   }
 }
 .check_arms = function(block.sizes, arms){
@@ -94,6 +96,7 @@ print.rando_list = function(x, ...){
       i="There are {.val {length(arms)}} treatment arms: {.val {arms}}",
       i="{.arg block.sizes} {.val {block.sizes[wrong]}} {cli::qty(sum(wrong))} {?is/are} not
          divisible by {.val {length(arms)}}"
-    ))
+    ),
+    class="randomisation_list_block_error")
   }
 }
