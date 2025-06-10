@@ -4,6 +4,7 @@
 #' Generate a waterfall plot
 #'
 #' `r lifecycle::badge("experimental")`\cr
+#'
 #' @param data_recist recist dataset
 #' @param rc_sum name of the target lesions length sum column in `data_recist`, usually "RCTLSUM".
 #' @param rc_resp name of the response column in `data_recist`, usually "RCRESP".
@@ -12,6 +13,7 @@
 #' @param arm name of the treatment column in `data_recist`. Can be left to `NULL` to not group.
 #' @param subjid name of the subject identifier column in `data_recist`.
 #' @param warnings whether to warn about any problems
+#' @param ... unused
 #'
 #' @section Methods:
 #' Data are ordered on `rc_date`.
@@ -31,17 +33,15 @@
 #'
 #' \dontrun{
 #' waterfall_plot(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP")
-#' waterfall_plot(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP", type="worst_resp")
 #' rc %>%
 #'   left_join(enrolres, by="SUBJID") %>% #adds the ARM column
 #'   mutate(new_lesion = ifelse(RCNEW=="1-Yes", "New lesion", NA)) %>%
 #'   waterfall_plot(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP",
 #'                  arm="ARM", rc_star="new_lesion")
 #'}
-waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
+waterfall_plot = function(data_recist, ..., rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
                           rc_star=NULL, arm=NULL, subjid="SUBJID",
                           warnings=getOption("grstat_wp_warnings", TRUE)) {
-  type = match.arg(type)
   assert_class(data_recist, class="data.frame")
   assert_class(rc_sum, class="character")
   assert_class(rc_resp, class="character")
@@ -53,66 +53,10 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
                 "Stable disease"="#925E9F", "Progressive disease"="#ED0000", "Missing"="white")
 
 
-  db_wf = data_recist %>%
-    select(subjid=any_of2(subjid), resp=any_of2(rc_resp), sum=any_of2(rc_sum),
-           date=any_of2(rc_date),
-           rc_star=any_of2(rc_star),
-           arm=any_of2(arm))
+  db_wf = calc_best_response(data_recist=data_recist, rc_sum=rc_sum, rc_resp=rc_resp,
+                             rc_date=rc_date, subjid=subjid,
+                             warnings=warnings)
 
-  if(isTRUE(warnings)){
-    waterfall_check(db_wf, subjid=subjid)
-  }
-
-  db_wf2 = db_wf %>%
-    filter(!is.na(sum)) %>%
-    filter(!is.na(date)) %>%
-    filter(n_distinct(date)>=2, .by=subjid) %>%
-    arrange(subjid) %>%
-    distinct() %>%
-    mutate(
-      first_date = min_narm(date, na.rm=TRUE),
-      min_sum = min_narm(sum, na.rm=TRUE),
-      max_sum = max_narm(sum, na.rm=TRUE),
-      first_sum = sum[date==first_date],
-      .by=subjid,
-    ) %>%
-    mutate(
-      first_date = date==first_date,
-      resp_num = case_when(
-        resp=="CR" | str_detect(resp, "(?i)complete") ~ 1,
-        resp=="PR" | str_detect(resp, "(?i)partial")  ~ 2,
-        resp=="SD" | str_detect(resp, "(?i)stable")   ~ 3,
-        resp=="PD" | str_detect(resp, "(?i)progr")    ~ 4,
-        is.na(resp) | str_detect(resp, "(?i)not [eval|avai]") ~ Inf,
-        .default=-99,
-      ),
-      resp2 = names(responses)[replace_na(resp_num, 5)],
-      resp2 = factor(resp2, levels=names(responses)),
-    ) %>%
-    filter(resp_num==min_narm(resp_num), .by=subjid) %>%
-    filter(sum==min_narm(sum), .by=c(subjid, resp_num)) %>%
-    filter(date==min_narm(date), .by=c(subjid, resp_num)) %>%
-    # complete(subjid=db_wf$subjid) %>%
-    mutate(
-      diff_first = (sum - first_sum)/first_sum,
-      diff_min = (sum - min_sum)/min_sum
-    )  %>%
-    arrange(desc(diff_first), resp2) %>%
-    mutate(subjid = as_factor(as.character(subjid)))
-
-  if(any(db_wf2$resp_num==-99)){
-    cli_abort("Internal error 'resp_num_error', waterfall plot may be slightly irrelevant.",
-              .internal=TRUE)
-  }
-
-  #TODO gérer les missings selon ce qu'on prend comme data dans la macro
-  # missings = db_wf %>% summarise(across(-subjid, anyNA)) %>% unlist()
-  # missings2 = data_recist %>% summarise(across(-subjid, anyNA)) %>% unlist()
-  # if(any(missings) & warn_missing) {
-  #   cli_warn(c("Missing values, the waterfall plot will be incomplete."))
-  # }
-
-  # browser()
   star_layer = NULL
   if(!is.null(rc_star)){
     star_nudge = 0.05
@@ -123,10 +67,9 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
   }
 
   fill_lab = "Best global response \n(RECIST v1.1)"
-  if(type=="worst_resp") fill_lab = "Worst global response \n(RECIST v1.1)"
 
   p =
-  db_wf2 %>%
+  db_wf %>%
     ggplot(aes(x=subjid, y=diff_first, group=subjid, fill=resp2)) +
     geom_hline(yintercept=c(-.3, .2), linetype="dashed") +
     geom_col(color='black') +
@@ -140,27 +83,3 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
   p
 }
 
-
-
-#' @noRd
-#' @keywords internal
-#' @importFrom dplyr filter n_distinct
-waterfall_check = function(df, subjid="SUBJID") {
-  assert_names_exists(df, subjid)
-  df %>%
-    filter(is.na(sum)) %>%
-    grstat_data_warn("Rows with missing target lesions length sum were ignored.", subjid=subjid,
-                     class="gr_waterfall_missing_sum_warning")
-  df %>%
-    filter(is.na(date)) %>%
-    grstat_data_warn("Rows with missing target evaluation date were ignored.", subjid=subjid,
-                     class="gr_waterfall_missing_target_warning")
-  df %>%
-    filter(date==min(date) & !is.na(resp), .by=any_of2(subjid)) %>%
-    grstat_data_warn("Response is not missing at first date", subjid=subjid,
-                     class="gr_waterfall_notmissing_bl_warning")
-  df %>%
-    filter(n_distinct(date)<2, .by=any_of2(subjid)) %>%
-    grstat_data_warn("Patients with <2 recist evaluations were ignored.", subjid=subjid,
-                     class="gr_waterfall_inf2_eval_warning")
-}
