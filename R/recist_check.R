@@ -26,7 +26,8 @@
 #' mapping = gr_recist_mapping()
 #' recist_check = check_recist(db$rc, mapping=mapping)
 #' recist_check
-#' recist_report(recist_check)
+#' recist_report_html(recist_check, title="RECIST Check - Study XXX")
+#' recist_report_xlsx(recist_check)
 #' }
 #'
 check_recist = function(rc, mapping=gr_recist_mapping()){
@@ -114,27 +115,17 @@ gr_recist_mapping = function(){
 #'
 #' @returns `output_file` invisibly. Called for side effects.
 #' @export
-#' @importFrom cli cli_abort cli_warn
-#' @importFrom fs path path_ext path_ext_remove
+#' @importFrom cli cli_abort
 #' @importFrom rlang check_installed
 #'
 #' @inherit check_recist examples
-recist_report = function(recist_check, output_file="recist_check.html",
-                         title = "RECIST Check",
-                         open=TRUE){
-  check_installed("rmarkdown", "for `recist_report()` to work.")
+recist_report_html = function(recist_check, output_file="recist_check.html",
+                              title = "RECIST Check",
+                              open=TRUE){
+  check_installed("rmarkdown", "for `recist_report_html()` to work.")
   assert_class(recist_check, "check_recist")
-  output_file = path(getwd(), output_file)
-  if(file.exists(output_file)){
-    output_file2 = paste0(path_ext_remove(output_file), "_bak.", path_ext(output_file))
-    cli_warn("{.arg output_file} already exists and was renamed
-             to {.path {output_file2}}.")
-    if(file.exists(output_file2)){
-      cli_warn("{.arg output_file2} already exists and was overwritten.")
-    }
-    file.rename(output_file, output_file2)
-  }
   assert_extension(output_file, ext="html")
+  output_file = get_report_path(output_file)
 
   rmd_path = system.file("templates", "template_recist_check.Rmd", package="grstat")
   if(!file.exists(rmd_path)){
@@ -149,6 +140,52 @@ recist_report = function(recist_check, output_file="recist_check.html",
     utils::browseURL(output_file)
   }
   invisible(output_file)
+}
+
+
+#' Create a RECIST check HTML report
+#'
+#' `r lifecycle::badge("experimental")`\cr
+#' Turn the table created by [check_recist()] into an HTML report.
+#'
+#' @param recist_check the output of [check_recist()]
+#' @param output_file the HTML report file name.
+#' @param title the HTML report title.
+#' @param open whether to open the report afterward.
+#'
+#' @returns `output_file` invisibly. Called for side effects.
+#' @export
+#' @importFrom cli cli_abort
+#' @importFrom rlang check_installed
+#'
+#' @inherit check_recist examples
+recist_report_xlsx = function(recist_check, output_file="recist_check.xlsx",
+                              open=TRUE){
+  check_installed("openxlsx", "for `recist_report_xlsx()` to work.")
+  assert_class(recist_check, "check_recist")
+  assert_extension(output_file, ext="xlsx")
+  output_file = get_report_path(output_file)
+
+  wb = openxlsx::createWorkbook()
+  sup0 = which(recist_check$n_subjid>0)
+  for(i in sup0){
+    x = recist_check[i, ]
+    sheet = x$code
+    data = x$data[[1]]
+    color = if(nrow(data)==0) "green" else "red"
+    openxlsx::addWorksheet(wb, sheet, tabColour=color, gridLines=FALSE)
+    openxlsx::writeData(wb, sheet, x$message, colNames=FALSE)
+    openxlsx::writeDataTable(wb, sheet, data, startRow=2)
+    openxlsx::setColWidths(wb, sheet, cols = 2:ncol(data), widths="auto")
+  }
+  rtn = openxlsx::saveWorkbook(wb, output_file, overwrite=TRUE, returnValue=TRUE)
+  if(!isTRUE(rtn)){
+    cli_abort("Could not save the Excel file at {.path {output_file}}.")
+  }
+  if(isTRUE(open)){
+    utils::browseURL(output_file)
+  }
+  invisible(rtn)
 }
 
 
@@ -643,6 +680,24 @@ recist_issue_ne = function(message, level="ERROR"){
 }
 
 
+# Report helpers ------------------------------------------------------------------------------
+
+
+#' @importFrom fs path path_ext path_ext_remove
+#' @importFrom cli cli_warn
+get_report_path = function(output_file){
+  output_file = path(getwd(), output_file)
+  if(file.exists(output_file)){
+    output_file2 = paste0(path_ext_remove(output_file), "_bak.", path_ext(output_file))
+    cli_warn("{.arg output_file} already exists and was renamed
+             to {.path {output_file2}}.")
+    if(file.exists(output_file2)){
+      cli_warn("{.arg {output_file2}} already exists and was overwritten.")
+    }
+    file.rename(output_file, output_file2)
+  }
+  output_file
+}
 
 # RECIST numeric encoding ---------------------------------------------------------------------
 
