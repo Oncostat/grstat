@@ -124,8 +124,6 @@ recist_report = function(recist_check, output_file="recist_check.html",
                          open=TRUE){
   check_installed("rmarkdown", "for `recist_report()` to work.")
   assert_class(recist_check, "check_recist")
-  assert(path_ext(output_file)=="html",
-         msg="{.arg output_file} should be a {.val .html} file.")
   output_file = path(getwd(), output_file)
   if(file.exists(output_file)){
     output_file2 = paste0(path_ext_remove(output_file), "_bak.", path_ext(output_file))
@@ -136,6 +134,7 @@ recist_report = function(recist_check, output_file="recist_check.html",
     }
     file.rename(output_file, output_file2)
   }
+  assert_extension(output_file, ext="html")
 
   rmd_path = system.file("templates", "template_recist_check.Rmd", package="grstat")
   if(!file.exists(rmd_path)){

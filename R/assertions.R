@@ -18,7 +18,7 @@ assert = function(x, msg=NULL, call=parent.frame()){
     msg = glue("`{x_str}` is FALSE")
   }
   if(!x){
-    cli_abort(msg, call=call)
+    cli_abort(msg, call=call, .envir=parent.frame())
   }
   invisible(TRUE)
 }
@@ -60,6 +60,13 @@ assert_not_null = function(...){
     cli_abort("Variable{?s} {.arg {nulls}} cannot be NULL.",
               class="grstat_var_null")
   }
+}
+
+#' @importFrom fs path_ext
+assert_extension = function(x, ext){
+  # ext=str_remove(ext, "^\\.")
+  assert(path_ext(x)==ext,
+         msg="{.arg {caller_arg(x)}} should be a {.val .{ext}} file, not a {.val .{path_ext(x)}} file.")
 }
 
 # Checks --------------------------------------------------------------------------------------
