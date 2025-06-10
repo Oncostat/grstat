@@ -11,7 +11,6 @@
 #' @param rc_star name of the column in `data_recist` that triggers the star symbol. The column should be character or factor, with `NA` for patients without symbol.
 #' @param arm name of the treatment column in `data_recist`. Can be left to `NULL` to not group.
 #' @param subjid name of the subject identifier column in `data_recist`.
-#' @param type one of `c("best_resp", "worst_resp")`
 #' @param warnings whether to warn about any problems
 #'
 #' @section Methods:
@@ -40,7 +39,6 @@
 #'                  arm="ARM", rc_star="new_lesion")
 #'}
 waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
-                          type = c("best_resp", "worst_resp"),
                           rc_star=NULL, arm=NULL, subjid="SUBJID",
                           warnings=getOption("grstat_wp_warnings", TRUE)) {
   type = match.arg(type)
@@ -54,20 +52,13 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
   responses = c("Complete response"="#42B540FF", "Partial response"="#006dd8",
                 "Stable disease"="#925E9F", "Progressive disease"="#ED0000", "Missing"="white")
 
-  if (type == "best_resp"){
-    fun = min_narm
-    miss_resp_infinite = +Inf
-  } else{
-    fun = max_narm
-    miss_resp_infinite = -Inf
-  }
 
   db_wf = data_recist %>%
     select(subjid=any_of2(subjid), resp=any_of2(rc_resp), sum=any_of2(rc_sum),
            date=any_of2(rc_date),
            rc_star=any_of2(rc_star),
-           arm=any_of2(arm),
-           )
+           arm=any_of2(arm))
+
   if(isTRUE(warnings)){
     waterfall_check(db_wf, subjid=subjid)
   }
@@ -92,14 +83,14 @@ waterfall_plot = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_da
         resp=="PR" | str_detect(resp, "(?i)partial")  ~ 2,
         resp=="SD" | str_detect(resp, "(?i)stable")   ~ 3,
         resp=="PD" | str_detect(resp, "(?i)progr")    ~ 4,
-        is.na(resp) | str_detect(resp, "(?i)not [eval|avai]") ~ miss_resp_infinite,
+        is.na(resp) | str_detect(resp, "(?i)not [eval|avai]") ~ Inf,
         .default=-99,
       ),
       resp2 = names(responses)[replace_na(resp_num, 5)],
       resp2 = factor(resp2, levels=names(responses)),
     ) %>%
-    filter(resp_num==fun(resp_num), .by=subjid) %>%
-    filter(sum==fun(sum), .by=c(subjid, resp_num)) %>%
+    filter(resp_num==min_narm(resp_num), .by=subjid) %>%
+    filter(sum==min_narm(sum), .by=c(subjid, resp_num)) %>%
     filter(date==min_narm(date), .by=c(subjid, resp_num)) %>%
     # complete(subjid=db_wf$subjid) %>%
     mutate(
