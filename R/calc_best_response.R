@@ -32,8 +32,7 @@
 #'
 #'
 #' @export
-#' @importFrom cli cli_abort
-#' @importFrom dplyr arrange case_when desc distinct filter mutate n_distinct select
+#' @importFrom dplyr arrange distinct filter mutate n_distinct select slice_min
 #' @importFrom forcats fct_reorder
 #'
 #' @examples
@@ -81,6 +80,8 @@ calc_best_response = function(data_recist, ...,
 }
 
 
+#' @importFrom cli cli_abort
+#' @importFrom dplyr case_when
 #' @importFrom stringr str_detect
 .encode_response = function(x){
   rtn = case_when(

@@ -17,13 +17,10 @@
 #' @return A `ggplot` object representing a waterfall plot of tumor size change by patient.
 #'
 #' @export
-#' @importFrom cli cli_abort
-#' @importFrom dplyr arrange case_when desc distinct filter mutate n_distinct select
-#' @importFrom forcats as_factor
-#' @importFrom ggplot2 aes facet_wrap geom_col geom_hline geom_point ggplot guides guide_legend labs scale_fill_manual scale_shape_manual scale_x_discrete scale_y_continuous
+#' @importFrom dplyr all_of mutate rename
+#' @importFrom ggplot2 aes facet_wrap geom_col geom_hline ggplot labs scale_fill_manual scale_x_discrete scale_y_continuous theme_minimal
+#' @importFrom rlang check_dots_empty
 #' @importFrom scales breaks_width label_percent
-#' @importFrom stringr str_detect
-#' @importFrom tidyr replace_na
 #'
 #' @examples
 #' db = grstat_example(N=50)
@@ -97,6 +94,7 @@ waterfall_plot = function(data, ...,
 }
 
 
+#' @importFrom cli cli_abort
 .check_legacy = function(data, subjid) {
   dup_id = duplicated(data[[subjid]])
   if(any(dup_id)){
@@ -112,6 +110,7 @@ waterfall_plot = function(data, ...,
 }
 
 
+#' @importFrom ggplot2 aes geom_point guide_legend guides labs scale_shape_manual
 .get_shape_layer = function(shape, shape_nudge = 0.05){
   if(is.null(shape)) return(NULL)
   list(
@@ -124,6 +123,8 @@ waterfall_plot = function(data, ...,
 }
 
 
+#' @importFrom dplyr distinct mutate select
+#' @importFrom tibble deframe
 .get_fill_scale = function(data, resp_colors){
   resp_colors = c("CR"="#42b540", "PR"="#006dd8", "SD"="#925e9f", "PD"="#ed0000", "NA"="white")
   resp_colors = resp_colors[c("CR", "PR", "SD", "PD", "NA")]
