@@ -47,7 +47,7 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
   db_wf = data_recist %>%
     select(subjid=any_of2(subjid), resp=any_of2(rc_resp), sum=any_of2(rc_sum),
            date=any_of2(rc_date)) %>%
-    best_resp_check(subjid=subjid, do=warnings) %>%
+    .check_best_resp(do=warnings) %>%
     filter(!is.na(sum)) %>%
     filter(!is.na(date)) %>%
     filter(n_distinct(date)>=2, .by=subjid) %>%
@@ -115,25 +115,22 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
 #' @noRd
 #' @keywords internal
 #' @importFrom dplyr filter n_distinct
-best_resp_check = function(df, subjid="SUBJID", do=TRUE) {
-  if(isTRUE(do)) return(df)
-  assert_names_exists(df, subjid)
+.check_best_resp = function(df, do=TRUE) {
+  if(!isTRUE(do)) return(df)
+
   df %>%
-    filter(is.na(sum)) %>%
-    grstat_data_warn("Rows with missing target lesions length sum were ignored.", subjid=subjid,
-                     class="gr_waterfall_missing_sum_warning")
+    filter(date==min(date) & !is.na(response), .by=subjid) %>%
+    grstat_data_warn("Response is not missing at baseline.",
+                     class="check_best_resp_bl_notmissing_warning")
   df %>%
-    filter(is.na(date)) %>%
-    grstat_data_warn("Rows with missing target evaluation date were ignored.", subjid=subjid,
-                     class="gr_waterfall_missing_target_warning")
+    filter(date==min(date) & is.na(sum), .by=subjid) %>%
+    grstat_data_warn("Target Lesions Length Sum is missing at baseline.",
+                     class="check_best_resp_bl_summissing_warning")
+
   df %>%
-    filter(date==min(date) & !is.na(resp), .by=any_of2(subjid)) %>%
-    grstat_data_warn("Response is not missing at first date", subjid=subjid,
-                     class="gr_waterfall_notmissing_bl_warning")
-  df %>%
-    filter(n_distinct(date)<2, .by=any_of2(subjid)) %>%
-    grstat_data_warn("Patients with <2 recist evaluations were ignored.", subjid=subjid,
-                     class="gr_waterfall_inf2_eval_warning")
+    filter(n_distinct(date)<2, .by=subjid) %>%
+    grstat_data_warn("Patients with <2 recist evaluations were ignored.",
+                     class="check_best_resp_inf2_eval_warning")
 
   df
 }
