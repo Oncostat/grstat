@@ -39,23 +39,22 @@
 #'   waterfall_plot(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP",
 #'                  arm="ARM", rc_star="new_lesion")
 #'}
-waterfall_plot = function(data_recist, ..., rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
-                          rc_star=NULL, arm=NULL, subjid="SUBJID",
+waterfall_plot = function(data, ...,
+                          y="target_sum_diff_first", fill="best_response",
+                          shape=NULL, arm=NULL, subjid="SUBJID",
                           warnings=getOption("grstat_wp_warnings", TRUE)) {
-  assert_class(data_recist, class="data.frame")
-  assert_class(rc_sum, class="character")
-  assert_class(rc_resp, class="character")
-  assert_class(rc_date, class="character")
-  assert_class(rc_star, class="character")
+  assert_class(y, class="character")
+  assert_class(fill, class="character")
+  assert_class(shape, class="character")
   assert_class(arm, class="character")
   assert_class(warnings, class="logical")
   responses = c("Complete response"="#42B540FF", "Partial response"="#006dd8",
                 "Stable disease"="#925E9F", "Progressive disease"="#ED0000", "Missing"="white")
 
+  assert_class(data, class="data.frame")
+  check_dots_empty()
+  assert_names_exists(data, c(y, fill, subjid))
 
-  db_wf = calc_best_response(data_recist=data_recist, rc_sum=rc_sum, rc_resp=rc_resp,
-                             rc_date=rc_date, subjid=subjid,
-                             warnings=warnings)
 
   star_layer = NULL
   if(!is.null(rc_star)){
@@ -67,10 +66,14 @@ waterfall_plot = function(data_recist, ..., rc_sum="RCTLSUM", rc_resp="RCRESP", 
   }
 
   fill_lab = "Best global response \n(RECIST v1.1)"
+  db_wf = data %>%
+    rename(shape=any_of2(shape), resp=all_of(fill), y=all_of(y)) %>%
+    mutate(subjid = forcats::fct_reorder2(as.character(subjid),
+                                          as.numeric(resp), y))
 
   p =
   db_wf %>%
-    ggplot(aes(x=subjid, y=diff_first, group=subjid, fill=resp2)) +
+    ggplot(aes(x=subjid, y=y, group=subjid, fill=resp)) +
     geom_hline(yintercept=c(-.3, .2), linetype="dashed") +
     geom_col(color='black') +
     star_layer +
