@@ -65,9 +65,6 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
       resp2 = names(responses)[replace_na(resp_num, 5)],
       resp2 = factor(resp2, levels=names(responses)),
     ) %>%
-    filter(resp_num==min_narm(resp_num), .by=subjid) %>%
-    filter(sum==min_narm(sum), .by=c(subjid, resp_num)) %>%
-    filter(date==min_narm(date), .by=c(subjid, resp_num)) %>%
     mutate(
       response_num = .encode_response(response),
       diff_first = (sum - first_sum)/first_sum,
@@ -75,6 +72,9 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
       subjid = forcats::fct_reorder2(as.character(subjid), resp2, diff_first)
     )
     .remove_post_pd(do=exclude_post_pd) %>%
+    slice_min(response_num, with_ties=TRUE, na_rm=TRUE, by=c(subjid)) %>%
+    slice_min(sum,          with_ties=TRUE, na_rm=TRUE, by=c(subjid, response_num)) %>%
+    slice_min(subjid,      with_ties=FALSE, na_rm=TRUE, by=c(subjid, response_num)) %>%
 
   if(any(db_wf$resp_num==-99)){
     cli_abort("Internal error 'resp_num_error', waterfall plot may be slightly irrelevant.",
