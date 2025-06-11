@@ -62,14 +62,6 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
     ) %>%
     mutate(
       first_date = date==first_date,
-      resp_num = case_when(
-        resp=="CR" | str_detect(resp, "(?i)complete") ~ 1,
-        resp=="PR" | str_detect(resp, "(?i)partial")  ~ 2,
-        resp=="SD" | str_detect(resp, "(?i)stable")   ~ 3,
-        resp=="PD" | str_detect(resp, "(?i)progr")    ~ 4,
-        is.na(resp) | str_detect(resp, "(?i)not [eval|avai]") ~ Inf,
-        .default=-99,
-      ),
       resp2 = names(responses)[replace_na(resp_num, 5)],
       resp2 = factor(resp2, levels=names(responses)),
     ) %>%
@@ -77,6 +69,7 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
     filter(sum==min_narm(sum), .by=c(subjid, resp_num)) %>%
     filter(date==min_narm(date), .by=c(subjid, resp_num)) %>%
     mutate(
+      response_num = .encode_response(response),
       diff_first = (sum - first_sum)/first_sum,
       diff_min = (sum - min_sum)/min_sum,
       subjid = forcats::fct_reorder2(as.character(subjid), resp2, diff_first)
@@ -89,6 +82,24 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
   }
 
   db_wf
+#' @importFrom stringr str_detect
+.encode_response = function(x){
+  rtn = case_when(
+    str_detect(x, "(?i)(\\W|^)(CR)(\\W|$)") | str_detect(x, "(?i)complete") ~ 1,
+    str_detect(x, "(?i)(\\W|^)(PR)(\\W|$)") | str_detect(x, "(?i)partial")  ~ 2,
+    str_detect(x, "(?i)(\\W|^)(SD)(\\W|$)") | str_detect(x, "(?i)stable")   ~ 3,
+    str_detect(x, "(?i)(\\W|^)(PD)(\\W|$)") | str_detect(x, "(?i)progres")  ~ 4,
+    is.na(x) | x %in% c("NE", "NA") | str_detect(x, "(?i)not [eval|avai]")  ~ 5,
+    .default=-99,
+  )
+  if(any(rtn == -99)){
+    wrong = sort(unique(x[rtn == -99]))
+    ok = c("CR", "PR", "SD", "PD", "NA", "NE")
+    cli_abort(c("Could not parse the following values as responses: {.val {wrong}}.",
+                i="Please reformat them using the standard notation: {.or {.val {ok}}}."),
+              class="response_encode_error")
+  }
+  rtn
 }
 
 
