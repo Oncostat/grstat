@@ -66,7 +66,7 @@ assert_not_null = function(...){
 
 #' @importFrom cli cli_abort cli_vec cli_warn format_inline
 #' @importFrom dplyr pull
-grstat_data_warn = function (.data, message, subjid, max_subjid=5,
+grstat_data_warn = function (.data, message, subjid="SUBJID", max_subjid=5,
                              class="grstat_data_warn"){
   if (missing(max_subjid))
     max_subjid = getOption("grstat_warn_max_subjid", max_subjid)
