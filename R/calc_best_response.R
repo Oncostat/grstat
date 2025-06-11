@@ -34,7 +34,7 @@
 #' rc_br
 #'}
 calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
-                              subjid="SUBJID",
+                              subjid="SUBJID", exclude_post_pd=TRUE,
                               warnings=getOption("grstat_best_resp_warnings", TRUE)) {
   assert_class(data_recist, class="data.frame")
   assert_class(rc_sum, class="character")
@@ -81,6 +81,7 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
       diff_min = (sum - min_sum)/min_sum,
       subjid = forcats::fct_reorder2(as.character(subjid), resp2, diff_first)
     )
+    .remove_post_pd(do=exclude_post_pd) %>%
 
   if(any(db_wf$resp_num==-99)){
     cli_abort("Internal error 'resp_num_error', waterfall plot may be slightly irrelevant.",
@@ -91,6 +92,24 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
 }
 
 
+#' @importFrom cli cli_inform
+#' @importFrom dplyr filter if_else mutate select
+.remove_post_pd = function(df, do){
+  if(!isTRUE(do)) return(df)
+  rtn = df %>%
+    mutate(first_pd=if_else(any(response_num==4, na.rm=TRUE),
+                            min_narm(date[response_num==4]),
+                            as.Date(Inf)),
+           .by=subjid) %>%
+    filter(date<=first_pd, .by=subjid) %>%
+    select(-first_pd)
+
+  if(getOption("verbose_remove_post_pd", FALSE)){
+    cli_inform("Removed {nrow(df)-nrow(rtn)} rows post-progression (on {nrow(df)} total).")
+  }
+
+  rtn
+}
 
 
 #' @noRd
