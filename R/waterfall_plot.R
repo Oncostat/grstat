@@ -57,14 +57,6 @@ waterfall_plot = function(data, ...,
   assert_names_exists(data, c(y, fill, subjid))
 
 
-  star_layer = NULL
-  if(!is.null(rc_star)){
-    star_nudge = 0.05
-    star_layer = list(
-      geom_point(aes(y=diff_first + sign(diff_first)*star_nudge, shape=rc_star), na.rm=TRUE),
-      scale_shape_manual(values=unique(c(8, 0:25)), name=NULL, na.translate = FALSE)
-    )
-  }
 
   fill_lab = "Best global response \n(RECIST v1.1)"
   db_wf = data %>%
@@ -77,7 +69,7 @@ waterfall_plot = function(data, ...,
     ggplot(aes(x=subjid, y=y, group=subjid, fill=resp)) +
     geom_hline(yintercept=c(-.3, .2), linetype="dashed") +
     geom_col(color='black') +
-    star_layer +
+    .get_shape_layer(shape, shape_nudge=0.05) +
     scale_x_discrete(labels = NULL, breaks = NULL) +
     scale_y_continuous(labels=label_percent(), breaks=breaks_width(0.2)) +
     scale_fill_manual(values=responses) +
@@ -100,5 +92,17 @@ waterfall_plot = function(data, ...,
     ),
     class="waterfall_plot_legacy_error")
   }
+}
+
+
+.get_shape_layer = function(shape, shape_nudge = 0.05){
+  if(is.null(shape)) return(NULL)
+  list(
+    geom_point(aes(y=y + sign(y)*shape_nudge, shape=shape),
+               na.rm=TRUE),
+    scale_shape_manual(values=unique(c(8, 0:25)), na.translate=FALSE),
+    guides(fill = guide_legend(override.aes = list(shape = NA))),
+    labs(shape=NULL)
+  )
 }
 
