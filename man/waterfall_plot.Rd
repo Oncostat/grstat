@@ -2,59 +2,75 @@
 % Please edit documentation in R/waterfall_plot.R
 \name{waterfall_plot}
 \alias{waterfall_plot}
-\title{Generate a waterfall plot}
+\title{Waterfall plot for RECIST data}
 \usage{
 waterfall_plot(
-  data_recist,
-  rc_sum = "RCTLSUM",
-  rc_resp = "RCRESP",
-  rc_date = "RCDT",
-  type = c("best_resp", "worst_resp"),
-  rc_star = NULL,
+  data,
+  ...,
+  y = "target_sum_diff_first",
+  fill = "best_response",
+  shape = NULL,
   arm = NULL,
   subjid = "SUBJID",
+  resp_colors = c(CR = "#42b540", PR = "#006dd8", SD = "#925e9f", PD = "#ed0000", `NA` =
+    "white"),
   warnings = getOption("grstat_wp_warnings", TRUE)
 )
 }
 \arguments{
-\item{data_recist}{recist dataset}
+\item{data}{A dataset containing RECIST best response data. Use \link{calc_best_response} to format your raw data.}
 
-\item{rc_sum}{name of the target lesions length sum column in \code{data_recist}, usually "RCTLSUM".}
+\item{...}{Not used. Ensures that only named arguments are passed.}
 
-\item{rc_resp}{name of the response column in \code{data_recist}, usually "RCRESP".}
+\item{y}{The column representing the numeric outcome (typically change in tumor size). Default is \code{"target_sum_diff_first"}.}
 
-\item{rc_date}{name of the date column in \code{data_recist}, usually "RCDT".}
+\item{fill}{The column indicating the filling color. Default is \code{"best_response"}, the best response category.}
 
-\item{type}{one of \code{c("best_resp", "worst_resp")}}
+\item{shape}{The column to use for an shape layer (e.g., indicating mutation status).}
 
-\item{rc_star}{name of the column in \code{data_recist} that triggers the star symbol. The column should be character or factor, with \code{NA} for patients without symbol.}
+\item{arm}{The column indicating treatment arms for faceting.}
 
-\item{arm}{name of the treatment column in \code{data_recist}. Can be left to \code{NULL} to not group.}
+\item{subjid}{The column identifying subjects. Default is \code{"SUBJID"}.}
 
-\item{subjid}{name of the subject identifier column in \code{data_recist}.}
+\item{resp_colors}{Colors assigned to response categories.}
 
-\item{warnings}{whether to warn about any problems}
+\item{warnings}{Whether to display warnings.}
 }
 \value{
-a ggplot
+A \code{ggplot} object representing a waterfall plot of tumor size change by patient.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
+Creates a waterfall plot showing the change from baseline in target lesion size
+for individual patients, optionally grouped by treatment arm.
 }
-\section{Methods}{
-
-Data are ordered on \code{rc_date}.
-}
-
 \examples{
+db = grstat_example(N=50)
+data_best_resp = calc_best_response(db$recist)
 
-\dontrun{
-waterfall_plot(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP")
-waterfall_plot(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP", type="worst_resp")
-rc \%>\%
-  left_join(enrolres, by="SUBJID") \%>\% #adds the ARM column
-  mutate(new_lesion = ifelse(RCNEW=="1-Yes", "New lesion", NA)) \%>\%
-  waterfall_plot(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP",
-                 arm="ARM", rc_star="new_lesion")
-}
+#simple example
+waterfall_plot(data_best_resp)
+
+#facet by arm
+data_best_resp \%>\%
+  left_join(db$enrolres, by="subjid") \%>\%
+  waterfall_plot(arm="ARM")
+
+
+#add symbols
+#use the NA level to not show the case
+set.seed(0)
+data_symbols = db$recist \%>\%
+  summarise(new_lesion=ifelse(any(rcnew=="Yes", na.rm=TRUE), "New lesion", NA),
+            random=cut(runif(1), breaks=c(0,0.05,0.1,1), labels=c("A", "B", NA)),
+            .by=subjid)
+
+data_best_resp \%>\%
+  left_join(data_symbols, by="subjid") \%>\%
+  waterfall_plot(shape="new_lesion")
+
+data_best_resp \%>\%
+  left_join(data_symbols, by="subjid") \%>\%
+  waterfall_plot(shape="random") +
+  labs(shape="Event")
+
 }

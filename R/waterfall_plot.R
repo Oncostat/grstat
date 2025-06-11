@@ -1,44 +1,60 @@
 
-
-
-#' Generate a waterfall plot
+#' Waterfall plot for RECIST data
 #'
-#' `r lifecycle::badge("experimental")`\cr
+#' Creates a waterfall plot showing the change from baseline in target lesion size
+#' for individual patients, optionally grouped by treatment arm.
 #'
-#' @param data_recist recist dataset
-#' @param rc_sum name of the target lesions length sum column in `data_recist`, usually "RCTLSUM".
-#' @param rc_resp name of the response column in `data_recist`, usually "RCRESP".
-#' @param rc_date name of the date column in `data_recist`, usually "RCDT".
-#' @param rc_star name of the column in `data_recist` that triggers the star symbol. The column should be character or factor, with `NA` for patients without symbol.
-#' @param arm name of the treatment column in `data_recist`. Can be left to `NULL` to not group.
-#' @param subjid name of the subject identifier column in `data_recist`.
-#' @param warnings whether to warn about any problems
-#' @param ... unused
+#' @param data A dataset containing RECIST best response data. Use [calc_best_response] to format your raw data.
+#' @param ... Not used. Ensures that only named arguments are passed.
+#' @param y The column representing the numeric outcome (typically change in tumor size). Default is `"target_sum_diff_first"`.
+#' @param fill The column indicating the filling color. Default is `"best_response"`, the best response category.
+#' @param shape The column to use for an shape layer (e.g., indicating mutation status).
+#' @param arm The column indicating treatment arms for faceting.
+#' @param subjid The column identifying subjects. Default is `"SUBJID"`.
+#' @param resp_colors Colors assigned to response categories.
+#' @param warnings Whether to display warnings.
 #'
-#' @section Methods:
-#' Data are ordered on `rc_date`.
+#' @return A `ggplot` object representing a waterfall plot of tumor size change by patient.
 #'
-#'
-#' @return a ggplot
 #' @export
 #' @importFrom cli cli_abort
 #' @importFrom dplyr arrange case_when desc distinct filter mutate n_distinct select
 #' @importFrom forcats as_factor
-#' @importFrom ggplot2 aes facet_wrap geom_col geom_hline geom_point ggplot labs scale_fill_manual scale_shape_manual scale_x_discrete scale_y_continuous
+#' @importFrom ggplot2 aes facet_wrap geom_col geom_hline geom_point ggplot guides guide_legend labs scale_fill_manual scale_shape_manual scale_x_discrete scale_y_continuous
 #' @importFrom scales breaks_width label_percent
 #' @importFrom stringr str_detect
 #' @importFrom tidyr replace_na
 #'
 #' @examples
+#' db = grstat_example(N=50)
+#' data_best_resp = calc_best_response(db$recist)
 #'
-#' \dontrun{
-#' waterfall_plot(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP")
-#' rc %>%
-#'   left_join(enrolres, by="SUBJID") %>% #adds the ARM column
-#'   mutate(new_lesion = ifelse(RCNEW=="1-Yes", "New lesion", NA)) %>%
-#'   waterfall_plot(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP",
-#'                  arm="ARM", rc_star="new_lesion")
-#'}
+#' #simple example
+#' waterfall_plot(data_best_resp)
+#'
+#' #facet by arm
+#' data_best_resp %>%
+#'   left_join(db$enrolres, by="subjid") %>%
+#'   waterfall_plot(arm="ARM")
+#'
+#'
+#' #add symbols
+#' #use the NA level to not show the case
+#' set.seed(0)
+#' data_symbols = db$recist %>%
+#'   summarise(new_lesion=ifelse(any(rcnew=="Yes", na.rm=TRUE), "New lesion", NA),
+#'             random=cut(runif(1), breaks=c(0,0.05,0.1,1), labels=c("A", "B", NA)),
+#'             .by=subjid)
+#'
+#' data_best_resp %>%
+#'   left_join(data_symbols, by="subjid") %>%
+#'   waterfall_plot(shape="new_lesion")
+#'
+#' data_best_resp %>%
+#'   left_join(data_symbols, by="subjid") %>%
+#'   waterfall_plot(shape="random") +
+#'   labs(shape="Event")
+#'
 waterfall_plot = function(data, ...,
                           y="target_sum_diff_first", fill="best_response",
                           shape=NULL, arm=NULL, subjid="SUBJID",
