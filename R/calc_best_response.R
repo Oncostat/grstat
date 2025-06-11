@@ -33,7 +33,11 @@
 #' rc_br = calc_best_response(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP")
 #' rc_br
 #'}
-calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
+#' db = grstat_example()
+#' db$recist %>%
+#'   calc_best_response()
+calc_best_response = function(data_recist, ...,
+                              rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
                               subjid="SUBJID", exclude_post_pd=TRUE,
                               warnings=getOption("grstat_best_resp_warnings", TRUE)) {
   assert_class(data_recist, class="data.frame")
@@ -41,47 +45,38 @@ calc_best_response = function(data_recist, rc_sum="RCTLSUM", rc_resp="RCRESP", r
   assert_class(rc_resp, class="character")
   assert_class(rc_date, class="character")
   assert_class(warnings, class="logical")
-  responses = c("Complete response"="#42B540FF", "Partial response"="#006dd8",
-                "Stable disease"="#925E9F", "Progressive disease"="#ED0000", "Missing"="white")
 
-  db_wf = data_recist %>%
-    select(subjid=any_of2(subjid), resp=any_of2(rc_resp), sum=any_of2(rc_sum),
+  data_recist %>%
+    select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
            date=any_of2(rc_date)) %>%
     .check_best_resp(do=warnings) %>%
     filter(!is.na(sum)) %>%
-    filter(!is.na(date)) %>%
     filter(n_distinct(date)>=2, .by=subjid) %>%
-    arrange(subjid) %>%
+    arrange(subjid, date) %>%
     distinct() %>%
     mutate(
       first_date = min_narm(date, na.rm=TRUE),
       min_sum = min_narm(sum, na.rm=TRUE),
-      max_sum = max_narm(sum, na.rm=TRUE),
       first_sum = sum[date==first_date],
       .by=subjid,
     ) %>%
     mutate(
       first_date = date==first_date,
-      resp2 = names(responses)[replace_na(resp_num, 5)],
-      resp2 = factor(resp2, levels=names(responses)),
-    ) %>%
-    mutate(
       response_num = .encode_response(response),
+      response = fct_reorder(as.character(response), response_num),
       diff_first = (sum - first_sum)/first_sum,
-      diff_min = (sum - min_sum)/min_sum,
-      subjid = forcats::fct_reorder2(as.character(subjid), resp2, diff_first)
-    )
+      diff_min = (sum - min_sum)/min_sum
+    ) %>%
     .remove_post_pd(do=exclude_post_pd) %>%
     slice_min(response_num, with_ties=TRUE, na_rm=TRUE, by=c(subjid)) %>%
     slice_min(sum,          with_ties=TRUE, na_rm=TRUE, by=c(subjid, response_num)) %>%
     slice_min(subjid,      with_ties=FALSE, na_rm=TRUE, by=c(subjid, response_num)) %>%
+    select(subjid, best_response=response, date, target_sum=sum,
+           target_sum_diff_first=diff_first, target_sum_diff_min=diff_min)
 
-  if(any(db_wf$resp_num==-99)){
-    cli_abort("Internal error 'resp_num_error', waterfall plot may be slightly irrelevant.",
-              .internal=TRUE)
-  }
+}
 
-  db_wf
+
 #' @importFrom stringr str_detect
 .encode_response = function(x){
   rtn = case_when(
