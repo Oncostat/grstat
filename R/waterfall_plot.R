@@ -42,23 +42,23 @@
 waterfall_plot = function(data, ...,
                           y="target_sum_diff_first", fill="best_response",
                           shape=NULL, arm=NULL, subjid="SUBJID",
+                          resp_colors = c("CR"="#42b540", "PR"="#006dd8", "SD"="#925e9f",
+                                          "PD"="#ed0000", "NA"="white"),
                           warnings=getOption("grstat_wp_warnings", TRUE)) {
   assert_class(y, class="character")
   assert_class(fill, class="character")
   assert_class(shape, class="character")
   assert_class(arm, class="character")
   assert_class(warnings, class="logical")
-  responses = c("Complete response"="#42B540FF", "Partial response"="#006dd8",
-                "Stable disease"="#925E9F", "Progressive disease"="#ED0000", "Missing"="white")
-
   assert_class(data, class="data.frame")
   .check_legacy(data, subjid)
   check_dots_empty()
   assert_names_exists(data, c(y, fill, subjid))
 
+  fill_lab = "Best Global Response \n(RECIST v1.1)"
+  fill_scale = .get_fill_scale(data, resp_colors)
 
 
-  fill_lab = "Best global response \n(RECIST v1.1)"
   db_wf = data %>%
     rename(shape=any_of2(shape), resp=all_of(fill), y=all_of(y)) %>%
     mutate(subjid = forcats::fct_reorder2(as.character(subjid),
@@ -72,8 +72,8 @@ waterfall_plot = function(data, ...,
     .get_shape_layer(shape, shape_nudge=0.05) +
     scale_x_discrete(labels = NULL, breaks = NULL) +
     scale_y_continuous(labels=label_percent(), breaks=breaks_width(0.2)) +
-    scale_fill_manual(values=responses) +
     labs(x = "", y="Percentage of tumor reduction from baseline", fill=fill_lab)
+    scale_fill_manual(values=fill_scale) +
 
   if(!is.null(arm)) p = p + facet_wrap(~arm, scales="free_x", ncol=1)
   p
@@ -106,3 +106,13 @@ waterfall_plot = function(data, ...,
   )
 }
 
+
+.get_fill_scale = function(data, resp_colors){
+  resp_colors = c("CR"="#42b540", "PR"="#006dd8", "SD"="#925e9f", "PD"="#ed0000", "NA"="white")
+  resp_colors = resp_colors[c("CR", "PR", "SD", "PD", "NA")]
+  fill_scale = data %>%
+    distinct(best_response, resp_num = .encode_response(best_response)) %>%
+    mutate(color=resp_colors[resp_num]) %>%
+    select(best_response, color) %>%
+    deframe()
+}
