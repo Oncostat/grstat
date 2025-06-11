@@ -72,8 +72,9 @@ waterfall_plot = function(data, ...,
     .get_shape_layer(shape, shape_nudge=0.05) +
     scale_x_discrete(labels = NULL, breaks = NULL) +
     scale_y_continuous(labels=label_percent(), breaks=breaks_width(0.2)) +
-    labs(x = "", y="Percentage of tumor reduction from baseline", fill=fill_lab)
     scale_fill_manual(values=fill_scale) +
+    labs(x = "", y="Target lesions reduction from baseline", fill=fill_lab) +
+    theme_minimal()
 
   if(!is.null(arm)) p = p + facet_wrap(~arm, scales="free_x", ncol=1)
   p
