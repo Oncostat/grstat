@@ -1,38 +1,42 @@
 
-#' Calculate the "Best Reponse"
+#' Calculate Best RECIST Response
 #'
 #' `r lifecycle::badge("experimental")`\cr
+#' Computes the best RECIST response per subject based on target lesion sum and response categories.
+#' Ties are resolved using lesion sum, then by date.
 #'
-#' @param data_recist recist dataset
-#' @param rc_sum name of the target lesions length sum column in `data_recist`, usually "RCTLSUM".
-#' @param rc_resp name of the response column in `data_recist`, usually "RCRESP".
-#' @param rc_date name of the date column in `data_recist`, usually "RCDT".
-#' @param rc_star name of the column in `data_recist` that triggers the star symbol. The column should be character or factor, with `NA` for patients without symbol.
-#' @param arm name of the treatment column in `data_recist`. Can be left to `NULL` to not group.
-#' @param subjid name of the subject identifier column in `data_recist`.
-#' @param warnings whether to warn about any problems
-#' @param ... unused
-#'
-#' @section Methods:
-#' Data are ordered on `rc_date`.
+#' @param data_recist A dataset containing longitudinal RECIST data in long format.
+#' @param rc_sum The column containing the sum of target lesions. Default is `"RCTLSUM"`.
+#' @param rc_resp The column containing the RECIST response (e.g., `"CR"`, `"PR"`, `"SD"`, `"PD"`). Default is `"RCRESP"`.
+#' @param rc_date The column containing the assessment date. Default is `"RCDT"`.
+#' @param subjid The column containing the subject ID. Default is `"SUBJID"`.
+#' @param exclude_post_pd Logical; if `TRUE` (default), assessments after the first PD are excluded.
+#' @param warnings Logical; if `TRUE` (default is taken from `getOption("grstat_best_resp_warnings", TRUE)`), emits warnings during internal checks.
 #'
 #'
-#' @return a ggplot
+#' @return A tibble with one row per subject, containing:
+#' - `subjid`: Subject ID
+#' - `best_response`: The best RECIST response observed before progression
+#' - `date`: The date corresponding to the best response
+#' - `target_sum`: Sum of target lesions at that date
+#' - `target_sum_diff_first`: Relative difference in target sum compared to baseline
+#' - `target_sum_diff_min`: Relative difference in target sum compared to the minimum observed
+#'
+#' @details
+#' The function identifies the best response using the following logic:
+#' 1. Responses are ordered: `CR` > `PR` > `SD` > `PD` > `Missing`
+#' 2. Among the best responses, the one with the smallest target lesion sum is selected
+#' 3. If still tied, the earliest assessment date is selected
+#' 4. Only subjects with at least two assessments and non-missing target sum are considered
+#' 5. By default, all assessments after the first PD are excluded (`exclude_post_pd = TRUE`)
+#'
+#'
 #' @export
 #' @importFrom cli cli_abort
 #' @importFrom dplyr arrange case_when desc distinct filter mutate n_distinct select
-#' @importFrom forcats as_factor
-#' @importFrom ggplot2 aes facet_wrap geom_col geom_hline geom_point ggplot labs scale_fill_manual scale_shape_manual scale_x_discrete scale_y_continuous
-#' @importFrom scales breaks_width label_percent
-#' @importFrom stringr str_detect
-#' @importFrom tidyr replace_na
+#' @importFrom forcats fct_reorder
 #'
 #' @examples
-#'
-#' \dontrun{
-#' rc_br = calc_best_response(rc, rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP")
-#' rc_br
-#'}
 #' db = grstat_example()
 #' db$recist %>%
 #'   calc_best_response()
