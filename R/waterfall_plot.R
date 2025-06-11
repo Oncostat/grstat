@@ -52,6 +52,7 @@ waterfall_plot = function(data, ...,
                 "Stable disease"="#925E9F", "Progressive disease"="#ED0000", "Missing"="white")
 
   assert_class(data, class="data.frame")
+  .check_legacy(data, subjid)
   check_dots_empty()
   assert_names_exists(data, c(y, fill, subjid))
 
@@ -84,5 +85,20 @@ waterfall_plot = function(data, ...,
 
   if(!is.null(arm)) p = p + facet_wrap(~arm, scales="free_x", ncol=1)
   p
+}
+
+
+.check_legacy = function(data, subjid) {
+  dup_id = duplicated(data[[subjid]])
+  if(any(dup_id)){
+    dup = sort(unique(data[[subjid]][dup_id]))
+    cli_abort(c(
+      "x" = "{.help [{.fun waterfall_plot}](grstat::waterfall_plot)} does not support long-format datasets as of {.pkg grstat v0.1.0.9010}.",
+      "i" = "Multiple rows per subject were detected: {.val {dup}}.",
+      "v" = "Use {.help [{.fun calc_best_response}](grstat::calc_best_response)} first to reshape the data.",
+      ">" = "See the examples in the documentation for guidance."
+    ),
+    class="waterfall_plot_legacy_error")
+  }
 }
 
