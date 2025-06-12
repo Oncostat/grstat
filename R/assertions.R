@@ -110,7 +110,6 @@ grstat_data_warn = function (.data, message, subjid="subjid", max_subjid=5,
                   class = "grstat_data_warn_subjid_error",
                   call = parent.frame())
       }
-      # browser()
       .subjid = subjid
       subj0 = .data %>% pull(any_of2(.subjid)) %>% unique() %>% sort()
       subj = paste0("#", subj0) %>%

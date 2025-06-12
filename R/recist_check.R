@@ -255,7 +255,6 @@ check_target_lesions = function(rc){
     filter(n>2) %>%
     summarise(dates = toString(rc_date), .by=-rc_date) %>%
     recist_issue("Target Lesion: More than 2 lesions are lymph nodes", level="ERROR")
-  browser()
 
   #Should not be bone lesions
   rtn$target_bone_lesion = rc %>%
