@@ -520,6 +520,21 @@ check_target_response = function(rc, rc_short){
                  (>0 mm) and no pathological lymph nodes present (\U2265 10 mm)",
                  level="ERROR")
 
+  #Complete Response
+  #After a CR there is no disease, so any reapearance is a progression.
+  rtn$target_cr_terminal = rc %>%
+    arrange(subjid, rc_date) %>%
+    distinct(subjid, rc_date, target_resp, target_sum) %>%
+    mutate(
+      resp_num = .recist_to_num(target_resp),
+      first_cr = min_narm(rc_date[resp_num==1]),
+      .by=subjid
+    ) %>%
+    filter(rc_date>first_cr) %>%
+    filter(!resp_num %in% c(1, 4, 5)) %>%
+    recist_issue("After a Complete Response (CR), reponses can only be CR or PD.",
+                 level="ERROR")
+
   #Partial Response
   rtn$target_pr_wrong = rc_short %>%
     mutate(diff_rel_bl = (target_sum-sum_bl)/sum_bl) %>%
