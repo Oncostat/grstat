@@ -503,7 +503,7 @@ check_target_response = function(rc, rc_short){
   #CR = Disappearance of all Target Lesions. Lymph nodes must be <10 mm.
   rtn$target_cr_remaining = rc %>%
     arrange(subjid) %>%
-    filter(recist_encode(target_resp) == 1) %>%
+    filter(.recist_to_num(target_resp) == 1) %>%
     mutate(remaining_node = target_is_node & target_diam>=10,
            remaining_lesion = !target_is_node & target_diam>0) %>%
     filter(remaining_node | remaining_lesion) %>%
@@ -566,7 +566,7 @@ check_global_response = function(rc_short){
               nontarget_resp,
               new_lesion=fct_yesno(new_lesion),
               global_resp,
-              global_resp_check=recist_decode(global_resp_check)) %>%
+              global_resp_check=.recist_from_num(global_resp_check)) %>%
     recist_issue("Global Response should be consistant with TL response,
                  NTL response, and presence of new lesions", level="ERROR")
 
@@ -615,7 +615,7 @@ check_global_response = function(rc_short){
       # .by=c(subjid, rc_date, any_of(names(col_bak)))
     ) %>%
     mutate(
-      across(ends_with("_resp"), recist_encode, .names="{.col}_num"),
+      across(ends_with("_resp"), ~.recist_to_num(.x), .names="{.col}_num"),
       baseline = rc_date == min_narm(rc_date),
       post_pd = rc_date > min_narm(rc_date[global_resp_num==4]),
       sum_bl = target_sum[baseline],
