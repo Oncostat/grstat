@@ -28,7 +28,7 @@
 #' }
 #'
 check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE){
-
+  grstat_dev_warn()
   rc = .apply_recist_mapping(rc, mapping) %>%
     .remove_post_pd(resp=target_resp, date=rc_date, do=exclude_post_pd)
 
