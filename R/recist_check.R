@@ -1,8 +1,4 @@
 
-
-#Questions pour Yves
-
-
 #' Check a RECIST dataset
 #'
 #' `r lifecycle::badge("experimental")`\cr
@@ -239,7 +235,6 @@ check_target_lesions = function(rc){
     filter(!is.na(target_site) & !is.na(target_diam)) %>%
     count(subjid, rc_date) %>%
     filter(n>5) %>%
-    # nest(dates=rc_date) %>%
     summarise(dates = toString(rc_date), .by=-rc_date) %>%
     recist_issue("Target Lesion: More than 5 sites", level="ERROR")
 
@@ -248,9 +243,19 @@ check_target_lesions = function(rc){
     filter(!is.na(target_site)) %>%
     count(subjid, rc_date, target_site) %>%
     filter(n>2) %>%
-    # nest(dates=rc_date) %>%
     summarise(dates = toString(rc_date), .by=-rc_date) %>%
     recist_issue("Target Lesion: More than 2 lesions per site", level="ERROR")
+
+  #Target Lesion should be <2 lymph nodes
+  rtn$target_nodes_sup2 = rc %>%
+    filter(target_is_node) %>%
+    summarise(n=n(),
+              sites=toString(sort(target_site)),
+              .by=c(subjid, rc_date)) %>%
+    filter(n>2) %>%
+    summarise(dates = toString(rc_date), .by=-rc_date) %>%
+    recist_issue("Target Lesion: More than 2 lesions are lymph nodes", level="ERROR")
+  browser()
 
   #Should not be bone lesions
   rtn$target_bone_lesion = rc %>%
