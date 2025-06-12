@@ -11,6 +11,7 @@
 #'
 #' @param rc The recist dataset to check
 #' @param mapping The character vector defining the variable mapping. Refer to [gr_recist_mapping()] for default values and adjust as needed.
+#' @param exclude_post_pd Logical; if `TRUE` (default), assessments after the first PD are excluded.
 #'
 #' @returns a tibble of nested checks, of class `check_recist`
 #' @export
@@ -30,9 +31,11 @@
 #' recist_report_xlsx(recist_check)
 #' }
 #'
-check_recist = function(rc, mapping=gr_recist_mapping()){
+check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE){
 
-  rc = .apply_recist_mapping(rc, mapping)
+  rc = .apply_recist_mapping(rc, mapping) %>%
+    .remove_post_pd(resp=target_resp, date=rc_date, do=exclude_post_pd)
+
   rc_short = .summarise_recist(rc)
 
   checks = c(

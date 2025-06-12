@@ -4,7 +4,7 @@
 \alias{check_recist}
 \title{Check a RECIST dataset}
 \usage{
-check_recist(rc, mapping = gr_recist_mapping())
+check_recist(rc, mapping = gr_recist_mapping(), exclude_post_pd = TRUE)
 }
 \arguments{
 \item{rc}{The recist dataset to check}

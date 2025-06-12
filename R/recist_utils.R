@@ -36,3 +36,29 @@
   x[x==99] = 5
   factor(x, levels=c(1:5), labels=c("CR", "PR", "SD", "PD", "Not evaluable"))
 }
+
+
+#' Remove rows posterior to the first progression
+#' @noRd
+#' @importFrom cli cli_inform
+#' @importFrom dplyr filter if_else mutate select
+.remove_post_pd = function(df, resp, date, subjid="SUBJID", do=TRUE){
+  if(!isTRUE(do)) return(df)
+
+  rtn = df %>%
+    mutate(
+      response_num = if(is.numeric({{resp}}))  {{resp}} else .recist_to_num({{resp}}),
+
+      first_pd=if_else(any(response_num==4, na.rm=TRUE),
+                            min_narm({{date}}[response_num==4]),
+                            as.Date(Inf)),
+           .by=any_of2(subjid)) %>%
+    filter({{date}}<=first_pd, .by=any_of2(subjid)) %>%
+    select(-first_pd, -response_num)
+
+  if(getOption("verbose_remove_post_pd", FALSE)){
+    cli_inform("Removed {nrow(df)-nrow(rtn)} rows post-progression (on {nrow(df)} total).")
+  }
+
+  rtn
+}
