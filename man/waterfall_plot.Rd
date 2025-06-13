@@ -52,7 +52,7 @@ waterfall_plot(data_best_resp)
 
 #facet by arm
 data_best_resp \%>\%
-  left_join(db$enrolres, by="subjid") \%>\%
+  dplyr::left_join(db$enrolres, by="subjid") \%>\%
   waterfall_plot(arm="ARM")
 
 
@@ -60,17 +60,19 @@ data_best_resp \%>\%
 #use the NA level to not show the case
 set.seed(0)
 data_symbols = db$recist \%>\%
-  summarise(new_lesion=ifelse(any(rcnew=="Yes", na.rm=TRUE), "New lesion", NA),
-            random=cut(runif(1), breaks=c(0,0.05,0.1,1), labels=c("A", "B", NA)),
-            .by=subjid)
+  dplyr::summarise(
+    new_lesion=ifelse(any(rcnew=="Yes", na.rm=TRUE), "New lesion", NA),
+    random=cut(runif(1), breaks=c(0,0.05,0.1,1), labels=c("A", "B", NA)),
+    .by=subjid
+  )
 
 data_best_resp \%>\%
-  left_join(data_symbols, by="subjid") \%>\%
+  dplyr::left_join(data_symbols, by="subjid") \%>\%
   waterfall_plot(shape="new_lesion")
 
 data_best_resp \%>\%
-  left_join(data_symbols, by="subjid") \%>\%
+  dplyr::left_join(data_symbols, by="subjid") \%>\%
   waterfall_plot(shape="random") +
-  labs(shape="Event")
+  ggplot2::labs(shape="Event")
 
 }

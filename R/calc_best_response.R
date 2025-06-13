@@ -6,6 +6,7 @@
 #' Ties are resolved using lesion sum, then by date.
 #'
 #' @param data_recist A dataset containing longitudinal RECIST data in long format.
+#' @param ... Not used. Ensures that only named arguments are passed.
 #' @param rc_sum The column containing the sum of target lesions. Default is `"RCTLSUM"`.
 #' @param rc_resp The column containing the RECIST response (e.g., `"CR"`, `"PR"`, `"SD"`, `"PD"`). Default is `"RCRESP"`.
 #' @param rc_date The column containing the assessment date. Default is `"RCDT"`.

@@ -18,6 +18,8 @@ calc_best_response(
 \arguments{
 \item{data_recist}{A dataset containing longitudinal RECIST data in long format.}
 
+\item{...}{Not used. Ensures that only named arguments are passed.}
+
 \item{rc_sum}{The column containing the sum of target lesions. Default is \code{"RCTLSUM"}.}
 
 \item{rc_resp}{The column containing the RECIST response (e.g., \code{"CR"}, \code{"PR"}, \code{"SD"}, \code{"PD"}). Default is \code{"RCRESP"}.}
