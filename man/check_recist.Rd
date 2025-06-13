@@ -10,14 +10,15 @@ check_recist(rc, mapping = gr_recist_mapping(), exclude_post_pd = TRUE)
 \item{rc}{The recist dataset to check}
 
 \item{mapping}{The character vector defining the variable mapping. Refer to \code{\link[=gr_recist_mapping]{gr_recist_mapping()}} for default values and adjust as needed.}
+
+\item{exclude_post_pd}{Logical; if \code{TRUE} (default), assessments after the first PD are excluded.}
 }
 \value{
 a tibble of nested checks, of class \code{check_recist}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
-Perform multiple checks on a RECIST dataset. Use \code{\link[=recist_report]{recist_report()}} to output
-the checks as an HTML report.
+Perform multiple checks on a RECIST dataset. The checks can be exported as an HTML or Excel report using \code{recist_report_html()} or \code{recist_report_xlsx()}.
 }
 \examples{
 # we unfortunately cannot provide a flawed simulated recist dataset, at least not yet

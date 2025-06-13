@@ -2,8 +2,7 @@
 #' Check a RECIST dataset
 #'
 #' `r lifecycle::badge("experimental")`\cr
-#' Perform multiple checks on a RECIST dataset. Use [recist_report()] to output
-#' the checks as an HTML report.
+#' Perform multiple checks on a RECIST dataset. The checks can be exported as an HTML or Excel report using `recist_report_html()` or `recist_report_xlsx()`.
 #'
 #' @param rc The recist dataset to check
 #' @param mapping The character vector defining the variable mapping. Refer to [gr_recist_mapping()] for default values and adjust as needed.
@@ -102,13 +101,13 @@ gr_recist_mapping = function(){
 }
 
 
-#' Create a RECIST check HTML report
+#' Create a RECIST check report (HTML or Excel)
 #'
 #' `r lifecycle::badge("experimental")`\cr
-#' Turn the table created by [check_recist()] into an HTML report.
+#' Generate a report as an HTML or Excel file base on RECIST checks made by [check_recist()].
 #'
-#' @param recist_check the output of [check_recist()]
-#' @param output_file the HTML report file name.
+#' @param recist_check the result of [check_recist()]
+#' @param output_file the report file name.
 #' @param title the HTML report title.
 #' @param open whether to open the report afterward.
 #'
@@ -142,17 +141,7 @@ recist_report_html = function(recist_check, output_file="recist_check.html",
 }
 
 
-#' Create a RECIST check HTML report
-#'
-#' `r lifecycle::badge("experimental")`\cr
-#' Turn the table created by [check_recist()] into an HTML report.
-#'
-#' @param recist_check the output of [check_recist()]
-#' @param output_file the HTML report file name.
-#' @param title the HTML report title.
-#' @param open whether to open the report afterward.
-#'
-#' @returns `output_file` invisibly. Called for side effects.
+#' @rdname recist_report_html
 #' @export
 #' @importFrom cli cli_abort
 #' @importFrom rlang check_installed

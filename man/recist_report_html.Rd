@@ -2,7 +2,8 @@
 % Please edit documentation in R/recist_check.R
 \name{recist_report_html}
 \alias{recist_report_html}
-\title{Create a RECIST check HTML report}
+\alias{recist_report_xlsx}
+\title{Create a RECIST check report (HTML or Excel)}
 \usage{
 recist_report_html(
   recist_check,
@@ -10,11 +11,17 @@ recist_report_html(
   title = "RECIST Check",
   open = TRUE
 )
+
+recist_report_xlsx(
+  recist_check,
+  output_file = "recist_check.xlsx",
+  open = TRUE
+)
 }
 \arguments{
-\item{recist_check}{the output of \code{\link[=check_recist]{check_recist()}}}
+\item{recist_check}{the result of \code{\link[=check_recist]{check_recist()}}}
 
-\item{output_file}{the HTML report file name.}
+\item{output_file}{the report file name.}
 
 \item{title}{the HTML report title.}
 
@@ -25,7 +32,7 @@ recist_report_html(
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
-Turn the table created by \code{\link[=check_recist]{check_recist()}} into an HTML report.
+Generate a report as an HTML or Excel file base on RECIST checks made by \code{\link[=check_recist]{check_recist()}}.
 }
 \examples{
 # we unfortunately cannot provide a flawed simulated recist dataset, at least not yet
