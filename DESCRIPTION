@@ -48,6 +48,7 @@ Suggests:
     crosstable,
     gtools,
     knitr,
+    openxlsx,
     patchwork,
     plotly,
     rmarkdown,
