@@ -48,6 +48,7 @@ calc_best_response = function(data_recist, ...,
   assert_class(rc_resp, class="character")
   assert_class(rc_date, class="character")
   assert_class(warnings, class="logical")
+  grstat_dev_warn()
 
   data_recist %>%
     select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
