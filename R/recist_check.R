@@ -581,7 +581,7 @@ check_global_response = function(rc_short){
         target_resp_num == 1 & nontarget_resp_num == 1 ~ 1,
         target_resp_num <= 2 ~ 2,
         target_resp_num <= 3 ~ 3,
-        target_resp_num == 99 ~ 99,
+        target_resp_num == 5 ~ 5,
         .default = -99
       )
     ) %>%
