@@ -27,6 +27,8 @@ gr_officer_template(
 
 \item{acronym}{Study acronym}
 
+\item{...}{Not used. Ensures that only named arguments are passed.}
+
 \item{phase}{Study phase}
 
 \item{cset_number}{Study CSET identifier}
@@ -56,14 +58,18 @@ A \code{docx} object that can be saved or used with \code{{officer}}
 Create a \code{docx} template to be used with \code{{officer}} for a standardized report.
 }
 \examples{
-authors = bind_rows(
-  c(name="Dr Armin Clusion", role="Coordinating investigator", address="Gustave Roussy", phone="+33",
-    email="name@gustaveroussy.fr"),
-  c(name="Jeanne Alise ", role="Biostatistician", address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
-  c(name="Bertrand Domise", role="Data-manager", address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
-  c(name="Arnaud Cébo", role="Pharmacovigilant", address="Gustave Roussy, Pharmacovigilance Unit"),
+authors = dplyr::bind_rows(
+  c(name="Dr Armin Clusion", role="Coordinating investigator",
+    address="Gustave Roussy", phone="+33", email="name@gustaveroussy.fr"),
+  c(name="Jeanne Alise ", role="Biostatistician",
+    address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
+  c(name="Bertrand Domise", role="Data-manager",
+    address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
+  c(name="Arnaud Cébo", role="Pharmacovigilant",
+    address="Gustave Roussy, Pharmacovigilance Unit"),
 )
-sponsor = data.frame(name="Gustave Roussy", address="114 Rue Edouard Vaillant", code="94805 Villejuif Cedex")
+sponsor = data.frame(name="Gustave Roussy", address="114 Rue Edouard Vaillant",
+                     code="94805 Villejuif Cedex")
 
 doc = gr_officer_template(
   title="The Great Study", acronym="TGreStu",

@@ -6,6 +6,7 @@
 #'
 #' @param title Study complete title
 #' @param acronym Study acronym
+#' @param ... Not used. Ensures that only named arguments are passed.
 #' @param phase Study phase
 #' @param cset_number Study CSET identifier
 #' @param eudract_number Study EUDRACT identifier
@@ -24,14 +25,18 @@
 #' @importFrom rlang check_dots_empty check_installed
 #'
 #' @examples
-#' authors = bind_rows(
-#'   c(name="Dr Armin Clusion", role="Coordinating investigator", address="Gustave Roussy", phone="+33",
-#'     email="name@gustaveroussy.fr"),
-#'   c(name="Jeanne Alise ", role="Biostatistician", address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
-#'   c(name="Bertrand Domise", role="Data-manager", address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
-#'   c(name="Arnaud Cébo", role="Pharmacovigilant", address="Gustave Roussy, Pharmacovigilance Unit"),
+#' authors = dplyr::bind_rows(
+#'   c(name="Dr Armin Clusion", role="Coordinating investigator",
+#'     address="Gustave Roussy", phone="+33", email="name@gustaveroussy.fr"),
+#'   c(name="Jeanne Alise ", role="Biostatistician",
+#'     address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
+#'   c(name="Bertrand Domise", role="Data-manager",
+#'     address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
+#'   c(name="Arnaud Cébo", role="Pharmacovigilant",
+#'     address="Gustave Roussy, Pharmacovigilance Unit"),
 #' )
-#' sponsor = data.frame(name="Gustave Roussy", address="114 Rue Edouard Vaillant", code="94805 Villejuif Cedex")
+#' sponsor = data.frame(name="Gustave Roussy", address="114 Rue Edouard Vaillant",
+#'                      code="94805 Villejuif Cedex")
 #'
 #' doc = gr_officer_template(
 #'   title="The Great Study", acronym="TGreStu",
@@ -63,7 +68,8 @@ gr_officer_template = function(
     date_cutoff="",
     date_freeze="",
     authors=NULL,
-    sponsor=data.frame(name="Gustave Roussy", address="114 Rue Edouard Vaillant", code="94805 Villejuif Cedex")
+    sponsor=data.frame(name="Gustave Roussy", address="114 Rue Edouard Vaillant",
+                       code="94805 Villejuif Cedex")
 ){
   check_dots_empty()
   check_installed("officer", "for `create_officer_template()` to work.")
