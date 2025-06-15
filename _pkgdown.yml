@@ -26,6 +26,7 @@ reference:
   - title: "Utils"
   - contents:
     - gr_new_project
+    - gr_officer_template
     - grstat_example
 
   - title: "Work in progress"
