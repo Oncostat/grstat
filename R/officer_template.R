@@ -20,6 +20,8 @@
 #'
 #' @returns A `docx` object that can be saved or used with `{officer}`
 #' @export
+#' @importFrom flextable body_replace_flextable_at_bkm
+#' @importFrom rlang check_dots_empty check_installed
 #'
 #' @examples
 #' authors = bind_rows(
@@ -83,7 +85,7 @@ gr_officer_template = function(
       DATE_CUTOFF=date_cutoff,
       DATE_FREEZE=date_freeze
     ) %>%
-    footers_replace_text_at_bkm("TRIAL_NAME_FOOTER", acronym) %>%
+    officer::footers_replace_text_at_bkm("TRIAL_NAME_FOOTER", acronym) %>%
     body_replace_flextable_at_bkm("TRIAL_AUTHORS",
                                   .flextable_authors(authors, title="REPORT AUTHORS")) %>%
     body_replace_flextable_at_bkm("TRIAL_SPONSOR",
@@ -92,6 +94,7 @@ gr_officer_template = function(
 }
 
 
+#' @importFrom dplyr bind_rows
 .gr_authors = function(...){
   rtn = bind_rows(...)
   if(length(rtn)==0){
@@ -106,6 +109,9 @@ gr_officer_template = function(
   rtn
 }
 
+#' @importFrom dplyr across any_of if_else mutate
+#' @importFrom flextable as_chunk as_paragraph bold border_inner_v border_outer compose delete_part flextable font fontsize merge_v padding set_table_properties width
+#' @importFrom tidyr unite
 .flextable_authors = function(authors, title="REPORT AUTHORS"){
   authors %>%
     mutate(
@@ -113,12 +119,12 @@ gr_officer_template = function(
       across(any_of("phone"), ~if_else(is.na(.x), NA, paste("Telephone:", .x))),
       across(any_of("email"), ~if_else(is.na(.x), NA, paste("E-mail:", .x))),
     ) %>%
-    tidyr::unite("details", -c(x1, name, any_of("role")), sep="\n", na.rm=TRUE) %>%
-    tidyr::unite("header", c(name, any_of("role")), sep=", ", na.rm=TRUE) %>%
+    unite("details", -c(x1, name, any_of("role")), sep="\n", na.rm=TRUE) %>%
+    unite("header", c(name, any_of("role")), sep=", ", na.rm=TRUE) %>%
     flextable(col_keys=c("x1", "x2")) %>%
     compose(
       j="x2",
-      value=as_paragraph(as_chunk(header, props=fp_text(bold=TRUE)), as_chunk("\n"), as_chunk(details))
+      value=as_paragraph(as_chunk(header, props=officer::fp_text(bold=TRUE)), as_chunk("\n"), as_chunk(details))
     ) %>%
     merge_v(j="x1") %>%
     delete_part("header") %>%
@@ -134,6 +140,7 @@ gr_officer_template = function(
     padding(padding.top=1, padding.bottom=1)
 }
 
+#' @importFrom cli cli_abort
 .body_replace_text_at_bkms = function(doc, ..., envir=parent.frame()){
   l=list(...)
   for(i in names(l)){
@@ -142,22 +149,4 @@ gr_officer_template = function(
     doc = officer::body_replace_text_at_bkm(doc, bookmark=i, value=value)
   }
   doc
-}
-
-.body_replace_all = function(x, ...){
-  values = list(...)
-  for(i in names(values)){
-    # if(length(values[[i]])!=1) cli_abort("Value {.val {i}} should be of length 1 and is {.val {values[[i]]}}")
-    x = officer::body_replace_all_text(x, old_value=i, new_value=values[[i]], warn=TRUE)
-    # x = officer::body_replace_all_text(x, old_value=i, new_value=a, warn=TRUE)
-  }
-  x
-}
-
-.header_replace_all = function(x, ...){
-  values = list(...)
-  for(i in names(values)){
-    x = officer::headers_replace_all_text(x, old_value=i, new_value=values[[i]], warn=TRUE)
-  }
-  x
 }
