@@ -49,6 +49,7 @@ Suggests:
     ggsurvfit,
     gtools,
     knitr,
+    officer,
     patchwork,
     plotly,
     rmarkdown,
