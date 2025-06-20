@@ -14,7 +14,7 @@ date: "2025-01-30"
 
 # Introduction
 
-This vignette demonstrates how to implement adverse event (AE) tables in R using the 'grstat' package. AE tables are a standard approach in clinical research for assessing event severity (grade) and specifying the exact AE terms.
+This vignette demonstrates how to implement adverse event (AE) tables in R using the `grstat` package. AE tables are a standard approach in clinical research for assessing event severity (grade) and specifying the exact AE terms.
 
 In this article, three types of AE tables are presented:
 
