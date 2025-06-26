@@ -65,6 +65,7 @@ ae_table_soc = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
     arm=NULL, term=NULL,
+    ae_groups=list(),
     sort_by_count=TRUE, total=TRUE, showNA=TRUE, digits=0, warn_miss=FALSE,
     grade="AEGR", soc="AESOC", subjid="SUBJID"
 ){
