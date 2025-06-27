@@ -96,3 +96,51 @@ test_that("ae_table_soc() default snapshot", {
     expect_error(class="grstat_name_notfound_error")
 
 })
+
+
+test_that("ae_table_soc(ae_groups) works", {
+
+  tm = grstat_example()
+  attach(tm, warn.conflicts = FALSE)
+
+
+  x0 = ae_table_soc(df_ae=ae, df_enrol=enrolres)
+  expect_named(x0, c("soc", "all_patients_G1", "all_patients_G2",
+                     "all_patients_G3", "all_patients_G4", "all_patients_G5",
+                     "all_patients_NA", "all_patients_Tot"))
+
+  #default is to assign all grades to its own group
+  x1 = ae_table_soc(df_ae=ae, df_enrol=enrolres,
+                    ae_groups=list("G1"=1, "G2"=2, "G3"=3, "G4"=4, "G5"=5))
+  expect_identical(x0, x1)
+
+  #3 groups
+  ae_groups=list("Any grade"=1:5, "Grade 1-2"=1:2, "Grade 3-5"=3:5)
+  x2 = ae_table_soc(df_ae=ae, df_enrol=enrolres, total=TRUE,
+                    ae_groups=ae_groups)
+  expect_named(x2, c("soc", "all_patients_any_grade", "all_patients_grade_1_2",
+                     "all_patients_grade_3_5", "all_patients_NA", "all_patients_Tot"))
+  expect_equal(x2$all_patients_any_grade, x2$all_patients_Tot)
+  # expect_equal(x2$all_patients_any_grade,
+  #              x2$all_patients_grade_1_2+x2$all_patients_grade_3_5)
+
+
+  #3 groups with ARM
+  ae_groups=list("Any grade"=1:5, "Grade 1-2"=1:2, "Grade 3-5"=3:5)
+  x3 = ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="ARM",
+                    ae_groups=ae_groups)
+  expect_named(x3, c("soc",
+                     "control_any_grade", "control_grade_1_2",
+                     "control_3_5", "control_NA",
+                     "treatment_any_grade", "treatment_grade_1_2",
+                     "treatment_3_5", "treatment_NA"))
+
+  #errors
+  ae_table_soc(df_ae=ae, df_enrol=enrolres,
+               ae_groups="Coucou") %>%
+    expect_error(class="ae_table_soc_group_bad_class")
+  ae_table_soc(df_ae=ae, df_enrol=enrolres,
+               ae_groups=list("Grade 1-2"=0:2, "Grade sup 3"=3:7)) %>%
+    expect_error(class="ae_table_soc_group_bad_number")
+
+})
