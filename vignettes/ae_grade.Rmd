@@ -18,27 +18,27 @@ This vignette demonstrates how to implement adverse event (AE) tables in R using
 
 In this article, three types of AE tables are presented:
 
-Maximum AE grade per patient (for both single-arm and two-arm trials)
+-   Maximum AE grade per patient (for both single-arm and two-arm trials)
 
-Adverse Events by Maximum Grade per Patient (Grades 1–5, for both single-arm and two-arm trials)
+-   Adverse Events by Maximum Grade per Patient (Grades 1–5, for both single-arm and two-arm trials)
 
-Maximum AE grade per patient by AE term (for both single-arm and two-arm trials)
+-   Maximum AE grade per patient by AE term (for both single-arm and two-arm trials)
 
-The vignette also outlines the steps for calculating treatment-emergent adverse events (TEAEs).
+-   The vignette also outlines the steps for calculating treatment-emergent adverse events (TEAEs).
 
 This vignette covers the following steps:
 
-Overview of the dataset, using the simulated dataset grstat_example
+-   Overview of the dataset, using the simulated dataset grstat_example
 
-Creation of various AE tables for single-arm and two-arm trials, including subgroup analysis based on whether the AE is:
+-   Creation of various AE tables for single-arm and two-arm trials, including subgroup analysis based on whether the AE is:
 
-Related to the study drug
+-       Related to the study drug
 
-Leading to treatment interruption or discontinuation
+-       Leading to treatment interruption or discontinuation
 
-Requiring dose reduction
+-       Requiring dose reduction
 
-Additionally, Adverse Events of Special Interest (AESI) tables will also be demonstrated.
+-   Additionally, Adverse Events of Special Interest (AESI) tables will also be demonstrated.
 
 First, install packages if needed and load them.
 
