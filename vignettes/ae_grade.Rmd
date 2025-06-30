@@ -1,5 +1,5 @@
 ---
-title: "Adverse Event (AE)"
+title: "Adverse Events (AE)"
 output: 
   rmarkdown::html_vignette:
     number_sections: true
