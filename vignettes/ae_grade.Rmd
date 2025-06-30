@@ -20,7 +20,7 @@ In this article, three types of AE tables are presented:
 
 Maximum AE grade per patient (for both single-arm and two-arm trials)
 
-All AE grades per patient (for both single-arm and two-arm trials)
+Adverse Events by Maximum Grade per Patient (Grades 1–5, for both single-arm and two-arm trials)
 
 Maximum AE grade per patient by AE term (for both single-arm and two-arm trials)
 
