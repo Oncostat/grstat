@@ -64,7 +64,7 @@ head(enrolres)
 
 create table adverse event grades by using ae_table_grade()
 
-There are three distinct ways to present these grade tables. The most common one is the table of maximum grades, where the variant="max" is used by default. Alternatively, we can present the table by grade superior or equal to a given grade, i.e., variant="sup", or we can present all grades for all patients, where each proportion represents the number of patients who experienced a given grade at least once.????
+There are three distinct ways to present these grade tables. The most common one is the table of maximum grades per patients, where the variant="max" is used by default. Alternatively, we can present the table by maximum grade superior or equal to a given grade per patients, i.e., variant="sup", or we can present all grades for all patients, where each proportion represents the number of patients who experienced a given grade at least once.????
 
 
 ## Table of maximum AE grades per patient
@@ -76,12 +76,12 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="max") %>%
   fontsize(size = 8, part = "all")
 ```
 
-## Table of AE Grade Superior or Equal to Given Grade
+## Table of maximum AE Grade Superior or Equal to Given Grade
 
 ```{r}
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="sup") %>% 
   as_flextable(header_show_n=TRUE) %>%
-  add_footer_lines("Percentages reflect the proportion of patients whose AE grade was superior or equal to the indicated grade.") %>%
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was superior or equal to the indicated grade.") %>%
   fontsize(size = 8, part = "all")
 ```
 
