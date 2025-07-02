@@ -7,7 +7,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 date: "2025-01-30"
-
 ---
 
 <!-- https://oncostat.github.io/grstat/articles/adverse_events_sas.html -->
@@ -20,25 +19,11 @@ In this article, three types of AE tables are presented:
 
 -   Maximum AE grade per patient (for both single-arm and two-arm trials)
 
--   Adverse Events by Maximum Grade per Patient (Grades 1–5, for both single-arm and two-arm trials)
-
 -   Maximum AE grade per patient by AE term (for both single-arm and two-arm trials)
 
 -   The vignette also outlines the steps for calculating treatment-emergent adverse events (TEAEs).
 
-This vignette covers the following steps:
-
--   Overview of the dataset, using the simulated dataset grstat_example
-
--   Creation of various AE tables for single-arm and two-arm trials, including subgroup analysis based on whether the AE is:
-
--       Related to the study drug
-
--       Leading to treatment interruption or discontinuation
-
--       Requiring dose reduction
-
--   Additionally, Adverse Events of Special Interest (AESI) tables will also be demonstrated.
+-   Creation of various AE tables for single-arm and two-arm trials, including some different subgroup analysis.
 
 First, install packages if needed and load them.
 
@@ -50,13 +35,13 @@ library(dplyr)
 
 # Data Overview
 
-The function grstat_example() is used as an example dataset to illustrate the data usage.
+The function "grstat_example()" is used as an example dataset to illustrate the data usage.
 
 This analysis focuses on two datasets:
 
-- ae, which contains data on adverse events.
+-   ae, which contains data on adverse events.
 
-- enrolres, which includes all patients and their respective treatment arms."
+-   enrolres, which includes all patients and their respective treatment arms."
 
 ```{r}
 # #| label: "setup"
@@ -74,18 +59,41 @@ head(ae)
 head(enrolres)
 
 ```
-# Tables Grade
 
-create table adverse event grades by using  ae_table_grade()
+# Grade Tables
 
-## Table of maximum grades per patient
+create table adverse event grades by using ae_table_grade()
+
+There are three distinct ways to present these grade tables. The most common one is the table of maximum grades, where the variant="max" is used by default. Alternatively, we can present the table by grade superior or equal to a given grade, i.e., variant="sup", or we can present all grades for all patients, where each proportion represents the number of patients who experienced a given grade at least once.????
+
+
+## Table of maximum AE grades per patient
 
 ```{r}
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="max") %>% 
   as_flextable(header_show_n=TRUE) %>%
-  # comment tu peux changer la size des footnotes?
-  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.") %>%
+  fontsize(size = 8, part = "all")
 ```
+
+## Table of AE Grade Superior or Equal to Given Grade
+
+```{r}
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="sup") %>% 
+  as_flextable(header_show_n=TRUE) %>%
+  add_footer_lines("Percentages reflect the proportion of patients whose AE grade was superior or equal to the indicated grade.") %>%
+  fontsize(size = 8, part = "all")
+```
+
+## Table of Number of Patients per AE Grade
+
+```{r}
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>% 
+  as_flextable(header_show_n=TRUE) %>%
+  add_footer_lines("Percentages reflect the proportion of patients who experienced the indicated AE grade at least once.") %>%
+  fontsize(size = 8, part = "all")
+```
+
 
 ## Table of maximum grades per patient by arms
 
@@ -95,7 +103,7 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>%
   add_footer_lines("Percentages reflect the proportion of patients presenting at most one AE of given grade")
 ```
 
-## Table of all grades per patient 
+## Table of all grades per patient
 
 ```{r}
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>% 
@@ -110,4 +118,3 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="eq") %>%
   as_flextable(header_show_n=TRUE) %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
-
