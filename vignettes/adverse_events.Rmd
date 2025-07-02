@@ -27,7 +27,7 @@ In this article, three types of AE tables are presented:
 
 First, install packages if needed and load them.
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(grstat)
 library(flextable)
 library(dplyr)
@@ -44,12 +44,6 @@ This analysis focuses on two datasets:
 -   enrolres, which includes all patients and their respective treatment arms."
 
 ```{r}
-# #| label: "setup"
-# #| message: false
-# #| warning: false
-# library(grstat)
-# library(flextable)
-# library(dplyr)
 
 tm = grstat_example()
 attach(tm)
