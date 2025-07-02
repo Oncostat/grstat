@@ -54,7 +54,7 @@ head(enrolres)
 
 ```
 
-# Grade Tables
+# Grade Tables 'ae_table_grade'
 
 create table adverse event grades by using ae_table_grade()
 
@@ -94,3 +94,6 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>%
   as_flextable(header_show_n=TRUE) %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm.")
 ```
+
+AE_SOC1 : Table des grades par soc
+On peut ajouter total=FALSE pour retirer la colonne “Tot”.
