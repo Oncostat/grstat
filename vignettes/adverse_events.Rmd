@@ -64,10 +64,9 @@ head(enrolres)
 
 create table adverse event grades by using ae_table_grade()
 
-There are three distinct ways to present these grade tables. The most common one is the table of maximum grades per patients, where the variant="max" is used by default. Alternatively, we can present the table by maximum grade superior or equal to a given grade per patients, i.e., variant="sup", or we can present all grades for all patients, where each proportion represents the number of patients who experienced a given grade at least once.????
+There are three distinct ways to present these grade tables. The most common one is the table of maximum grade per patients, where the variant="max" is used by default. Alternatively, we can present the table by maximum grade superior or equal to a given grade per patients, i.e., variant="sup", or we can present all grades for all patients, where each proportion represents the number of patients who experienced a given grade at least once.???? In addition, a table of maximum grade per patients per arm is alo presented.
 
-
-## Table of maximum AE grades per patient
+## Table of maximum AE grade per patient
 
 ```{r}
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="max") %>% 
@@ -85,7 +84,7 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="sup") %>%
   fontsize(size = 8, part = "all")
 ```
 
-## Table of Number of Patients per AE Grade
+## Table of Number of Patient(s) per AE Grade
 
 ```{r}
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>% 
@@ -94,27 +93,10 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>%
   fontsize(size = 8, part = "all") 
 ```
 
-## Table of maximum grades per patient by arms
+## Table of maximum AE grade per patient per arm
 
 ```{r}
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>% 
   as_flextable(header_show_n=TRUE) %>% 
-  add_footer_lines("Percentages reflect the proportion of patients presenting at most one AE of given grade")
-```
-
-## Table of all grades per patient
-
-```{r}
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
-  add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade") %>% 
-    fontsize(size = 8, part = "all")
-```
-
-## Table of all grades per patient by arms
-
-```{r}
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="eq") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
-  add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm.")
 ```
