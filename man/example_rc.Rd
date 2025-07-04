@@ -32,15 +32,7 @@ example_rc(
 \item{rc_coef_treatement}{Integer. Differentiates the difference in effect between the control and treatment arms (for example, \code{rc_coef_treatement} = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2). Only for 2 arm study}
 }
 \value{
-A tibble containing the simulated RECIST dataset.
-}
-\description{
-Used in \code{grstat_example()}. \cr
-This function generates a synthetic RECIST dataset following the conventions of clinical oncology trials.
-It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
-}
-\section{Columns}{
-
+A tibble with \code{N} rows and the following columns:
 \itemize{
 \item \code{subjid}: The patient identifier.
 \item \code{arm} and \code{arm3}: The treatment arm for the patient.
@@ -55,5 +47,9 @@ It includes patient tumor size measurements over time and categorizes responses 
 \item \code{rcdt}: The date of the visits.
 }
 }
-
+\description{
+Internal function that simulates a synthetic RECIST dataset following the
+conventions of clinical oncology trials. The simulated response depends on
+the treatment arm \code{enrolres$arm}. It does not depends on \code{enrolres$arm3}.
+}
 \keyword{internal}

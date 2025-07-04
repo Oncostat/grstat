@@ -34,8 +34,24 @@ grstat_example = function(N=200, seed=42, ...){
 
 # Internals -----------------------------------------------------------------------------------
 
-#' @param r,r2 proportion of the "Control" arm in `enrolres$arm` and `enrolres$arm3` respectively
-#' @param seed the random seed (can be `NULL`)
+#' Generate Example Enrollment Data
+#'
+#' Internal function that simulates subject enrollment data with random allocation
+#' to treatment arms and inclusion dates.
+#'
+#' @param N Integer. Number of subjects to simulate.
+#' @param seed Integer. Random seed for reproducibility (can be `NULL`).
+#' @param r Numeric. Proportion of subjects allocated to the Control group in the binary `arm` variable (default: 0.5).
+#' @param r2 Numeric. Proportion of subjects allocated to the Control group in the ternary `arm3` variable (default: 1/3).
+#' @param ... Additional arguments (currently unused).
+#'
+#' @return A tibble with `N` rows and the following columns:
+#'
+#' - `subjid`: Subject ID
+#' - `arm`: Two-arm treatment group ("Control" or "Treatment")
+#' - `arm3`: Three-arm treatment group ("Control", "Treatment A", "Treatment B")
+#' - `date_inclusion`: Inclusion date, spaced by 20 days plus an uniform jitter
+#'
 #' @keywords internal
 #' @importFrom forcats fct_relevel
 #' @importFrom tibble tibble
@@ -65,9 +81,14 @@ example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
 }
 
 
+
 #' Generate an Adverse Event table
 #'
-#' @param enrolres the enrolment result table, from `.example_enrol`
+#' Internal function that simulates adverse events data with a toxicity effect that
+#' depends on the treatment arm `enrolres$arm`. The effect is not simulated according
+#' to `enrolres$arm3`.
+#'
+#' @param enrolres the enrolment result table, from [example_enrol()].
 #' @param p_na proportion of missing values (can be a list with a value for each column)
 #' @param seed the random seed (can be `NULL`)
 #' @param p_sae,p_sae_trt proportion of serious AE in control/exp arms
@@ -75,7 +96,7 @@ example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
 #' @param w_soc,w_soc_trt log-weights for SOC that should be over-representated in control/exp arms.
 #' @param beta0,beta_trt,beta_sae the intercept, treatement coef and SAE coef to be used in the exponential decay model that generates the AE grade.
 #'
-#' @section Columns:
+#' @return A tibble with `N` rows and the following columns:
 #'   - `subjid`: the patient identifier. Each patient has a number of AE simulated with a binomial
 #'   distribution with size `n_max` or `n_max_trt` and probability 20%.
 #'   - `aesoc`: the CTCAE System Organ Class. Lazily simulated with an uniform probability.
@@ -140,9 +161,9 @@ example_ae = function(enrolres, seed, p_na=0,
 
 #' Simulate a RECIST dataset
 #'
-#' Used in `grstat_example()`. \cr
-#' This function generates a synthetic RECIST dataset following the conventions of clinical oncology trials.
-#' It includes patient tumor size measurements over time and categorizes responses according to RECIST criteria.
+#' Internal function that simulates a synthetic RECIST dataset following the
+#' conventions of clinical oncology trials. The simulated response depends on
+#' the treatment arm `enrolres$arm`. It does not depends on `enrolres$arm3`.
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
 #' @param seed the random seed (can be `NULL`)
@@ -152,7 +173,7 @@ example_ae = function(enrolres, seed, p_na=0,
 #' @param rc_sd_tlsum_noise Integer. Standard deviation for the evolution of the target lesion sum of width
 #' @param rc_coef_treatement Integer. Differentiates the difference in effect between the control and treatment arms (for example, `rc_coef_treatement` = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2). Only for 2 arm study
 #'
-#' @section Columns:
+#' @return A tibble with `N` rows and the following columns:
 #'   - `subjid`: The patient identifier.
 #'   - `arm` and `arm3`: The treatment arm for the patient.
 #'   - `rctlsum_b`: Baseline tumor size for patients. The size is simulated following a normal distribution with a mean of 50 and a standard deviation of 30. If the result is <10, it is replaced with a value drawn from a uniform distribution between 70 and 180.
@@ -165,10 +186,9 @@ example_ae = function(enrolres, seed, p_na=0,
 #'   - `rcvisit`: The number of visits.
 #'   - `rcdt`: The date of the visits.
 #'
-#' @return A tibble containing the simulated RECIST dataset.
+#' @keywords internal
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @importFrom stats rnorm
-#' @keywords internal
 example_rc = function(enrolres, seed, rc_num_timepoints=10,
                       rc_p_new_lesions = 0.01,
                       rc_p_not_evaluable = 0.01,
@@ -260,6 +280,7 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
 
 
 # Internals RC ------------------------------------------------------------
+
 #' Used in `example_rc()`
 #' Determines response based on tumor size
 #' @param RCTLSUM_b Integer. Initial tumor size
@@ -267,7 +288,8 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-.simulate_patient = function(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise,arm,rc_coef_treatement) {
+.simulate_patient = function(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise,
+                             arm, rc_coef_treatement) {
   delai = 42 + runif(n(), -7, 7)
   percent_change_per_month = runif(n(), -30, 30)
   rc_coef_treatement = ifelse(percent_change_per_month>0, 1/rc_coef_treatement, rc_coef_treatement)
