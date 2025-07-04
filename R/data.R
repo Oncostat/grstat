@@ -247,19 +247,19 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
            .by = subjid
     ) %>%
     filter(suivi) %>%
-    select(subjid, rctlsum_b, rctlsum, rctlmin,
-           rctlresp, rcntlresp, rcnew, rcresp, rcvisit, rcdt) %>%
+    select(subjid, rcvisit, rcdt, rctlsum_b, rctlsum, rctlmin,
+           rctlresp, rcntlresp, rcnew, rcresp) %>%
     apply_labels(
       subjid = "Subject ID",
+      rcvisit = "Visit number",
+      rcdt = "Date of local evaluation",
       rctlsum_b = "Baseline tumor size",
       rctlsum = "Tumor size",
       rctlmin = "Minimal tumor size",
       rctlresp = "Response of target lesions",
       rcntlresp = "Response of non target lesions",
       rcnew = "New lesions",
-      rcresp = "Global response",
-      rcvisit = "Visit number",
-      rcdt = "Date of local evaluation"
+      rcresp = "Global response"
     )
 
   recist_baseline = recist_data %>%
@@ -273,9 +273,11 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
            rctlmin = rctlsum_b,
            rcnew = NA
     )
+
   recist_data = recist_data %>%
     bind_rows(recist_baseline) %>%
-    arrange(subjid, rcdt)
+    arrange(subjid, rcdt) %>%
+    select(-rctlsum_b, -rctlmin)
 }
 
 
