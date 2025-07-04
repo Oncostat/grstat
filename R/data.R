@@ -192,7 +192,8 @@ example_ae = function(enrolres, seed, p_na=0,
 example_rc = function(enrolres, seed, rc_num_timepoints=10,
                       rc_p_new_lesions = 0.01,
                       rc_p_not_evaluable = 0.01,
-                      rc_p_nt_lesions  = list("CR"=0.27, "SD"=0.09, "PD"=0.003, "NE"=0.65),
+                      rc_p_nt_lesions_yn = 0.5,
+                      rc_p_nt_lesions_resp = list("CR"=0.72, "SD"=0.24, "PD"=0.01, "NE"=0.01),
                       rc_sd_tlsum_noise = 25,
                       rc_coef_treatement = 3,
                       ...) {
@@ -211,6 +212,7 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
       rctlmin = cummin(rctlmin),
       rcvisit = row_number(),
       rcdt = date_inclusion +(42*rcvisit),
+      rcntlyn = ifelse(runif(n()) < rc_p_nt_lesions_yn, "Yes", "No"),
       .by = subjid
     ) %>%
     mutate(rctlresp = case_when(
@@ -220,8 +222,9 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
            .default = "Stable disease"
            ),
            rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
-                              n(), replace=TRUE, prob=c(rc_p_nt_lesions$CR, rc_p_nt_lesions$SD,
-                                                        rc_p_nt_lesions$PD, rc_p_nt_lesions$NE)),
+                              n(), replace=TRUE, prob=c(rc_p_nt_lesions_resp$CR, rc_p_nt_lesions_resp$SD,
+                                                        rc_p_nt_lesions_resp$PD, rc_p_nt_lesions_resp$NE)),
+           rcntlresp = ifelse(rcntlyn=="Yes", rcntlresp, NA),
            rcdt = rcdt + runif(n(), -7, 7),
            rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(rc_p_new_lesions, 1-rc_p_new_lesions)),
            not_evaluable = ifelse(runif(n())<rc_p_not_evaluable, "Not evaluable", rctlresp),
@@ -248,7 +251,6 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
     ) %>%
     filter(suivi) %>%
     select(subjid, rcvisit, rcdt, rctlsum_b, rctlsum, rctlmin,
-           rctlresp, rcntlresp, rcnew, rcresp) %>%
     apply_labels(
       subjid = "Subject ID",
       rcvisit = "Visit number",
@@ -261,12 +263,14 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
       rcnew = "New lesions",
       rcresp = "Global response"
     )
+           rctlresp, rcntlyn, rcntlresp, rcnew, rcresp) %>%
 
   recist_baseline = recist_data %>%
     filter(rcvisit == 1)%>%
     mutate(rctlsum = rctlsum_b,
            rcvisit = 0,
            rctlresp = NA,
+           rcntlyn = NA,
            rcntlresp = NA,
            rcresp = NA,
            rcdt = enrolres$date_inclusion,
