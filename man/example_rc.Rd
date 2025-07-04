@@ -10,7 +10,8 @@ example_rc(
   rc_num_timepoints = 10,
   rc_p_new_lesions = 0.01,
   rc_p_not_evaluable = 0.01,
-  rc_p_nt_lesions = list(CR = 0.27, SD = 0.09, PD = 0.003, NE = 0.65),
+  rc_p_nt_lesions_yn = 0.5,
+  rc_p_nt_lesions_resp = list(CR = 0.72, SD = 0.24, PD = 0.01, NE = 0.01),
   rc_sd_tlsum_noise = 25,
   rc_coef_treatement = 3,
   ...
@@ -21,35 +22,36 @@ example_rc(
 
 \item{seed}{the random seed (can be \code{NULL})}
 
-\item{rc_num_timepoints}{Integer. Number of timepoints for each patient.}
+\item{rc_num_timepoints}{Integer. Number of timepoints for each patient}
 
 \item{rc_p_new_lesions}{Integer. Probability of a new lesion}
 
 \item{rc_p_not_evaluable}{Integer. Probability of a Not Evaluable measure}
 
-\item{rc_sd_tlsum_noise}{Integer. Standard deviation for the evolution of the target lesion sum of width}
+\item{rc_p_nt_lesions_yn}{Integer. Probability of having Non-Target Lesions}
+
+\item{rc_p_nt_lesions_resp}{Integer list. Probability of each Non-Target Lesions response, if present}
+
+\item{rc_sd_tlsum_noise}{Integer. Standard deviation for the evolution of the Target Lesion sum of width}
 
 \item{rc_coef_treatement}{Integer. Differentiates the difference in effect between the control and treatment arms (for example, \code{rc_coef_treatement} = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2). Only for 2 arm study}
 }
 \value{
 A tibble with \code{N} rows and the following columns:
 \itemize{
-\item \code{subjid}: The patient identifier.
-\item \code{arm} and \code{arm3}: The treatment arm for the patient.
-\item \code{rctlsum_b}: Baseline tumor size for patients. The size is simulated following a normal distribution with a mean of 50 and a standard deviation of 30. If the result is <10, it is replaced with a value drawn from a uniform distribution between 70 and 180.
-\item \code{rctlsum}: The size of the tumor at each time point. The evolution of the tumor is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of \code{rc_sd_tlsum_noise}).
-\item \code{rctlmin}: The minimal tumor size observed so far.
-\item \code{rctlresp}: The response associated with the variation in tumor size, following the RECIST criteria.
-\item \code{rcntlresp}: The response associated with non-target lesions.
-\item \code{rcnew}: The response associated with the appearance of a new lesion.
-\item \code{rcresp}: The global response.
-\item \code{rcvisit}: The number of visits.
-\item \code{rcdt}: The date of the visits.
+\item \code{subjid}: The patient identifier
+\item \code{rcvisit}: The visit number
+\item \code{rcdt}: The visit date
+\item \code{rctlsum}: The Target Lesion length sum at each time point. The evolution of the value is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of \code{rc_sd_tlsum_noise}).
+\item \code{rctlresp}: The response associated with Target Lesions
+\item \code{rcntlresp}: The response associated with Non-Target Lesions
+\item \code{rcnew}: The appearance of a new lesion
+\item \code{rcresp}: The global RECIST response
 }
 }
 \description{
 Internal function that simulates a synthetic RECIST dataset following the
-conventions of clinical oncology trials. The simulated response depends on
-the treatment arm \code{enrolres$arm}. It does not depends on \code{enrolres$arm3}.
+conventions of clinical oncology trials. In the simulation, Target Lesions
+response depends on the treatment arm \code{enrolres$arm} (not \code{enrolres$arm3}).
 }
 \keyword{internal}

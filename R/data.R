@@ -6,7 +6,7 @@
 #'
 #' @param N the number of patients
 #' @param seed the random seed (can be `NULL`)
-#' @param ... passed on to internal functions. See [example_ae()] for control over Adverse Events.
+#' @param ... passed on to internal functions. See [example_enrol()],  [example_ae()], and  [example_rc()] for the argument names.
 #'
 #' @returns A list of datasets, like in EDCimport.
 #'
@@ -162,29 +162,28 @@ example_ae = function(enrolres, seed, p_na=0,
 #' Simulate a RECIST dataset
 #'
 #' Internal function that simulates a synthetic RECIST dataset following the
-#' conventions of clinical oncology trials. The simulated response depends on
-#' the treatment arm `enrolres$arm`. It does not depends on `enrolres$arm3`.
+#' conventions of clinical oncology trials. In the simulation, Target Lesions
+#' response depends on the treatment arm `enrolres$arm` (not `enrolres$arm3`).
 #'
 #' @param enrolres the enrolment result table, from `.example_enrol`
 #' @param seed the random seed (can be `NULL`)
-#' @param rc_num_timepoints Integer. Number of timepoints for each patient.
+#' @param rc_num_timepoints Integer. Number of timepoints for each patient
 #' @param rc_p_new_lesions Integer. Probability of a new lesion
 #' @param rc_p_not_evaluable Integer. Probability of a Not Evaluable measure
-#' @param rc_sd_tlsum_noise Integer. Standard deviation for the evolution of the target lesion sum of width
+#' @param rc_p_nt_lesions_yn Integer. Probability of having Non-Target Lesions
+#' @param rc_p_nt_lesions_resp Integer list. Probability of each Non-Target Lesions response, if present
+#' @param rc_sd_tlsum_noise Integer. Standard deviation for the evolution of the Target Lesion sum of width
 #' @param rc_coef_treatement Integer. Differentiates the difference in effect between the control and treatment arms (for example, `rc_coef_treatement` = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2). Only for 2 arm study
 #'
 #' @return A tibble with `N` rows and the following columns:
-#'   - `subjid`: The patient identifier.
-#'   - `arm` and `arm3`: The treatment arm for the patient.
-#'   - `rctlsum_b`: Baseline tumor size for patients. The size is simulated following a normal distribution with a mean of 50 and a standard deviation of 30. If the result is <10, it is replaced with a value drawn from a uniform distribution between 70 and 180.
-#'   - `rctlsum`: The size of the tumor at each time point. The evolution of the tumor is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of `rc_sd_tlsum_noise`).
-#'   - `rctlmin`: The minimal tumor size observed so far.
-#'   - `rctlresp`: The response associated with the variation in tumor size, following the RECIST criteria.
-#'   - `rcntlresp`: The response associated with non-target lesions.
-#'   - `rcnew`: The response associated with the appearance of a new lesion.
-#'   - `rcresp`: The global response.
-#'   - `rcvisit`: The number of visits.
-#'   - `rcdt`: The date of the visits.
+#'   - `subjid`: The patient identifier
+#'   - `rcvisit`: The visit number
+#'   - `rcdt`: The visit date
+#'   - `rctlsum`: The Target Lesion length sum at each time point. The evolution of the value is calculated based on the percentage variation in tumor size from the previous time point. This variation is simulated using a uniform distribution between -30 and 30, with added noise (the noise follows a normal distribution with a mean of 0 and a standard deviation of `rc_sd_tlsum_noise`).
+#'   - `rctlresp`: The response associated with Target Lesions
+#'   - `rcntlresp`: The response associated with Non-Target Lesions
+#'   - `rcnew`: The appearance of a new lesion
+#'   - `rcresp`: The global RECIST response
 #'
 #' @keywords internal
 #' @importFrom dplyr bind_rows select mutate filter row_number
