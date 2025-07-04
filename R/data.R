@@ -251,19 +251,7 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
     ) %>%
     filter(suivi) %>%
     select(subjid, rcvisit, rcdt, rctlsum_b, rctlsum, rctlmin,
-    apply_labels(
-      subjid = "Subject ID",
-      rcvisit = "Visit number",
-      rcdt = "Date of local evaluation",
-      rctlsum_b = "Baseline tumor size",
-      rctlsum = "Tumor size",
-      rctlmin = "Minimal tumor size",
-      rctlresp = "Response of target lesions",
-      rcntlresp = "Response of non target lesions",
-      rcnew = "New lesions",
-      rcresp = "Global response"
-    )
-           rctlresp, rcntlyn, rcntlresp, rcnew, rcresp) %>%
+           rctlresp, rcntlyn, rcntlresp, rcnew, rcresp)
 
   recist_baseline = recist_data %>%
     filter(rcvisit == 1)%>%
@@ -281,7 +269,18 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
   recist_data = recist_data %>%
     bind_rows(recist_baseline) %>%
     arrange(subjid, rcdt) %>%
-    select(-rctlsum_b, -rctlmin)
+    select(-rctlsum_b, -rctlmin) %>%
+    apply_labels(
+      subjid = "Subject ID",
+      rcvisit = "Visit number",
+      rcdt = "Date of local evaluation",
+      rctlsum = "Target Lesions length sum",
+      rctlresp = "Response of Target Lesions",
+      rcntlyn = "Presence of Non-Target Lesions",
+      rcntlresp = "Response of Non-Target Lesions",
+      rcnew = "Apparition of new lesions",
+      rcresp = "Global RECIST response"
+    )
 }
 
 
