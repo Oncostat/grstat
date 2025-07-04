@@ -20,3 +20,15 @@ test_that("Proportions of AE grades are respected", {
   expect_equal(unname(as.matrix(x)[,"Yes"]), p_sae, tolerance=0.05) # 5% tolerance
   expect_equal(unname(as.matrix(x)[,"No"]),  p_ae,  tolerance=0.05)
 })
+
+
+test_that("RECIST data are ok", {
+
+  db = grstat_example(N=5000)
+  rc = db$recist
+  expect_false(any(rc$rcresp=="ERROR", na.rm=TRUE))
+  expect_false(any(rc$rctlsum < 0, na.rm=TRUE))
+
+})
+
+#   crosstable(RCNTLRES, by=RCNTLYN, margin=2)
