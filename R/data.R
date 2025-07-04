@@ -202,7 +202,8 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
     mutate(
       rctlsum_b = rnorm(n(),50,30),
       rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180), rctlsum_b),
-      data = list(.simulate_patient(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise, arm, rc_coef_treatement)),
+      data = list(.simulate_patient(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise,
+                                    arm, rc_coef_treatement)),
       .by = subjid
     ) %>%
     unnest(data) %>%
@@ -214,35 +215,42 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
       rcntlyn = ifelse(runif(n()) < rc_p_nt_lesions_yn, "Yes", "No"),
       .by = subjid
     ) %>%
-    mutate(rctlresp = case_when(
-           rctlsum == 0 ~ "Complete response",
-           (rctlmin - rctlsum)/rctlmin < -0.2 ~ "Progressive disease",
-           (rctlsum_b - rctlsum)/rctlsum_b > 0.3 ~ "Partial response",
-           .default = "Stable disease"
-           ),
-           rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
-                              n(), replace=TRUE, prob=c(rc_p_nt_lesions_resp$CR, rc_p_nt_lesions_resp$SD,
-                                                        rc_p_nt_lesions_resp$PD, rc_p_nt_lesions_resp$NE)),
-           rcntlresp = ifelse(rcntlyn=="Yes", rcntlresp, NA),
-           rcdt = rcdt + runif(n(), -7, 7),
            rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(rc_p_new_lesions, 1-rc_p_new_lesions)),
-           not_evaluable = ifelse(runif(n())<rc_p_not_evaluable, "Not evaluable", rctlresp),
-           rcresp = case_when(
-             rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
-             ~ "Progressive disease",
-             rctlresp == "Complete response" & (rcntlresp == "Complete response" | is.na(rcntlresp))
-             ~ "Complete response",
-             rctlresp %in% c("Complete response", "Partial response")
-             ~ "Partial response",
-             rctlresp == "Stable disease"
-             ~ "Stable disease",
-             rctlresp == "Not evaluable"
-             ~ "Not evaluable",
-             .default = "ERROR"
-           ),
-           rcresp = factor(rcresp, levels=c("Complete response", "Partial response",
-                                            "Stable disease", "Progressive disease",
-                                            "Not evaluable"))
+    mutate(
+      rctlresp = case_when(
+        rctlsum == 0 ~ "Complete response",
+        ((rctlmin - rctlsum)/rctlmin) < -0.2 ~ "Progressive disease",
+        ((rctlsum_b - rctlsum)/rctlsum_b) > 0.3 ~ "Partial response",
+        .default = "Stable disease"
+      ),
+      rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
+                         n(), replace=TRUE,
+                         prob=c(rc_p_nt_lesions_resp$CR, rc_p_nt_lesions_resp$SD,
+                                rc_p_nt_lesions_resp$PD, rc_p_nt_lesions_resp$NE)),
+      rcntlresp = ifelse(rcntlyn=="Yes", rcntlresp, NA),
+      rcdt = rcdt + runif(n(), -7, 7),
+
+
+
+      not_evaluable = ifelse(runif(n())<rc_p_not_evaluable, "Not evaluable", rctlresp),
+      rcresp = case_when(
+        rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
+        ~ "Progressive disease",
+        rctlresp == "Complete response" & (rcntlresp == "Complete response" | is.na(rcntlresp))
+        ~ "Complete response",
+        rctlresp %in% c("Complete response", "Partial response")
+        ~ "Partial response",
+        rctlresp == "Stable disease"
+        ~ "Stable disease",
+        rctlresp == "Not evaluable"
+        ~ "Not evaluable",
+        .default = "ERROR"
+      ),
+      across(c(rcresp, rctlresp),
+             ~factor(.x, levels=c("Complete response", "Partial response",
+                                  "Stable disease", "Progressive disease"))),
+      rcntlresp = factor(rcntlresp, levels=c("Complete response", "Non-CR / Non-PD",
+                                             "Progressive disease"))
     ) %>%
     mutate(suivi = row_number() <= which(rcresp == 'Progressive disease')[1],
            suivi = replace_na(suivi, TRUE),
