@@ -257,27 +257,20 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
            suivi = replace_na(suivi, TRUE),
            .by = subjid
     ) %>%
-    filter(suivi) %>%
-    select(subjid, rcvisit, rcdt, rctlsum_b, rctlsum, rctlmin,
-           rctlresp, rcntlyn, rcntlresp, rcnew, rcresp)
+    filter(suivi)
 
   recist_baseline = recist_data %>%
     filter(rcvisit == 1)%>%
-    mutate(rctlsum = rctlsum_b,
-           rcvisit = 0,
-           rctlresp = NA,
-           rcntlyn = NA,
-           rcntlresp = NA,
-           rcresp = NA,
-           rcdt = enrolres$date_inclusion,
-           rctlmin = rctlsum_b,
-           rcnew = NA
-    )
+    transmute(rctlsum = rctlsum_b,
+              rcvisit = 0,
+              rcdt = date_inclusion,
+              rctlmin = rctlsum_b)
 
   recist_data = recist_data %>%
     bind_rows(recist_baseline) %>%
     arrange(subjid, rcdt) %>%
-    select(-rctlsum_b, -rctlmin) %>%
+    select(subjid, rcvisit, rcdt, rctlsum,
+           rctlresp, rcntlyn, rcntlresp, rcnew, rcresp) %>%
     apply_labels(
       subjid = "Subject ID",
       rcvisit = "Visit number",
