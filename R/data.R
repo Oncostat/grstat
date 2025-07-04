@@ -212,10 +212,9 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
       rctlmin = cummin(rctlmin),
       rcvisit = row_number(),
       rcdt = date_inclusion +(42*rcvisit),
-      rcntlyn = ifelse(runif(n()) < rc_p_nt_lesions_yn, "Yes", "No"),
+      rcntlyn = .sample_yesno(n(), p=rc_p_nt_lesions_yn),
       .by = subjid
     ) %>%
-           rcnew = sample(c("Yes", "No"), n(), replace=TRUE, prob=c(rc_p_new_lesions, 1-rc_p_new_lesions)),
     mutate(
       rctlresp = case_when(
         rctlsum == 0 ~ "Complete response",
@@ -229,6 +228,8 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
                                 rc_p_nt_lesions_resp$PD, rc_p_nt_lesions_resp$NE)),
       rcntlresp = ifelse(rcntlyn=="Yes", rcntlresp, NA),
       rcdt = rcdt + runif(n(), -7, 7),
+      rcnew = if_else(arm=="Control", .sample_yesno(n(), p=rc_p_new_lesions),
+                     .sample_yesno(n(), p=rc_p_new_lesions*rc_coef_treatement)),
 
 
 
@@ -349,6 +350,13 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
   map2_dbl(x, seq_along(x), ~ r[[.x]][.y])
 }
 
+
+#' @noRd
+#' @keywords internal
+#' @importFrom stats runif
+.sample_yesno = function(n, p){
+  ifelse(runif(n) < p, "Yes", "No") %>% factor(levels=c("Yes", "No"))
+}
 
 #' Used in `.sample_term_n()`
 #' Construit un vecteur de SOC avec un weight prédéfini
