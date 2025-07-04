@@ -54,7 +54,7 @@ example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
                     rep("Treatment A", n_trtA),
                     rep("Treatment B", N-n_control3-n_trtA) )) %>%
       fct_relevel("Control"),
-    date_inclusion = sample(as.Date("2023-01-01") +subjid*10 + runif(N, 0, 10))
+    date_inclusion = as.Date("2023-01-01") + subjid*20 + runif(N, 0, 50)
   ) %>%
     apply_labels(
       subjid = "Subject ID",
