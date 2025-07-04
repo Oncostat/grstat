@@ -41,14 +41,18 @@ grstat_example = function(N=200, seed=42, ...){
 #' @importFrom tibble tibble
 example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
   set.seed(seed)
+  n_control = round(N*r)
+  n_control3 = round(N*r2)
+  n_trtA = round((N - n_control3) / 2)
+
   tibble(
     subjid = seq_len(N),
-    arm = sample(c(rep("Control", round(N*r)),
-                   rep("Treatment", round(N*(1-r))) )) %>%
+    arm = sample(c(rep("Control", n_control),
+                   rep("Treatment", N-n_control) )) %>%
       fct_relevel("Control"),
-    arm3 = sample(c(rep("Control", round(N*r2)),
-                    rep("Treatment A", round(N*(1-r2)/2)),
-                    rep("Treatment B", N-round(N*r2)-round(N*(1-r2)/2)) )) %>%
+    arm3 = sample(c(rep("Control", n_control3),
+                    rep("Treatment A", n_trtA),
+                    rep("Treatment B", N-n_control3-n_trtA) )) %>%
       fct_relevel("Control"),
     date_inclusion = sample(as.Date("2023-01-01") +subjid*10 + runif(N, 0, 10))
   ) %>%
