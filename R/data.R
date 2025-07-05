@@ -226,9 +226,11 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
                                 rc_p_nt_lesions_resp$PD, rc_p_nt_lesions_resp$NE)),
       rcntlresp = ifelse(rcntlyn=="Yes", rcntlresp, NA),
       #New Lesions
-      rcnew = if_else(arm=="Control",
-                      .sample_yesno(n(), p=rc_p_new_lesions),
-                      .sample_yesno(n(), p=rc_p_new_lesions/rc_coef_treatement)),
+      rcnew = case_when(
+        rcvisit == 1 ~ NA,
+        arm=="Control" ~ .sample_yesno(n(), p=rc_p_new_lesions),
+        .default = .sample_yesno(n(), p=rc_p_new_lesions/rc_coef_treatement)
+      ),
       #Global resp
       rcresp = case_when(
         rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
@@ -243,18 +245,19 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
         ~ "Not evaluable",
         .default = "ERROR"
       ),
-      across(c(rcresp, rctlresp),
-             ~factor(.x, levels=c("Complete response", "Partial response",
-                                  "Stable disease", "Progressive disease"))),
-      rcntlresp = factor(rcntlresp, levels=c("Complete response", "Non-CR / Non-PD",
-                                             "Progressive disease"))
+      across(c(rctlresp, rcntlresp, rcresp), ~{
+        .x = ifelse(.data$rcvisit == 1, NA, .x)
+        .x %>%
+          factor(levels=c("Complete response", "Partial response", "Non-CR / Non-PD",
+                          "Stable disease", "Progressive disease")) %>%
+          fct_drop()
+      }),
     ) %>%
     mutate(before_pd = row_number() <= which(rcresp == 'Progressive disease')[1],
            before_pd = replace_na(before_pd, TRUE),
            .by = subjid
     ) %>%
     filter(before_pd)
-
 
   recist_data = recist_data %>%
     arrange(subjid, rcdt) %>%
