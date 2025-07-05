@@ -197,7 +197,6 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
                       rc_coef_treatement = 3,
                       ...) {
   set.seed(seed)
-  timepoint = seq_len(rc_num_timepoints)
   recist_data = enrolres %>%
     mutate(
       rctlsum_b = rnorm(n(),50,30),
@@ -233,7 +232,6 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
 
 
 
-      not_evaluable = ifelse(runif(n())<rc_p_not_evaluable, "Not evaluable", rctlresp),
       rcresp = case_when(
         rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
         ~ "Progressive disease",
