@@ -23,7 +23,7 @@ example_ae(
 \arguments{
 \item{enrolres}{the enrolment result table, from \code{\link[=example_enrol]{example_enrol()}}.}
 
-\item{seed}{the random seed (can be \code{NULL})}
+\item{seed}{Integer. Random seed for reproducibility (can be \code{NULL}).}
 
 \item{p_na}{proportion of missing values (can be a list with a value for each column)}
 

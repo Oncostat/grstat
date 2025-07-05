@@ -7,22 +7,22 @@
 example_rc(
   enrolres,
   seed,
-  rc_num_timepoints = 10,
-  rc_p_new_lesions = 0.01,
+  rc_num_timepoints = 5,
+  rc_p_new_lesions = 0.09,
   rc_p_not_evaluable = 0.01,
   rc_p_nt_lesions_yn = 0.5,
   rc_p_nt_lesions_resp = list(CR = 0.72, SD = 0.24, PD = 0.01, NE = 0.01),
-  rc_sd_tlsum_noise = 25,
+  rc_sd_tlsum_noise = 5,
   rc_coef_treatement = 3,
   ...
 )
 }
 \arguments{
-\item{enrolres}{the enrolment result table, from \code{.example_enrol}}
+\item{enrolres}{the enrolment result table, from \code{\link[=example_enrol]{example_enrol()}}.}
 
-\item{seed}{the random seed (can be \code{NULL})}
+\item{seed}{Integer. Random seed for reproducibility (can be \code{NULL}).}
 
-\item{rc_num_timepoints}{Integer. Number of timepoints for each patient}
+\item{rc_num_timepoints}{Integer. Number of timepoints for each patient, including baseline.}
 
 \item{rc_p_new_lesions}{Integer. Probability of a new lesion}
 
@@ -34,7 +34,7 @@ example_rc(
 
 \item{rc_sd_tlsum_noise}{Integer. Standard deviation for the evolution of the Target Lesion sum of width}
 
-\item{rc_coef_treatement}{Integer. Differentiates the difference in effect between the control and treatment arms (for example, \code{rc_coef_treatement} = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2). Only for 2 arm study}
+\item{rc_coef_treatement}{Integer. Differentiates the difference in effect between the control and treatment arm (2 arms only). For example, \code{rc_coef_treatement} = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2. Also, the probability of a new lesion is multiplied by 2.}
 }
 \value{
 A tibble with \code{N} rows and the following columns:

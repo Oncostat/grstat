@@ -89,8 +89,8 @@ example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
 #' to `enrolres$arm3`.
 #'
 #' @param enrolres the enrolment result table, from [example_enrol()].
+#' @param seed Integer. Random seed for reproducibility (can be `NULL`).
 #' @param p_na proportion of missing values (can be a list with a value for each column)
-#' @param seed the random seed (can be `NULL`)
 #' @param p_sae,p_sae_trt proportion of serious AE in control/exp arms
 #' @param n_max,n_max_trt maximum number of AE per patient in control/exp arms (binomial with probability 20%)
 #' @param w_soc,w_soc_trt log-weights for SOC that should be over-representated in control/exp arms.
@@ -165,15 +165,15 @@ example_ae = function(enrolres, seed, p_na=0,
 #' conventions of clinical oncology trials. In the simulation, Target Lesions
 #' response depends on the treatment arm `enrolres$arm` (not `enrolres$arm3`).
 #'
-#' @param enrolres the enrolment result table, from `.example_enrol`
-#' @param seed the random seed (can be `NULL`)
-#' @param rc_num_timepoints Integer. Number of timepoints for each patient
+#' @param enrolres the enrolment result table, from [example_enrol()].
+#' @param seed Integer. Random seed for reproducibility (can be `NULL`).
+#' @param rc_num_timepoints Integer. Number of timepoints for each patient, including baseline.
 #' @param rc_p_new_lesions Integer. Probability of a new lesion
 #' @param rc_p_not_evaluable Integer. Probability of a Not Evaluable measure
 #' @param rc_p_nt_lesions_yn Integer. Probability of having Non-Target Lesions
 #' @param rc_p_nt_lesions_resp Integer list. Probability of each Non-Target Lesions response, if present
 #' @param rc_sd_tlsum_noise Integer. Standard deviation for the evolution of the Target Lesion sum of width
-#' @param rc_coef_treatement Integer. Differentiates the difference in effect between the control and treatment arms (for example, `rc_coef_treatement` = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2). Only for 2 arm study
+#' @param rc_coef_treatement Integer. Differentiates the difference in effect between the control and treatment arm (2 arms only). For example, `rc_coef_treatement` = 2 mean that the growth rate of the tumor is divide per 2 and the elimination rate is multiplied per 2. Also, the probability of a new lesion is multiplied by 2.
 #'
 #' @return A tibble with `N` rows and the following columns:
 #'   - `subjid`: The patient identifier
@@ -201,8 +201,8 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
     mutate(
       rctlsum_b = rnorm(n(),50,30),
       rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180), rctlsum_b),
-      data = list(.simulate_patient(rctlsum_b, rc_num_timepoints-1, rc_sd_tlsum_noise,
-                                    arm, rc_coef_treatement)),
+      data = list(.simulate_one_patient(rctlsum_b, rc_num_timepoints-1, rc_sd_tlsum_noise,
+                                        arm, rc_coef_treatement)),
       .by = subjid
     ) %>%
     unnest(data) %>%
@@ -227,11 +227,9 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
                                 rc_p_nt_lesions_resp$PD, rc_p_nt_lesions_resp$NE)),
       rcntlresp = ifelse(rcntlyn=="Yes", rcntlresp, NA),
       rcdt = rcdt + runif(n(), -7, 7),
-      rcnew = if_else(arm=="Control", .sample_yesno(n(), p=rc_p_new_lesions),
-                     .sample_yesno(n(), p=rc_p_new_lesions*rc_coef_treatement)),
-
-
-
+      rcnew = if_else(arm=="Control",
+                      .sample_yesno(n(), p=rc_p_new_lesions),
+                      .sample_yesno(n(), p=rc_p_new_lesions/rc_coef_treatement)),
       rcresp = case_when(
         rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
         ~ "Progressive disease",
@@ -251,15 +249,15 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
       rcntlresp = factor(rcntlresp, levels=c("Complete response", "Non-CR / Non-PD",
                                              "Progressive disease"))
     ) %>%
-    mutate(suivi = row_number() <= which(rcresp == 'Progressive disease')[1],
-           suivi = replace_na(suivi, TRUE),
+    mutate(before_pd = row_number() <= which(rcresp == 'Progressive disease')[1],
+           before_pd = replace_na(before_pd, TRUE),
            .by = subjid
     ) %>%
-    filter(suivi)
+    filter(before_pd)
 
   recist_baseline = recist_data %>%
     filter(rcvisit == 1)%>%
-    transmute(rctlsum = rctlsum_b,
+    transmute(subjid, rctlsum = rctlsum_b,
               rcvisit = 0,
               rcdt = date_inclusion,
               rctlmin = rctlsum_b)
@@ -292,8 +290,8 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-.simulate_patient = function(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise,
-                             arm, rc_coef_treatement) {
+.simulate_one_patient = function(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise,
+                                 arm, rc_coef_treatement) {
   delai = 42 + runif(n(), -7, 7)
   percent_change_per_month = runif(n(), -30, 30)
   rc_coef_treatement = ifelse(percent_change_per_month>0, 1/rc_coef_treatement, rc_coef_treatement)
