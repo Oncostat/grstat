@@ -199,37 +199,37 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
   set.seed(seed)
   recist_data = enrolres %>%
     mutate(
-      rctlsum_b = rnorm(n(),50,30),
-      rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180), rctlsum_b),
-      data = list(.simulate_one_patient(rctlsum_b, rc_num_timepoints-1, rc_sd_tlsum_noise,
-                                        arm, rc_coef_treatement)),
+      data = .simulate_one_patient(arm, rc_num_timepoints,
+                                   rc_sd_tlsum_noise, rc_coef_treatement),
       .by = subjid
     ) %>%
     unnest(data) %>%
     mutate(
-      rctlmin = ifelse(rctlsum_b < rctlsum, rctlsum_b, rctlsum),
-      rctlmin = cummin(rctlmin),
+      rctlmin = cummin(rctlsum),
       rcvisit = row_number(),
-      rcdt = date_inclusion +(42*rcvisit),
+      rcdt = date_inclusion + subj_delai,
       rcntlyn = .sample_yesno(n(), p=rc_p_nt_lesions_yn),
       .by = subjid
     ) %>%
     mutate(
+      #Target Lesions
       rctlresp = case_when(
         rctlsum == 0 ~ "Complete response",
         ((rctlmin - rctlsum)/rctlmin) < -0.2 ~ "Progressive disease",
         ((rctlsum_b - rctlsum)/rctlsum_b) > 0.3 ~ "Partial response",
         .default = "Stable disease"
       ),
+      #Non-Target Lesions
       rcntlresp = sample(c("Complete response", "Non-CR / Non-PD", "Progressive disease", NA),
                          n(), replace=TRUE,
                          prob=c(rc_p_nt_lesions_resp$CR, rc_p_nt_lesions_resp$SD,
                                 rc_p_nt_lesions_resp$PD, rc_p_nt_lesions_resp$NE)),
       rcntlresp = ifelse(rcntlyn=="Yes", rcntlresp, NA),
-      rcdt = rcdt + runif(n(), -7, 7),
+      #New Lesions
       rcnew = if_else(arm=="Control",
                       .sample_yesno(n(), p=rc_p_new_lesions),
                       .sample_yesno(n(), p=rc_p_new_lesions/rc_coef_treatement)),
+      #Global resp
       rcresp = case_when(
         rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
         ~ "Progressive disease",
@@ -255,15 +255,8 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
     ) %>%
     filter(before_pd)
 
-  recist_baseline = recist_data %>%
-    filter(rcvisit == 1)%>%
-    transmute(subjid, rctlsum = rctlsum_b,
-              rcvisit = 0,
-              rcdt = date_inclusion,
-              rctlmin = rctlsum_b)
 
   recist_data = recist_data %>%
-    bind_rows(recist_baseline) %>%
     arrange(subjid, rcdt) %>%
     select(subjid, rcvisit, rcdt, rctlsum,
            rctlresp, rcntlyn, rcntlresp, rcnew, rcresp) %>%
@@ -284,28 +277,33 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
 # Internals RC ------------------------------------------------------------
 
 #' Used in `example_rc()`
-#' Determines response based on tumor size
-#' @param RCTLSUM_b Integer. Initial tumor size
-#' @param rc_num_timepoints Integer. Number of timepoints for each patient.
+#' Simulate the linear decrease of the TL length sum
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-.simulate_one_patient = function(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise,
-                                 arm, rc_coef_treatement) {
-  delai = 42 + runif(n(), -7, 7)
-  percent_change_per_month = runif(n(), -30, 30)
-  rc_coef_treatement = ifelse(percent_change_per_month>0, 1/rc_coef_treatement, rc_coef_treatement)
-  rc_coef_treatement = ifelse(arm=="Control", 1, rc_coef_treatement)
-  percent_change_per_month = percent_change_per_month*rc_coef_treatement
-  changes = rep(percent_change_per_month * delai / 30.5, rc_num_timepoints)
-  changes = changes + rnorm(rc_num_timepoints, 0, rc_sd_tlsum_noise)
-  base = rep(rctlsum_b, rc_num_timepoints)
-  sizes = base * cumprod(1+changes/100)
+.simulate_one_patient = function(arm, rc_num_timepoints,
+                                 rc_sd_tlsum_noise, rc_coef_treatement) {
+  rc_num_timepoints = rc_num_timepoints-1 #add baseline later
+  rctlsum_b = rnorm(1, 50, 30)
+  rctlsum_b = ifelse(rctlsum_b <10, runif(1, 10, 150), rctlsum_b)
+  percent_change_per_month = rnorm(1, -0.2, 0.5)
+  coef = case_when(arm == "Control" ~ 1,
+                   percent_change_per_month > 0 ~ 1 / rc_coef_treatement,
+                   .default = rc_coef_treatement)
+  percent_change_per_month = percent_change_per_month * coef
+  subj_delai = 42 * seq(rc_num_timepoints) + runif(rc_num_timepoints, -7, 7)
+  percent_change = percent_change_per_month * subj_delai / 30.5
+  percent_change = percent_change + rnorm(rc_num_timepoints, 0, rc_sd_tlsum_noise)
+  percent_change = c(0, percent_change)
+  sizes = rctlsum_b * (1+percent_change)
   sizes = ifelse(sizes <1, 0, sizes)
-  tibble(
-    rctlsum = round(sizes, 1),
-    percent_change = round(changes, 1)
-  )
+  list(tibble(
+    rctlsum_b,
+    subj_delai = c(0, subj_delai),
+    percent_change_per_month,
+    percent_change,
+    rctlsum = round(sizes, 1)
+  ))
 }
 
 # Internals AE ------------------------------------------------------------
