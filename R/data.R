@@ -202,7 +202,7 @@ example_rc = function(enrolres, seed, rc_num_timepoints=10,
     mutate(
       rctlsum_b = rnorm(n(),50,30),
       rctlsum_b = ifelse(rctlsum_b <10, runif(1, 70, 180), rctlsum_b),
-      data = list(.simulate_patient(rctlsum_b, rc_num_timepoints, rc_sd_tlsum_noise,
+      data = list(.simulate_patient(rctlsum_b, rc_num_timepoints-1, rc_sd_tlsum_noise,
                                     arm, rc_coef_treatement)),
       .by = subjid
     ) %>%
