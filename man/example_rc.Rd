@@ -12,7 +12,7 @@ example_rc(
   rc_p_not_evaluable = 0.01,
   rc_p_nt_lesions_yn = 0.5,
   rc_p_nt_lesions_resp = list(CR = 0.72, SD = 0.24, PD = 0.01, NE = 0.01),
-  rc_sd_tlsum_noise = 5,
+  rc_sd_tlsum_noise = 0.5,
   rc_coef_treatement = 3,
   ...
 )

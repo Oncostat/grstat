@@ -188,12 +188,13 @@ example_ae = function(enrolres, seed, p_na=0,
 #' @keywords internal
 #' @importFrom dplyr bind_rows select mutate filter row_number
 #' @importFrom stats rnorm
-example_rc = function(enrolres, seed, rc_num_timepoints=10,
-                      rc_p_new_lesions = 0.01,
+example_rc = function(enrolres, seed,
+                      rc_num_timepoints = 5,
+                      rc_p_new_lesions = 0.09,
                       rc_p_not_evaluable = 0.01,
                       rc_p_nt_lesions_yn = 0.5,
                       rc_p_nt_lesions_resp = list("CR"=0.72, "SD"=0.24, "PD"=0.01, "NE"=0.01),
-                      rc_sd_tlsum_noise = 25,
+                      rc_sd_tlsum_noise = 0.5,
                       rc_coef_treatement = 3,
                       ...) {
   set.seed(seed)
