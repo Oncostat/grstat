@@ -89,9 +89,53 @@ test_that("RECIST data are ok", {
 
 })
 
+
+test_that("RECIST plots", {
+  skip("Skip RECIST plots, kept for dev vizualisation")
+
+  db = grstat_example(N=500)
+  rc = db$recist %>%
+    left_join(x$enrolres, by="subjid", suffix=c("_bak", ""))
+
+  # KM plot
+  km = survival::survfit(survival::Surv(time_pfs, event_pfs) ~ arm, data=data_km)
+  ggsurvfit::ggsurvfit(km) +
+    ggsurvfit::add_censor_mark() +
+    ggsurvfit::add_confidence_interval()
+
+
+  # spaghetti plot from baseline
+  rc %>%
+    mutate(t = as.numeric(rcdt-date_inclusion)/30.5) %>%
+    mutate(rctlsum_chg = (rctlsum-first(rctlsum, order_by=rcdt))/rctlsum, .by=subjid) %>%
+    filter(!is.na(t)) %>%
+    ggplot() +
+    aes(x=t, y=rctlsum_chg, color=arm, group=subjid, rcresp=rcresp, rcvisit=rcvisit) +
+    geom_point(alpha=0.2) +
+    geom_line(alpha=0.2)
+
+  # TL response repartition plot
+  rc %>%
+    filter(rcvisit>1) %>%
+    pivot_longer(c(rctlresp)) %>%
+    # pivot_longer(c(rctlresp, rcntlresp, rcnew, rcresp)) %>%
+    ggplot(aes(x=value, fill=arm)) +
+    geom_bar(position="dodge") +
+    facet_wrap(~name, scale="free") +
+    theme(axis.text.x=element_text(angle=45, hjust=1, vjust=1))
+
+  # TL response repartition crosstable
+  rc %>%
+    filter(rcvisit>1) %>%
+    # filter(rcvisit==max(rcvisit), .by=subjid) %>%
+    mutate(rcvisit=factor(rcvisit)) %>%
+    crosstable(c(ends_with("resp"), rcnew), by=arm, margin=2) %>%
+    # crosstable(c(rcvisit), by=rctlresp, margin=2) %>%
+    # crosstable(c(ends_with("resp"), rcnew), margin=2) %>%
+    af(T, header_show_n=T) %>%
+    print()
 })
 
-#   crosstable(RCNTLRES, by=RCNTLYN, margin=2)
 
 
 
