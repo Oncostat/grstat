@@ -57,7 +57,7 @@ test_that("RECIST data are ok", {
     left_join(db$enrolres, by="subjid", suffix=c("_bak", "")) %>%
     summarise(across(starts_with("any_"), mean), .by=arm) %>%
     pivot_longer(-arm) %>%
-    pivot_wider(names_from=arm) %>%
+    tidyr::pivot_wider(names_from=arm) %>%
     mutate(diff=Treatment-Control) %>%
     select(name, diff) %>%
     deframe()

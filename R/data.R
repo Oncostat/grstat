@@ -187,6 +187,7 @@ example_ae = function(enrolres, seed, p_na=0,
 #'
 #' @keywords internal
 #' @importFrom dplyr bind_rows select mutate filter row_number
+#' @importFrom forcats fct_drop
 #' @importFrom stats rnorm
 example_rc = function(enrolres, seed,
                       rc_num_timepoints = 5,
