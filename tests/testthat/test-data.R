@@ -24,11 +24,74 @@ test_that("Proportions of AE grades are respected", {
 
 test_that("RECIST data are ok", {
 
-  db = grstat_example(N=5000)
+  db = grstat_example(N=500)
   rc = db$recist
+
   expect_false(any(rc$rcresp=="ERROR", na.rm=TRUE))
   expect_false(any(rc$rctlsum < 0, na.rm=TRUE))
+
+  #baseline vide
+  rc %>%
+    filter(rcdt==min(rcdt), .by=subjid) %>%
+    filter(!is.na(rcresp) | !is.na(rctlresp) | !is.na(rcntlresp) | !is.na(rcnew)) %>%
+    nrow() %>%
+    expect_equal(0)
+
+  #pas de date négative
+  rc %>%
+    left_join(db$enrolres, by="subjid", suffix=c("_rc", "")) %>%
+    select(subjid, date_inclusion, rcdt, everything()) %>%
+    filter(rcdt<date_inclusion) %>%
+    nrow() %>%
+    expect_equal(0)
+
+  #15% more CR, 15% less PD at all time in treatment arm
+  data_resp = rc %>%
+    summarise(
+      any_cr_target=any(rctlresp=="Complete response", na.rm=TRUE),
+      any_cr_global=any(rcresp=="Complete response", na.rm=TRUE),
+      any_pd_target=any(rctlresp=="Progressive disease", na.rm=TRUE),
+      any_pd_global=any(rcresp=="Progressive disease", na.rm=TRUE),
+      .by=subjid
+    ) %>%
+    left_join(db$enrolres, by="subjid", suffix=c("_bak", "")) %>%
+    summarise(across(starts_with("any_"), mean), .by=arm) %>%
+    pivot_longer(-arm) %>%
+    pivot_wider(names_from=arm) %>%
+    mutate(diff=Treatment-Control) %>%
+    select(name, diff) %>%
+    deframe()
+  expect_true(all(data_resp[c("any_cr_target", "any_cr_global")] > 0.15))
+  expect_true(all(data_resp[c("any_pd_target", "any_pd_global")] < -0.15))
+
+  #PFS is better in treatment arm: HR~0.5, 4yPFS difference > 0.2
+  #TODO add death data
+  data_km = rc %>%
+    summarise(
+      date_pd = min_narm(rcdt[rcresp=="Progressive disease"]),
+      last_date = max_narm(rcdt),
+      .by=subjid
+    ) %>%
+    left_join(db$enrolres, by="subjid", suffix=c("_rc", "")) %>%
+    mutate(
+      date_pfs = pmin(date_pd, last_date, na.rm=TRUE),
+      time_pfs = as.numeric(date_pfs - date_inclusion)/30.4,
+      event_pfs = !is.na(date_pd)
+    )
+  expect_true(all(data_km$time_pfs > 0))
+
+  cox = survival::coxph(survival::Surv(time_pfs, event_pfs) ~ arm, data=data_km)
+  expect_true(coef(cox) < - 0.7)
+
+  km = survival::survfit(survival::Surv(time_pfs, event_pfs) ~ arm, data=data_km)
+  surv_diff_arm_5m = summary(km, times = 4)$surv %>% diff()
+  expect_true(surv_diff_arm_5m > 0.2)
+
+})
 
 })
 
 #   crosstable(RCNTLRES, by=RCNTLYN, margin=2)
+
+
+
