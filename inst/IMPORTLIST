@@ -1,10 +1,14 @@
 align = flextable
 all_of = dplyr
+as_tibble = dplyr
 attr = base
 bold = flextable
 dir_create = fs
 intersect = dplyr
 isFALSE = base
+last = dplyr
 readLines = base
 setequal = dplyr
+str_wrap = stringr
+t = base
 writeLines = base
