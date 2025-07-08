@@ -78,7 +78,8 @@ boin_plot = function(data_boin, data_patients=NULL,
   )
 
   if(inherits(data_boin, "boin")){
-    data_boin = data_boin$full_boundary_tab %>%
+    tab = if(is.null(data_boin$full_boundary_tab)) data_boin$boundary_tab else data_boin$full_boundary_tab
+    data_boin = tab %>%
       t() %>% as_tibble() %>%
       rename(n_eval="Number of patients treated",
              escalate_if_inf="Escalate if # of DLT <=",
