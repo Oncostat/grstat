@@ -20,6 +20,7 @@
 #' `gantt_include==TRUE`, the output is a `patchwork` object with an additional Gantt diagram.
 #'
 #' @importFrom dplyr as_tibble case_when mutate rename rowwise
+#' @importFrom purrr map2_chr
 #' @importFrom rlang check_dots_empty
 #' @importFrom stringr str_wrap
 #' @importFrom tibble tibble
@@ -81,7 +82,7 @@ boin_plot = function(data_boin, data_patients=NULL,
     "E = Escalate to the next higher dose",
     "S = Stay at the current dose",
     "D = De-escalate to the next lower dose",
-    "DE = De-escalate and eleminate the current and higher doses"
+    "DE = De-escalate and eliminate the current and higher doses"
   )
 
   if(inherits(data_boin, "boin")){
@@ -174,7 +175,7 @@ boin_plot = function(data_boin, data_patients=NULL,
       currently = is.na(dlt),
       n_dlt = if_else(
         is.na(dlt),
-        pmap_chr(list(n_dlt_min, n_dlt_max), ~ paste(seq(..1, ..2), collapse = ",")),
+        map2_chr(n_dlt_min, n_dlt_max, ~ paste(seq(.x, .y), collapse=",")),
         as.character(cumsum(dlt))
       ),
       subjid = paste0(ifelse(currently, "?", "#"), subjid) %>% as_factor(),
