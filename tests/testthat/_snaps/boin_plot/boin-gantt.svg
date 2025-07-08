@@ -1384,16 +1384,16 @@
 <text x='691.95' y='316.95' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>14</text>
 <text x='702.63' y='316.95' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>15</text>
 <text x='376.10' y='329.09' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='256.85px' lengthAdjust='spacingAndGlyphs'>Number of evaluable patients treated at current dose</text>
-<text x='26.26' y='46.22' style='font-size: 11.00px; font-family: sans;' textLength='42.19px' lengthAdjust='spacingAndGlyphs'>Decision</text>
-<rect x='74.08' y='33.88' width='17.00' height='17.10' style='stroke-width: 0.21; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #5FFF33;' />
-<rect x='243.96' y='33.88' width='17.00' height='17.10' style='stroke-width: 0.21; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #33D2FF;' />
-<rect x='381.55' y='33.88' width='17.00' height='17.10' style='stroke-width: 0.21; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF96C5;' />
-<rect x='561.69' y='33.88' width='17.00' height='17.10' style='stroke-width: 0.21; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF3367;' />
-<text x='96.69' y='45.46' style='font-size: 8.80px; font-family: sans;' textLength='141.65px' lengthAdjust='spacingAndGlyphs'>E = Escalate to the next higher dose</text>
-<text x='266.58' y='45.46' style='font-size: 8.80px; font-family: sans;' textLength='109.35px' lengthAdjust='spacingAndGlyphs'>S = Stay at the current dose</text>
-<text x='404.17' y='45.46' style='font-size: 8.80px; font-family: sans;' textLength='151.91px' lengthAdjust='spacingAndGlyphs'>D = De-escalate to the next lower dose</text>
-<text x='584.31' y='40.71' style='font-size: 8.80px; font-family: sans;' textLength='141.64px' lengthAdjust='spacingAndGlyphs'>DE = De-escalate and eleminate the</text>
-<text x='584.31' y='50.22' style='font-size: 8.80px; font-family: sans;' textLength='97.36px' lengthAdjust='spacingAndGlyphs'>current and higher doses</text>
+<text x='27.73' y='46.22' style='font-size: 11.00px; font-family: sans;' textLength='42.19px' lengthAdjust='spacingAndGlyphs'>Decision</text>
+<rect x='75.55' y='33.88' width='17.00' height='17.10' style='stroke-width: 0.21; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #5FFF33;' />
+<rect x='245.43' y='33.88' width='17.00' height='17.10' style='stroke-width: 0.21; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #33D2FF;' />
+<rect x='383.02' y='33.88' width='17.00' height='17.10' style='stroke-width: 0.21; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF96C5;' />
+<rect x='563.16' y='33.88' width='17.00' height='17.10' style='stroke-width: 0.21; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF3367;' />
+<text x='98.16' y='45.46' style='font-size: 8.80px; font-family: sans;' textLength='141.65px' lengthAdjust='spacingAndGlyphs'>E = Escalate to the next higher dose</text>
+<text x='268.05' y='45.46' style='font-size: 8.80px; font-family: sans;' textLength='109.35px' lengthAdjust='spacingAndGlyphs'>S = Stay at the current dose</text>
+<text x='405.64' y='45.46' style='font-size: 8.80px; font-family: sans;' textLength='151.91px' lengthAdjust='spacingAndGlyphs'>D = De-escalate to the next lower dose</text>
+<text x='585.78' y='40.71' style='font-size: 8.80px; font-family: sans;' textLength='138.70px' lengthAdjust='spacingAndGlyphs'>DE = De-escalate and eliminate the</text>
+<text x='585.78' y='50.22' style='font-size: 8.80px; font-family: sans;' textLength='97.36px' lengthAdjust='spacingAndGlyphs'>current and higher doses</text>
 </g>
 <defs>
   <clipPath id='cpNDMuMTd8NzA5LjA0fDM5MS4wNHw1MjYuMjc='>
