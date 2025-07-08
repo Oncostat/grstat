@@ -8,8 +8,8 @@ test_that("boin_plot works", {
              "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1"),
     dlt = c(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
             FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, NA, NA),
-    date_enrol = as.Date("2025-01-01") +(1:17)*30 + rnorm(17, 0, 10),
-    date_end_fu = date_enrol+30
+    date_dlt_start = as.Date("2025-01-01") +(1:17)*30 + rnorm(17, 0, 10),
+    date_dlt_end = date_dlt_start+30
   )
 
   #default
@@ -44,13 +44,14 @@ test_that("boin_plot works", {
 
 
   #errors
-  boin_plot(boin, data_patients=NULL, gantt_include=TRUE,
-            doses=c("DL-1", "DL0", "DL1", "DL2"))
   boin_plot(boin, data_patients=data_patients %>% select(1), gantt_include=FALSE,
             doses=c("DL-1", "DL0", "DL1", "DL2")) %>%
     expect_error(class="grstat_name_notfound_error", regexp="dose.*dlt")
   boin_plot(boin, data_patients=data_patients %>% select(1), gantt_include=TRUE,
             doses=c("DL-1", "DL0", "DL1", "DL2")) %>%
-    expect_error(class="grstat_name_notfound_error", regexp="date_end_fu")
+    expect_error(class="grstat_name_notfound_error", regexp="date_dlt_end")
 
+  boin_plot(boin, data_patients=data_patients %>% mutate(dose="DL7"), gantt_include=TRUE,
+            doses=c("DL-1", "DL0", "DL1", "DL2")) %>%
+    expect_error(class="boin_plot_invalid_dose")
 })

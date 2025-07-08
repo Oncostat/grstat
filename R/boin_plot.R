@@ -5,13 +5,12 @@
 #' optionally overlaid with patient-level data and a Gantt-style timeline.
 #'
 #' @param data_boin A `boin` object from the [BOIN::get.boundary()] function **or** a `data.frame`
-#'   with columns: `n_eval`, `escalate_if_inf`, `deescalate_if_sup`, `eliminate_if_sup`.
+#'   with columns `n_eval`, `escalate_if_inf`, `deescalate_if_sup`, `eliminate_if_sup`.
 #' @param data_patients Optional data frame containing patient-level information,
 #'   with columns `subjid`, `dose` (character), and `dlt` (logical).
-#'   If `gantt_include==TRUE`, it must also include date of enrolment `date_enrol`
-#'   and date of followup end `date_end_fu`.
-#' @param doses Named vector or list giving dose labels. Should match the order
-#'   of dose levels used in the BOIN design.
+#'   If `gantt_include==TRUE`, it must also include the DLT evaluation period with `date_dlt_start`
+#'   and `date_dlt_end`.
+#' @param doses Vector of dose labels, matching the order of dose levels in the BOIN design.
 #' @param gantt_include Logical, whether to include a Gantt chart of follow-up.
 #' @param gantt_labels Optional vector with labels as names and dates as values,
 #'   to display in the Gantt chart.
@@ -40,8 +39,8 @@
 #'            "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1"),
 #'   dlt = c(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
 #'           FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, NA, NA),
-#'   date_enrol = as.Date("2025-01-01") +(1:17)*30 + rnorm(17, 0, 10),
-#'   date_end_fu = date_enrol+30
+#'   date_dlt_start = as.Date("2025-01-01") +(1:17)*30 + rnorm(17, 0, 10),
+#'   date_dlt_end = date_dlt_start+30
 #' )
 #'
 #' #default
@@ -198,20 +197,20 @@ boin_plot = function(data_boin, data_patients=NULL,
   if(isFALSE(do)) return(p)
   if(is.null(data_patients)) return(p)
   assert_names_exists(data_patients,
-                      c("subjid", "date_enrol", "date_end_fu", "dose"))
+                      c("subjid", "dose", "date_dlt_start", "date_dlt_end"))
   data_patients = data_patients %>%
     mutate(
       currently = is.na(dlt),
       subjid = paste0(ifelse(currently, "?", "#"), subjid) %>% as_factor(),
-      # stop = if(exists("reevaluation")) if_else(reevaluation, date_end_fu, lubridate::NA_Date_) else NA_Date_,
+      # stop = if(exists("reevaluation")) if_else(reevaluation, date_dlt_end, lubridate::NA_Date_) else NA_Date_,
     )
 
   gantt_plot = data_patients %>%
-    ggplot(aes(x=date_enrol, xend=date_end_fu, y=subjid, yend=subjid, color=dose)) +
+    ggplot(aes(x=date_dlt_start, xend=date_dlt_end, y=subjid, yend=subjid, color=dose)) +
     geom_hline(yintercept=seq(0.55, nrow(data_patients)),
                color="gray", linewidth=.5, alpha=.5) +
     geom_segment(linewidth=3, na.rm=TRUE) +
-    geom_point(aes(x=date_end_fu), data=~filter(.x, dlt),
+    geom_point(aes(x=date_dlt_end), data=~filter(.x, dlt),
                shape="cross", size=2, stroke=3, color="black") +
     # geom_label(aes(x=stop, y=Inf), na.rm=TRUE, label="Dose reevaluation",
     #            angle=90, size=label_size, vjust=1, hjust=1, color="black") +

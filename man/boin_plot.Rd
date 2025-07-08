@@ -15,17 +15,16 @@ boin_plot(
 }
 \arguments{
 \item{data_boin}{A \code{boin} object from the \code{\link[BOIN:get.boundary]{BOIN::get.boundary()}} function \strong{or} a \code{data.frame}
-with columns: \code{n_eval}, \code{escalate_if_inf}, \code{deescalate_if_sup}, \code{eliminate_if_sup}.}
+with columns \code{n_eval}, \code{escalate_if_inf}, \code{deescalate_if_sup}, \code{eliminate_if_sup}.}
 
 \item{data_patients}{Optional data frame containing patient-level information,
 with columns \code{subjid}, \code{dose} (character), and \code{dlt} (logical).
-If \code{gantt_include==TRUE}, it must also include date of enrolment \code{date_enrol}
-and date of followup end \code{date_end_fu}.}
+If \code{gantt_include==TRUE}, it must also include the DLT evaluation period with \code{date_dlt_start}
+and \code{date_dlt_end}.}
 
 \item{...}{Unused.}
 
-\item{doses}{Named vector or list giving dose labels. Should match the order
-of dose levels used in the BOIN design.}
+\item{doses}{Vector of dose labels, matching the order of dose levels in the BOIN design.}
 
 \item{gantt_include}{Logical, whether to include a Gantt chart of follow-up.}
 
@@ -53,8 +52,8 @@ data_patients = tibble(
            "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1"),
   dlt = c(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
           FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, NA, NA),
-  date_enrol = as.Date("2025-01-01") +(1:17)*30 + rnorm(17, 0, 10),
-  date_end_fu = date_enrol+30
+  date_dlt_start = as.Date("2025-01-01") +(1:17)*30 + rnorm(17, 0, 10),
+  date_dlt_end = date_dlt_start+30
 )
 
 #default
