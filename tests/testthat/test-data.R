@@ -61,8 +61,8 @@ test_that("RECIST data are ok", {
     mutate(diff=Treatment-Control) %>%
     select(name, diff) %>%
     deframe()
-  expect_true(all(data_resp[c("any_cr_target", "any_cr_global")] > 0.15))
-  expect_true(all(data_resp[c("any_pd_target", "any_pd_global")] < -0.15))
+  expect_true(all(data_resp[c("any_cr_target", "any_cr_global")] > 0.15, na.rm=TRUE))
+  expect_true(all(data_resp[c("any_pd_target", "any_pd_global")] < -0.15, na.rm=TRUE))
 
   #PFS is better in treatment arm: HR~0.5, 4yPFS difference > 0.2
   #TODO add death data

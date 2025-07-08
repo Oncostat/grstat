@@ -169,7 +169,7 @@ example_ae = function(enrolres, seed, p_na=0,
 #' @param seed Integer. Random seed for reproducibility (can be `NULL`).
 #' @param rc_num_timepoints Integer. Number of timepoints for each patient, including baseline.
 #' @param rc_p_new_lesions Integer. Probability of a new lesion
-#' @param rc_p_not_evaluable Integer. Probability of a Not Evaluable measure
+#' @param rc_p_na Integer. Probability of a missing value in reponses of Target Lesions, Non-Target Lesions, and New Lesions independently. They add up for the global response.
 #' @param rc_p_nt_lesions_yn Integer. Probability of having Non-Target Lesions
 #' @param rc_p_nt_lesions_resp Integer list. Probability of each Non-Target Lesions response, if present
 #' @param rc_sd_tlsum_noise Integer. Standard deviation for the evolution of the Target Lesion sum of width
@@ -192,16 +192,16 @@ example_ae = function(enrolres, seed, p_na=0,
 example_rc = function(enrolres, seed,
                       rc_num_timepoints = 5,
                       rc_p_new_lesions = 0.09,
-                      rc_p_not_evaluable = 0.01,
+                      rc_p_na = 0.005,
                       rc_p_nt_lesions_yn = 0.5,
-                      rc_p_nt_lesions_resp = list("CR"=0.72, "SD"=0.24, "PD"=0.01, "NE"=0.01),
+                      rc_p_nt_lesions_resp = list("CR"=0.73, "SD"=0.25, "PD"=0.01, "NE"=0.01),
                       rc_sd_tlsum_noise = 0.5,
                       rc_coef_treatement = 3,
                       ...) {
   set.seed(seed)
   recist_data = enrolres %>%
     mutate(
-      data = .simulate_one_patient(arm, rc_num_timepoints,
+      data = .simulate_one_patient(arm, rc_num_timepoints, rc_p_na,
                                    rc_sd_tlsum_noise, rc_coef_treatement),
       .by = subjid
     ) %>%
@@ -227,12 +227,14 @@ example_rc = function(enrolres, seed,
                          prob=c(rc_p_nt_lesions_resp$CR, rc_p_nt_lesions_resp$SD,
                                 rc_p_nt_lesions_resp$PD, rc_p_nt_lesions_resp$NE)),
       rcntlresp = ifelse(rcntlyn=="Yes", rcntlresp, NA),
+      rcntlresp = if_else(runif(n()) < rc_p_na, NA, rcntlresp),
       #New Lesions
       rcnew = case_when(
         rcvisit == 1 ~ NA,
         arm=="Control" ~ .sample_yesno(n(), p=rc_p_new_lesions),
         .default = .sample_yesno(n(), p=rc_p_new_lesions/rc_coef_treatement)
       ),
+      rcnew = if_else(runif(n()) < rc_p_na, NA, rcnew),
       #Global resp
       rcresp = case_when(
         rcnew == "Yes" | rctlresp=="Progressive disease" | rcntlresp=="Progressive disease"
@@ -286,7 +288,7 @@ example_rc = function(enrolres, seed,
 #' @noRd
 #' @keywords internal
 #' @importFrom tibble tibble
-.simulate_one_patient = function(arm, rc_num_timepoints,
+.simulate_one_patient = function(arm, rc_num_timepoints, rc_p_na,
                                  rc_sd_tlsum_noise, rc_coef_treatement) {
   rc_num_timepoints = rc_num_timepoints-1 #add baseline later
   rctlsum_b = rnorm(1, 50, 30)
@@ -300,8 +302,9 @@ example_rc = function(enrolres, seed,
   percent_change = percent_change_per_month * subj_delai / 30.5
   percent_change = percent_change + rnorm(rc_num_timepoints, 0, rc_sd_tlsum_noise)
   percent_change = c(0, percent_change)
+  percent_change = if_else(runif(rc_num_timepoints+1) < rc_p_na, NA, percent_change)
   sizes = rctlsum_b * (1+percent_change)
-  sizes = ifelse(sizes <1, 0, sizes)
+  sizes = ifelse(sizes < 1, 0, sizes)
   list(tibble(
     rctlsum_b,
     subj_delai = c(0, subj_delai),
