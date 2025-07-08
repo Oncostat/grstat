@@ -156,7 +156,6 @@ boin_plot = function(data_boin, data_patients=NULL,
   assert_names_exists(data_patients,
                       c("subjid", "dose", "dlt"))
   stopifnot(!any(is.na(data_patients$dose)))
-  # browser()
 
   data_patients = data_patients %>%
     mutate(
@@ -199,9 +198,7 @@ boin_plot = function(data_boin, data_patients=NULL,
       # stop = if(exists("reevaluation")) if_else(reevaluation, date_end_fu, lubridate::NA_Date_) else NA_Date_,
     )
 
-  y_last = data_patients %>% arrange(date_enrol) %>% pull(subjid) %>% last()
-  gantt_plot =
-    data_patients %>%
+  gantt_plot = data_patients %>%
     ggplot(aes(x=date_enrol, xend=date_end_fu, y=subjid, yend=subjid, color=dose)) +
     geom_hline(yintercept=seq(0.55, nrow(data_patients)),
                color="gray", size=.5, alpha=.5) +
@@ -230,7 +227,7 @@ boin_plot = function(data_boin, data_patients=NULL,
   if(!is.null(gantt_labels)){
     x = enframe(gantt_labels)
     gantt_plot = gantt_plot +
-      geom_vline(xintercept=gantt_labels, linetype="dashed", alpha=0.3) +
+      geom_vline(xintercept=x$value, linetype="dashed", alpha=0.3) +
       geom_label(aes(x=value, label=name), y=Inf, data=x, inherit.aes=FALSE,
                angle=90, size=label_size, hjust=2, vjust=1)
   }
