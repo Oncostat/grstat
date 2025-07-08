@@ -214,7 +214,10 @@ boin_plot = function(data_boin, data_patients=NULL,
     labs(x="Patient follow-up (Calendar date)", y="Patient", color="Dose level") +
     theme_minimal() +
     theme(
-      legend.position="bottom",
+      legend.position="inside",
+      legend.position.inside=c(0.99, 0.05),
+      legend.justification=c(1, 0),
+      legend.background=element_rect(fill="white", color="black"),
       panel.grid.major.y = element_blank(),
       panel.grid.minor.y = element_blank(),
     )
