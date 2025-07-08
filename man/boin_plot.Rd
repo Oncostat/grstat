@@ -71,8 +71,8 @@ p = boin_plot(boin, data_patients=data_patients, gantt_include=TRUE,
 p
 
 #with post production
-p[[1]] = p[[1]] + scale_color_manual(values=c("red", "green", "blue", "yellow"))
-p[[2]] = p[[2]] + scale_x_date(breaks=breaks_width("2 months"))
+p[[1]] = p[[1]] + ggplot2::scale_color_manual(values=c("red", "green", "blue", "yellow"))
+p[[2]] = p[[2]] + ggplot2::scale_x_date(breaks=scales::breaks_width("2 months"))
 p
 
 #with gantt labels

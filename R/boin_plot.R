@@ -58,8 +58,8 @@
 #' p
 #'
 #' #with post production
-#' p[[1]] = p[[1]] + scale_color_manual(values=c("red", "green", "blue", "yellow"))
-#' p[[2]] = p[[2]] + scale_x_date(breaks=breaks_width("2 months"))
+#' p[[1]] = p[[1]] + ggplot2::scale_color_manual(values=c("red", "green", "blue", "yellow"))
+#' p[[2]] = p[[2]] + ggplot2::scale_x_date(breaks=scales::breaks_width("2 months"))
 #' p
 #'
 #' #with gantt labels
@@ -192,7 +192,7 @@ boin_plot = function(data_boin, data_patients=NULL,
 
 #' @importFrom dplyr arrange filter if_else last mutate pull
 #' @importFrom forcats as_factor
-#' @importFrom ggplot2 aes element_blank geom_hline geom_label geom_point geom_segment geom_vline ggplot labs theme theme_minimal
+#' @importFrom ggplot2 aes element_blank element_rect geom_hline geom_label geom_point geom_segment geom_vline ggplot labs theme theme_minimal
 #' @importFrom tibble enframe
 .add_gantt = function(p, data_patients, label_size=2.5, gantt_labels, do){
   if(isFALSE(do)) return(p)
@@ -209,7 +209,7 @@ boin_plot = function(data_boin, data_patients=NULL,
   gantt_plot = data_patients %>%
     ggplot(aes(x=date_enrol, xend=date_end_fu, y=subjid, yend=subjid, color=dose)) +
     geom_hline(yintercept=seq(0.55, nrow(data_patients)),
-               color="gray", size=.5, alpha=.5) +
+               color="gray", linewidth=.5, alpha=.5) +
     geom_segment(linewidth=3, na.rm=TRUE) +
     geom_point(aes(x=date_end_fu), data=~filter(.x, dlt),
                shape="cross", size=2, stroke=3, color="black") +
