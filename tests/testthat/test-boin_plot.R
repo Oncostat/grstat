@@ -1,14 +1,14 @@
 test_that("boin_plot works", {
 
-  boin = BOIN::get.boundary(target=0.3, ncohort=1, cohortsize=15)
-  set.seed(42)
+  boin = BOIN::get.boundary(target=0.3, ncohort=15, cohortsize=1)
+  set.seed(123)
   data_patients = tibble(
     subjid = 1:17,
     dose = c("DL0", "DL0", "DL-1", "DL-1", "DL-1", "DL0", "DL0", "DL0",
              "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1"),
     dlt = c(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
             FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, NA, NA),
-    date_enrol = as.Date("2025-01-01") +(1:17)*30 + runif(17, -13, 13),
+    date_enrol = as.Date("2025-01-01") +(1:17)*30 + rnorm(17, 0, 10),
     date_end_fu = date_enrol+30
   )
 
@@ -32,8 +32,10 @@ test_that("boin_plot works", {
   vdiffr::expect_doppelganger("boin-gantt-modif", p3)
 
   #with gantt labels
-  gantt_labels=c("Plot cutoff date"=as.Date("2026-08-25"),
-                 "Dose reevaluation"=as.Date("2025-08-25"))
+  gantt_labels=c("Plot cutoff date"=as.Date("2026-06-01"),
+                 "Dose reevaluation"=as.Date("2025-04-11"),
+                 "Dose reevaluation"=as.Date("2025-07-03"),
+                 "Dose reevaluation"=as.Date("2025-09-17"))
   p4 = boin_plot(data_boin=boin, data_patients=data_patients,
             doses = c("DL-1", "DL0", "DL1", "DL2"),
             gantt_include=TRUE,
