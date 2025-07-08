@@ -76,6 +76,7 @@ boin_plot = function(data_boin, data_patients=NULL,
                      gantt_include=FALSE,
                      gantt_labels=NULL){
   check_dots_empty()
+  .check_data_patients(data_patients, doses)
   dec_labs = c(
     "E = Escalate to the next higher dose",
     "S = Stay at the current dose",
@@ -240,4 +241,16 @@ boin_plot = function(data_boin, data_patients=NULL,
   }
 
   patchwork::wrap_plots(p, gantt_plot, ncol=1, heights=c(2,1))
+}
+
+
+#' @importFrom cli cli_abort
+.check_data_patients = function(data_patients, doses){
+  if(is.null(data_patients)) return(NULL)
+  invalid_doses = setdiff(data_patients[["dose"]], doses)
+  if(length(invalid_doses) > 0){
+    cli_abort("Some dose values in {.arg data_patients} are not present
+              in {.arg doses}: {.val {invalid_doses}}.",
+              class="boin_plot_invalid_dose")
+  }
 }
