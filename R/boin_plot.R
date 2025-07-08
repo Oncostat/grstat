@@ -1,8 +1,9 @@
 
 #' Plot BOIN decision boundaries and patient-level data
 #'
-#' This function generates a plot of decision boundaries from a BOIN design,
-#' optionally overlaid with patient-level data and a Gantt-style timeline.
+#' `r lifecycle::badge("experimental")`\cr
+#' Generates a plot of decision boundaries from a BOIN design, optionally
+#' overlaid with patient-level data and a Gantt-style timeline.
 #'
 #' @param data_boin A `boin` object from the [BOIN::get.boundary()] function **or** a `data.frame`
 #'   with columns `n_eval`, `escalate_if_inf`, `deescalate_if_sup`, `eliminate_if_sup`.

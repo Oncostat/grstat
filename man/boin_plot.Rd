@@ -36,8 +36,9 @@ A \code{ggplot2} object showing BOIN decision rules and patient data overlay (op
 \code{gantt_include==TRUE}, the output is a \code{patchwork} object with an additional Gantt diagram.
 }
 \description{
-This function generates a plot of decision boundaries from a BOIN design,
-optionally overlaid with patient-level data and a Gantt-style timeline.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
+Generates a plot of decision boundaries from a BOIN design, optionally
+overlaid with patient-level data and a Gantt-style timeline.
 }
 \examples{
 #use a cohort size of 1
