@@ -28,41 +28,48 @@
 #' @export
 #'
 #' @examples
-#' boin = BOIN::get.boundary(target=0.3, ncohort=6, cohortsize=1)
+#' #use a cohort size of 1
+#' boin = BOIN::get.boundary(target=0.3, ncohort=15, cohortsize=1)
+#'
 #' #In this example, 17 patients are included, 15 of which are already evaluated.
 #' #Patients are deemed evaluable
-#' set.seed(42)
+#' set.seed(123)
 #' data_patients = tibble(
 #'   subjid = 1:17,
 #'   dose = c("DL0", "DL0", "DL-1", "DL-1", "DL-1", "DL0", "DL0", "DL0",
 #'            "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1", "DL1"),
 #'   dlt = c(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
 #'           FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, NA, NA),
-#'   date_enrol = as.Date("2025-01-01") +(1:17)*30 + runif(17, -13, 13),
+#'   date_enrol = as.Date("2025-01-01") +(1:17)*30 + rnorm(17, 0, 10),
 #'   date_end_fu = date_enrol+30
 #' )
 #'
 #' #default
 #' boin_plot(boin,
 #'           doses=c("DL-1", "DL0", "DL1", "DL2"))
+#'
 #' #with patient labels
 #' boin_plot(boin, data_patients=data_patients,
 #'           doses=c("DL-1", "DL0", "DL1", "DL2"))
+#'
 #' #with gantt diagram
 #' p = boin_plot(boin, data_patients=data_patients, gantt_include=TRUE,
 #'               doses=c("DL-1", "DL0", "DL1", "DL2"))
 #' p
+#'
 #' #with post production
 #' p[[1]] = p[[1]] + scale_color_manual(values=c("red", "green", "blue", "yellow"))
-#' p[[2]] = p[[2]] + scale_color_manual(values=c("red", "green", "blue"))
+#' p[[2]] = p[[2]] + scale_x_date(breaks=breaks_width("2 months"))
 #' p
 #'
 #' #with gantt labels
-#' gantt_labels=c("Plot cutoff date"=as.Date("2026-08-25"),
-#'                "Dose reevaluation"=as.Date("2025-08-25"))
+#' gantt_labels=c("Plot cutoff date"=as.Date("2026-06-01"),
+#'                "Dose reevaluation"=as.Date("2025-04-11"),
+#'                "Dose reevaluation"=as.Date("2025-07-03"),
+#'                "Dose reevaluation"=as.Date("2025-09-17"))
 #'
 #' boin_plot(data_boin=boin, data_patients=data_patients,
-#'           doses = c("DL-1", "DL0", "DL1", "DL2"),
+#'           doses = c("DL-2", "DL-1", "DL0", "DL1"),
 #'           gantt_include=TRUE,
 #'           gantt_labels=gantt_labels)
 boin_plot = function(data_boin, data_patients=NULL,
