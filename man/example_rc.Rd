@@ -9,9 +9,9 @@ example_rc(
   seed,
   rc_num_timepoints = 5,
   rc_p_new_lesions = 0.09,
-  rc_p_not_evaluable = 0.01,
+  rc_p_na = 0.005,
   rc_p_nt_lesions_yn = 0.5,
-  rc_p_nt_lesions_resp = list(CR = 0.72, SD = 0.24, PD = 0.01, NE = 0.01),
+  rc_p_nt_lesions_resp = list(CR = 0.73, SD = 0.25, PD = 0.01, NE = 0.01),
   rc_sd_tlsum_noise = 0.5,
   rc_coef_treatement = 3,
   ...
@@ -26,7 +26,7 @@ example_rc(
 
 \item{rc_p_new_lesions}{Integer. Probability of a new lesion}
 
-\item{rc_p_not_evaluable}{Integer. Probability of a Not Evaluable measure}
+\item{rc_p_na}{Integer. Probability of a missing value in reponses of Target Lesions, Non-Target Lesions, and New Lesions independently. They add up for the global response.}
 
 \item{rc_p_nt_lesions_yn}{Integer. Probability of having Non-Target Lesions}
 
