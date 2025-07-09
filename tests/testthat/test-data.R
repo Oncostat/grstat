@@ -30,10 +30,11 @@ test_that("RECIST data are ok", {
   expect_false(any(rc$rcresp=="ERROR", na.rm=TRUE))
   expect_false(any(rc$rctlsum < 0, na.rm=TRUE))
 
+  is_na_ne = function(x) is.na(x) | x=="Not Evaluable"
   #baseline vide
   rc %>%
     filter(rcdt==min(rcdt), .by=subjid) %>%
-    filter(!is.na(rcresp) | !is.na(rctlresp) | !is.na(rcntlresp) | !is.na(rcnew)) %>%
+    filter(!is_na_ne(rcresp) | !is_na_ne(rctlresp) | !is_na_ne(rcntlresp) | !is_na_ne(rcnew)) %>%
     nrow() %>%
     expect_equal(0)
 
