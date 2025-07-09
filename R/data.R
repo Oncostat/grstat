@@ -216,6 +216,7 @@ example_rc = function(enrolres, seed,
     mutate(
       #Target Lesions
       rctlresp = case_when(
+        is.na(rctlsum) ~ NA,
         rctlsum == 0 ~ "Complete response",
         ((rctlmin - rctlsum)/rctlmin) < -0.2 ~ "Progressive disease",
         ((rctlsum_b - rctlsum)/rctlsum_b) > 0.3 ~ "Partial response",
@@ -245,15 +246,16 @@ example_rc = function(enrolres, seed,
         ~ "Partial response",
         rctlresp == "Stable disease"
         ~ "Stable disease",
-        rctlresp == "Not evaluable"
+        is.na(rctlresp) | rctlresp == "Not evaluable"
         ~ "Not evaluable",
         .default = "ERROR"
       ),
       across(c(rctlresp, rcntlresp, rcresp), ~{
         .x = ifelse(.data$rcvisit == 1, NA, .x)
+        .x = ifelse(is.na(rctlsum) & runif(n()) > 0.5, "Not Evaluable", .x)
         .x %>%
           factor(levels=c("Complete response", "Partial response", "Non-CR / Non-PD",
-                          "Stable disease", "Progressive disease")) %>%
+                          "Stable disease", "Progressive disease", "Not Evaluable")) %>%
           fct_drop()
       }),
     ) %>%
