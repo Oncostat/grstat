@@ -17,16 +17,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - {os: windows-latest,  r: 'release', run_on: 'always'}
-          - {os: ubuntu-latest,   r: 'release', run_on: 'push'}
-          - {os: ubuntu-latest,  r: 'oldrel-1', run_on: 'push'}
-          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release', run_on: 'push'}
+        include:
+          - os: windows-latest
+            r: release
+            run_on: always
+          - os: ubuntu-latest
+            r: release
+            run_on: push
+          - os: ubuntu-latest
+            r: oldrel-1
+            run_on: push
+          - os: ubuntu-latest
+            r: devel
+            run_on: push
+            http-user-agent: release
 
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      matrix.config.run_on == 'always'
+      matrix.run_on == 'always'
 
 
     env:
