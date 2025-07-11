@@ -112,20 +112,17 @@ calc_best_response = function(data_recist, ...,
 #' @importFrom dplyr filter n_distinct
 .check_best_resp = function(df, do=TRUE) {
   if(!isTRUE(do)) return(df)
-
   df %>%
-    filter(date==min(date) & !is.na(response), .by=subjid) %>%
+    filter(date==min(date) & !response %in% c(NA, "Not Evaluable"), .by=subjid) %>%
     grstat_data_warn("Response is not missing at baseline.",
                      class="check_best_resp_bl_notmissing_warning")
   df %>%
     filter(date==min(date) & is.na(sum), .by=subjid) %>%
     grstat_data_warn("Target Lesions Length Sum is missing at baseline.",
                      class="check_best_resp_bl_summissing_warning")
-
   df %>%
     filter(n_distinct(date)<2, .by=subjid) %>%
     grstat_data_warn("Patients with <2 recist evaluations were ignored.",
                      class="check_best_resp_inf2_eval_warning")
-
   df
 }
