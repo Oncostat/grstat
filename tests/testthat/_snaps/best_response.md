@@ -3,1008 +3,1012 @@
     Code
       db = grstat_example(N = 500)
       data_br = calc_best_response(db$recist)
+    Condition
+      Warning:
+      Target Lesions Length Sum is missing at baseline. (2 patients: #72 and #193)
+    Code
       as.data.frame(data_br)
     Output
           subjid       best_response       date target_sum target_sum_diff_first
-      1        1 Progressive disease 2031-08-29      191.3          1.0992276623
-      2        2      Stable disease 2036-02-25       30.8         -0.0683339215
-      3        3   Complete response 2032-01-31        0.0         -1.0000000000
-      4        4      Stable disease 2024-06-09       58.6         -0.1505507856
-      5        5    Partial response 2033-09-17       27.2         -0.5621945299
-      6        6 Progressive disease 2033-06-09       58.5          0.2495657354
-      7        7 Progressive disease 2028-09-05      134.0          0.4054126859
-      8        8      Stable disease 2032-02-24       49.6          0.0517336580
-      9        9    Partial response 2025-06-10        2.1         -0.9810045365
-      10      10 Progressive disease 2032-08-22       64.9          0.3487514388
-      11      11 Progressive disease 2025-08-31      122.8          0.3775141514
-      12      12    Partial response 2024-08-08       21.4         -0.8195605804
-      13      13    Partial response 2023-06-09      104.9         -0.3576722069
-      14      14      Stable disease 2030-12-13       37.2         -0.1065496467
-      15      15   Complete response 2027-06-02        0.0         -1.0000000000
-      16      16    Partial response 2036-03-20       39.5         -0.4281868719
-      17      17    Partial response 2037-08-03        6.8         -0.8360355809
-      18      18 Progressive disease 2028-10-22      107.5          0.3978812659
-      19      19      Stable disease 2034-07-09      150.6         -0.0598250879
-      20      20      Stable disease 2029-02-16       73.7         -0.1774865720
-      21      21    Partial response 2024-02-14       22.1         -0.4583445140
-      22      22    Partial response 2036-02-10       58.3         -0.5492139045
-      23      23      Stable disease 2029-11-23       33.4         -0.2551705325
-      24      24    Partial response 2031-05-12       12.4         -0.8565482944
-      25      25      Stable disease 2029-05-17      103.5         -0.0314049749
-      26      26   Complete response 2028-09-07        0.0         -1.0000000000
-      27      27      Stable disease 2035-07-23       46.9          0.1092211906
-      28      28      Stable disease 2030-12-13      136.8          0.0953445298
-      29      29      Stable disease 2033-05-06       74.1          0.1613888401
-      30      30    Partial response 2033-05-21        1.4         -0.9545456814
-      31      31   Complete response 2028-03-09        0.0         -1.0000000000
-      32      32   Complete response 2034-12-21        0.0         -1.0000000000
-      33      33      Stable disease 2030-10-07       69.0         -0.1487062780
-      34      34      Stable disease 2036-02-23       35.0          0.1029802649
-      35      35   Complete response 2036-08-15        0.0         -1.0000000000
-      36      36   Complete response 2036-04-14        0.0         -1.0000000000
-      37      37 Progressive disease 2030-02-26       45.3          0.7116151575
-      38      38 Progressive disease 2034-03-30       32.9          0.3443511738
-      39      39   Complete response 2031-10-13        0.0         -1.0000000000
-      40      40      Stable disease 2025-07-21       36.3         -0.2894012085
-      41      41 Progressive disease 2030-02-16       68.2          0.2139560516
-      42      42      Stable disease 2029-11-06       44.1          0.1259110389
-      43      43   Complete response 2032-02-09        0.0         -1.0000000000
-      44      44 Progressive disease 2035-10-26       41.9          0.4858759237
-      45      45      Stable disease 2024-04-23      127.9         -0.1426966730
-      46      46   Complete response 2033-12-20        0.0         -1.0000000000
-      47      47      Stable disease 2032-11-11       28.0          0.0912688675
-      48      48   Complete response 2028-06-13        0.0         -1.0000000000
-      49      49      Stable disease 2035-09-19       41.1          0.1091137492
-      50      50 Progressive disease 2024-05-19       86.1          0.2358360326
-      51      51      Stable disease 2035-05-17       70.3          0.1783882333
-      52      52   Complete response 2026-10-13        0.0         -1.0000000000
-      53      53 Progressive disease 2029-01-19      122.4          0.2583294212
-      54      54      Stable disease 2024-06-17       56.0         -0.1917673325
-      55      55 Progressive disease 2028-04-25       77.6          0.4726864284
-      56      56      Stable disease 2035-08-21       58.0         -0.0050864512
-      57      57      Stable disease 2029-08-18       61.3         -0.1289973964
-      58      58 Progressive disease 2024-12-13       71.6          0.3587630365
-      59      59      Stable disease 2028-04-08      104.4          0.0883085767
-      60      60      Stable disease 2023-06-27       62.9          0.0743599061
-      61      61   Complete response 2034-12-16        0.0         -1.0000000000
-      62      62 Progressive disease 2028-07-24       90.0          0.6199603028
-      63      63    Partial response 2033-05-20       27.7         -0.5893541125
-      64      64    Partial response 2034-09-10       46.2         -0.4977829881
-      65      65   Complete response 2035-10-23        0.0         -1.0000000000
-      66      66   Complete response 2030-07-29        0.0         -1.0000000000
-      67      67      Stable disease 2032-09-08       49.8         -0.1710423258
-      68      68   Complete response 2033-12-15        0.0         -1.0000000000
-      69      69    Partial response 2031-11-08       35.7         -0.5400779966
-      70      70      Stable disease 2023-04-03       67.8         -0.0534209151
-      71      71 Progressive disease 2032-03-28       24.4          0.3043641997
-      72      72 Progressive disease 2034-07-03       57.8          0.2221317901
-      73      73   Complete response 2031-02-09        0.0         -1.0000000000
-      74      74 Progressive disease 2025-07-24       29.6          0.3835461321
-      75      75 Progressive disease 2028-03-12       40.5          0.2012409063
-      76      76    Partial response 2025-04-08        6.1         -0.9095356740
-      77      77    Partial response 2023-10-15       40.1         -0.4510260634
-      78      78   Complete response 2035-03-30        0.0         -1.0000000000
-      79      79   Complete response 2029-06-21        0.0         -1.0000000000
-      80      80      Stable disease 2031-02-22       20.2          0.1877760412
-      81      81    Partial response 2030-10-11       17.3         -0.8186225574
-      82      82   Complete response 2025-04-05        0.0         -1.0000000000
-      83      83      Stable disease 2030-08-21       56.5          0.0730590472
-      84      84      Stable disease 2035-03-20       54.8          0.1817194758
-      85      85      Stable disease 2025-10-16       14.5          0.0232790230
-      86      86 Progressive disease 2026-02-13       97.9          0.4321259987
-      87      87      Stable disease 2029-09-28       47.7          0.0969096791
-      88      88    Partial response 2026-09-16       27.9         -0.3732773383
-      89      89 Progressive disease 2030-11-05      103.7          0.3294805345
-      90      90 Progressive disease 2025-05-04       93.7          0.2551371996
-      91      91      Stable disease 2035-01-21       86.1         -0.0617183501
-      92      92   Complete response 2033-12-18        0.0         -1.0000000000
-      93      93 Progressive disease 2027-11-01       83.8          0.2055740076
-      94      94 Progressive disease 2030-04-13      112.8          0.2296514261
-      95      95      Stable disease 2028-09-23       12.8         -0.2324451948
-      96      96 Progressive disease 2030-01-02       30.8          0.2739790154
-      97      97   Complete response 2024-07-26        0.0         -1.0000000000
-      98      98 Progressive disease 2036-01-05      247.9          0.5561172189
-      99      99   Complete response 2035-11-11        0.0         -1.0000000000
-      100    100   Complete response 2037-02-02        0.0         -1.0000000000
-      101    101   Complete response 2036-07-27        0.0         -1.0000000000
-      102    102 Progressive disease 2024-09-01      151.8          0.8661823663
-      103    103 Progressive disease 2023-08-28       26.7          0.3414563897
-      104    104      Stable disease 2027-08-01      106.7          0.0118111930
-      105    105    Partial response 2030-12-24       15.2         -0.4932792449
-      106    106      Stable disease 2033-03-06       63.6          0.1962664215
-      107    107 Progressive disease 2035-04-05       56.0          0.5000405730
-      108    108 Progressive disease 2031-05-12       66.2          0.4288953555
-      109    109   Complete response 2023-05-07        0.0         -1.0000000000
-      110    110      Stable disease 2029-07-26       47.5         -0.1133896063
-      111    111      Stable disease 2030-11-29       53.2          0.0802639468
-      112    112   Complete response 2035-07-24        0.0         -1.0000000000
-      113    113      Stable disease 2035-03-15       29.6         -0.1647135007
-      114    114   Complete response 2026-02-23        0.0         -1.0000000000
-      115    115      Stable disease 2026-04-29      128.7          0.1060299555
-      116    116 Progressive disease 2030-06-03       54.5          0.4144826551
-      117    117    Partial response 2028-11-17       12.3         -0.6447190899
-      118    118      Stable disease 2027-12-22      124.4         -0.0507927369
-      119    119      Stable disease 2033-10-05      137.8          0.0428320912
-      120    120    Partial response 2033-10-08        4.7         -0.9131522373
-      121    121      Stable disease 2028-08-03       79.6         -0.0817431584
-      122    122 Progressive disease 2030-05-22      124.6          0.3628334209
-      123    123      Stable disease 2024-09-28       59.3          0.1034391063
-      124    124      Stable disease 2027-10-29       19.4         -0.0348655302
-      125    125   Complete response 2024-07-03        0.0         -1.0000000000
-      126    126    Partial response 2029-06-13        0.0         -1.0000000000
-      127    127   Complete response 2023-06-22        0.0         -1.0000000000
-      128    128   Complete response 2027-08-10        0.0         -1.0000000000
-      129    129      Stable disease 2031-07-16        9.6         -0.2758849350
-      130    130   Complete response 2034-05-29        0.0         -1.0000000000
-      131    131 Progressive disease 2034-06-12       82.6          0.2323094623
-      132    132 Progressive disease 2029-05-04       58.9          0.6726454325
-      133    133 Progressive disease 2026-06-04       60.5          0.2099543479
-      134    134      Stable disease 2035-02-09       86.2          0.0300323829
-      135    135    Partial response 2033-08-08        2.2         -0.9763937536
-      136    136 Progressive disease 2033-12-27       23.7          0.3870529013
-      137    137      Stable disease 2028-04-06       36.8         -0.2082686561
-      138    138      Stable disease 2036-03-31       80.8         -0.0609559527
-      139    139    Partial response 2030-08-14       20.0         -0.4430228001
-      140    140    Partial response 2028-02-19       32.5         -0.3288717478
-      141    141      Stable disease 2030-07-10       33.4         -0.2956080261
-      142    142 Progressive disease 2033-01-27       28.2          0.2066943571
-      143    143    Partial response 2030-08-31       18.6         -0.4926278258
-      144    144      Stable disease 2030-04-12       35.4         -0.2792668599
-      145    145   Complete response 2036-04-20        0.0         -1.0000000000
-      146    146      Stable disease 2027-03-26       87.9          0.0539368590
-      147    147    Partial response 2032-09-13       11.4         -0.6795071360
-      148    148    Partial response 2025-06-28       17.4         -0.5297923693
-      149    149    Partial response 2027-04-26       29.1         -0.5895967851
-      150    150   Complete response 2033-04-08        0.0         -1.0000000000
-      151    151      Stable disease 2029-05-30       54.9          0.1254832718
-      152    152   Complete response 2033-10-12        0.0         -1.0000000000
-      153    153   Complete response 2028-07-03        0.0         -1.0000000000
-      154    154 Progressive disease 2028-05-03       64.2          0.5362295711
-      155    155      Stable disease 2026-11-14       25.5         -0.2909702470
-      156    156 Progressive disease 2032-07-29       16.2          0.2604620136
-      157    157 Progressive disease 2033-01-03       70.2          0.4105693321
-      158    158   Complete response 2035-04-16        0.0         -1.0000000000
-      159    159 Progressive disease 2034-11-19       43.9          0.2913576366
-      160    160   Complete response 2031-02-12        0.0         -1.0000000000
-      161    161 Progressive disease 2025-12-31       66.8          0.4932638635
-      162    162 Progressive disease 2027-08-03       25.7          0.4400559770
-      163    163    Partial response 2031-02-18       26.5         -0.5172708334
-      164    164      Stable disease 2035-08-07       33.8         -0.1359442778
-      165    165 Progressive disease 2032-08-03       98.8          0.4593708546
-      166    166   Complete response 2034-04-12        0.0         -1.0000000000
-      167    167      Stable disease 2032-05-02       21.7          0.0732360097
-      168    168      Stable disease 2034-09-22       49.8         -0.2174672489
-      169    169    Partial response 2033-05-17        6.9         -0.8686888377
-      170    170   Complete response 2037-04-11        0.0         -1.0000000000
-      171    171      Stable disease 2023-07-16       38.2         -0.1138259449
-      172    172      Stable disease 2031-06-17       78.2          0.0412980948
-      173    173 Progressive disease 2029-09-26      104.2          0.2673527607
-      174    174      Stable disease 2036-09-01       97.2         -0.0346010854
-      175    175   Complete response 2026-08-10        0.0         -1.0000000000
-      176    176 Progressive disease 2025-04-21       60.0          0.3193563555
-      177    177    Partial response 2034-05-01       30.8         -0.6904140274
-      178    178 Progressive disease 2034-03-03       83.6          0.2065187631
-      179    179 Progressive disease 2031-07-27       93.6          0.4512569331
-      180    180    Partial response 2035-09-13       34.8         -0.3013357305
-      181    181 Progressive disease 2027-09-03       70.3          0.2888753407
-      182    182    Partial response 2037-05-11        5.0         -0.8460436176
-      183    183 Progressive disease 2036-10-15       75.5          0.2364036138
-      184    184    Partial response 2030-01-31        2.2         -0.9626102341
-      185    185    Partial response 2031-06-16       20.7         -0.5026694733
-      186    186 Progressive disease 2028-11-29      223.3          0.4147873509
-      187    187      Stable disease 2032-01-30       78.8          0.1095081042
-      188    188 Progressive disease 2025-07-04       89.7          0.3463233036
-      189    189      Stable disease 2025-01-09       29.2          0.1721822423
-      190    190 Progressive disease 2032-06-04      146.7          0.4259021506
-      191    191    Partial response 2028-01-16        3.0         -0.9465705006
-      192    192   Complete response 2025-08-15        0.0         -1.0000000000
-      193    193      Stable disease 2036-06-13       58.7          0.0194803928
-      194    194    Partial response 2028-04-16        1.0         -0.9105539700
-      195    195   Complete response 2026-09-11        0.0         -1.0000000000
-      196    196    Partial response 2027-10-04        3.3         -0.9600354815
-      197    197    Partial response 2033-08-23       30.4         -0.5105713934
-      198    198    Partial response 2027-11-16       14.2         -0.7899241283
-      199    199      Stable disease 2035-05-10       77.2         -0.2609388709
-      200    200   Complete response 2035-06-28        0.0         -1.0000000000
-      201    201 Progressive disease 2030-07-03      232.4          0.4048020299
-      202    202    Partial response 2024-03-12        2.8         -0.9533436879
-      203    203 Progressive disease 2023-04-27      115.3          0.3542439909
-      204    204      Stable disease 2033-05-06       79.6         -0.2879262719
-      205    205 Progressive disease 2032-12-14      118.8          0.5981369666
-      206    206 Progressive disease 2023-10-01       20.9          0.3506236397
-      207    207   Complete response 2024-12-24        0.0         -1.0000000000
-      208    208   Complete response 2025-01-12        0.0         -1.0000000000
-      209    209 Progressive disease 2030-01-09       37.6          0.2276473374
-      210    210   Complete response 2025-10-26        0.0         -1.0000000000
-      211    211   Complete response 2032-04-13        0.0         -1.0000000000
-      212    212      Stable disease 2024-10-18      131.7          0.1853207608
-      213    213      Stable disease 2033-01-09       51.5         -0.0325593984
-      214    214 Progressive disease 2030-03-11       63.6          0.3396028718
-      215    215 Progressive disease 2026-08-17      114.7          0.7681901415
-      216    216 Progressive disease 2035-03-01       64.1          0.2538521334
-      217    217 Progressive disease 2032-06-08       41.4         -0.1007303417
-      218    218    Partial response 2026-08-10        8.0         -0.9151676280
-      219    219 Progressive disease 2027-08-16       63.5          0.4601361997
-      220    220      Stable disease 2026-12-23       10.2         -0.1124209285
-      221    221   Complete response 2023-04-20        0.0         -1.0000000000
-      222    222      Stable disease 2030-05-15       28.6         -0.2751164630
-      223    223 Progressive disease 2024-01-19       63.5          0.8488261608
-      224    224   Complete response 2032-09-10        0.0         -1.0000000000
-      225    225 Progressive disease 2026-02-26       77.7          0.2362576302
-      226    226   Complete response 2029-02-19        0.0         -1.0000000000
-      227    227   Complete response 2023-10-22        0.0         -1.0000000000
-      228    228      Stable disease 2027-08-10       51.0          0.1869010340
-      229    229    Partial response 2027-09-03        5.6         -0.8148447998
-      230    230 Progressive disease 2028-11-16      105.4          0.2044737200
-      231    231    Partial response 2026-02-03       23.1         -0.4479902712
-      232    232      Stable disease 2028-06-04       86.8          0.1065985931
-      233    233   Complete response 2029-03-16        0.0         -1.0000000000
-      234    234      Stable disease 2029-11-29       25.9         -0.2808854915
-      235    235      Stable disease 2029-07-18       35.0         -0.1650655436
-      236    236 Progressive disease 2024-01-30       56.4          0.4736992595
-      237    237    Partial response 2025-07-08       48.1         -0.4682803844
-      238    238    Partial response 2032-12-16       12.6         -0.7445103121
-      239    239      Stable disease 2032-04-30       54.9         -0.0423323222
-      240    240 Progressive disease 2026-06-29       35.1          0.6153639975
-      241    241   Complete response 2023-12-31        0.0         -1.0000000000
-      242    242      Stable disease 2030-01-24       79.0         -0.0117843745
-      243    243    Partial response 2036-03-09        6.7         -0.9236505954
-      244    244   Complete response 2032-01-14        0.0         -1.0000000000
-      245    245 Progressive disease 2026-05-18      156.9          0.4611579774
-      246    246   Complete response 2030-03-27        0.0         -1.0000000000
-      247    247 Progressive disease 2034-03-19       97.9          0.2160556376
-      248    248    Partial response 2030-11-14       24.2         -0.5081148456
-      249    249   Complete response 2032-03-06        0.0         -1.0000000000
-      250    250    Partial response 2025-04-04        6.8         -0.6739929266
-      251    251 Progressive disease 2026-08-08       22.1          0.2912413766
-      252    252    Partial response 2032-08-17       19.9         -0.6133783789
-      253    253    Partial response 2030-06-08        6.1         -0.5656855811
-      254    254      Stable disease 2029-03-04       54.8         -0.0161680564
-      255    255    Partial response 2030-01-20       54.9         -0.3826686899
-      256    256    Partial response 2024-08-12       10.7         -0.4363611823
-      257    257 Progressive disease 2026-04-23       45.5          0.6339413136
-      258    258    Partial response 2028-12-23        7.3         -0.8579681378
-      259    259 Progressive disease 2029-09-16       24.8          0.2736160510
-      260    260 Progressive disease 2032-10-03       55.4          0.4389056802
-      261    261    Partial response 2025-06-14       21.4         -0.7190961914
-      262    262 Progressive disease 2031-10-19       97.3          0.2303007976
-      263    263   Complete response 2031-09-23        0.0         -1.0000000000
-      264    264 Progressive disease 2026-06-12      136.6          0.3127600891
-      265    265    Partial response 2031-04-24       22.5         -0.5349327310
-      266    266 Progressive disease 2032-12-26      107.1          0.3070029565
-      267    267      Stable disease 2034-08-22       81.4          0.0941470361
-      268    268    Partial response 2033-06-27       12.0         -0.7289697816
-      269    269 Progressive disease 2029-04-27      101.1          0.2001437980
-      270    270      Stable disease 2023-09-19       46.7         -0.0989600271
-      271    271 Progressive disease 2033-09-02      101.0          0.5026955325
-      272    272    Partial response 2034-12-12        3.4         -0.9338188015
-      273    273      Stable disease 2023-10-29       57.2          0.0452762465
-      274    274 Progressive disease 2031-04-08       86.6          0.3757614088
-      275    275      Stable disease 2027-02-27       41.6          0.0917629970
-      276    276    Partial response 2030-09-11       52.5         -0.4120897644
-      277    277      Stable disease 2027-11-17       73.8          0.1511141116
-      278    278 Progressive disease 2028-09-05       18.2          0.4308297718
-      279    279    Partial response 2026-03-11       10.2         -0.8884603039
-      280    280      Stable disease 2034-10-02       75.6         -0.1222954521
-      281    281      Stable disease 2030-10-09       80.8          0.0813383379
-      282    282      Stable disease 2031-11-02      133.1          0.1977848448
-      283    283   Complete response 2024-02-19        0.0         -1.0000000000
-      284    284    Partial response 2032-06-20       29.9         -0.5670770934
-      285    285    Partial response 2035-04-03       23.7         -0.5381166796
-      286    286   Complete response 2032-11-20        0.0         -1.0000000000
-      287    287   Complete response 2034-02-12        0.0         -1.0000000000
-      288    288    Partial response 2032-10-31        9.1         -0.6424163420
-      289    289   Complete response 2035-08-21        0.0         -1.0000000000
-      290    290    Partial response 2024-09-29       20.6         -0.6461141332
-      291    291      Stable disease 2036-03-15       31.5          0.0724464923
-      292    292 Progressive disease 2029-09-01       79.9          0.2606255511
-      293    293 Progressive disease 2029-06-22       36.6          0.4280999501
-      294    294      Stable disease 2024-10-15      124.8          0.0725181754
-      295    295 Progressive disease 2027-10-18       57.3          0.2378798799
-      296    296   Complete response 2036-11-06        0.0         -1.0000000000
-      297    297 Progressive disease 2033-09-23       63.8          0.4173949156
-      298    298   Complete response 2030-04-12        0.0         -1.0000000000
-      299    299    Partial response 2027-05-14       13.3         -0.7486782676
-      300    300    Partial response 2026-01-22       11.0         -0.8535810757
-      301    301      Stable disease 2026-01-12       38.3         -0.2318703908
-      302    302   Complete response 2033-03-30        0.0         -1.0000000000
-      303    303   Complete response 2029-05-31        0.0         -1.0000000000
-      304    304    Partial response 2025-12-01       20.0         -0.7224233275
-      305    305    Partial response 2028-07-13       13.3         -0.7083705621
-      306    306   Complete response 2031-02-20        0.0         -1.0000000000
-      307    307   Complete response 2036-09-05        0.0         -1.0000000000
-      308    308   Complete response 2027-08-14        0.0         -1.0000000000
-      309    309      Stable disease 2036-06-25       13.8          0.0945314224
-      310    310 Progressive disease 2034-02-01       60.3          0.2307284293
-      311    311      Stable disease 2036-05-02       37.7         -0.2124690517
-      312    312      Stable disease 2035-10-31       20.6         -0.2435475817
-      313    313 Progressive disease 2034-02-11       26.3          0.3864566465
-      314    314      Stable disease 2032-10-05       36.5          0.1744626874
-      315    315      Stable disease 2035-03-14       73.1          0.0812932603
-      316    316   Complete response 2034-04-12        0.0         -1.0000000000
-      317    317      Stable disease 2036-03-11       26.0         -0.0171382999
-      318    318    Partial response 2031-03-04       19.5         -0.6448248495
-      319    319   Complete response 2028-02-27        0.0         -1.0000000000
-      320    320 Progressive disease 2028-12-15      119.4          0.4672592294
-      321    321 Progressive disease 2035-05-29       47.5          0.3394567652
-      322    322   Complete response 2036-01-05        0.0         -1.0000000000
-      323    323   Complete response 2025-11-05        0.0         -1.0000000000
-      324    324    Partial response 2029-04-22       20.8         -0.5839399204
-      325    325 Progressive disease 2028-10-05      129.5          0.2418314667
-      326    326 Progressive disease 2025-09-29       31.4          0.2440491027
-      327    327      Stable disease 2034-03-16       71.6         -0.1512979041
-      328    328 Progressive disease 2030-02-01       67.0          0.3150871049
-      329    329    Partial response 2034-02-20       13.9         -0.4427478732
-      330    330    Partial response 2024-09-16        2.7         -0.9436761812
-      331    331      Stable disease 2034-07-12       56.1         -0.2251718395
-      332    332   Complete response 2037-01-28        0.0         -1.0000000000
-      333    333    Partial response 2036-04-07        1.5         -0.9441081264
-      334    334 Progressive disease 2025-04-11       87.5          0.6030654803
-      335    335   Complete response 2032-05-13        0.0         -1.0000000000
-      336    336    Partial response 2028-06-22       22.7         -0.5250673428
-      337    337   Complete response 2033-11-25        0.0         -1.0000000000
-      338    338    Partial response 2026-07-06        6.0         -0.4444301884
-      339    339   Complete response 2026-12-09        0.0         -1.0000000000
-      340    340    Partial response 2025-10-19       11.8         -0.6548370978
-      341    341      Stable disease 2025-11-08       56.6          0.1467427995
-      342    342 Progressive disease 2034-04-08       95.2          0.3577704995
-      343    343    Partial response 2029-12-14        8.3         -0.7754419462
-      344    344    Partial response 2031-07-08        7.9         -0.5236259375
-      345    345    Partial response 2033-04-28       35.4         -0.4810387072
-      346    346    Partial response 2028-04-30       36.1         -0.3804033320
-      347    347 Progressive disease 2036-05-02      110.4          0.3031098089
-      348    348   Complete response 2023-08-10        0.0         -1.0000000000
-      349    349   Complete response 2036-04-06        0.0         -1.0000000000
-      350    350    Partial response 2031-07-29       49.0         -0.4591662627
-      351    351 Progressive disease 2030-08-11      104.3          0.4541608753
-      352    352   Complete response 2033-08-05        0.0         -1.0000000000
-      353    353 Progressive disease 2024-03-03       89.8          0.2476406219
-      354    354    Partial response 2029-10-11       11.0         -0.5386330618
-      355    355   Complete response 2036-02-02        0.0         -1.0000000000
-      356    356    Partial response 2036-03-22       34.1         -0.6017566077
-      357    357      Stable disease 2032-07-05       48.0          0.1623502929
-      358    358    Partial response 2025-11-28       27.4         -0.6339657567
-      359    359    Partial response 2026-07-24       21.2         -0.4862246248
-      360    360 Progressive disease 2024-11-24      286.2          0.6102813493
-      361    361    Partial response 2031-11-22       14.9         -0.3927173959
-      362    362   Complete response 2028-03-17        0.0         -1.0000000000
-      363    363    Partial response 2037-01-16       19.5         -0.4502595220
-      364    364      Stable disease 2031-04-12       46.3          0.1600909550
-      365    365    Partial response 2023-12-28       24.5         -0.4603436657
-      366    366      Stable disease 2030-05-01       36.9         -0.1358836566
-      367    367      Stable disease 2025-08-27      111.7          0.0462126138
-      368    368      Stable disease 2024-08-22       86.6         -0.0242467199
-      369    369   Complete response 2030-04-05        0.0         -1.0000000000
-      370    370   Complete response 2036-07-24        0.0         -1.0000000000
-      371    371 Progressive disease 2024-04-05      175.7          0.7773818064
-      372    372      Stable disease 2026-01-22       37.9         -0.2802292811
-      373    373    Partial response 2034-06-27        2.6         -0.9701747717
-      374    374   Complete response 2029-10-18        0.0         -1.0000000000
-      375    375 Progressive disease 2023-11-12      128.8          0.3791523765
-      376    376   Complete response 2033-02-22        0.0         -1.0000000000
-      377    377   Complete response 2029-11-02        0.0         -1.0000000000
-      378    378   Complete response 2031-04-30        0.0         -1.0000000000
-      379    379      Stable disease 2031-01-14       61.6          0.1404011653
-      380    380   Complete response 2032-01-10        0.0         -1.0000000000
-      381    381 Progressive disease 2030-12-30       85.1         -0.3062400121
-      382    382      Stable disease 2031-09-23       17.1         -0.0336325779
-      383    383   Complete response 2035-03-04        0.0         -1.0000000000
-      384    384 Progressive disease 2031-06-19      126.6          0.3812568785
-      385    385   Complete response 2025-07-25        0.0         -1.0000000000
-      386    386    Partial response 2024-05-04       14.9         -0.6571146326
-      387    387   Complete response 2034-03-08        0.0         -1.0000000000
-      388    388    Partial response 2030-10-27       19.3         -0.7159048327
-      389    389   Complete response 2036-08-15        0.0         -1.0000000000
-      390    390 Progressive disease 2027-01-02       96.8          0.3705497464
-      391    391   Complete response 2035-09-27        0.0         -1.0000000000
-      392    392      Stable disease 2034-05-14       39.0         -0.0474772096
-      393    393      Stable disease 2029-05-10       73.5          0.1316316984
-      394    394 Progressive disease 2024-12-12       42.7          0.2740984965
-      395    395   Complete response 2024-02-25        0.0         -1.0000000000
-      396    396   Complete response 2036-11-30        0.0         -1.0000000000
-      397    397      Stable disease 2025-06-10       47.3         -0.2522967686
-      398    398      Stable disease 2023-05-14       56.2         -0.0180059413
-      399    399      Stable disease 2027-04-21       44.1          0.0417707468
-      400    400      Stable disease 2036-08-20       77.3         -0.0080967413
-      401    401      Stable disease 2027-12-01       67.4         -0.2515051318
-      402    402    Partial response 2025-06-03        4.8         -0.7993465980
-      403    403      Stable disease 2036-09-15       44.0         -0.1483531733
-      404    404   Complete response 2032-12-11        0.0         -1.0000000000
-      405    405      Stable disease 2025-12-01       34.8          0.0658718563
-      406    406 Progressive disease 2031-05-23       27.9          0.3923656220
-      407    407 Progressive disease 2027-03-21       64.4          0.2898828007
-      408    408 Progressive disease 2032-11-25       95.1          0.3650974430
-      409    409 Progressive disease 2023-10-21      123.6          0.3106372755
-      410    410      Stable disease 2035-06-19       83.3         -0.0281357618
-      411    411   Complete response 2032-12-29        0.0         -1.0000000000
-      412    412   Complete response 2029-04-26        0.0         -1.0000000000
-      413    413   Complete response 2024-07-19        0.0         -1.0000000000
-      414    414      Stable disease 2028-08-23       26.6         -0.0321640537
-      415    415      Stable disease 2027-10-26       22.3         -0.1641505983
-      416    416   Complete response 2025-05-27        0.0         -1.0000000000
-      417    417   Complete response 2035-05-05        0.0         -1.0000000000
-      418    418   Complete response 2027-06-16        0.0         -1.0000000000
-      419    419 Progressive disease 2034-09-22       38.4          0.2370212666
-      420    420    Partial response 2029-10-04       59.9         -0.3735275270
-      421    421      Stable disease 2023-11-14       60.6         -0.1797362751
-      422    422    Partial response 2027-04-17       42.2         -0.7562294750
-      423    423      Stable disease 2025-04-06       50.4         -0.0481921221
-      424    424      Stable disease 2027-01-17       35.9          0.1153616202
-      425    425 Progressive disease 2027-07-27      120.3          0.5695036684
-      426    426 Progressive disease 2027-05-13       77.5          0.5021676046
-      427    427   Complete response 2032-11-20        0.0         -1.0000000000
-      428    428      Stable disease 2031-01-29       65.5          0.0371815971
-      429    429      Stable disease 2034-01-16       44.3         -0.1883212772
-      430    430      Stable disease 2033-07-18       38.0         -0.1567075408
-      431    431      Stable disease 2032-02-08      109.4         -0.0108205619
-      432    432      Stable disease 2034-08-30       39.8          0.1665251797
-      433    433 Progressive disease 2024-11-02       55.9          0.5581277474
-      434    434    Partial response 2030-04-18       88.7         -0.3660227139
-      435    435   Complete response 2036-03-06        0.0         -1.0000000000
-      436    436 Progressive disease 2036-08-14      101.3          0.3205460817
-      437    437   Complete response 2029-03-26        0.0         -1.0000000000
-      438    438   Complete response 2028-01-22        0.0         -1.0000000000
-      439    439      Stable disease 2024-09-21       11.1         -0.2371389461
-      440    440    Partial response 2027-06-16       12.3         -0.8681079967
-      441    441      Stable disease 2036-01-11       83.6         -0.0786545367
-      442    442    Partial response 2025-03-25        2.7         -0.9550262987
-      443    443    Partial response 2035-04-30       44.3         -0.5230412137
-      444    444      Stable disease 2033-03-25       19.2         -0.1993482853
-      445    445      Stable disease 2034-06-09       89.8          0.1436641957
-      446    446    Partial response 2024-09-24       11.1         -0.6579316455
-      447    447      Stable disease 2026-08-31       42.7         -0.2839021878
-      448    448      Stable disease 2029-09-10       35.4         -0.1369667739
-      449    449   Complete response 2025-05-15        0.0         -1.0000000000
-      450    450      Stable disease 2026-10-28       71.4          0.0755692103
-      451    451    Partial response 2025-10-06        1.4         -0.8713869540
-      452    452      Stable disease 2034-01-13       32.1         -0.2442180215
-      453    453   Complete response 2034-12-03        0.0         -1.0000000000
-      454    454    Partial response 2026-01-28       22.7         -0.4009918041
-      455    455 Progressive disease 2023-05-30       79.4          0.4941724482
-      456    456    Partial response 2025-04-05       16.1         -0.6018160788
-      457    457 Progressive disease 2031-12-19      121.3          0.2308433130
-      458    458    Partial response 2027-12-08        1.5         -0.9789991434
-      459    459   Complete response 2035-10-07        0.0         -1.0000000000
-      460    460 Progressive disease 2026-10-03       21.4         -0.1815714947
-      461    461      Stable disease 2028-05-18       63.7         -0.1441735392
-      462    462      Stable disease 2027-07-19      114.5          0.0138043469
-      463    463      Stable disease 2034-11-21       45.9         -0.2224213915
-      464    464   Complete response 2035-01-17        0.0         -1.0000000000
-      465    465   Complete response 2031-03-06        0.0         -1.0000000000
-      466    466 Progressive disease 2027-11-12       72.7          0.4855664129
-      467    467 Progressive disease 2030-07-20      124.4          0.3934670238
-      468    468   Complete response 2028-12-07        0.0         -1.0000000000
-      469    469   Complete response 2025-09-26        0.0         -1.0000000000
-      470    470      Stable disease 2028-12-19       29.0          0.0003664538
-      471    471 Progressive disease 2029-01-21       63.3          0.2729168842
-      472    472      Stable disease 2029-12-29      185.2          0.0647322080
-      473    473      Stable disease 2026-07-05       65.7         -0.0725040575
-      474    474    Partial response 2027-05-26       57.1         -0.4719735142
-      475    475      Stable disease 2033-10-19       39.6         -0.2707006768
-      476    476      Stable disease 2024-02-15       28.1         -0.2656155311
-      477    477      Stable disease 2032-07-02       36.1          0.0236756199
-      478    478   Complete response 2024-05-22        0.0         -1.0000000000
-      479    479    Partial response 2026-05-17       25.4         -0.5727059653
-      480    480 Progressive disease 2026-12-04       84.4          0.3637142733
-      481    481   Complete response 2031-08-28        0.0         -1.0000000000
-      482    482 Progressive disease 2027-04-10      173.3          0.5665099932
-      483    483    Partial response 2034-08-10       31.4         -0.7735408631
-      484    484    Partial response 2026-02-09       75.6         -0.4960491883
-      485    485 Progressive disease 2035-04-22      108.4          0.4878684490
-      486    486 Progressive disease 2023-04-24       55.9          0.3093925915
-      487    487 Progressive disease 2033-10-05       74.4          0.2807646419
-      488    488   Complete response 2032-10-27        0.0         -1.0000000000
-      489    489    Partial response 2036-10-27       13.1         -0.6139378435
-      490    490    Partial response 2027-12-30       44.9         -0.3285836653
-      491    491    Partial response 2027-06-12        6.5         -0.8544239975
-      492    492    Partial response 2026-12-17        2.1         -0.9548832641
-      493    493    Partial response 2034-04-05       32.5         -0.3206259850
-      494    494   Complete response 2033-06-26        0.0         -1.0000000000
-      495    495      Stable disease 2028-06-19       32.2          0.0205021747
-      496    496   Complete response 2025-10-26        0.0         -1.0000000000
-      497    497      Stable disease 2029-01-13       90.1          0.1707686511
-      498    498   Complete response 2023-07-16        0.0         -1.0000000000
-      499    499      Stable disease 2033-06-02       44.5         -0.1703606668
-      500    500    Partial response 2024-04-19       19.1         -0.6154105548
+      1        1   Complete response 2023-05-01        0.0          -1.000000000
+      2        2 Progressive disease 2023-04-27       30.8           0.770114943
+      3        3      Stable disease 2023-04-29       79.0           0.122159091
+      4        4   Complete response 2023-05-26        0.0          -1.000000000
+      5        5   Complete response 2023-07-30        0.0          -1.000000000
+      6        6      Stable disease 2023-06-25       57.1          -0.176046176
+      7        7 Progressive disease 2023-07-21      128.3           0.240812379
+      8        8    Partial response 2023-07-29       23.4          -0.305637982
+      9        9   Complete response 2023-08-28        0.0          -1.000000000
+      10      10   Complete response 2023-11-23        0.0          -1.000000000
+      11      11   Complete response 2023-10-04        0.0          -1.000000000
+      12      12 Progressive disease 2023-11-16       56.1           0.621387283
+      13      13    Partial response 2023-11-05       27.3          -0.478011472
+      14      14   Complete response 2023-11-28        0.0          -1.000000000
+      15      15   Complete response 2024-02-24        0.0          -1.000000000
+      16      16 Progressive disease 2024-01-10      189.0           2.058252427
+      17      17 Progressive disease 2024-02-01      105.2           0.368010403
+      18      18 Progressive disease 2024-03-13       81.9           0.713389121
+      19      19   Complete response 2024-03-03        0.0          -1.000000000
+      20      20 Progressive disease 2024-04-05        0.0          -1.000000000
+      21      21   Complete response 2024-06-01        0.0          -1.000000000
+      22      22 Progressive disease 2024-06-14        0.0          -1.000000000
+      23      23   Complete response 2024-05-26        0.0          -1.000000000
+      24      24   Complete response 2024-06-25        0.0          -1.000000000
+      25      25 Progressive disease 2024-06-21       67.1           0.204667864
+      26      26   Complete response 2024-08-07        0.0          -1.000000000
+      27      27 Progressive disease 2024-08-26       89.7           1.354330709
+      28      28   Complete response 2024-08-18        0.0          -1.000000000
+      29      29   Complete response 2024-10-16        0.0          -1.000000000
+      30      30   Complete response 2024-11-01        0.0          -1.000000000
+      31      31   Complete response 2025-02-20        0.0          -1.000000000
+      32      32   Complete response 2024-12-27        0.0          -1.000000000
+      33      33   Complete response 2025-01-01        0.0          -1.000000000
+      34      34 Progressive disease 2025-01-07      103.4           0.559577677
+      35      35   Complete response 2025-01-15        0.0          -1.000000000
+      36      36      Stable disease 2025-02-12       66.4           0.045669291
+      37      37 Progressive disease 2025-03-06      302.4           1.918918919
+      38      38    Partial response 2025-05-30       26.4          -0.735735736
+      39      39   Complete response 2025-04-10        0.0          -1.000000000
+      40      40   Complete response 2025-05-18        0.0          -1.000000000
+      41      41   Complete response 2025-05-23        0.0          -1.000000000
+      42      42   Complete response 2025-06-18        0.0          -1.000000000
+      43      43   Complete response 2025-06-30        0.0          -1.000000000
+      44      44      Stable disease 2025-07-23       29.3          -0.226912929
+      45      45   Complete response 2025-11-04        0.0          -1.000000000
+      46      46   Complete response 2025-09-09        0.0          -1.000000000
+      47      47   Complete response 2025-11-20        0.0          -1.000000000
+      48      48 Progressive disease 2025-09-26       90.9           0.293029872
+      49      49   Complete response 2025-11-12        0.0          -1.000000000
+      50      50    Partial response 2025-12-21       36.0          -0.404958678
+      51      51    Partial response 2025-12-11       12.3          -0.614420063
+      52      52   Complete response 2026-01-04        0.0          -1.000000000
+      53      53 Progressive disease 2026-02-17       78.4           0.496183206
+      54      54 Progressive disease 2026-03-12      122.6           0.645637584
+      55      55   Complete response 2026-03-10        0.0          -1.000000000
+      56      56   Complete response 2026-05-31        0.0          -1.000000000
+      57      57    Partial response 2026-04-14       34.3          -0.308467742
+      58      58   Complete response 2026-05-01        0.0          -1.000000000
+      59      59 Progressive disease 2026-06-16      106.3           0.851916376
+      60      60 Progressive disease 2026-07-13      175.4           0.757515030
+      61      61      Stable disease 2026-07-07       35.0          -0.187935035
+      62      62 Progressive disease 2026-08-21       76.1           0.225442834
+      63      63      Stable disease 2026-09-03       69.0           0.031390135
+      64      64   Complete response 2026-11-10        0.0          -1.000000000
+      65      65   Complete response 2026-09-16        0.0          -1.000000000
+      66      66    Partial response 2026-10-26        5.1          -0.725806452
+      67      67 Progressive disease 2026-10-20       13.6          -0.609195402
+      68      68   Complete response 2027-02-04        0.0          -1.000000000
+      69      69   Complete response 2027-02-15        0.0          -1.000000000
+      70      70 Progressive disease 2026-12-22       60.2           0.440191388
+      71      71 Progressive disease 2027-02-02       68.3           1.246710526
+      72      72      Stable disease 2027-05-04       72.6          -0.362038664
+      73      73    Partial response 2027-05-09       14.6          -0.734061931
+      74      74 Progressive disease 2027-04-05       33.2           0.551401869
+      75      75   Complete response 2027-04-13        0.0          -1.000000000
+      76      76 Progressive disease 2027-05-16       31.4          -0.158176944
+      77      77   Complete response 2027-06-04        0.0          -1.000000000
+      78      78 Progressive disease 2027-07-06       66.8          -0.332667333
+      79      79   Complete response 2027-07-10        0.0          -1.000000000
+      80      80   Complete response 2027-08-08        0.0          -1.000000000
+      81      81 Progressive disease 2027-09-03       30.4           0.670329670
+      82      82   Complete response 2027-09-11        0.0          -1.000000000
+      83      83 Progressive disease 2027-10-10      228.2           1.432835821
+      84      84    Partial response 2027-12-28       13.6          -0.800586510
+      85      85    Partial response 2027-10-16       26.1          -0.541300527
+      86      86   Complete response 2028-02-02        0.0          -1.000000000
+      87      87   Complete response 2028-04-08        0.0          -1.000000000
+      88      88 Progressive disease 2027-12-15      128.9           1.004665630
+      89      89 Progressive disease 2028-01-10       14.3           0.415841584
+      90      90   Complete response 2028-02-02        0.0          -1.000000000
+      91      91    Partial response 2028-03-11       26.4          -0.335012594
+      92      92 Progressive disease 2028-03-28      107.1           1.043893130
+      93      93   Complete response 2028-04-14        0.0          -1.000000000
+      94      94    Partial response 2028-07-07       15.3          -0.545994065
+      95      95   Complete response 2028-06-02        0.0          -1.000000000
+      96      96    Partial response 2028-06-21       51.8          -0.401847575
+      97      97   Complete response 2028-06-21        0.0          -1.000000000
+      98      98   Complete response 2028-08-19        0.0          -1.000000000
+      99      99   Complete response 2028-07-31        0.0          -1.000000000
+      100    100   Complete response 2028-08-21        0.0          -1.000000000
+      101    101    Partial response 2028-10-04       32.2          -0.488076312
+      102    102   Complete response 2028-10-29        0.0          -1.000000000
+      103    103    Partial response 2028-10-19       19.3          -0.750645995
+      104    104   Complete response 2028-11-28        0.0          -1.000000000
+      105    105   Complete response 2028-11-22        0.0          -1.000000000
+      106    106 Progressive disease 2028-12-29       46.1           0.897119342
+      107    107   Complete response 2029-04-20        0.0          -1.000000000
+      108    108 Progressive disease 2029-01-26       15.9          -0.308695652
+      109    109 Progressive disease 2029-02-28      117.7           1.064912281
+      110    110   Complete response 2029-05-10        0.0          -1.000000000
+      111    111 Progressive disease 2029-03-25      203.6           0.710924370
+      112    112   Complete response 2029-07-04        0.0          -1.000000000
+      113    113   Complete response 2029-06-03        0.0          -1.000000000
+      114    114 Progressive disease 2029-06-09      146.8           1.027624309
+      115    115 Progressive disease 2029-06-03      131.2           1.040435459
+      116    116 Progressive disease 2029-07-17      154.6           1.585284281
+      117    117   Complete response 2029-07-06        0.0          -1.000000000
+      118    118   Complete response 2029-12-07        0.0          -1.000000000
+      119    119   Complete response 2029-08-22        0.0          -1.000000000
+      120    120    Partial response 2029-10-12        8.9          -0.406666667
+      121    121   Complete response 2029-11-04        0.0          -1.000000000
+      122    122   Complete response 2030-01-21        0.0          -1.000000000
+      123    123    Partial response 2029-11-21       23.3          -0.336182336
+      124    124    Partial response 2029-12-20       26.9          -0.402222222
+      125    125    Partial response 2030-02-10       70.2          -0.357731016
+      126    126 Progressive disease 2030-02-04      146.1           1.034818942
+      127    127   Complete response 2030-04-14        0.0          -1.000000000
+      128    128   Complete response 2030-03-23        0.0          -1.000000000
+      129    129 Progressive disease 2030-03-25       94.9           1.688385269
+      130    130   Complete response 2030-04-09        0.0          -1.000000000
+      131    131   Complete response 2030-04-19        0.0          -1.000000000
+      132    132 Progressive disease 2030-06-21      101.5           0.201183432
+      133    133   Complete response 2030-05-30        0.0          -1.000000000
+      134    134    Partial response 2030-09-10        2.0          -0.974160207
+      135    135   Complete response 2030-08-31        0.0          -1.000000000
+      136    136   Complete response 2030-09-03        0.0          -1.000000000
+      137    137 Progressive disease 2030-09-14       92.7           0.620629371
+      138    138   Complete response 2030-09-11        0.0          -1.000000000
+      139    139   Complete response 2030-11-05        0.0          -1.000000000
+      140    140      Stable disease 2030-11-07       34.5          -0.290123457
+      141    141 Progressive disease 2030-12-02      117.3           0.209278351
+      142    142 Progressive disease 2030-11-18      179.2           1.146107784
+      143    143   Complete response 2031-02-28        0.0          -1.000000000
+      144    144   Complete response 2031-02-11        0.0          -1.000000000
+      145    145 Progressive disease 2031-03-01       24.6           1.435643564
+      146    146      Stable disease 2031-02-12      127.3           0.048599671
+      147    147   Complete response 2031-04-03        0.0          -1.000000000
+      148    148   Complete response 2031-06-26        0.0          -1.000000000
+      149    149   Complete response 2031-08-07        0.0          -1.000000000
+      150    150   Complete response 2031-06-22        0.0          -1.000000000
+      151    151      Stable disease 2031-06-22       84.8          -0.256792287
+      152    152   Complete response 2031-07-03        0.0          -1.000000000
+      153    153   Complete response 2031-07-28        0.0          -1.000000000
+      154    154    Partial response 2031-10-04       33.7          -0.525352113
+      155    155   Complete response 2031-11-28        0.0          -1.000000000
+      156    156 Progressive disease 2031-09-08      128.1           0.717158177
+      157    157    Partial response 2031-10-10        0.0          -1.000000000
+      158    158      Stable disease 2031-11-16       35.4           0.038123167
+      159    159   Complete response 2032-01-09        0.0          -1.000000000
+      160    160 Progressive disease 2031-12-21       93.3           1.015118790
+      161    161   Complete response 2031-12-21        0.0          -1.000000000
+      162    162 Progressive disease 2032-02-04      162.5           0.612103175
+      163    163 Progressive disease 2032-02-05       30.6           0.348017621
+      164    164   Complete response 2032-03-10        0.0          -1.000000000
+      165    165   Complete response 2032-05-24        0.0          -1.000000000
+      166    166   Complete response 2032-06-10        0.0          -1.000000000
+      167    167   Complete response 2032-04-13        0.0          -1.000000000
+      168    168    Partial response 2032-04-28       14.5          -0.690831557
+      169    169 Progressive disease 2032-06-18        0.0          -1.000000000
+      170    170   Complete response 2032-08-17        0.0          -1.000000000
+      171    171   Complete response 2032-08-13        0.0          -1.000000000
+      172    172      Stable disease 2032-10-01       27.1          -0.209912536
+      173    173    Partial response 2032-08-17       72.9          -0.316135084
+      174    174    Partial response 2032-09-02       32.6          -0.660770031
+      175    175 Progressive disease 2032-10-04        0.0          -1.000000000
+      176    176 Progressive disease 2032-11-10       93.0           0.570945946
+      177    177   Complete response 2032-11-05        0.0          -1.000000000
+      178    178   Complete response 2032-12-09        0.0          -1.000000000
+      179    179   Complete response 2033-04-08        0.0          -1.000000000
+      180    180   Complete response 2033-03-06        0.0          -1.000000000
+      181    181   Complete response 2033-04-23        0.0          -1.000000000
+      182    182 Progressive disease 2033-03-09       34.8           0.456066946
+      183    183      Stable disease 2033-03-20       56.1           0.036968577
+      184    184    Partial response 2033-04-09       23.6          -0.338935574
+      185    185 Progressive disease 2033-04-29        0.0          -1.000000000
+      186    186   Complete response 2033-07-08        0.0          -1.000000000
+      187    187      Stable disease 2033-05-13       60.5          -0.067796610
+      188    188      Stable disease 2033-06-16       58.8          -0.132743363
+      189    189      Stable disease 2033-11-12       88.6          -0.041125541
+      190    190   Complete response 2033-09-14        0.0          -1.000000000
+      191    191   Complete response 2033-08-24        0.0          -1.000000000
+      192    192 Progressive disease 2033-10-11       14.5          -0.393305439
+      193    193    Partial response 2033-12-01       18.5          -0.459064327
+      194    194 Progressive disease 2033-10-01      112.0           0.637426901
+      195    195   Complete response 2034-01-14        0.0          -1.000000000
+      196    196 Progressive disease 2033-12-09       53.7           0.487534626
+      197    197      Stable disease 2033-12-06       25.7          -0.033834586
+      198    198      Stable disease 2034-02-09       22.7           0.194736842
+      199    199      Stable disease 2034-02-11       94.4           0.106682298
+      200    200   Complete response 2034-02-15        0.0          -1.000000000
+      201    201   Complete response 2034-04-05        0.0          -1.000000000
+      202    202   Complete response 2034-04-16        0.0          -1.000000000
+      203    203   Complete response 2034-04-08        0.0          -1.000000000
+      204    204    Partial response 2034-05-27       13.6          -0.786833856
+      205    205 Progressive disease 2034-05-27       52.5          -0.491771539
+      206    206 Progressive disease 2034-06-24       32.5           1.850877193
+      207    207   Complete response 2034-06-29        0.0          -1.000000000
+      208    208   Complete response 2034-08-20        0.0          -1.000000000
+      209    209   Complete response 2034-09-14        0.0          -1.000000000
+      210    210 Progressive disease 2034-08-10      254.4           0.917106255
+      211    211   Complete response 2034-09-30        0.0          -1.000000000
+      212    212   Complete response 2034-10-08        0.0          -1.000000000
+      213    213   Complete response 2034-11-06        0.0          -1.000000000
+      214    214    Partial response 2034-12-14       15.5          -0.708097928
+      215    215   Complete response 2034-12-31        0.0          -1.000000000
+      216    216 Progressive disease 2034-12-26        0.0          -1.000000000
+      217    217   Complete response 2035-01-24        0.0          -1.000000000
+      218    218 Progressive disease 2035-02-04       72.3           1.120234604
+      219    219    Partial response 2035-04-23       47.9          -0.345628415
+      220    220    Partial response 2035-05-11       54.8          -0.413276231
+      221    221 Progressive disease 2035-03-28       32.1           0.258823529
+      222    222   Complete response 2035-06-21        0.0          -1.000000000
+      223    223    Partial response 2035-07-16        0.0          -1.000000000
+      224    224   Complete response 2035-05-25        0.0          -1.000000000
+      225    225   Complete response 2035-06-12        0.0          -1.000000000
+      226    226 Progressive disease 2035-07-24       62.2           0.264227642
+      227    227 Progressive disease 2035-08-09       53.0           0.656250000
+      228    228 Progressive disease 2035-08-04      190.8           0.669291339
+      229    229    Partial response 2035-11-25       19.7          -0.586134454
+      230    230    Partial response 2035-10-20       39.7          -0.631383473
+      231    231   Complete response 2035-11-11        0.0          -1.000000000
+      232    232 Progressive disease 2035-11-22       36.4          -0.276341948
+      233    233   Complete response 2036-04-29        0.0          -1.000000000
+      234    234    Partial response 2035-12-15        7.0          -0.832935561
+      235    235   Complete response 2036-04-21        0.0          -1.000000000
+      236    236   Complete response 2036-03-25        0.0          -1.000000000
+      237    237    Partial response 2036-02-20       29.3          -0.518092105
+      238    238   Complete response 2036-04-14        0.0          -1.000000000
+      239    239   Complete response 2036-03-21        0.0          -1.000000000
+      240    240 Progressive disease 2036-05-02      109.8           0.626666667
+      241    241    Partial response 2036-05-10       26.1          -0.570723684
+      242    242   Complete response 2036-06-01        0.0          -1.000000000
+      243    243      Stable disease 2036-06-23       50.4          -0.129533679
+      244    244   Complete response 2036-08-09        0.0          -1.000000000
+      245    245   Complete response 2036-10-03        0.0          -1.000000000
+      246    246    Partial response 2036-09-07       43.5          -0.608460846
+      247    247   Complete response 2036-10-10        0.0          -1.000000000
+      248    248   Complete response 2036-10-15        0.0          -1.000000000
+      249    249   Complete response 2036-11-04        0.0          -1.000000000
+      250    250 Progressive disease 2036-12-08      100.9           0.169177289
+      251    251 Progressive disease 2036-11-12      183.8           1.374677003
+      252    252      Stable disease 2037-01-13       20.0          -0.298245614
+      253    253   Complete response 2037-02-06        0.0          -1.000000000
+      254    254   Complete response 2037-04-11        0.0          -1.000000000
+      255    255   Complete response 2037-03-15        0.0          -1.000000000
+      256    256 Progressive disease 2037-03-29      120.6           0.552123552
+      257    257 Progressive disease 2037-04-12       60.0           0.496259352
+      258    258   Complete response 2037-04-10        0.0          -1.000000000
+      259    259   Complete response 2037-06-01        0.0          -1.000000000
+      260    260   Complete response 2037-07-05        0.0          -1.000000000
+      261    261    Partial response 2037-06-11       29.9          -0.432637571
+      262    262 Progressive disease 2037-07-02      112.2           0.220892274
+      263    263   Complete response 2037-07-29        0.0          -1.000000000
+      264    264   Complete response 2037-07-23        0.0          -1.000000000
+      265    265    Partial response 2037-09-18       11.5          -0.786245353
+      266    266   Complete response 2037-10-19        0.0          -1.000000000
+      267    267    Partial response 2037-11-15       13.5          -0.635135135
+      268    268   Complete response 2037-12-12        0.0          -1.000000000
+      269    269   Complete response 2038-02-01        0.0          -1.000000000
+      270    270   Complete response 2038-03-27        0.0          -1.000000000
+      271    271      Stable disease 2037-12-12       57.7           0.107485605
+      272    272 Progressive disease 2038-02-02       86.1           0.681640625
+      273    273 Progressive disease 2038-02-10      118.6           0.350797267
+      274    274 Progressive disease 2038-02-08      136.9           0.694306931
+      275    275 Progressive disease 2038-03-20       96.4          -0.356904603
+      276    276   Complete response 2038-05-10        0.0          -1.000000000
+      277    277    Partial response 2038-07-25        9.1          -0.841186736
+      278    278   Complete response 2038-06-23        0.0          -1.000000000
+      279    279      Stable disease 2038-06-16       37.4          -0.148063781
+      280    280   Complete response 2038-06-21        0.0          -1.000000000
+      281    281   Complete response 2038-09-27        0.0          -1.000000000
+      282    282   Complete response 2038-10-15        0.0          -1.000000000
+      283    283   Complete response 2038-10-07        0.0          -1.000000000
+      284    284 Progressive disease 2038-10-18       46.5          -0.135687732
+      285    285 Progressive disease 2038-09-19      130.9           0.469135802
+      286    286    Partial response 2038-11-11        6.5          -0.580645161
+      287    287   Complete response 2038-11-29        0.0          -1.000000000
+      288    288    Partial response 2039-03-09        2.8          -0.936507937
+      289    289   Complete response 2039-02-10        0.0          -1.000000000
+      290    290   Complete response 2039-02-23        0.0          -1.000000000
+      291    291   Complete response 2039-03-28        0.0          -1.000000000
+      292    292    Partial response 2039-06-21       17.4          -0.543307087
+      293    293   Complete response 2039-04-11        0.0          -1.000000000
+      294    294   Complete response 2039-08-21        0.0          -1.000000000
+      295    295   Complete response 2039-06-15        0.0          -1.000000000
+      296    296 Progressive disease 2039-04-27      159.4           0.639917695
+      297    297   Complete response 2039-09-16        0.0          -1.000000000
+      298    298    Partial response 2039-06-19        5.6          -0.813953488
+      299    299   Complete response 2039-08-12        0.0          -1.000000000
+      300    300    Partial response 2039-08-22       15.1          -0.659909910
+      301    301   Complete response 2039-08-17        0.0          -1.000000000
+      302    302    Partial response 2039-09-10       13.1          -0.552901024
+      303    303 Progressive disease 2039-10-14      115.1           0.490932642
+      304    304   Complete response 2039-10-13        0.0          -1.000000000
+      305    305   Complete response 2039-12-31        0.0          -1.000000000
+      306    306 Progressive disease 2039-12-01      130.4           0.528722157
+      307    307   Complete response 2040-01-09        0.0          -1.000000000
+      308    308 Progressive disease 2039-12-20      104.9           0.358808290
+      309    309 Progressive disease 2040-01-18      113.3           0.533152909
+      310    310 Progressive disease 2040-03-27       13.3          -0.611111111
+      311    311    Partial response 2040-04-06       20.6          -0.666666667
+      312    312 Progressive disease 2040-04-29       67.0           0.740259740
+      313    313   Complete response 2040-04-22        0.0          -1.000000000
+      314    314   Complete response 2040-05-05        0.0          -1.000000000
+      315    315    Partial response 2040-06-24       39.4          -0.325342466
+      316    316   Complete response 2040-06-24        0.0          -1.000000000
+      317    317   Complete response 2040-08-16        0.0          -1.000000000
+      318    318   Complete response 2040-07-24        0.0          -1.000000000
+      319    319 Progressive disease 2040-08-25       59.7           0.431654676
+      320    320   Complete response 2040-11-10        0.0          -1.000000000
+      321    321 Progressive disease 2040-09-14       75.6           0.702702703
+      322    322   Complete response 2040-10-11        0.0          -1.000000000
+      323    323   Complete response 2040-12-17        0.0          -1.000000000
+      324    324      Stable disease 2040-12-18       69.2          -0.201845444
+      325    325    Partial response 2041-01-20       56.2          -0.322891566
+      326    326   Complete response 2041-03-11        0.0          -1.000000000
+      327    327    Partial response 2041-02-22       10.9          -0.468292683
+      328    328   Complete response 2041-04-19        0.0          -1.000000000
+      329    329 Progressive disease 2041-03-25       34.1           0.937500000
+      330    330   Complete response 2041-06-12        0.0          -1.000000000
+      331    331 Progressive disease 2041-04-05       83.3           0.226804124
+      332    332   Complete response 2041-04-23        0.0          -1.000000000
+      333    333 Progressive disease 2041-06-08       93.7           0.246010638
+      334    334      Stable disease 2041-06-23       19.6          -0.212851406
+      335    335   Complete response 2041-08-20        0.0          -1.000000000
+      336    336   Complete response 2041-09-17        0.0          -1.000000000
+      337    337   Complete response 2041-08-01        0.0          -1.000000000
+      338    338   Complete response 2041-08-16        0.0          -1.000000000
+      339    339   Complete response 2041-10-08        0.0          -1.000000000
+      340    340   Complete response 2041-12-09        0.0          -1.000000000
+      341    341    Partial response 2041-11-07        0.0          -1.000000000
+      342    342   Complete response 2041-12-07        0.0          -1.000000000
+      343    343 Progressive disease 2042-01-02       39.6           0.559055118
+      344    344 Progressive disease 2042-01-25      108.7           0.955035971
+      345    345   Complete response 2042-01-25        0.0          -1.000000000
+      346    346   Complete response 2042-01-30        0.0          -1.000000000
+      347    347   Complete response 2042-03-24        0.0          -1.000000000
+      348    348   Complete response 2042-03-22        0.0          -1.000000000
+      349    349 Progressive disease 2042-04-05        9.7          -0.779545455
+      350    350   Complete response 2042-05-19        0.0          -1.000000000
+      351    351   Complete response 2042-06-03        0.0          -1.000000000
+      352    352 Progressive disease 2042-06-28        0.0          -1.000000000
+      353    353   Complete response 2042-07-20        0.0          -1.000000000
+      354    354      Stable disease 2042-07-10       61.9          -0.254216867
+      355    355   Complete response 2042-08-21        0.0          -1.000000000
+      356    356      Stable disease 2042-09-01       19.2          -0.072463768
+      357    357   Complete response 2042-10-02        0.0          -1.000000000
+      358    358   Complete response 2042-10-31        0.0          -1.000000000
+      359    359    Partial response 2042-10-28       37.3          -0.331541219
+      360    360   Complete response 2042-12-21        0.0          -1.000000000
+      361    361 Progressive disease 2042-12-07        0.0          -1.000000000
+      362    362   Complete response 2043-01-08        0.0          -1.000000000
+      363    363 Progressive disease 2043-02-17       55.0           1.806122449
+      364    364 Progressive disease 2043-01-22      166.6           1.260515604
+      365    365 Progressive disease 2043-03-19      114.8           0.208421053
+      366    366 Progressive disease 2043-02-24       89.8           0.213513514
+      367    367   Complete response 2043-04-06        0.0          -1.000000000
+      368    368   Complete response 2043-05-26        0.0          -1.000000000
+      369    369   Complete response 2043-06-11        0.0          -1.000000000
+      370    370   Complete response 2043-05-21        0.0          -1.000000000
+      371    371   Complete response 2043-08-10        0.0          -1.000000000
+      372    372 Progressive disease 2043-06-30       23.6           0.289617486
+      373    373 Progressive disease 2043-07-27      181.0           1.114485981
+      374    374   Complete response 2043-08-16        0.0          -1.000000000
+      375    375   Complete response 2043-09-27        0.0          -1.000000000
+      376    376 Progressive disease 2043-09-12       38.2           1.808823529
+      377    377   Complete response 2044-01-17        0.0          -1.000000000
+      378    378    Partial response 2043-11-22       32.4          -0.659663866
+      379    379    Partial response 2043-12-07        0.0          -1.000000000
+      380    380   Complete response 2043-12-17        0.0          -1.000000000
+      381    381 Progressive disease 2044-01-02       45.2           0.403726708
+      382    382   Complete response 2044-02-23        0.0          -1.000000000
+      383    383    Partial response 2044-02-19       46.4          -0.364383562
+      384    384    Partial response 2044-05-01        5.5          -0.719387755
+      385    385   Complete response 2044-06-09        0.0          -1.000000000
+      386    386   Complete response 2044-05-28        0.0          -1.000000000
+      387    387 Progressive disease 2044-05-29       16.0           0.290322581
+      388    388   Complete response 2044-07-11        0.0          -1.000000000
+      389    389   Complete response 2044-06-16        0.0          -1.000000000
+      390    390 Progressive disease 2044-07-18       58.6           0.498721228
+      391    391    Partial response 2044-07-23        7.9          -0.701886792
+      392    392 Progressive disease 2044-08-11        0.0          -1.000000000
+      393    393 Progressive disease 2044-10-12        0.0          -1.000000000
+      394    394   Complete response 2044-09-22        0.0          -1.000000000
+      395    395   Complete response 2044-11-11        0.0          -1.000000000
+      396    396   Complete response 2044-12-01        0.0          -1.000000000
+      397    397   Complete response 2044-11-25        0.0          -1.000000000
+      398    398   Complete response 2045-01-24        0.0          -1.000000000
+      399    399 Progressive disease 2044-12-22       87.4           0.832285115
+      400    400   Complete response 2045-02-26        0.0          -1.000000000
+      401    401      Stable disease 2045-03-17       81.2           0.037037037
+      402    402   Complete response 2045-03-21        0.0          -1.000000000
+      403    403      Stable disease 2045-04-07       51.5           0.107526882
+      404    404   Complete response 2045-06-15        0.0          -1.000000000
+      405    405      Stable disease 2045-06-24      106.9          -0.128769356
+      406    406    Partial response 2045-06-20       13.3          -0.811614731
+      407    407   Complete response 2045-06-29        0.0          -1.000000000
+      408    408   Complete response 2045-08-25        0.0          -1.000000000
+      409    409   Complete response 2045-08-20        0.0          -1.000000000
+      410    410   Complete response 2045-08-18        0.0          -1.000000000
+      411    411      Stable disease 2045-09-05      100.4          -0.011811024
+      412    412    Partial response 2045-09-14       24.5          -0.422169811
+      413    413 Progressive disease 2045-11-08        0.0          -1.000000000
+      414    414 Progressive disease 2045-10-24      127.3           0.587281796
+      415    415   Complete response 2045-11-28        0.0          -1.000000000
+      416    416   Complete response 2045-12-12        0.0          -1.000000000
+      417    417   Complete response 2046-01-11        0.0          -1.000000000
+      418    418   Complete response 2046-01-29        0.0          -1.000000000
+      419    419   Complete response 2046-01-27        0.0          -1.000000000
+      420    420   Complete response 2046-05-16        0.0          -1.000000000
+      421    421   Complete response 2046-07-28        0.0          -1.000000000
+      422    422   Complete response 2046-06-17        0.0          -1.000000000
+      423    423      Stable disease 2046-05-27       13.5          -0.262295082
+      424    424    Partial response 2046-07-22       30.4          -0.396825397
+      425    425 Progressive disease 2046-06-07      159.5           0.822857143
+      426    426 Progressive disease 2046-06-16      142.6           0.807351077
+      427    427    Partial response 2046-08-12       11.0          -0.731051345
+      428    428   Complete response 2046-07-27        0.0          -1.000000000
+      429    429   Complete response 2046-12-23        0.0          -1.000000000
+      430    430 Progressive disease 2046-09-02       79.8           0.789237668
+      431    431   Complete response 2046-12-04        0.0          -1.000000000
+      432    432 Progressive disease 2046-10-25       58.2           0.742514970
+      433    433 Progressive disease 2046-11-16      118.8           0.973421927
+      434    434 Progressive disease 2046-12-29       73.1           1.094555874
+      435    435   Complete response 2047-02-08        0.0          -1.000000000
+      436    436   Complete response 2047-01-28        0.0          -1.000000000
+      437    437   Complete response 2047-02-03        0.0          -1.000000000
+      438    438   Complete response 2047-02-17        0.0          -1.000000000
+      439    439   Complete response 2047-07-12        0.0          -1.000000000
+      440    440   Complete response 2047-05-31        0.0          -1.000000000
+      441    441 Progressive disease 2047-04-09       76.5           0.197183099
+      442    442   Complete response 2047-05-09        0.0          -1.000000000
+      443    443    Partial response 2047-06-07       53.6          -0.353437877
+      444    444   Complete response 2047-07-05        0.0          -1.000000000
+      445    445   Complete response 2047-07-18        0.0          -1.000000000
+      446    446   Complete response 2047-09-25        0.0          -1.000000000
+      447    447   Complete response 2047-09-05        0.0          -1.000000000
+      448    448   Complete response 2047-08-29        0.0          -1.000000000
+      449    449 Progressive disease 2047-09-12      128.9           0.568126521
+      450    450 Progressive disease 2047-11-14       88.8           0.241958042
+      451    451   Complete response 2047-11-21        0.0          -1.000000000
+      452    452   Complete response 2047-12-27        0.0          -1.000000000
+      453    453   Complete response 2047-12-30        0.0          -1.000000000
+      454    454   Complete response 2048-01-02        0.0          -1.000000000
+      455    455    Partial response 2048-03-03        8.6          -0.786600496
+      456    456   Complete response 2048-02-01        0.0          -1.000000000
+      457    457   Complete response 2048-05-05        0.0          -1.000000000
+      458    458   Complete response 2048-04-22        0.0          -1.000000000
+      459    459 Progressive disease 2048-05-19       87.0           0.394230769
+      460    460   Complete response 2048-05-26        0.0          -1.000000000
+      461    461 Progressive disease 2048-05-14      105.4           0.540935673
+      462    462 Progressive disease 2048-07-04       51.1           0.928301887
+      463    463   Complete response 2048-07-17        0.0          -1.000000000
+      464    464      Stable disease 2048-07-28       64.6           0.062500000
+      465    465      Stable disease 2048-11-22       87.8          -0.004535147
+      466    466 Progressive disease 2048-09-25      128.7           0.400435256
+      467    467    Partial response 2048-10-07       47.1          -0.568285976
+      468    468   Complete response 2048-11-01        0.0          -1.000000000
+      469    469      Stable disease 2048-11-02       44.5          -0.049145299
+      470    470 Progressive disease 2049-02-03        0.0          -1.000000000
+      471    471    Partial response 2049-01-06       13.4          -0.319796954
+      472    472   Complete response 2049-02-25        0.0          -1.000000000
+      473    473 Progressive disease 2049-01-23       32.5           0.719576720
+      474    474   Complete response 2049-03-19        0.0          -1.000000000
+      475    475      Stable disease 2049-02-11       58.2           0.112810707
+      476    476 Progressive disease 2049-04-07       57.5           0.239224138
+      477    477 Progressive disease 2049-04-30       28.6           0.466666667
+      478    478   Complete response 2049-07-12        0.0          -1.000000000
+      479    479   Complete response 2049-06-12        0.0          -1.000000000
+      480    480 Progressive disease 2049-07-05      117.7           0.923202614
+      481    481 Progressive disease 2049-07-26       34.1           0.550000000
+      482    482      Stable disease 2049-07-25       69.7           0.120578778
+      483    483    Partial response 2049-08-08       16.0          -0.831756046
+      484    484   Complete response 2049-09-28        0.0          -1.000000000
+      485    485 Progressive disease 2049-09-16       40.2           0.601593625
+      486    486 Progressive disease 2049-11-05       57.6           0.604456825
+      487    487 Progressive disease 2049-10-23      120.4           0.300215983
+      488    488   Complete response 2049-12-11        0.0          -1.000000000
+      489    489 Progressive disease 2049-12-26      255.5           2.692196532
+      490    490 Progressive disease 2050-01-11       66.4           0.045669291
+      491    491 Progressive disease 2050-02-01       36.6           0.391634981
+      492    492 Progressive disease 2050-03-03      129.5           0.602722772
+      493    493    Partial response 2050-03-29       53.7          -0.394588501
+      494    494 Progressive disease 2050-04-02      126.2           0.500594530
+      495    495   Complete response 2050-07-21        0.0          -1.000000000
+      496    496 Progressive disease 2050-05-25       97.3           0.231645570
+      497    497 Progressive disease 2050-05-12       19.9          -0.019704433
+      498    498   Complete response 2050-09-11        0.0          -1.000000000
+      499    499   Complete response 2050-07-15        0.0          -1.000000000
+      500    500   Complete response 2050-09-20        0.0          -1.000000000
           target_sum_diff_min
-      1          1.0992276623
-      2          0.0000000000
-      3                   NaN
-      4          0.0000000000
-      5          0.0000000000
-      6          0.2495657354
-      7          0.4054126859
-      8          0.0517336580
-      9          0.0000000000
-      10         0.3487514388
-      11         0.3775141514
-      12         0.0000000000
-      13         0.0000000000
-      14         0.0000000000
+      1                   NaN
+      2            0.77011494
+      3            0.12215909
+      4                   NaN
+      5                   NaN
+      6                   Inf
+      7            0.24081238
+      8            0.00000000
+      9                   NaN
+      10                  NaN
+      11                  NaN
+      12           0.62138728
+      13           0.00000000
+      14                  NaN
       15                  NaN
-      16         1.2701149425
-      17         0.0000000000
-      18         0.3978812659
-      19         0.0000000000
-      20         0.0000000000
-      21         0.0000000000
-      22         0.0000000000
-      23         0.0000000000
-      24         0.0000000000
-      25         0.0000000000
+      16           2.05825243
+      17           0.36801040
+      18           0.71338912
+      19                  NaN
+      20                  NaN
+      21                  NaN
+      22                  NaN
+      23                  NaN
+      24                  NaN
+      25           0.20466786
       26                  NaN
-      27         0.1092211906
-      28         0.0953445298
-      29         0.1613888401
-      30         0.0000000000
+      27           1.35433071
+      28                  NaN
+      29                  NaN
+      30                  NaN
       31                  NaN
       32                  NaN
-      33         0.0000000000
-      34         0.1029802649
+      33                  NaN
+      34           0.55957768
       35                  NaN
-      36                  NaN
-      37         0.7116151575
-      38         0.3443511738
+      36           0.04566929
+      37           1.91891892
+      38           0.00000000
       39                  NaN
-      40         0.0000000000
-      41         0.2139560516
-      42         0.1259110389
+      40                  NaN
+      41                  NaN
+      42                  NaN
       43                  NaN
-      44         0.4858759237
-      45         0.0000000000
+      44           0.00000000
+      45                  NaN
       46                  NaN
-      47         0.0912688675
-      48                  NaN
-      49         0.1091137492
-      50         0.2358360326
-      51         0.1783882333
+      47                  NaN
+      48           0.29302987
+      49                  NaN
+      50           0.00000000
+      51           0.00000000
       52                  NaN
-      53         0.2583294212
-      54         0.0000000000
-      55         0.4726864284
-      56         0.0000000000
-      57         0.0000000000
-      58         0.3587630365
-      59         0.0883085767
-      60         0.0743599061
-      61                  NaN
-      62         0.6199603028
-      63         0.0000000000
-      64         0.0000000000
+      53           0.49618321
+      54           0.64563758
+      55                  NaN
+      56                  NaN
+      57           0.00000000
+      58                  NaN
+      59           0.85191638
+      60           0.75751503
+      61           0.00000000
+      62           0.22544283
+      63           0.31428571
+      64                  NaN
       65                  NaN
-      66                  NaN
-      67         0.0000000000
+      66           0.00000000
+      67           0.00000000
       68                  NaN
-      69         0.0000000000
-      70         0.0000000000
-      71         0.3043641997
-      72         0.2221317901
-      73                  NaN
-      74         0.3835461321
-      75         0.2012409063
-      76         0.0000000000
-      77         0.0000000000
-      78                  NaN
+      69                  NaN
+      70           0.44019139
+      71           1.24671053
+      72           0.00000000
+      73           0.62222222
+      74           0.55140187
+      75                  NaN
+      76           0.00000000
+      77                  NaN
+      78           0.00000000
       79                  NaN
-      80         0.1877760412
-      81         0.0000000000
+      80                  NaN
+      81           0.67032967
       82                  NaN
-      83         0.0730590472
-      84         0.1817194758
-      85         0.0232790230
-      86         0.4321259987
-      87         0.0969096791
-      88         0.0000000000
-      89         0.3294805345
-      90         0.2551371996
-      91         0.0000000000
-      92                  NaN
-      93         0.2055740076
-      94         0.2296514261
-      95         0.0000000000
-      96         0.2739790154
+      83           1.43283582
+      84           0.00000000
+      85           0.00000000
+      86                  NaN
+      87                  NaN
+      88           1.00466563
+      89           0.41584158
+      90                  NaN
+      91           0.00000000
+      92           1.04389313
+      93                  NaN
+      94           0.00000000
+      95                  NaN
+      96           0.00000000
       97                  NaN
-      98         0.5561172189
+      98                  NaN
       99                  NaN
       100                 NaN
-      101                 NaN
-      102        0.8661823663
-      103        0.3414563897
-      104        0.0118111930
-      105        0.0000000000
-      106        0.1962664215
-      107        0.5000405730
-      108        0.4288953555
-      109                 NaN
-      110        0.0000000000
-      111        0.0802639468
+      101          0.00000000
+      102                 NaN
+      103          0.00000000
+      104                 NaN
+      105                 NaN
+      106          0.89711934
+      107                 NaN
+      108          0.00000000
+      109          1.06491228
+      110                 NaN
+      111          0.71092437
       112                 NaN
-      113        0.0000000000
-      114                 NaN
-      115        0.1060299555
-      116        0.4144826551
-      117        0.0000000000
-      118        0.0000000000
-      119        0.0428320912
-      120        0.0000000000
-      121        0.0000000000
-      122        0.3628334209
-      123        0.6657303371
-      124        0.0000000000
-      125                 NaN
-      126                 NaN
+      113                 NaN
+      114          1.02762431
+      115          1.04043546
+      116          1.58528428
+      117                 NaN
+      118                 NaN
+      119                 NaN
+      120          0.00000000
+      121                 NaN
+      122                 NaN
+      123          0.00000000
+      124          0.00000000
+      125          0.00000000
+      126          1.03481894
       127                 NaN
       128                 NaN
-      129        0.0000000000
+      129          1.68838527
       130                 NaN
-      131        0.2323094623
-      132        0.6726454325
-      133        0.2099543479
-      134        0.0300323829
-      135        0.2941176471
-      136        0.3870529013
-      137        0.0000000000
-      138        0.0000000000
-      139        0.0000000000
-      140        0.0000000000
-      141        0.0000000000
-      142        0.2066943571
-      143        0.0000000000
-      144        0.0000000000
-      145                 NaN
-      146        0.0539368590
-      147        0.0000000000
-      148        0.0000000000
-      149        0.0000000000
+      131                 NaN
+      132          0.20118343
+      133                 NaN
+      134                 Inf
+      135                 NaN
+      136                 NaN
+      137          0.62062937
+      138                 NaN
+      139                 NaN
+      140          0.00000000
+      141          0.20927835
+      142          1.14610778
+      143                 NaN
+      144                 NaN
+      145          1.43564356
+      146          0.04859967
+      147                 NaN
+      148                 NaN
+      149                 NaN
       150                 NaN
-      151        0.1254832718
+      151          0.00000000
       152                 NaN
       153                 NaN
-      154        0.5362295711
-      155        0.0000000000
-      156        0.2604620136
-      157        0.4105693321
-      158                 NaN
-      159        0.2913576366
-      160                 NaN
-      161        0.4932638635
-      162        0.4400559770
-      163        0.0000000000
-      164        0.0000000000
-      165        0.4593708546
+      154          0.00000000
+      155                 NaN
+      156          0.71715818
+      157                 NaN
+      158          0.03812317
+      159                 NaN
+      160          1.01511879
+      161                 NaN
+      162          0.61210317
+      163          0.34801762
+      164                 NaN
+      165                 NaN
       166                 NaN
-      167        0.0732360097
-      168        0.5611285266
-      169        0.0000000000
+      167                 NaN
+      168          0.00000000
+      169                 NaN
       170                 NaN
-      171        0.0000000000
-      172        0.0846047157
-      173        0.2673527607
-      174        0.0000000000
+      171                 NaN
+      172          0.00000000
+      173          0.00000000
+      174          0.00000000
       175                 NaN
-      176        0.3193563555
-      177        0.0000000000
-      178        0.2065187631
-      179        0.4512569331
-      180        0.0000000000
-      181        0.2888753407
-      182        0.0000000000
-      183        0.2364036138
-      184        0.0000000000
-      185        0.0000000000
-      186        0.4147873509
-      187        0.1095081042
-      188        0.3463233036
-      189        0.1721822423
-      190        0.4259021506
-      191        0.0000000000
-      192                 NaN
-      193        0.0194803928
-      194        0.0000000000
+      176          0.57094595
+      177                 NaN
+      178                 NaN
+      179                 NaN
+      180                 NaN
+      181                 NaN
+      182          0.45606695
+      183          0.03696858
+      184          0.00000000
+      185                 NaN
+      186                 NaN
+      187          0.00000000
+      188                 Inf
+      189          0.00000000
+      190                 NaN
+      191                 NaN
+      192          0.00000000
+      193          0.00000000
+      194          0.63742690
       195                 NaN
-      196        0.0000000000
-      197        0.0000000000
-      198        0.0000000000
-      199        0.0000000000
+      196          0.48753463
+      197          0.00000000
+      198          0.19473684
+      199          0.10668230
       200                 NaN
-      201        0.4048020299
-      202        0.0000000000
-      203        0.3542439909
-      204        0.0000000000
-      205        0.5981369666
-      206        0.3506236397
+      201                 NaN
+      202                 NaN
+      203                 NaN
+      204          0.00000000
+      205          0.00000000
+      206          1.85087719
       207                 NaN
       208                 NaN
-      209        0.2276473374
-      210                 NaN
+      209                 NaN
+      210          0.91710625
       211                 NaN
-      212        0.1853207608
-      213        0.0000000000
-      214        0.3396028718
-      215        0.7681901415
-      216        0.2538521334
-      217        0.0000000000
-      218        0.8604651163
-      219        0.4601361997
-      220        0.0000000000
-      221                 NaN
-      222        0.0000000000
-      223        0.8488261608
+      212                 NaN
+      213                 NaN
+      214          0.00000000
+      215                 NaN
+      216                 NaN
+      217                 NaN
+      218          1.12023460
+      219          0.00000000
+      220          0.00000000
+      221          0.25882353
+      222                 NaN
+      223                 NaN
       224                 NaN
-      225        0.2362576302
-      226                 NaN
-      227                 NaN
-      228        0.1869010340
-      229        0.0000000000
-      230        0.2044737200
-      231        0.0000000000
-      232        0.1065985931
+      225                 NaN
+      226          0.26422764
+      227          0.65625000
+      228          0.66929134
+      229          4.96969697
+      230          0.00000000
+      231                 NaN
+      232          0.00000000
       233                 NaN
-      234        0.0000000000
-      235        0.0000000000
-      236        0.4736992595
-      237        0.0000000000
-      238        0.0000000000
-      239        0.0000000000
-      240        0.6153639975
-      241                 NaN
-      242        0.0000000000
-      243        0.0000000000
+      234          0.00000000
+      235                 NaN
+      236                 NaN
+      237          0.00000000
+      238                 NaN
+      239                 NaN
+      240          0.62666667
+      241          0.00000000
+      242                 NaN
+      243          0.00000000
       244                 NaN
-      245        0.4611579774
-      246                 NaN
-      247        0.2160556376
-      248        0.0000000000
+      245                 NaN
+      246          0.00000000
+      247                 NaN
+      248                 NaN
       249                 NaN
-      250        0.0000000000
-      251        0.2912413766
-      252        0.3092105263
-      253        0.0000000000
-      254        0.0000000000
-      255        0.8547297297
-      256        0.0000000000
-      257        0.6339413136
-      258        0.0000000000
-      259        0.2736160510
-      260        0.4389056802
-      261        0.0000000000
-      262        0.2303007976
+      250          0.16917729
+      251          1.37467700
+      252          0.00000000
+      253                 NaN
+      254                 NaN
+      255                 NaN
+      256          0.55212355
+      257          0.49625935
+      258                 NaN
+      259                 NaN
+      260                 NaN
+      261          0.00000000
+      262          0.22089227
       263                 NaN
-      264        0.3127600891
-      265        0.0000000000
-      266        0.3070029565
-      267        0.0941470361
-      268        0.1111111111
-      269        0.2001437980
-      270        0.0000000000
-      271        0.5026955325
-      272        0.0000000000
-      273        0.0452762465
-      274        0.3757614088
-      275        0.0917629970
-      276        0.0000000000
-      277        0.1511141116
-      278        0.4308297718
-      279        0.0000000000
-      280        0.0000000000
-      281        0.0813383379
-      282        0.1977848448
+      264                 NaN
+      265          0.00000000
+      266                 NaN
+      267          0.00000000
+      268                 NaN
+      269                 NaN
+      270                 NaN
+      271          0.10748560
+      272          0.68164062
+      273          0.35079727
+      274          0.69430693
+      275          0.00000000
+      276                 NaN
+      277          0.00000000
+      278                 NaN
+      279          0.00000000
+      280                 NaN
+      281                 NaN
+      282                 NaN
       283                 NaN
-      284        0.0000000000
-      285        0.0000000000
-      286                 NaN
+      284          0.00000000
+      285          0.46913580
+      286          0.00000000
       287                 NaN
-      288        0.0000000000
+      288          0.00000000
       289                 NaN
-      290        0.0000000000
-      291        0.0724464923
-      292        0.2606255511
-      293        0.4280999501
-      294        0.0725181754
-      295        0.2378798799
-      296                 NaN
-      297        0.4173949156
-      298                 NaN
-      299        0.0000000000
-      300        0.0000000000
-      301        0.0000000000
-      302                 NaN
-      303                 NaN
-      304        0.0000000000
-      305        0.0000000000
-      306                 NaN
+      290                 NaN
+      291                 NaN
+      292          3.14285714
+      293                 NaN
+      294                 NaN
+      295                 NaN
+      296          0.63991770
+      297                 NaN
+      298          0.00000000
+      299                 NaN
+      300          0.00000000
+      301                 NaN
+      302          0.00000000
+      303          0.49093264
+      304                 NaN
+      305                 NaN
+      306          0.52872216
       307                 NaN
-      308                 NaN
-      309        0.0945314224
-      310        0.2307284293
-      311        0.0000000000
-      312        0.0000000000
-      313        0.3864566465
-      314        0.1744626874
-      315        0.0812932603
+      308          0.35880829
+      309          0.53315291
+      310          0.00000000
+      311          0.00000000
+      312          0.74025974
+      313                 NaN
+      314                 NaN
+      315          0.00000000
       316                 NaN
-      317        0.0000000000
-      318        0.0000000000
-      319                 NaN
-      320        0.4672592294
-      321        0.3394567652
+      317                 NaN
+      318                 NaN
+      319          0.43165468
+      320                 NaN
+      321          0.70270270
       322                 NaN
       323                 NaN
-      324        0.0000000000
-      325        0.2418314667
-      326        0.2440491027
-      327        0.0000000000
-      328        0.3150871049
-      329        0.0000000000
-      330        0.0000000000
-      331        0.0000000000
+      324          0.00000000
+      325          0.00000000
+      326                 NaN
+      327          0.00000000
+      328                 NaN
+      329          0.93750000
+      330                 NaN
+      331          0.22680412
       332                 NaN
-      333        0.0000000000
-      334        0.6030654803
+      333          0.24601064
+      334          0.00000000
       335                 NaN
-      336        0.0000000000
+      336                 NaN
       337                 NaN
-      338        0.0000000000
+      338                 NaN
       339                 NaN
-      340        0.0000000000
-      341        0.1467427995
-      342        0.3577704995
-      343        0.0000000000
-      344        0.0000000000
-      345        0.0000000000
-      346        0.0000000000
-      347        0.3031098089
+      340                 NaN
+      341                 NaN
+      342                 NaN
+      343          0.55905512
+      344          0.95503597
+      345                 NaN
+      346                 NaN
+      347                 NaN
       348                 NaN
-      349                 NaN
-      350        0.0000000000
-      351        0.4541608753
+      349          0.00000000
+      350                 NaN
+      351                 NaN
       352                 NaN
-      353        0.2476406219
-      354        0.0000000000
+      353                 NaN
+      354                 Inf
       355                 NaN
-      356        0.0000000000
-      357        0.1623502929
-      358        0.0000000000
-      359        0.0000000000
-      360        0.6102813493
-      361        0.0000000000
+      356          0.00000000
+      357                 NaN
+      358                 NaN
+      359          0.00000000
+      360                 NaN
+      361                 NaN
       362                 NaN
-      363        0.0000000000
-      364        0.1600909550
-      365        0.0000000000
-      366        0.0000000000
-      367        0.0462126138
-      368        0.9373601790
+      363          1.80612245
+      364          1.26051560
+      365          0.20842105
+      366          0.21351351
+      367                 NaN
+      368                 NaN
       369                 NaN
       370                 NaN
-      371        0.7773818064
-      372        0.0000000000
-      373        0.0000000000
+      371                 NaN
+      372          0.28961749
+      373          1.11448598
       374                 NaN
-      375        0.3791523765
-      376                 NaN
+      375                 NaN
+      376          1.80882353
       377                 NaN
-      378                 NaN
-      379        0.1404011653
+      378          0.00000000
+      379                 NaN
       380                 NaN
-      381        0.0000000000
-      382        0.0000000000
-      383                 NaN
-      384        0.3812568785
+      381          0.40372671
+      382                 NaN
+      383          0.00000000
+      384          0.00000000
       385                 NaN
-      386        0.0000000000
-      387                 NaN
-      388        0.0000000000
+      386                 NaN
+      387          0.29032258
+      388                 NaN
       389                 NaN
-      390        0.3705497464
-      391                 NaN
-      392        0.0000000000
-      393        0.1316316984
-      394        0.2740984965
+      390          0.49872123
+      391          0.00000000
+      392                 NaN
+      393                 NaN
+      394                 NaN
       395                 NaN
       396                 NaN
-      397        0.0000000000
-      398        0.0000000000
-      399        0.0417707468
-      400        0.0000000000
-      401        0.0000000000
-      402        0.0000000000
-      403        0.0000000000
+      397                 NaN
+      398                 NaN
+      399          0.83228512
+      400                 NaN
+      401          0.03703704
+      402                 NaN
+      403          0.10752688
       404                 NaN
-      405        0.0658718563
-      406        0.3923656220
-      407        0.2898828007
-      408        0.3650974430
-      409        0.3106372755
-      410        0.0000000000
-      411                 NaN
-      412                 NaN
+      405          0.00000000
+      406          0.00000000
+      407                 NaN
+      408                 NaN
+      409                 NaN
+      410                 NaN
+      411          0.00000000
+      412          5.62162162
       413                 NaN
-      414        0.0000000000
-      415        0.0000000000
+      414          0.58728180
+      415                 NaN
       416                 NaN
       417                 NaN
       418                 NaN
-      419        0.2370212666
-      420        0.0000000000
-      421        0.0000000000
-      422        0.0000000000
-      423        0.0000000000
-      424        0.1153616202
-      425        0.5695036684
-      426        0.5021676046
-      427                 NaN
-      428        0.0371815971
-      429        0.0000000000
-      430        0.0000000000
-      431        0.0000000000
-      432        0.1665251797
-      433        0.5581277474
-      434        0.0000000000
+      419                 NaN
+      420                 NaN
+      421                 NaN
+      422                 NaN
+      423          0.00000000
+      424          0.00000000
+      425          0.82285714
+      426          0.80735108
+      427          0.00000000
+      428                 NaN
+      429                 NaN
+      430          0.78923767
+      431                 NaN
+      432          0.74251497
+      433          0.97342193
+      434          1.09455587
       435                 NaN
-      436        0.3205460817
+      436                 NaN
       437                 NaN
       438                 NaN
-      439        0.0000000000
-      440        0.0000000000
-      441        0.0000000000
-      442        0.0000000000
-      443        0.0000000000
-      444        0.0000000000
-      445        0.1436641957
-      446        0.0000000000
-      447        0.0000000000
-      448        0.0000000000
-      449                 NaN
-      450        0.0755692103
-      451        0.0000000000
-      452        0.0000000000
+      439                 NaN
+      440                 NaN
+      441          0.19718310
+      442                 NaN
+      443          0.00000000
+      444                 NaN
+      445                 NaN
+      446                 NaN
+      447                 NaN
+      448                 NaN
+      449          0.56812652
+      450          0.24195804
+      451                 NaN
+      452                 NaN
       453                 NaN
-      454        0.0000000000
-      455        0.4941724482
-      456        0.0000000000
-      457        0.2308433130
-      458        0.0000000000
-      459                 NaN
-      460        0.0000000000
-      461        0.0000000000
-      462        0.0138043469
-      463        0.0000000000
-      464                 NaN
-      465                 NaN
-      466        0.4855664129
-      467        0.3934670238
+      454                 NaN
+      455          0.00000000
+      456                 NaN
+      457                 NaN
+      458                 NaN
+      459          0.39423077
+      460                 NaN
+      461          0.54093567
+      462          0.92830189
+      463                 NaN
+      464          0.06250000
+      465          0.00000000
+      466          0.40043526
+      467          0.00000000
       468                 NaN
-      469                 NaN
-      470        0.0003664538
-      471        0.2729168842
-      472        0.0647322080
-      473        0.0000000000
-      474        0.0000000000
-      475        0.7292576419
-      476        0.0000000000
-      477        0.0236756199
+      469          0.00000000
+      470                 NaN
+      471          0.00000000
+      472                 NaN
+      473          0.71957672
+      474                 NaN
+      475          0.11281071
+      476          0.23922414
+      477          0.46666667
       478                 NaN
-      479        0.0000000000
-      480        0.3637142733
-      481                 NaN
-      482        0.5665099932
-      483        0.0000000000
-      484        0.0000000000
-      485        0.4878684490
-      486        0.3093925915
-      487        0.2807646419
+      479                 NaN
+      480          0.92320261
+      481          0.55000000
+      482          1.21269841
+      483          0.92771084
+      484                 NaN
+      485          0.60159363
+      486          0.60445682
+      487          0.30021598
       488                 NaN
-      489        0.0000000000
-      490        0.0000000000
-      491        0.0000000000
-      492        0.2352941176
-      493        0.0000000000
-      494                 NaN
-      495        0.0205021747
-      496                 NaN
-      497        0.1707686511
+      489          2.69219653
+      490          0.04566929
+      491          0.39163498
+      492          0.60272277
+      493                 Inf
+      494          0.50059453
+      495                 NaN
+      496          0.23164557
+      497          0.00000000
       498                 NaN
-      499        0.0000000000
-      500        0.0000000000
+      499                 NaN
+      500                 NaN
 
