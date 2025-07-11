@@ -28,7 +28,7 @@
 }
 
 
-#' Encore numeric RECIST response as standard acronyms
+#' Encode numeric RECIST response as standard acronyms
 #' Non-CR Non-PD are turned to SD for simplicity
 #' @noRd
 .recist_from_num = function(x) {

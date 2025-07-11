@@ -62,7 +62,7 @@ set.seed(0)
 data_symbols = db$recist \%>\%
   dplyr::summarise(
     new_lesion=ifelse(any(rcnew=="Yes", na.rm=TRUE), "New lesion", NA),
-    random=cut(runif(1), breaks=c(0,0.05,0.1,1), labels=c("A", "B", NA)),
+    example_event=cut(runif(1), breaks=c(0,0.05,0.1,1), labels=c("A", "B", NA)),
     .by=subjid
   )
 
@@ -72,7 +72,7 @@ data_best_resp \%>\%
 
 data_best_resp \%>\%
   dplyr::left_join(data_symbols, by="subjid") \%>\%
-  waterfall_plot(shape="random") +
+  waterfall_plot(shape="example_event") +
   ggplot2::labs(shape="Event")
 
 }
