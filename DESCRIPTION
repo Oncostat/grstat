@@ -51,12 +51,14 @@ Suggests:
     ggsurvfit,
     gtools,
     knitr,
+    openxlsx,
     plotly,
     rmarkdown,
     rstudioapi,
     survival,
     testthat (>= 3.0.0),
     usethis,
+    utils,
     vdiffr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -18,7 +18,7 @@ assert = function(x, msg=NULL, call=parent.frame()){
     msg = glue("`{x_str}` is FALSE")
   }
   if(!x){
-    cli_abort(msg, call=call)
+    cli_abort(msg, call=call, .envir=parent.frame())
   }
   invisible(TRUE)
 }
@@ -62,11 +62,33 @@ assert_not_null = function(...){
   }
 }
 
+#' @importFrom fs path_ext
+assert_extension = function(x, ext){
+  # ext=str_remove(ext, "^\\.")
+  assert(path_ext(x)==ext,
+         msg="{.arg {caller_arg(x)}} should be a {.val .{ext}} file, not a {.val .{path_ext(x)}} file.")
+}
+
 # Checks --------------------------------------------------------------------------------------
+
+
+#' @importFrom cli cli_warn
+#' @importFrom rlang caller_call
+grstat_dev_warn = function(){
+  fn_name =as.character(caller_call()[[1]])
+  cli_warn(c("Function {.help [{.fun {fn_name}}](grstat::{fn_name})} is not yet validated and may produce incorrect results.",
+             "!"= "Always double-check the results using your own code.",
+             "i"= "Please send your feedback to the {.pkg grstat} team."),
+           .frequency = "regularly", .frequency_id=paste0("grstat_warn_dev__", fn_name),
+           class="grstat_dev_warn")
+}
+
 
 #' @importFrom cli cli_abort cli_vec cli_warn format_inline
 #' @importFrom dplyr pull
-grstat_data_warn = function (.data, message, subjid, max_subjid=5,
+#' @importFrom rlang caller_arg check_dots_empty
+#' @importFrom tibble tibble
+grstat_data_warn = function (.data, message, subjid="subjid", max_subjid=5,
                              class="grstat_data_warn"){
   if (missing(max_subjid))
     max_subjid = getOption("grstat_warn_max_subjid", max_subjid)
@@ -88,7 +110,6 @@ grstat_data_warn = function (.data, message, subjid, max_subjid=5,
                   class = "grstat_data_warn_subjid_error",
                   call = parent.frame())
       }
-      # browser()
       .subjid = subjid
       subj0 = .data %>% pull(any_of2(.subjid)) %>% unique() %>% sort()
       subj = paste0("#", subj0) %>%

@@ -28,6 +28,13 @@ reference:
     - gr_new_project
     - grstat_example
 
+  - title: "Checks"
+  - contents:
+    - check_recist
+    - gr_recist_mapping
+    - recist_report_html
+    - recist_report_xlsx
+
   - title: "Not validated yet"
   - description: "These functions should be used with caution, and results should always be checked using your own code in parallel."
   - contents:
