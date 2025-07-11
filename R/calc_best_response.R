@@ -72,7 +72,7 @@ calc_best_response = function(data_recist, ...,
       diff_first = (sum - first_sum)/first_sum,
       diff_min = (sum - min_sum)/min_sum
     ) %>%
-    .remove_post_pd(do=exclude_post_pd) %>%
+    .remove_post_pd(resp=response, date=date, do=exclude_post_pd) %>%
     slice_min(response_num, with_ties=TRUE, na_rm=TRUE, by=c(subjid)) %>%
     slice_min(sum,          with_ties=TRUE, na_rm=TRUE, by=c(subjid, response_num)) %>%
     slice_min(subjid,      with_ties=FALSE, na_rm=TRUE, by=c(subjid, response_num)) %>%
@@ -105,24 +105,6 @@ calc_best_response = function(data_recist, ...,
 }
 
 
-#' @importFrom cli cli_inform
-#' @importFrom dplyr filter if_else mutate select
-.remove_post_pd = function(df, do){
-  if(!isTRUE(do)) return(df)
-  rtn = df %>%
-    mutate(first_pd=if_else(any(response_num==4, na.rm=TRUE),
-                            min_narm(date[response_num==4]),
-                            as.Date(Inf)),
-           .by=subjid) %>%
-    filter(date<=first_pd, .by=subjid) %>%
-    select(-first_pd)
-
-  if(getOption("verbose_remove_post_pd", FALSE)){
-    cli_inform("Removed {nrow(df)-nrow(rtn)} rows post-progression (on {nrow(df)} total).")
-  }
-
-  rtn
-}
 
 
 #' @noRd
