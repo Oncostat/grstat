@@ -34,14 +34,14 @@ check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE){
   rc_short = .summarise_recist(rc)
 
   checks = c(
-    check_missing(rc),
-    check_target_lesions(rc),
-    check_constancy(rc),
-    check_baseline_lesions(rc),
-    check_derived_columns(rc),
-    check_target_response(rc, rc_short),
-    check_nontarget_response(rc),
-    check_global_response(rc_short)
+    rc_check_missing(rc),
+    rc_check_target_lesions(rc),
+    rc_check_constancy(rc),
+    rc_check_baseline_lesions(rc),
+    rc_check_derived_columns(rc),
+    rc_check_target_response(rc, rc_short),
+    rc_check_nontarget_response(rc),
+    rc_check_global_response(rc_short)
   )
 
   rtn = checks %>%
@@ -186,7 +186,7 @@ recist_report_xlsx = function(recist_check, output_file="recist_check.xlsx",
 #' @importFrom dplyr across distinct filter select
 #' @importFrom tibble lst
 #' @importFrom tidyselect all_of
-check_missing = function(rc){
+rc_check_missing = function(rc){
   rtn = lst()
 
   #missing values target_diam & target_site
@@ -216,7 +216,7 @@ check_missing = function(rc){
 #' @noRd
 #' @importFrom dplyr count filter select summarise
 #' @importFrom stringr str_detect
-check_target_lesions = function(rc){
+rc_check_target_lesions = function(rc){
   rtn = list()
 
   #Target Lesion should be <5
@@ -262,7 +262,7 @@ check_target_lesions = function(rc){
 #' @importFrom dplyr arrange distinct filter n n_distinct select summarise
 #' @importFrom rlang has_name
 #' @importFrom stats na.omit
-check_constancy = function(rc){
+rc_check_constancy = function(rc){
   rtn = list()
 
   #Target Lesion sites should be constant
@@ -330,7 +330,7 @@ check_constancy = function(rc){
 #' @noRd
 #' @importFrom dplyr arrange distinct filter mutate select
 #' @importFrom tidyr pivot_longer
-check_baseline_lesions = function(rc){
+rc_check_baseline_lesions = function(rc){
   rtn = list()
 
   x = rc %>%
@@ -380,7 +380,7 @@ check_baseline_lesions = function(rc){
 #' @importFrom dplyr arrange distinct filter mutate n_distinct select summarise
 #' @importFrom stats na.omit
 #' @importFrom tidyselect everything
-check_derived_columns = function(rc){
+rc_check_derived_columns = function(rc){
 
   rtn = list()
 
@@ -471,7 +471,7 @@ check_derived_columns = function(rc){
 #' Check impossible cases for Non-Target Lesions response
 #' @keywords internal
 #' @importFrom dplyr arrange distinct filter
-check_nontarget_response = function(rc){
+rc_check_nontarget_response = function(rc){
   rtn = list()
 
   rtn$nonmissing_ntl = rc %>%
@@ -488,7 +488,7 @@ check_nontarget_response = function(rc){
 #' Check impossible cases for Target Lesions response
 #' @keywords internal
 #' @importFrom dplyr arrange distinct filter mutate select transmute
-check_target_response = function(rc, rc_short){
+rc_check_target_response = function(rc, rc_short){
   rtn = list()
 
   #Complete Response
@@ -549,7 +549,7 @@ check_target_response = function(rc, rc_short){
 #' Check impossible cases for Target Lesions response
 #' @keywords internal
 #' @importFrom dplyr arrange case_when desc filter mutate transmute
-check_global_response = function(rc_short){
+rc_check_global_response = function(rc_short){
   rtn = list()
 
   rtn$global_response = rc_short %>%
