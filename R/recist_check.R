@@ -412,15 +412,6 @@ check_derived_columns = function(rc){
   }
 
   if(has_name(rc, "target_sum_min")){
-    ## duplicated target_sum_min ----
-    rtn$target_sum_min_dupl = rc %>%
-      arrange(subjid, rc_date) %>%
-      filter(length(unique(na.omit(target_sum_min)))>1, .by=subjid) %>%
-      distinct(subjid, rc_date, target_sum_min) %>%
-      summarise(dates = toString(rc_date), .by=-rc_date) %>%
-      recist_issue("Minimum Target Lesion length sum (nadir) should not have
-                   multiple values (System-generated column `target_sum_min`)",
-                   level="WARNING")
 
     ## mismatch target_sum/target_sum_min ----
     if(has_name(rc, "target_sum")){
