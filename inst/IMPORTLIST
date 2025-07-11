@@ -1,5 +1,6 @@
 align = flextable
 all_of = dplyr
+as_tibble = dplyr
 attr = base
 bold = flextable
 dir_create = fs
@@ -7,6 +8,9 @@ ends_with = dplyr
 has_name = rlang
 intersect = dplyr
 isFALSE = base
+last = dplyr
 readLines = base
 setequal = dplyr
+str_wrap = stringr
+t = base
 writeLines = base

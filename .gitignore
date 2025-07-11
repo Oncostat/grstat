@@ -4,8 +4,10 @@
 .Ruserdata
 
 *local*
-inst/doc
 *ssh*
+
+inst/doc
 /doc/
 /Meta/
 docs
+tests/testthat/Rplots.pdf
