@@ -42,7 +42,7 @@ globals = c(
   "pct_severe", "post_pd", "rate", "rc_date", "rcdt", "rcnew",
   "rcntlresp", "rcntlyn", "rcresp", "rctlresp", "rctlsum", "rcvisit",
   "real_target_sum_min", "remaining_lesion", "remaining_node",
-  "resp", "resp_num", "resp2", ".response_num", "response_value",
+  "resp", "resp_num", "resp2", ".response_num", "response_num", "response_value",
   "rows", "sae", "severe_", "soc_", "soc_weight", "subj_delai",
   "subjid", "subjid_", "sum_bl", "sum_nadir", "target_diam", "target_diam_sum",
   "target_is_node", "target_method", "target_resp", "target_resp_num",
