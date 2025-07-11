@@ -143,3 +143,96 @@ remove_class = function(x, value){
   class(x) = setdiff(class(x), value)
   x
 }
+
+
+
+# Burgled -------------------------------------------------------------------------------------
+
+
+#' @source vctrs
+`%0%` = function(x, y) {
+  if(length(x)==0) y else x
+}
+
+
+#' @source EDCimport
+#' @importFrom cli cli_warn
+#' @importFrom stats na.omit
+unify = function (x) {
+  rtn = x[1]
+  lu = length(unique(na.omit(x)))
+  if (lu > 1) {
+    cli_warn(c("Unifying multiple values in {.val {caller_arg(x)}}, returning the first one ({.val {rtn})}",
+               i = "Unique values: {.val {unique(na.omit(x))}}"))
+  }
+  rtn_label = get_label(x)
+  if (!is.null(rtn_label))
+    attr(rtn, "label") = rtn_label
+  rtn
+}
+
+#' @source EDCimport
+#' @importFrom cli cli_abort
+#' @importFrom dplyr case_match case_when setdiff setequal
+#' @importFrom purrr map
+#' @importFrom stringr str_detect
+fct_yesno = function(x,
+                     input=list(yes=c("Yes", "Oui"), no=c("No", "Non"), na=c("NA", "")),
+                     output=c("Yes", "No"),
+                     strict=FALSE,
+                     mutate_character=TRUE,
+                     fail=TRUE){
+  assert_class(input, "list")
+  default_input = list(yes=c("Yes", "Oui"), no=c("No", "Non"), na=c("NA", ""))
+  missing_names = setdiff(names(default_input), names(input))
+  input[missing_names] = default_input[missing_names]
+  assert(setequal(names(input), c("yes", "no", "na")))
+
+  if (!inherits(x, c("logical", "numeric", "integer", "character", "factor"))) return(x)
+  if (is.character(x) && isFALSE(mutate_character)) return(x)
+
+  if (missing(input))  input =  getOption("fct_yesno_input", input)
+  if (missing(output)) output = getOption("fct_yesno_input", output)
+
+  #if logical or numeric AND binary
+  if (all(x %in% c(1, 0, NA))) {
+    return(factor(as.numeric(x), levels=c(1,0), labels=output) %>% copy_label_from(x))
+  } else if(is.numeric(x)){
+    return(x)
+  }
+
+  if (!isFALSE(strict)) {
+    fun = if(strict=="ignore_case") tolower else identity
+    is_yes = fun(x) %in% fun(input$yes)
+    is_no  = fun(x) %in% fun(input$no)
+    is_na  = fun(x) %in% fun(input$na)
+  } else {
+    input = map(input, ~case_match(.x, ""~"^$", .default=.x))
+    is_yes = str_detect(tolower(x), paste(tolower(input$yes), collapse="|"))
+    is_no  = str_detect(tolower(x), paste(tolower(input$no ), collapse="|"))
+    is_na  = str_detect(tolower(x), paste(tolower(input$na ), collapse="|"))
+  }
+  x[is_na] = NA
+
+  if (any(is_yes&is_no, na.rm=TRUE)) {
+    v = x[!is.na(x) & is_yes & is_no]
+    cli_abort("Values that are both yes and no: {.val {v}}",
+              class="fct_yesno_both_error")
+  }
+  yesno = case_when(
+    is.na(x) ~ NA,
+    is_yes ~ TRUE,
+    is_no ~ FALSE,
+    .default=NA
+  )
+  if (any(is.na(x) != is.na(yesno))) {
+    if(isTRUE(fail)){
+      v = x[is.na(x) != is.na(yesno)]
+      cli_abort("Values that cannot be parsed: {.val {unique(sort(v))}}",
+                class="fct_yesno_unparsed_error")
+    }
+    return(x)
+  }
+
+  factor(yesno, levels=c(TRUE,FALSE), labels=output) %>% copy_label_from(x)
+}
