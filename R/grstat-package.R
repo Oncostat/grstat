@@ -26,21 +26,18 @@ flextable::as_flextable
 f = function(x) x %>% stringr::str_squish() %>% str_replace_all("[ \n]", '", "') %>% cat('"', ., '"', sep="")
 
 globals = c(
-  ".", ".data", ".env", ".id", ".name", "aegr", "aegr_sae", "aerel",
-  "aesoc", "aeterm", "any_ae", "any_grade_sup_na", "any_severe",
-  "arm", "arm_", "arm3", "base", "calc", "changes", "col_keys",
-  "currently", "data", "date_end_fu", "date_enrol", "date_inclusion",
-  "decision", "decision_label", "delai", "diff_first", "dlt", "dose",
-  "first_date", "first_sum", "grade_", "h1", "h2", "label", "min_sum",
-  "n_ae", "n_arm", "n_dlt", "n_dlt_max", "n_dlt_min", "n_eval",
-  "n_severe", "name", "not_evaluable", "num_timepoints", "pct_ae",
-  "pct_severe", "percent_change", "percent_change_per_month", "rate",
-  "rc_coef_treatement", "rc_num_timepoints", "rc_p_new_lesions",
-  "rc_p_not_evaluable", "rc_p_nt_lesions", "rc_sd_tlsum_noise",
-  "rcdt", "rcnew", "rcntlresp", "rcresp", "rctlmin", "rctlresp",
-  "rctlsum", "rctlsum_b", "rcvisit", "resp", "resp_num", "resp2",
-  "rows", "sae", "severe_", "sizes", "soc_", "soc_weight", "subjid",
-  "subjid_", "suivi", "Tot", "value", "variable", "weight", "x"
+  ".", ".data", ".env", ".id", ".name", "aegr", "aerel", "aesoc",
+  "aeterm", "any_ae", "any_grade_sup_na", "any_severe", "arm",
+  "arm_", "before_pd", "calc", "col_keys", "currently", "data",
+  "date_dlt_end", "date_dlt_start", "date_inclusion", "decision",
+  "decision_label", "diff_first", "dlt", "dose", "first_date",
+  "first_sum", "grade_", "h1", "h2", "label", "min_sum", "n_ae",
+  "n_arm", "n_dlt", "n_dlt_max", "n_dlt_min", "n_eval", "n_severe",
+  "name", "pct_ae", "pct_severe", "rate", "rcdt", "rcnew", "rcntlresp",
+  "rcntlyn", "rcresp", "rctlresp", "rctlsum", "rcvisit", "resp",
+  "resp_num", "resp2", "rows", "sae", "severe_", "soc_", "soc_weight",
+  "subj_delai", "subjid", "subjid_", "Tot", "value", "variable",
+  "weight", "x"
 )
 
 # dput(sort(globals))
