@@ -51,6 +51,7 @@ Suggests:
     ggsurvfit,
     gtools,
     knitr,
+    officer,
     openxlsx,
     plotly,
     rmarkdown,
