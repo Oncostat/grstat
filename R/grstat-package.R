@@ -33,7 +33,7 @@ globals = c(
   "code", "col_keys", "currently", "data", "date_dlt_end", "date_dlt_start",
   "date_inclusion", "decision", "decision_label", "details", "diff_abs_nad",
   "diff_first", "diff_rel_bl", "diff_rel_nad", "dlt", "dose", "first_cr",
-  "first_date", "first_pd", "first_sum", "global_resp", "global_resp_check",
+  "first_date", ".first_pd", "first_sum", "global_resp", "global_resp_check",
   "global_resp_num", "grade_", "h1", "h2", "header", "label", "level",
   "min_sum", "n_ae", "n_arm", "n_dlt", "n_dlt_max", "n_dlt_min",
   "n_eval", "n_severe", "n_sites", "n_subjid", "name", "new_lesion",
@@ -42,13 +42,13 @@ globals = c(
   "pct_severe", "post_pd", "rate", "rc_date", "rcdt", "rcnew",
   "rcntlresp", "rcntlyn", "rcresp", "rctlresp", "rctlsum", "rcvisit",
   "real_target_sum_min", "remaining_lesion", "remaining_node",
-  "resp", "resp_num", "resp2", "response_num", "response_value",
+  "resp", "resp_num", "resp2", ".response_num", "response_value",
   "rows", "sae", "severe_", "soc_", "soc_weight", "subj_delai",
   "subjid", "subjid_", "sum_bl", "sum_nadir", "target_diam", "target_diam_sum",
   "target_is_node", "target_method", "target_resp", "target_resp_num",
   "target_site", "target_sum", "target_sum_bl", "target_sum_bl_real",
   "target_sum_min", "Tot", "value", "variable", "weight", "x",
-  "x1"
+  "x1", "best_response", "color", "diff_min", "response", "y"
 )
 
 # dput(sort(unique(globals)))
