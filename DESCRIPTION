@@ -36,6 +36,7 @@ Imports:
     ggplot2,
     glue,
     lifecycle,
+    patchwork,
     purrr,
     rlang,
     scales,
@@ -44,12 +45,12 @@ Imports:
     tidyr,
     tidyselect
 Suggests: 
+    BOIN,
     callr,
     crosstable,
     ggsurvfit,
     gtools,
     knitr,
-    patchwork,
     plotly,
     rmarkdown,
     rstudioapi,
