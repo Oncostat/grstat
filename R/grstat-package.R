@@ -50,5 +50,6 @@ globals = c(
   "target_sum", "target_sum_bl", "target_sum_bl_real", "target_sum_min",
   "target_sum_real", "Tot", "value", "variable", "weight", "x", "y"
 )
+
 # dput(sort(unique(globals)))
 utils::globalVariables(globals)

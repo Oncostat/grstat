@@ -18,7 +18,7 @@ assert = function(x, msg=NULL, call=parent.frame()){
     msg = glue("`{x_str}` is FALSE")
   }
   if(!x){
-    cli_abort(msg, call=call)
+    cli_abort(msg, call=call, .envir=parent.frame())
   }
   invisible(TRUE)
 }
@@ -62,6 +62,13 @@ assert_not_null = function(...){
   }
 }
 
+#' @importFrom fs path_ext
+assert_extension = function(x, ext){
+  # ext=str_remove(ext, "^\\.")
+  assert(path_ext(x)==ext,
+         msg="{.arg {caller_arg(x)}} should be a {.val .{ext}} file, not a {.val .{path_ext(x)}} file.")
+}
+
 # Checks --------------------------------------------------------------------------------------
 
 
@@ -80,7 +87,9 @@ grstat_dev_warn = function(){
 
 #' @importFrom cli cli_abort cli_vec cli_warn format_inline
 #' @importFrom dplyr pull
-grstat_data_warn = function (.data, message, subjid="SUBJID", max_subjid=5,
+#' @importFrom rlang caller_arg check_dots_empty
+#' @importFrom tibble tibble
+grstat_data_warn = function (.data, message, subjid="subjid", max_subjid=5,
                              class="grstat_data_warn"){
   if (missing(max_subjid))
     max_subjid = getOption("grstat_warn_max_subjid", max_subjid)
@@ -102,7 +111,6 @@ grstat_data_warn = function (.data, message, subjid="SUBJID", max_subjid=5,
                   class = "grstat_data_warn_subjid_error",
                   call = parent.frame())
       }
-      # browser()
       .subjid = subjid
       subj0 = .data %>% pull(any_of2(.subjid)) %>% unique() %>% sort()
       subj = paste0("#", subj0) %>%
