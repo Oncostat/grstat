@@ -40,4 +40,5 @@ reference:
   - contents:
     - ae_plot_grade_sum
     - boin_plot
+    - calc_best_response
     - waterfall_plot
