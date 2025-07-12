@@ -89,7 +89,11 @@ waterfall_plot = function(data, ...,
     scale_y_continuous(labels=label_percent(), breaks=breaks_width(0.2)) +
     scale_fill_manual(values=fill_scale) +
     labs(x = "", y="Target lesions reduction from baseline", fill=fill_lab) +
-    theme_minimal()
+    theme_minimal() +
+    guides(
+      color = guide_legend(order = 1),
+      shape = guide_legend(order = 2),
+    )
 
   if(!is.null(arm)) p = p + facet_wrap(~arm, scales="free_x", ncol=1)
   p
