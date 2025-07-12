@@ -75,6 +75,7 @@ assert_extension = function(x, ext){
 #' @importFrom cli cli_warn
 #' @importFrom rlang caller_call
 grstat_dev_warn = function(){
+  if(getOption("grstat_lifecycle_verbosity", "verbose") == "quiet") return(NULL)
   fn_name =as.character(caller_call()[[1]])
   cli_warn(c("Function {.help [{.fun {fn_name}}](grstat::{fn_name})} is not yet validated and may produce incorrect results.",
              "!"= "Always double-check the results using your own code.",

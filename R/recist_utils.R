@@ -28,7 +28,7 @@
 }
 
 
-#' Encore numeric RECIST response as standard acronyms
+#' Encode numeric RECIST response as standard acronyms
 #' Non-CR Non-PD are turned to SD for simplicity
 #' @noRd
 .recist_from_num = function(x) {
@@ -47,14 +47,14 @@
 
   rtn = df %>%
     mutate(
-      response_num = if(is.numeric({{resp}}))  {{resp}} else .recist_to_num({{resp}}),
+      .response_num = if(is.numeric({{resp}}))  {{resp}} else .recist_to_num({{resp}}),
 
-      first_pd=if_else(any(response_num==4, na.rm=TRUE),
-                            min_narm({{date}}[response_num==4]),
+      .first_pd=if_else(any(.response_num==4, na.rm=TRUE),
+                            min_narm({{date}}[.response_num==4]),
                             as.Date(Inf)),
            .by=any_of2(subjid)) %>%
-    filter({{date}}<=first_pd, .by=any_of2(subjid)) %>%
-    select(-first_pd, -response_num)
+    filter({{date}}<=.first_pd, .by=any_of2(subjid)) %>%
+    select(-.first_pd, -.response_num)
 
   if(getOption("verbose_remove_post_pd", FALSE)){
     cli_inform("Removed {nrow(df)-nrow(rtn)} rows post-progression (on {nrow(df)} total).")
