@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">grstat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9014</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,11 +72,6 @@ Pierotti</h4>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This vignette illustrates the implementation of Kaplan-Meier survival
-analysis in R using the survival and <code>ggsurvfit</code> packages.
-The Kaplan-Meier method is a standard approach in clinical research for
-estimating survival functions and comparing time-to-event outcomes
-between groups.</p>
 <p>In this example, two key survival endpoints are analysed:</p>
 <ul>
 <li><p>Progression-Free Survival (PFS): Defined as the time from
@@ -88,7 +83,8 @@ initiation to death from any cause.</p></li>
 <ul>
 <li><p>Preparation of the dataset.</p></li>
 <li><p>Creation of time-to-event and event indicator variables.</p></li>
-<li><p>Fitting of Kaplan-Meier models.</p></li>
+<li><p>Compute Kaplan-meier estimator and fitting of Kaplan-Meier
+curves</p></li>
 <li><p>Visualization of survival curves accompanied by risk
 tables.</p></li>
 </ul>
@@ -102,11 +98,8 @@ publication-ready Kaplan-Meier plots.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://oncostat.github.io/grstat/">grstat</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pharmaverse/ggsurvfit" class="external-link">ggsurvfit</a></span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="data-preparation">Data Preparation<a class="anchor" aria-label="anchor" href="#data-preparation"></a>
-</h2>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pharmaverse/ggsurvfit" class="external-link">ggsurvfit</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glue.tidyverse.org/" class="external-link">glue</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="data-overview">Data Overview<a class="anchor" aria-label="anchor" href="#data-overview"></a>
 </h3>
@@ -136,30 +129,30 @@ follow-up.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">data_surv</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 929   6</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="data-preparation">Data Preparation<a class="anchor" aria-label="anchor" href="#data-preparation"></a>
+</h2>
 <div class="section level3">
 <h3 id="variable-creation">Variable Creation<a class="anchor" aria-label="anchor" href="#variable-creation"></a>
 </h3>
-<p>The purpose of this section is to create status and time status and
-time variables for Progression-Free Survival (PFS) and Overall Survival
-(OS).</p>
+<p>The purpose of this section is to create status and time variables
+for Progression-Free Survival (PFS) and Overall Survival (OS).</p>
 <p>First, the variables time and status (indicating whether an event
 occurred or was censored) need to be created to enable the use of
 various functions.</p>
 <ul>
-<li>
-<p>Time variable:</p>
-<p>The time variable represents the duration from a defined starting
-point (e.g., diagnosis, study enrollment, or start of treatment) to the
-time at which the patient’s status is recorded (e.g. death, disease
-progression, recurrence or last news). It is a numeric variable measured
-in units such as days, months, or years, depending on the study’s
-duration and requirements.</p>
-</li>
+<li><p>Time variable: The time variable represents the duration from a
+defined starting point (e.g., diagnosis, study enrollment, or start of
+treatment) to the time at which the patient’s status is recorded
+(e.g. death, disease progression, recurrence or last news). It is a
+numeric variable measured in units such as days, months, or years,
+depending on the study’s duration and requirements.</p></li>
 <li><p>Status variable: The status variable is binary, indicating
 whether the event has occurred (event = 1) or not (censored = 0) for
 each subject by the end of the study period.</p></li>
 </ul>
-<p>An event (1) indicates that the subjects experienced the event of
+<p>An event (1) indicates that the subject experienced the event of
 interest (e.g., death, relapse, transplant failure, etc.).</p>
 <p>Censored (0) refers to those subjects who did not experience the
 event during the study. For these individuals, the ‘time-to-event’ is
@@ -200,13 +193,15 @@ experience the event up to a certain point.</p>
 <p>We recommend using the <code>ggsurvfit</code> package which uses
 <code><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/survfit2.html" class="external-link">survfit2()</a></code>with the following syntax:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">km.model_PFS</span> <span class="op">=</span> <span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/survfit2.html" class="external-link">survfit2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time_pfs</span>, <span class="va">status_PFS</span><span class="op">)</span> <span class="op">~</span> <span class="va">surg</span>,data <span class="op">=</span> <span class="va">data_surv_v2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">km.model_PFS</span> <span class="op">=</span> <span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/survfit2.html" class="external-link">survfit2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time_pfs</span>, <span class="va">status_PFS</span><span class="op">)</span> <span class="op">~</span> <span class="va">surg</span>, data <span class="op">=</span> <span class="va">data_surv_v2</span><span class="op">)</span></span>
 <span><span class="va">km.model_PFS</span></span>
 <span><span class="co">#&gt; Call: survfit(formula = Surv(time_pfs, status_PFS) ~ surg, data = data_surv_v2)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                                    n events median 0.95LCL 0.95UCL</span></span>
 <span><span class="co">#&gt; surg=Limited Time Since Surgery  682    372  0.149   0.141   0.157</span></span>
 <span><span class="co">#&gt; surg=Extended Time Since Surgery 247    111  0.149   0.141   0.197</span></span>
+<span></span>
+<span><span class="co"># Specific time points can be chosen to extract the estimated survival probabilities and related statistics from the Kaplan-Meier survival model (km.model_PFS). Here, the time points were set at 0.05, 0.10, and 0.20.</span></span>
 <span></span>
 <span><span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/tidy_survfit.html" class="external-link">tidy_survfit</a></span><span class="op">(</span><span class="va">km.model_PFS</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.10</span>, <span class="fl">0.20</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">strata</span>, <span class="va">time</span>, <span class="va">n.risk</span>, <span class="va">n.event</span>, <span class="va">estimate</span>, <span class="va">conf.high</span>, <span class="va">conf.low</span><span class="op">)</span></span>
@@ -246,18 +241,23 @@ R package version 1.1.0. Available at: <a href="https://www.danieldsjoberg.com/g
 <span>  <span class="fu">scale_x_continuous</span><span class="op">(</span>expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.02</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>legend.position<span class="op">=</span><span class="st">"inside"</span>, legend.position.inside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.85</span>, <span class="fl">0.85</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">km_PFS</span></span></code></pre></div>
-<p><img src="kaplan_meier_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
+<p><img src="kaplan_meier_files/figure-html/unnamed-chunk-5-1.png" width="768"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">N_total</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">data_surv_v2</span><span class="op">)</span></span>
+<span><span class="va">n_event</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data_surv_v2</span><span class="op">$</span><span class="va">status_PFS</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">title_text</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"Progression-Free Survival (N={N_total}, n event={n_event})"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>This plot can be further customised, for
 example:</strong></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">km_PFS</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/add_censor_mark.html" class="external-link">add_censor_mark</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">4</span>, alpha <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span></span>
 <span>    x <span class="op">=</span> <span class="st">"Time from beginning of treatment to progression or death (months)"</span>,</span>
 <span>    y <span class="op">=</span> <span class="st">"Progression-Free Survival"</span>,</span>
-<span>    title <span class="op">=</span> <span class="st">"Progression-Free Survival, (N=929, n event=440)"</span></span>
+<span>    title <span class="op">=</span> <span class="va">title_text</span></span>
 <span>  <span class="op">)</span> </span></code></pre></div>
-<p><img src="kaplan_meier_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
+<p><img src="kaplan_meier_files/figure-html/unnamed-chunk-6-1.png" width="768"></p>
 </div>
 <div class="section level4">
 <h4 id="overall-survival-os">Overall Survival (OS)<a class="anchor" aria-label="anchor" href="#overall-survival-os"></a>
@@ -267,7 +267,7 @@ automatically adjust the axes limits of Kaplan-Meier plots to better fit
 the data and improve visualisation. <strong>Note:</strong> The
 <code><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/scale_ggsurvfit.html" class="external-link">scale_ggsurvfit()</a></code> function automatically scales the y-axis
 in percentage.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">km_OS</span> <span class="op">=</span> <span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/survfit2.html" class="external-link">survfit2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time_OS</span>, <span class="va">status_OS</span><span class="op">)</span> <span class="op">~</span> <span class="va">surg</span>, data <span class="op">=</span> <span class="va">data_surv_v2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/ggsurvfit.html" class="external-link">ggsurvfit</a></span><span class="op">(</span>linetype_aes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/add_confidence_interval.html" class="external-link">add_confidence_interval</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -278,14 +278,19 @@ in percentage.</p>
 <span>  <span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/scale_ggsurvfit.html" class="external-link">scale_ggsurvfit</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"inside"</span>, legend.position.inside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.85</span>, <span class="fl">0.85</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
+<span><span class="va">N_total</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">data_surv_v2</span><span class="op">)</span></span>
+<span><span class="va">n_event</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data_surv_v2</span><span class="op">$</span><span class="va">status_OS</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">title_text</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"Overall Survival, (N={N_total}, n event={n_event})"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
 <span><span class="va">km_OS</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/add_censor_mark.html" class="external-link">add_censor_mark</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">4</span>, alpha <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span></span>
 <span>    x <span class="op">=</span> <span class="st">"Time from beginning of treatment to death (months)"</span>,</span>
 <span>    y <span class="op">=</span> <span class="st">"Overall Survival"</span>,</span>
-<span>    title <span class="op">=</span> <span class="st">"Overall Survival, (N=929, n event=468)"</span></span>
+<span>    title <span class="op">=</span><span class="va">title_text</span> </span>
 <span>  <span class="op">)</span> </span></code></pre></div>
-<p><img src="kaplan_meier_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
+<p><img src="kaplan_meier_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
 </div>
 </div>
 </div>
