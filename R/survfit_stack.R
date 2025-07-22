@@ -2,12 +2,13 @@
 #'
 #' This function combines several survival endpoints from the same dataset by stacking them
 #' into a long format and fitting a single `survfit` object.
+#' It does **not** support competing risks models (i.e., when the event variable is a factor).
 #'
 #' @param data A data frame containing the survival variables.
 #' @param surv_list A named list where each element is a character vector of:
 #'
 #' - Length 2: `time`, `event` (for standard right-censored survival)
-#' - Length 3: `time1`, `time2`, `event` (for interval-censored survival)
+#' - Length 3: `time1`, `time2`, `event` (for interval-censored survival and left truncation)
 #'
 #' The names of the list elements will be used as a grouping variable in the output.
 #'

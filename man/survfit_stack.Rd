@@ -12,7 +12,7 @@ survfit_stack(data, surv_list)
 \item{surv_list}{A named list where each element is a character vector of:
 \itemize{
 \item Length 2: \code{time}, \code{event} (for standard right-censored survival)
-\item Length 3: \code{time1}, \code{time2}, \code{event} (for interval-censored survival)
+\item Length 3: \code{time1}, \code{time2}, \code{event} (for interval-censored survival and left truncation)
 }
 
 The names of the list elements will be used as a grouping variable in the output.}
@@ -23,6 +23,7 @@ A \code{survfit} object (or \code{survfit2} if \code{ggsurvfit} is installed)
 \description{
 This function combines several survival endpoints from the same dataset by stacking them
 into a long format and fitting a single \code{survfit} object.
+It does \strong{not} support competing risks models (i.e., when the event variable is a factor).
 }
 \examples{
 set.seed(42)
