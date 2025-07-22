@@ -19,6 +19,7 @@
 #' @export
 #'
 #' @examples
+#' library(dplyr)
 #' set.seed(42)
 #' df_surv = survival::lung %>%
 #'   as_tibble() %>%

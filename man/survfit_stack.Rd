@@ -26,6 +26,7 @@ into a long format and fitting a single \code{survfit} object.
 It does \strong{not} support competing risks models (i.e., when the event variable is a factor).
 }
 \examples{
+library(dplyr)
 set.seed(42)
 df_surv = survival::lung \%>\%
   as_tibble() \%>\%

@@ -48,7 +48,7 @@ globals = c(
   "target_is_node", "target_method", "target_resp", "target_resp_num",
   "target_site", "target_sum", "target_sum_bl", "target_sum_bl_real",
   "target_sum_min", "Tot", "value", "variable", "weight", "x",
-  "x1", "best_response", "color", "diff_min", "response", "y"
+  "x1", "best_response", "color", "diff_min", "response", "y", "stacked_survtype"
 )
 
 # dput(sort(unique(globals)))
