@@ -11,9 +11,9 @@
           stacked_survtype, data = data_stack)
       
                                                    n events median 0.95LCL 0.95UCL
-      stacked_survtype=Event-free survival       228    199    126     110     142
       stacked_survtype=Overall survival          228    165    310     285     363
       stacked_survtype=Progression-free survival 228    185    191     164     239
+      stacked_survtype=Event-free survival       228    199    126     110     142
 
 ---
 

@@ -86,7 +86,8 @@ survfit_stack = function(data, surv_list){
              msg='Cannot coerse {.arg surv_list[["{ .y}"]]["{ .x[2]}"]} to logical.')
       df
     }) %>%
-    list_rbind()
+    list_rbind() %>%
+    mutate(stacked_survtype=factor(stacked_survtype, levels=names(surv_list)))
 
   f = if(is_installed("ggsurvfit")) ggsurvfit::survfit2 else survival::survfit
   f(formula=survival::Surv(stacked_time, stacked_event) ~ stacked_survtype,
@@ -114,7 +115,8 @@ survfit_stack = function(data, surv_list){
              msg="Cannot coerse {.arg surv_list[[{ .y}]][{ .x[3]}]} to logical.")
       df
     }) %>%
-    list_rbind()
+    list_rbind() %>%
+    mutate(stacked_survtype=factor(stacked_survtype, levels=names(surv_list)))
 
   f = if(is_installed("ggsurvfit")) ggsurvfit::survfit2 else survival::survfit
   f(formula=survival::Surv(stacked_time, stacked_time2, stacked_event) ~ stacked_survtype,
