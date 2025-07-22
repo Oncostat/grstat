@@ -29,6 +29,11 @@ survfit_stack = function(data, surv_list){
         select(stacked_time = all_of(.x[1]),
                stacked_event = all_of(.x[2])) %>%
         mutate(stacked_survtype = .y)
+
+      assert(is.numeric(df[["stacked_time"]]),
+             msg='Cannot coerse {.arg surv_list[["{ .y}"]]["{ .x[1]}"]} to numeric.')
+      assert(can_be_logical(df[["stacked_event"]]),
+             msg='Cannot coerse {.arg surv_list[["{ .y}"]]["{ .x[2]}"]} to logical.')
       df
     }) %>%
     list_rbind()
@@ -50,6 +55,13 @@ survfit_stack = function(data, surv_list){
                stacked_time2 = all_of(.x[2]),
                stacked_event = all_of(.x[3])) %>%
         mutate(stacked_survtype = .y)
+
+      assert(is.numeric(df[["stacked_time"]]),
+             msg="Cannot coerse {.arg surv_list[[{ .y}]][{ .x[1]}]} to numeric.")
+      assert(is.numeric(df[["stacked_time2"]]),
+             msg="Cannot coerse {.arg surv_list[[{ .y}]][{ .x[2]}]} to numeric.")
+      assert(can_be_logical(df[["stacked_event"]]),
+             msg="Cannot coerse {.arg surv_list[[{ .y}]][{ .x[3]}]} to logical.")
       df
     }) %>%
     list_rbind()
