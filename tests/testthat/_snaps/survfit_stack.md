@@ -20,16 +20,17 @@
     Code
       surv_list2 = list(`Overall survival` = c("time_pfs", "time_os", "event_os"),
       `Progression-free survival` = c("time_pfs", "time_os", "event_pfs"))
-      s2 = survfit_stack(df_surv, surv_list = surv_list2)
+      s2 = df_surv %>% filter(time_pfs > 3 & time_os < 100) %>% survfit_stack(
+        surv_list = surv_list2)
       s2
     Output
       Call: survfit(formula = survival::Surv(stacked_time, stacked_time2, 
           stacked_event) ~ stacked_survtype, data = data_stack)
       
                                                  records n.max n.start events median
-      stacked_survtype=Overall survival              228    61       1    165      5
-      stacked_survtype=Progression-free survival     228    61       1    185      5
+      stacked_survtype=Overall survival               31    14       7     30     12
+      stacked_survtype=Progression-free survival      31    14       7     30     12
                                                  0.95LCL 0.95UCL
-      stacked_survtype=Overall survival               NA      NA
-      stacked_survtype=Progression-free survival      NA      NA
+      stacked_survtype=Overall survival               11      30
+      stacked_survtype=Progression-free survival      11      30
 

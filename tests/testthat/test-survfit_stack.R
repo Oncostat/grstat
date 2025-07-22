@@ -31,7 +31,9 @@ test_that("`survfit_stack()` works", {
       "Overall survival"=c("time_pfs", "time_os", "event_os"),
       "Progression-free survival"=c("time_pfs", "time_os", "event_pfs")
     )
-    s2 = survfit_stack(df_surv, surv_list=surv_list2)
+    s2 = df_surv %>%
+      filter(time_pfs>3 & time_os<100) %>%
+      survfit_stack(surv_list=surv_list2)
     s2
   })
 
