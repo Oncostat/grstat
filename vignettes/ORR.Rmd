@@ -114,20 +114,12 @@ unconfirmed_best_response=recist_2 %>%
 table(unconfirmed_best_response$rcresp)
 ```
 
-We can also do a few checks to see if all patients are included, or to modify to “Not evaluable” patients for whom data-management problems have been detected.
-
-```{r}
-#Exemple : patient 129 should be "Not evaluable"
-final_unconfirmed_best_response<- unconfirmed_best_response
-final_unconfirmed_best_response$rcresp[final_unconfirmed_best_response$subjid == 129]<- "Not evaluable"
-```
-
 Now, we will create the Overall_ORR : 
 
 -   Overall_ORR corresponds to a partial response (PR) or a complete response (CR)
 
 ```{r}
-final_unconfirmed_best_response= final_unconfirmed_best_response %>%
+final_unconfirmed_best_response= unconfirmed_best_response %>%
   mutate(Overall_ORR= ifelse(rcresp=="Complete response" | rcresp=="Partial response",1,0))
 ```
 
@@ -196,11 +188,6 @@ unconfirmed_Best_Response_during_treatment =  unconfirmed_Best_Response_during_t
             value = as_paragraph(
               c("Clopper-Pearson (Exact) method was used for confidence interval")),
             ref_symbols ="*", part = "header") %>%
-  valign(valign = "bottom", part = "header") %>%
-  footnote( i = 6, j = 1,
-            value = as_paragraph(
-              c("Example : Patient 129 had NE as her global response for target lesion was NE.")),
-            ref_symbols = c("1"), part = "body") %>%
   valign(valign = "bottom", part = "header")
 
 unconfirmed_Best_Response_during_treatment
@@ -236,13 +223,7 @@ unconfirmed_best_response_2_arm=recist_2 %>%
 
 table(unconfirmed_best_response_2_arm$rcresp, unconfirmed_best_response_2_arm$arm)
 
-
-#Exemple : patient 129 should be "Not evaluable"
-
-final_unconfirmed_best_response_2_arm<- unconfirmed_best_response_2_arm
-final_unconfirmed_best_response_2_arm$rcresp[final_unconfirmed_best_response_2_arm$subjid == 129]<- "Not evaluable"
-
-final_unconfirmed_best_response_2_arm= final_unconfirmed_best_response_2_arm %>%
+final_unconfirmed_best_response_2_arm= unconfirmed_best_response_2_arm %>%
   mutate(Overall_ORR= ifelse(rcresp=="Complete response" | rcresp=="Partial response",1,0))
 
 
@@ -388,11 +369,6 @@ unconfirmed_Best_Response_during_treatment_2_arms =  unconfirmed_Best_Response_d
               c("Clopper-Pearson (Exact) method was used for confidence interval")),
             ref_symbols ="*", part = "header") %>%
   valign(valign = "bottom", part = "header") %>%
-  footnote( i = 6, j = 1,
-            value = as_paragraph(
-              c("Example : Patient 129 had NE as her global response for target lesion was NE.")),
-            ref_symbols = c("1"), part = "body") %>%
-  valign(valign = "bottom", part = "header") %>%
   vline(j = c(1,4), border = fp_border(color = "black", style = "solid", width = 2)) %>%
   autofit()
 unconfirmed_Best_Response_during_treatment_2_arms
@@ -469,15 +445,6 @@ final_confirmed_best_response=recist_2 %>%
   ) %>% 
   filter(bestresponse==meilleur_reponse) %>% 
   slice_head(by=subjid)
-```
-
-
-We can also do a few checks to see if all patients are included, or to modify to “Not evaluable” patients for whom data-management problems have been detected.
-
-```{r}
-#Exemple : patient 129 should be "Not evaluable"
-
-final_confirmed_best_response$rcresp[final_confirmed_best_response$subjid == 129]<- "Not evaluable"
 ```
 
 Now, we will create the Overall_ORR : 
@@ -557,11 +524,6 @@ confirmed_Best_Response_during_treatment =  confirmed_Best_Response_during_treat
               c("Clopper-Pearson (Exact) method was used for confidence interval",
                 "For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response. *As stated in the protocol: «For equivocal findings of progression (e.g., very small and uncertain new lesions; cystic changes or necrosis in existing lesions), treatment may continue until the next scheduled assessment». Therefore, some patients had a response after a progressive disease response, in that case best response was examine before and after PD. Scans conducted after initiating new anti-cancer therapy were not included in the ORR analyses")),
             ref_symbols =c("*","1"), part = "header") %>%
-  valign(valign = "bottom", part = "header") %>%
-  footnote( i = c(6), j = 1,
-            value = as_paragraph(
-              c("Example : Patient 129 had NE as her global response for target lesion was NE.")),
-            ref_symbols = c("2"), part = "body") %>%
   valign(valign = "bottom", part = "header")
 confirmed_Best_Response_during_treatment
 ```
@@ -629,11 +591,6 @@ final_confirmed_best_response_2_arm=recist_2 %>%
   ) %>% 
   filter(bestresponse==meilleur_reponse) %>% 
   slice_head(by=subjid)
-
-
-#Exemple : patient 129 should be "Not evaluable"
-final_confirmed_best_response_2_arm$rcresp[final_confirmed_best_response_2_arm$subjid == 129]<- "Not evaluable"
-
 
 final_confirmed_best_response_2_arm= final_confirmed_best_response_2_arm %>%
   mutate(Overall_ORR= ifelse(rcresp=="Complete response" | rcresp=="Partial response",1,0))
@@ -787,11 +744,6 @@ confirmed_Best_Response_during_treatment_2_arms =  confirmed_Best_Response_durin
               c("For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response. *As stated in the protocol: «For equivocal findings of progression (e.g., very small and uncertain new lesions; cystic changes or necrosis in existing lesions), treatment may continue until the next scheduled assessment». Therefore, some patients had a response after a progressive disease response, in that case best response was examine before and after PD. Scans conducted after initiating new anti-cancer therapy were not included in the ORR analyses")),
             ref_symbols =c("1"), part = "header") %>%
   valign(valign = "bottom", part = "header") %>%
-  footnote( i = 6, j = 1,
-            value = as_paragraph(
-              c("Example : Patient 129 had NE as her global response for target lesion was NE.")),
-            ref_symbols = c("2"), part = "body") %>%
-  valign(valign = "bottom", part = "header") %>%
   vline(j = c(1,4), border = fp_border(color = "black", style = "solid", width = 2)) %>%
   autofit()
 confirmed_Best_Response_during_treatment_2_arms
@@ -915,11 +867,10 @@ unconfirmed_Best_Response_during_treatment =  unconfirmed_Best_Response_during_t
               c("Clopper-Pearson (Exact) method was used for confidence interval")),
             ref_symbols ="*", part = "header") %>%
   valign(valign = "bottom", part = "header") %>%
-  footnote( i = c(6,7), j = 1,
+  footnote( i = c(7), j = 1,
             value = as_paragraph(
-              c("Example : Patient 129 had NE as her global response for target lesion was NE.",
-                "CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting for at least the 4 next consecutive visits.")),
-            ref_symbols = c("1", "2"), part = "body") %>%
+              c("CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting for at least the 4 next consecutive visits.")),
+            ref_symbols = c("1"), part = "body") %>%
   valign(valign = "bottom", part = "header")
 
 unconfirmed_Best_Response_during_treatment
@@ -1109,11 +1060,10 @@ unconfirmed_Best_Response_during_treatment_2_arms =  unconfirmed_Best_Response_d
               c("Clopper-Pearson (Exact) method was used for confidence interval")),
             ref_symbols ="*", part = "header") %>%
   valign(valign = "bottom", part = "header") %>%
-  footnote( i = c(6,7), j = 1,
+  footnote( i = c(7), j = 1,
             value = as_paragraph(
-              c("Example : Patient 129 had NE as her global response for target lesion was NE.",
-                "CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting for at least the 4 next consecutive visits.")),
-            ref_symbols = c("1", "2"), part = "body") %>%
+              c("CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting for at least the 4 next consecutive visits.")),
+            ref_symbols = c("1"), part = "body") %>%
   valign(valign = "bottom", part = "header") %>%
   vline(j = c(1,4), border = fp_border(color = "black", style = "solid", width = 2)) %>%
   autofit()
@@ -1221,11 +1171,10 @@ unconfirmed_Best_Response_during_treatment =  unconfirmed_Best_Response_during_t
               c("Clopper-Pearson (Exact) method was used for confidence interval")),
             ref_symbols ="*", part = "header") %>%
   valign(valign = "bottom", part = "header") %>%
-  footnote( i = c(6,7), j = 1,
+  footnote( i = c(7), j = 1,
             value = as_paragraph(
-              c("Example : Patient 129 had NE as her global response for target lesion was NE.",
-                "CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).")),
-            ref_symbols = c("1", "2"), part = "body") %>%
+              c("CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).")),
+            ref_symbols = c("1"), part = "body") %>%
   valign(valign = "bottom", part = "header")
 
 unconfirmed_Best_Response_during_treatment
@@ -1411,11 +1360,10 @@ unconfirmed_Best_Response_during_treatment_2_arms =  unconfirmed_Best_Response_d
               c("Clopper-Pearson (Exact) method was used for confidence interval")),
             ref_symbols ="*", part = "header") %>%
   valign(valign = "bottom", part = "header") %>%
-  footnote( i = c(6,7), j = 1,
+  footnote( i = c(7), j = 1,
             value = as_paragraph(
-              c("Example : Patient 129 had NE as her global response for target lesion was NE.",
-                "CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).")),
-            ref_symbols = c("1", "2"), part = "body") %>%
+              c("CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).")),
+            ref_symbols = c("1"), part = "body") %>%
   valign(valign = "bottom", part = "header") %>%
   vline(j = c(1,4), border = fp_border(color = "black", style = "solid", width = 2)) %>%
   autofit()
