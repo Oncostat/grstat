@@ -13,8 +13,14 @@ vignette: >
 
 # Introduction
 
-This vignette illustrates the implementation of ORR analysis in R using `flextable` package. The ORR method is a standard approach in clinical research for estimating the percentage of people in a study or treatment group who have a partial response or complete response to the treatment within a certain period of time. A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the ORR is one way to see how well a new treatment works. Also called objective response rate.
+This vignette illustrates the implementation of ORR analysis in R using `flextable` package. 
+In this example, the following response-based endpoints are analysed:
 
+*Objective Response Rate (ORR), unconfirmed and confirmed:
+Estimated separately for single-arm and two-arm studies, measuring the proportion of patients achieving a complete or partial response to treatment within a specified time frame.A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the ORR is one way to see how well a new treatment works.
+
+*Clinical Benefit Rate (CBR):
+Calculated using two different methods, typically incorporating complete response, partial response, and stable disease to assess overall treatment benefit.
 
 This vignette covers the following steps:
 
@@ -26,7 +32,7 @@ This vignette covers the following steps:
 
 -   The Clinical Benefit Rate (CBR), with 2 different methods to calculate it
 
-Each time, an example of results using the `flextable` package will be shown.
+Each of those steps will be followed by a given example of results using the `flextable` package
 
 First, install packages if needed and load them.
 
@@ -53,11 +59,12 @@ This dataset must be in long format (one line represents a single measure of a p
 
 -   rcresp, Global response
 
--   In the case of a study with several arms, a column defining the inclusion arm (here arm) is also required.
 
-```{r}
 ## Display dataset
 
+In the case of a study with several arms, a column defining the inclusion arm (here arm) is also required.
+
+```{r}
 db <- grstat_example(N=200, rc_coef_treatement = 3)
 recist <- db$recist
 arm <- db$enrolres[c("subjid", "arm")]
@@ -71,6 +78,10 @@ dim(recist)
 
 
 # Overall Response Rate (ORR) unconfirmed
+
+An unconfirmed response is defined as :
+
+-   Obtain the best response per patients during study time
 
 ## Clinical Trial with only 1 arm
 
