@@ -2,8 +2,16 @@
 #' @importFrom GenBinomApps clopper.pearson.ci
 #' @importFrom flextable as_flextable surround delete_rows footnote as_paragraph
 #' @importFrom officer fp_border
+#' @importFrom cli cli_abort
 
 ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date = recist$RCDT, confirmed = FALSE, show_CBR = FALSE){
+  if(length(id) != length(global_response) |length(id) != length(date) | length(date) != length(global_response)){
+    cli_abort("id, global_reponse and date should have the same length")
+  }
+  if(is.vector(id)!= TRUE | is.vector(date)!= TRUE | is.vector(global_response)!= TRUE){
+    cli_abort("id, global_reponse and date must be vector (for example : id = recist$SUBJID)")
+  }
+
   data = data.frame(subjid = id, rcresp = global_response, rcdt = date)
   recist_2 = data %>%
     select(subjid, rcresp, rcdt) %>%
@@ -32,44 +40,67 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
       filter(bestresponse==rcresp_num) %>%
       slice_head(by=subjid) %>%
       mutate(Overall_ORR= ifelse(rcresp=="Complete response" | rcresp=="Partial response",1,0),
-             CBR_2 = ifelse(duree_suivi_max >= 152 | rcresp=="Complete response" | rcresp=="Partial response",1,0))
+             CBR = ifelse(duree_suivi_max >= 152 | rcresp=="Complete response" | rcresp=="Partial response",1,0))
   }
   else if(confirmed == TRUE){
-    recist_2$meilleur_reponse <- recist_2$rcresp_num
+    # recist_2$meilleur_reponse <- recist_2$rcresp_num
+    #
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
+    #                             recist_2$previous_rcresp_num == 1 &
+    #                             recist_2$delta_date >= 28] <- 1
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
+    #                             recist_2$previous_rcresp_num == 1 &
+    #                             recist_2$delta_date < 28] <- 3
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
+    #                             recist_2$previous_rcresp_num == 2 &
+    #                             recist_2$delta_date >= 28] <- 2
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
+    #                             recist_2$previous_rcresp_num == 2 &
+    #                             recist_2$delta_date < 28] <- 3
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
+    #                             recist_2$previous_rcresp_num == 3] <- 3
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
+    #                             recist_2$previous_rcresp_num == 4] <- 4
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
+    #                             recist_2$previous_rcresp_num == 5] <- 5
+    #
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
+    #                             recist_2$previous_rcresp_num <=2 &
+    #                             recist_2$delta_date >= 28] <- 2
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
+    #                             recist_2$previous_rcresp_num <= 2 &
+    #                             recist_2$delta_date < 28] <- 3
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
+    #                             recist_2$previous_rcresp_num == 3] <- 3
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
+    #                             recist_2$previous_rcresp_num == 4] <- 4
+    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
+    #                             recist_2$previous_rcresp_num == 5] <- 5
+    #
+    # recist_2$meilleur_reponse[is.na(recist_2$previous_rcresp_num) & recist_2$rcresp_num==4] <- 4
 
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-                                recist_2$previous_rcresp_num == 1 &
-                                recist_2$delta_date >= 28] <- 1
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-                                recist_2$previous_rcresp_num == 1 &
-                                recist_2$delta_date < 28] <- 3
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-                                recist_2$previous_rcresp_num == 2 &
-                                recist_2$delta_date >= 28] <- 2
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-                                recist_2$previous_rcresp_num == 2 &
-                                recist_2$delta_date < 28] <- 3
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-                                recist_2$previous_rcresp_num == 3] <- 3
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-                                recist_2$previous_rcresp_num == 4] <- 4
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-                                recist_2$previous_rcresp_num == 5] <- 5
+    recist_2 <- recist_2 %>%
+      mutate(
+        meilleur_reponse = case_when(
+          rcresp_num == 1 & previous_rcresp_num == 1 & delta_date >= 28 ~ 1,
+          rcresp_num == 1 & previous_rcresp_num == 1 & delta_date < 28  ~ 3,
+          rcresp_num == 1 & previous_rcresp_num == 2 & delta_date >= 28 ~ 2,
+          rcresp_num == 1 & previous_rcresp_num == 2 & delta_date < 28  ~ 3,
+          rcresp_num == 1 & previous_rcresp_num == 3                    ~ 3,
+          rcresp_num == 1 & previous_rcresp_num == 4                    ~ 4,
+          rcresp_num == 1 & previous_rcresp_num == 5                    ~ 5,
 
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-                                recist_2$previous_rcresp_num <=2 &
-                                recist_2$delta_date >= 28] <- 2
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-                                recist_2$previous_rcresp_num <= 2 &
-                                recist_2$delta_date < 28] <- 3
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-                                recist_2$previous_rcresp_num == 3] <- 3
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-                                recist_2$previous_rcresp_num == 4] <- 4
-    recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-                                recist_2$previous_rcresp_num == 5] <- 5
+          rcresp_num == 2 & previous_rcresp_num <= 2 & delta_date >= 28 ~ 2,
+          rcresp_num == 2 & previous_rcresp_num <= 2 & delta_date < 28  ~ 3,
+          rcresp_num == 2 & previous_rcresp_num == 3                    ~ 3,
+          rcresp_num == 2 & previous_rcresp_num == 4                    ~ 4,
+          rcresp_num == 2 & previous_rcresp_num == 5                    ~ 5,
 
-    recist_2$meilleur_reponse[is.na(recist_2$previous_rcresp_num) & recist_2$rcresp_num==4] <- 4
+          is.na(previous_rcresp_num) & rcresp_num == 4                 ~ 4,
+
+          TRUE ~ rcresp_num
+        )
+      )
 
     final_best_response=recist_2 %>%
       mutate(bestresponse=min(meilleur_reponse),
@@ -81,7 +112,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
              CBR = ifelse(duree_suivi_max >= 152 | rcresp=="Complete response" | rcresp=="Partial response",1,0))
   }
   else{
-    return("confirmed shoulb be TRUE or FALSE (default = FALSE)")
+    cli_abort("confirmed shoulb be TRUE or FALSE (default = FALSE)")
   }
     total <- length(unique(final_best_response$subjid))
     CR <- length(final_best_response$rcresp[final_best_response$rcresp == "Complete response"])
@@ -90,7 +121,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
     PD <- length(final_best_response$rcresp[final_best_response$rcresp == "Progressive disease"])
     NE <- length(final_best_response$rcresp[final_best_response$rcresp == "Not evaluable"])
     Overall_ORR <- CR + PR
-    CBR <- length(final_best_response$CBR_2[final_best_response$CBR_2==1])
+    CBR <- length(final_best_response$CBR[final_best_response$CBR==1])
 
     CR_CP <- clopper.pearson.ci(CR,total,CI="two.sided", alpha = 0.05)
     PR_CP <- clopper.pearson.ci(PR,total,CI="two.sided", alpha = 0.05)
@@ -121,7 +152,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
                 "Partial response (PR)",
                 "Stable disease (SD)",
                 "Progressive disease (PD)",
-                "Non evaluable (NE)")
+                "Not evaluable (NE)")
 
       N <- c(Overall_ORR,
              CR,
@@ -150,7 +181,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
               "Partial response (PR)",
               "Stable disease (SD)",
               "Progressive disease (PD)",
-              "Non evaluable (NE)",
+              "Not evaluable (NE)",
               "Clinical Benefit Rate (CBR)")
 
     N <- c(Overall_ORR,
@@ -170,7 +201,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
                     round(CBR/total*100,1))
     }
     else{
-      return("CBR shoulb be TRUE or FALSE (default = FALSE)")
+      cli_abort("CBR shoulb be TRUE or FALSE (default = FALSE)")
     }
 
     Best_Response_during_treatment <- as.data.frame(cbind(Name,N,Percentage,IC_95))
@@ -206,7 +237,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
         valign(valign = "bottom", part = "header")
         }
     else{
-      return("confirmed shoulb be TRUE or FALSE (default = FALSE)")
+      cli_abort("confirmed shoulb be TRUE or FALSE (default = FALSE)")
     }
 
     if (is.na(show_CBR) | show_CBR == FALSE){
@@ -232,7 +263,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
         bold(i = c(1,7), j = 1, bold = TRUE, part = "body")
     }
     else{
-      return("CBR shoulb be TRUE or FALSE (default = FALSE)")
+      cli_abort("CBR shoulb be TRUE or FALSE (default = FALSE)")
     }
 Best_Response_during_treatment
 }
