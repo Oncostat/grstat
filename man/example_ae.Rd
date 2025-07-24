@@ -21,9 +21,9 @@ example_ae(
 )
 }
 \arguments{
-\item{enrolres}{the enrolment result table, from \code{\link[=example_enrol]{example_enrol()}}.}
+\item{enrolres}{the enrolment result table, from \code{.example_enrol}}
 
-\item{seed}{Integer. Random seed for reproducibility (can be \code{NULL}).}
+\item{seed}{the random seed (can be \code{NULL})}
 
 \item{p_na}{proportion of missing values (can be a list with a value for each column)}
 
@@ -35,8 +35,11 @@ example_ae(
 
 \item{beta0, beta_trt, beta_sae}{the intercept, treatement coef and SAE coef to be used in the exponential decay model that generates the AE grade.}
 }
-\value{
-A tibble with \code{N} rows and the following columns:
+\description{
+Generate an Adverse Event table
+}
+\section{Columns}{
+
 \itemize{
 \item \code{subjid}: the patient identifier. Each patient has a number of AE simulated with a binomial
 distribution with size \code{n_max} or \code{n_max_trt} and probability 20\%.
@@ -50,9 +53,5 @@ to sum to 1. The rate is calculated as \code{rate = beta0 + beta_trt*(arm!="Cont
 \item \code{sae}: Indicator of Serious AE. Simulated using \code{p_sae} and \code{p_sae_trt}.
 }
 }
-\description{
-Internal function that simulates adverse events data with a toxicity effect that
-depends on the treatment arm \code{enrolres$arm}. The effect is not simulated according
-to \code{enrolres$arm3}.
-}
+
 \keyword{internal}
