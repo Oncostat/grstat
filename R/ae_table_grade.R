@@ -25,6 +25,7 @@
 #' @importFrom rlang check_dots_empty check_installed
 #' @importFrom stringr str_remove str_starts str_subset
 #' @importFrom tibble lst
+#' @importFrom tidyr unpack
 #' @importFrom tidyselect matches
 #' @export
 #'
@@ -111,35 +112,34 @@ ae_table_grade = function(
     summarise(
       max_grade_na = case_when(!cur_group()$subjid %in% df_ae$subjid ~ lab_no_ae,
                               all(is.na(grade), na.rm=TRUE) ~ "Grade all missing",
-                              .default="foobar"),
-      max_grade_1 = ifelse(max_narm(grade) == 1 , "Grade 1", "foobar"),
-      max_grade_2 = ifelse(max_narm(grade) == 2 , "Grade 2", "foobar"),
-      max_grade_3 = ifelse(max_narm(grade) == 3 , "Grade 3", "foobar"),
-      max_grade_4 = ifelse(max_narm(grade) == 4 , "Grade 4", "foobar"),
-      max_grade_5 = ifelse(max_narm(grade) == 5 , "Grade 5", "foobar"),
-      any_grade_sup_na   = case_when(!cur_group()$subjid %in% df_ae$subjid ~ lab_no_ae,
+                              .default="NOT NA"),
+      max_grade = .max_grade(grade),
+
+      any_grade_sup_na = case_when(!cur_group()$subjid %in% df_ae$subjid ~ lab_no_ae,
                                      any(is.na(grade), na.rm=TRUE) ~ "Any missing grade",
-                                     .default="foobar"),,
-      any_grade_sup_1 = ifelse(any(grade >= 1, na.rm=TRUE), "Grade \u2265 1", "foobar"),
-      any_grade_sup_2 = ifelse(any(grade >= 2, na.rm=TRUE), "Grade \u2265 2", "foobar"),
-      any_grade_sup_3 = ifelse(any(grade >= 3, na.rm=TRUE), "Grade \u2265 3", "foobar"),
-      any_grade_sup_4 = ifelse(any(grade >= 4, na.rm=TRUE), "Grade \u2265 4", "foobar"),
-      any_grade_sup_5 = ifelse(any(grade >= 5, na.rm=TRUE), "Grade = 5", "foobar"),
+                                     .default="NOT NA"),
+      any_grade_sup = .any_grade_sup(grade),
+
       any_grade_eq_na   = any_grade_sup_na,
-      any_grade_eq_1 = ifelse(any(grade == 1, na.rm=TRUE), "Grade 1", "foobar"),
-      any_grade_eq_2 = ifelse(any(grade == 2, na.rm=TRUE), "Grade 2", "foobar"),
-      any_grade_eq_3 = ifelse(any(grade == 3, na.rm=TRUE), "Grade 3", "foobar"),
-      any_grade_eq_4 = ifelse(any(grade == 4, na.rm=TRUE), "Grade 4", "foobar"),
-      any_grade_eq_5 = ifelse(any(grade == 5, na.rm=TRUE), "Grade 5", "foobar"),
+      any_grade_eq = .any_grade_eq(grade),
       .by=c(subjid, arm)
     ) %>%
+    unpack(c(max_grade, any_grade_sup, any_grade_eq)) %>%
     crosstable::crosstable(matches(rex),
                by=arm, total=total,
                percent_digits=digits,
                percent_pattern=percent_pattern) %>%
-    filter(variable!="foobar" & variable!="NA") %>%
+    filter(variable!="NA") %>%
     mutate(
-      label=case_when(
+      .all_NOT = all(str_starts(variable, "NOT")),
+      variable = if_else(.all_NOT, str_remove(variable, "NOT "), variable),
+      across(-c(label, variable, .all_NOT), ~if_else(.all_NOT, "0", .x)),
+      .by = .id
+    ) %>%
+    select(-.all_NOT) %>%
+    filter(!str_starts(variable, "NOT")) %>%
+    mutate(
+      label = case_when(
         str_starts(.id, "max_grade_") ~ glue("Patient maximum {ae_label} grade"),
         str_starts(.id, "any_grade_sup_") ~ glue("Patient had at least one {ae_label} of grade"),
         str_starts(.id, "any_grade_eq_") ~ glue("Patient had at least one {ae_label} of grade "),
@@ -353,4 +353,41 @@ ae_plot_grade_n = ae_plot_grade_sum
 #' @importFrom dplyr na_if
 .fix_grade_na = function(x){
   as.numeric(na_if(as.character(x), "NA"))
+}
+
+
+
+#' @importFrom glue glue
+#' @importFrom purrr map
+#' @importFrom rlang set_names
+#' @importFrom tibble as_tibble
+.max_grade = function(grade){
+  seq(5) %>%
+    set_names(~paste0("max_grade_", .x)) %>%
+    map(~ifelse(max_narm(grade) == .x ,
+                glue("Grade {.x}"), glue("NOT Grade {.x}"))) %>%
+    as_tibble()
+}
+#' @importFrom glue glue
+#' @importFrom purrr map
+#' @importFrom rlang set_names
+#' @importFrom tibble as_tibble
+.any_grade_sup = function(grade){
+  seq(5) %>%
+    set_names(~paste0("any_grade_sup_", .x)) %>%
+    map(~ifelse(any(grade >= .x, na.rm=TRUE),
+                glue("Grade \u2265 {.x}"), glue("NOT Grade \u2265 {.x}")) %>%
+          str_replace("Grade \u2265 5", "Grade = 5")) %>%
+    as_tibble()
+}
+#' @importFrom glue glue
+#' @importFrom purrr map
+#' @importFrom rlang set_names
+#' @importFrom tibble as_tibble
+.any_grade_eq = function(grade){
+  seq(5) %>%
+    set_names(~paste0("any_grade_eq_", .x)) %>%
+    map(~ifelse(any(grade == .x, na.rm=TRUE),
+                glue("Grade {.x}"), glue("NOT Grade {.x}"))) %>%
+    as_tibble()
 }
