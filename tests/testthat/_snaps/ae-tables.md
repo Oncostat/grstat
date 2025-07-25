@@ -32,11 +32,14 @@
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
     Output
-      # A tibble: 2 x 4
+      # A tibble: 5 x 4
         .id       label                    variable `All patients`
         <fct>     <fct>                    <fct>    <chr>         
-      1 max_grade Patient maximum AE grade Grade 4  1 (50%)       
-      2 max_grade Patient maximum AE grade Grade 5  1 (50%)       
+      1 max_grade Patient maximum AE grade Grade 1  0             
+      2 max_grade Patient maximum AE grade Grade 2  0             
+      3 max_grade Patient maximum AE grade Grade 3  0             
+      4 max_grade Patient maximum AE grade Grade 4  1 (50%)       
+      5 max_grade Patient maximum AE grade Grade 5  1 (50%)       
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
     Output
