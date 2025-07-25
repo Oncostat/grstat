@@ -38,6 +38,22 @@ test_that("ae_table_grade() default snapshot", {
 })
 
 
+test_that("ae_table_grade() with missing and grade>2", {
+  local_reproducible_output(width=125)
+
+  expect_snapshot({
+    tm = grstat_example(p_na=0.10)
+    ae = tm$ae
+    enrolres = tm$enrolres
+
+    ae %>%
+      filter(is.na(aegr) | aegr>2) %>%
+      ae_table_grade(df_enrol=enrolres, arm="ARM")
+
+  })
+})
+
+
 test_that("ae_table_grade() with different colnames", {
   tm = grstat_example()
   df_enrol = tm$enrolres %>%

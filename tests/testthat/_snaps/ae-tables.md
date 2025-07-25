@@ -161,6 +161,39 @@
       17 any_grade_eq  "Patient had at least one AE of grade " Grade 4        14      22       
       18 any_grade_eq  "Patient had at least one AE of grade " Grade 5        2       2        
 
+# ae_table_grade() with missing and grade>2
+
+    Code
+      tm = grstat_example(p_na = 0.1)
+      ae = tm$ae
+      enrolres = tm$enrolres
+      ae %>% filter(is.na(aegr) | aegr > 2) %>% ae_table_grade(df_enrol = enrolres, arm = "ARM")
+    Output
+      # A tibble: 21 x 6
+         .id           label                                   variable          Control  Treatment Total   
+         <fct>         <fct>                                   <fct>             <chr>    <chr>     <chr>   
+       1 max_grade     "Patient maximum AE grade"              No declared AE    47 (47%) 35 (35%)  82 (41%)
+       2 max_grade     "Patient maximum AE grade"              Grade 1           0        0         0       
+       3 max_grade     "Patient maximum AE grade"              Grade 2           0        0         0       
+       4 max_grade     "Patient maximum AE grade"              Grade 3           25 (25%) 25 (25%)  50 (25%)
+       5 max_grade     "Patient maximum AE grade"              Grade 4           11 (11%) 20 (20%)  31 (16%)
+       6 max_grade     "Patient maximum AE grade"              Grade 5           2 (2%)   1 (1%)    3 (2%)  
+       7 max_grade     "Patient maximum AE grade"              Grade all missing 15 (15%) 19 (19%)  34 (17%)
+       8 any_grade_sup "Patient had at least one AE of grade"  No declared AE    47 (47%) 35 (35%)  82 (41%)
+       9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1         38 (38%) 46 (46%)  84 (42%)
+      10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2         38 (38%) 46 (46%)  84 (42%)
+      11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3         38 (38%) 46 (46%)  84 (42%)
+      12 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4         13 (13%) 21 (21%)  34 (17%)
+      13 any_grade_sup "Patient had at least one AE of grade"  Grade = 5         2 (2%)   1 (1%)    3 (2%)  
+      14 any_grade_sup "Patient had at least one AE of grade"  Any missing grade 25 (25%) 34 (34%)  59 (29%)
+      15 any_grade_eq  "Patient had at least one AE of grade " No declared AE    47 (47%) 35 (35%)  82 (41%)
+      16 any_grade_eq  "Patient had at least one AE of grade " Grade 1           0        0         0       
+      17 any_grade_eq  "Patient had at least one AE of grade " Grade 2           0        0         0       
+      18 any_grade_eq  "Patient had at least one AE of grade " Grade 3           27 (27%) 29 (29%)  56 (28%)
+      19 any_grade_eq  "Patient had at least one AE of grade " Grade 4           12 (12%) 21 (21%)  33 (16%)
+      20 any_grade_eq  "Patient had at least one AE of grade " Grade 5           2 (2%)   1 (1%)    3 (2%)  
+      21 any_grade_eq  "Patient had at least one AE of grade " Any missing grade 25 (25%) 34 (34%)  59 (29%)
+
 # ae_table_soc() default snapshot
 
     Code
