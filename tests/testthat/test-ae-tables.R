@@ -26,12 +26,29 @@ test_that("ae_table_grade() default snapshot", {
 
   expect_snapshot({
     tm = grstat_example()
-    attach(tm)
+    ae = tm$ae
+    enrolres = tm$enrolres
 
     ae_table_grade(ae, df_enrol=enrolres)
     ae_table_grade(ae, df_enrol=enrolres, arm="ARM")
     ae_table_grade(ae, df_enrol=enrolres, arm="ARM", variant = c("eq", "max"))
     ae_table_grade(ae, df_enrol=enrolres, arm="ARM", percent=FALSE, total=FALSE)
+
+  })
+})
+
+
+test_that("ae_table_grade() with missing and grade>2", {
+  local_reproducible_output(width=125)
+
+  expect_snapshot({
+    tm = grstat_example(p_na=0.10)
+    ae = tm$ae
+    enrolres = tm$enrolres
+
+    ae %>%
+      filter(is.na(aegr) | aegr>2) %>%
+      ae_table_grade(df_enrol=enrolres, arm="ARM")
 
   })
 })
@@ -71,7 +88,8 @@ test_that("ae_table_soc() default snapshot", {
 
   expect_snapshot({
     tm = grstat_example()
-    attach(tm, warn.conflicts = FALSE)
+    ae = tm$ae
+    enrolres = tm$enrolres
 
     ae_table_soc(ae, df_enrol=enrolres)
     ae_table_soc(ae, df_enrol=enrolres, sort_by_count=FALSE)
