@@ -138,6 +138,7 @@ ae_table_grade = function(
     ) %>%
     select(-.all_NOT) %>%
     filter(!str_starts(variable, "NOT")) %>%
+    filter(variable!="NA") %>%
     mutate(
       label = case_when(
         str_starts(.id, "max_grade_") ~ glue("Patient maximum {ae_label} grade"),
