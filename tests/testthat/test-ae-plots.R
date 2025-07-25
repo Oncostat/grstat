@@ -1,7 +1,8 @@
 
 test_that("ae_plot_grade() works", {
   tm = grstat_example()
-  attach(tm, warn.conflicts=FALSE)
+  ae = tm$ae
+  enrolres = tm$enrolres
 
   p = ae_plot_grade(df_ae=ae, df_enrol=enrolres)
   vdiffr::expect_doppelganger("ae-plot-grade-1arm", p)
@@ -19,7 +20,8 @@ test_that("ae_plot_grade() works", {
 
 test_that("ae_plot_grade_sum() works", {
   tm = grstat_example()
-  attach(tm, warn.conflicts=FALSE)
+  ae = tm$ae
+  enrolres = tm$enrolres
 
   p = ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
   vdiffr::expect_doppelganger("ae-plot-grade-sum-1arm", p)
@@ -33,7 +35,8 @@ test_that("ae_plot_grade_sum() works", {
 
 test_that("butterfly_plot() works", {
   tm = grstat_example()
-  attach(tm, warn.conflicts=FALSE)
+  ae = tm$ae
+  enrolres = tm$enrolres
   ae2 = ae %>%
     mutate(serious = sae=="Yes")
 
@@ -48,7 +51,8 @@ test_that("butterfly_plot() works", {
 
 test_that("butterfly_plot() errors", {
   tm = grstat_example()
-  attach(tm, warn.conflicts=FALSE)
+  ae = tm$ae
+  enrolres = tm$enrolres
   ae2 = ae %>%
     mutate(bad_serious = sae=="foobar")
 

@@ -66,7 +66,8 @@
 
     Code
       tm = grstat_example()
-      attach(tm)
+      ae = tm$ae
+      enrolres = tm$enrolres
       ae_table_grade(ae, df_enrol = enrolres)
     Output
       # A tibble: 18 x 4
@@ -161,7 +162,8 @@
 
     Code
       tm = grstat_example()
-      attach(tm, warn.conflicts = FALSE)
+      ae = tm$ae
+      enrolres = tm$enrolres
       ae_table_soc(ae, df_enrol = enrolres)
     Output
       # A tibble: 27 x 8

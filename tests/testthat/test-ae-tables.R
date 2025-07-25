@@ -26,7 +26,8 @@ test_that("ae_table_grade() default snapshot", {
 
   expect_snapshot({
     tm = grstat_example()
-    attach(tm)
+    ae = tm$ae
+    enrolres = tm$enrolres
 
     ae_table_grade(ae, df_enrol=enrolres)
     ae_table_grade(ae, df_enrol=enrolres, arm="ARM")
@@ -71,7 +72,8 @@ test_that("ae_table_soc() default snapshot", {
 
   expect_snapshot({
     tm = grstat_example()
-    attach(tm, warn.conflicts = FALSE)
+    ae = tm$ae
+    enrolres = tm$enrolres
 
     ae_table_soc(ae, df_enrol=enrolres)
     ae_table_soc(ae, df_enrol=enrolres, sort_by_count=FALSE)
