@@ -38,13 +38,14 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
 
   #Si un patient a une seule visite recist (la premiere) puis aucune autre, on le modifie en Not evaluable
   data = data %>%
+    distinct(subjid,rcresp,rcdt) %>%
+    arrange(as.numeric(subjid), rcdt) %>%
     mutate(n = n(), .by = subjid) %>%
     mutate(rcresp = ifelse(n==1, "Not evaluable",as.character(rcresp)))
 
+  data$rcresp <- factor(data$rcresp, levels = c("Complete response", "Partial response", "Stable disease", "Progressive disease", "Not evaluable"))
 
   recist_2 = data %>%
-    distinct(subjid,rcresp,rcdt) %>%
-    arrange(as.numeric(subjid), rcdt) %>%
     mutate(rcresp_num=as.numeric(as.factor(rcresp))) %>%
     filter(!is.na(rcresp_num) & !is.na(rcdt) & !is.na(subjid)) %>%
     mutate(previous_rcresp_num=lag(rcresp_num),
