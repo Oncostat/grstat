@@ -106,17 +106,17 @@ ae_table_grade = function(
                     else if(percent=="only") "{n/n_col}" else "{n}"
   percent_pattern = list(body=percent_pattern, total_col=percent_pattern)
 
-  lab_no_ae = glue("No declared {ae_label}")
+  lab_no_ae = glue("No {ae_label} reported")
 
   rtn = df %>%
     summarise(
       max_grade_na = case_when(!cur_group()$subjid %in% df_ae$subjid ~ lab_no_ae,
-                              all(is.na(grade), na.rm=TRUE) ~ "Grade all missing",
+                              all(is.na(grade), na.rm=TRUE) ~ "All grades missing",
                               .default="NOT NA"),
       max_grade = .max_grade(grade),
 
       any_grade_sup_na = case_when(!cur_group()$subjid %in% df_ae$subjid ~ lab_no_ae,
-                                     any(is.na(grade), na.rm=TRUE) ~ "Any missing grade",
+                                     any(is.na(grade), na.rm=TRUE) ~ "Some grades missing",
                                      .default="NOT NA"),
       any_grade_sup = .any_grade_sup(grade),
 
