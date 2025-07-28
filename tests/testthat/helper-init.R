@@ -26,14 +26,6 @@ if(!is_testing() & !is_checking()){
   library(cli, warn.conflicts=FALSE)
   library(dplyr, warn.conflicts=FALSE)
   library(purrr, warn.conflicts=FALSE)
-} else {
-  #During testing, ensure snapshots have no abbreviated tibble
-  options(
-    pillar.width=Inf,
-    pillar.print_max=Inf,
-    pillar.max_footer_lines=Inf,
-    pillar.max_extra_cols=Inf
-  )
 }
 
 
