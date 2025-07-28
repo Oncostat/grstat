@@ -6,13 +6,13 @@
 
 ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date = recist$RCDT, confirmed = FALSE, show_CBR = FALSE){
   `%notin%` <- Negate(`%in%`)
-  if(is.na(id)){
+  if(length(id) ==0){
     cli_abort("id must be defined")
   }
-  if(is.na(date)){
+  if(length(date) ==0){
     cli_abort("date must be defined")
   }
-  if(is.na(global_response)){
+  if(length(global_response) ==0){
     cli_abort("global_response must be defined")
   }
   if(length(id) != length(global_response) | length(id) != length(date) | length(date) != length(global_response)){
@@ -36,7 +36,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
 
   data = data.frame(subjid = id, rcresp = global_response, rcdt = date)
 
-  #Si un patient a une seule visite recist (la premiere) puis aucune autre, on le modifie en NA
+  #Si un patient a une seule visite recist (la premiere) puis aucune autre, on le modifie en Not evaluable
   data = data %>%
     mutate(n = n(), .by = subjid) %>%
     mutate(rcresp = ifelse(n==1, "Not evaluable",as.character(rcresp)))
