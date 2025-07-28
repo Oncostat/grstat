@@ -5,23 +5,48 @@
 #' @importFrom cli cli_abort
 
 ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date = recist$RCDT, confirmed = FALSE, show_CBR = FALSE){
-  if(length(id) != length(global_response) |length(id) != length(date) | length(date) != length(global_response)){
+  `%notin%` <- Negate(`%in%`)
+  if(is.na(id)){
+    cli_abort("id must be defined")
+  }
+  if(is.na(date)){
+    cli_abort("date must be defined")
+  }
+  if(is.na(global_response)){
+    cli_abort("global_response must be defined")
+  }
+  if(length(id) != length(global_response) | length(id) != length(date) | length(date) != length(global_response)){
     cli_abort("id, global_reponse and date should have the same length")
   }
-  if(is.vector(id)!= TRUE | is.vector(date)!= TRUE | is.vector(global_response)!= TRUE){
-    cli_abort("id, global_reponse and date must be vector (for example : id = recist$SUBJID)")
+  if(length(confirmed) > 1){
+    cli_abort("confirmed shoulb be TRUE or FALSE (default = FALSE)")
+  }
+  if(length(show_CBR) > 1){
+    cli_abort("show_CBR shoulb be TRUE or FALSE (default = FALSE)")
+  }
+  if(confirmed %notin% c(TRUE,FALSE,NA)){
+    cli_abort("confirmed shoulb be TRUE or FALSE (default = FALSE)")
+  }
+  if(show_CBR %notin% c(TRUE,FALSE,NA)){
+    cli_abort("show_CBR shoulb be TRUE or FALSE (default = FALSE)")
+  }
+  if(is.Date(date)!= TRUE){
+    cli_abort("date shoul be in as.Date format")
   }
 
   data = data.frame(subjid = id, rcresp = global_response, rcdt = date)
+
+  #Si un patient a une seule visite recist (la premiere) puis aucune autre, on le modifie en NA
+  data = data %>%
+    mutate(n = n(), .by = subjid) %>%
+    mutate(rcresp = ifelse(n==1, "Not evaluable",as.character(rcresp)))
+
+
   recist_2 = data %>%
-    select(subjid, rcresp, rcdt) %>%
-    distinct(subjid,rcresp,rcdt, .keep_all = TRUE) %>%
+    distinct(subjid,rcresp,rcdt) %>%
     arrange(as.numeric(subjid), rcdt) %>%
-    distinct(subjid,rcresp, rcdt) %>%
-    mutate(rcresp_num=as.factor(rcresp),
-           rcresp_num=as.numeric(rcresp_num)
-    ) %>%
-    filter(!is.na(rcresp_num)) %>%
+    mutate(rcresp_num=as.numeric(as.factor(rcresp))) %>%
+    filter(!is.na(rcresp_num) & !is.na(rcdt) & !is.na(subjid)) %>%
     mutate(previous_rcresp_num=lag(rcresp_num),
            previous_date=lag(rcdt),
            delta_date=as.numeric(rcdt - previous_date),
@@ -43,42 +68,6 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
              CBR = ifelse(duree_suivi_max >= 152 | rcresp=="Complete response" | rcresp=="Partial response",1,0))
   }
   else if(confirmed == TRUE){
-    # recist_2$meilleur_reponse <- recist_2$rcresp_num
-    #
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-    #                             recist_2$previous_rcresp_num == 1 &
-    #                             recist_2$delta_date >= 28] <- 1
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-    #                             recist_2$previous_rcresp_num == 1 &
-    #                             recist_2$delta_date < 28] <- 3
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-    #                             recist_2$previous_rcresp_num == 2 &
-    #                             recist_2$delta_date >= 28] <- 2
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-    #                             recist_2$previous_rcresp_num == 2 &
-    #                             recist_2$delta_date < 28] <- 3
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-    #                             recist_2$previous_rcresp_num == 3] <- 3
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-    #                             recist_2$previous_rcresp_num == 4] <- 4
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 1 &
-    #                             recist_2$previous_rcresp_num == 5] <- 5
-    #
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-    #                             recist_2$previous_rcresp_num <=2 &
-    #                             recist_2$delta_date >= 28] <- 2
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-    #                             recist_2$previous_rcresp_num <= 2 &
-    #                             recist_2$delta_date < 28] <- 3
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-    #                             recist_2$previous_rcresp_num == 3] <- 3
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-    #                             recist_2$previous_rcresp_num == 4] <- 4
-    # recist_2$meilleur_reponse[recist_2$rcresp_num == 2 &
-    #                             recist_2$previous_rcresp_num == 5] <- 5
-    #
-    # recist_2$meilleur_reponse[is.na(recist_2$previous_rcresp_num) & recist_2$rcresp_num==4] <- 4
-
     recist_2 <- recist_2 %>%
       mutate(
         meilleur_reponse = case_when(
@@ -96,7 +85,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
           rcresp_num == 2 & previous_rcresp_num == 4                    ~ 4,
           rcresp_num == 2 & previous_rcresp_num == 5                    ~ 5,
 
-          is.na(previous_rcresp_num) & rcresp_num == 4                 ~ 4,
+          is.na(previous_rcresp_num) & rcresp_num == 4                  ~ 4,
 
           TRUE ~ rcresp_num
         )
@@ -111,9 +100,7 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
       mutate(Overall_ORR= ifelse(rcresp=="Complete response" | rcresp=="Partial response",1,0),
              CBR = ifelse(duree_suivi_max >= 152 | rcresp=="Complete response" | rcresp=="Partial response",1,0))
   }
-  else{
-    cli_abort("confirmed shoulb be TRUE or FALSE (default = FALSE)")
-  }
+
     total <- length(unique(final_best_response$subjid))
     CR <- length(final_best_response$rcresp[final_best_response$rcresp == "Complete response"])
     PR <- length(final_best_response$rcresp[final_best_response$rcresp == "Partial response"])
@@ -200,9 +187,6 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
                     round(NE/total*100,1),
                     round(CBR/total*100,1))
     }
-    else{
-      cli_abort("CBR shoulb be TRUE or FALSE (default = FALSE)")
-    }
 
     Best_Response_during_treatment <- as.data.frame(cbind(Name,N,Percentage,IC_95))
     if (is.na(confirmed) | confirmed == FALSE){
@@ -236,9 +220,6 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
                   ref_symbols =c("*","1"), part = "header") %>%
         valign(valign = "bottom", part = "header")
         }
-    else{
-      cli_abort("confirmed shoulb be TRUE or FALSE (default = FALSE)")
-    }
 
     if (is.na(show_CBR) | show_CBR == FALSE){
       Best_Response_during_treatment =  Best_Response_during_treatment %>%
@@ -261,9 +242,6 @@ ORR_table = function(id = recist$SUBJID, global_response = recist$RCRESP, date =
                   ref_symbols = c("1"), part = "body") %>%
         valign(valign = "bottom", part = "header") %>%
         bold(i = c(1,7), j = 1, bold = TRUE, part = "body")
-    }
-    else{
-      cli_abort("CBR shoulb be TRUE or FALSE (default = FALSE)")
     }
 Best_Response_during_treatment
 }
