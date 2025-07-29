@@ -8,7 +8,7 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![CRAN status](https://www.r-pkg.org/badges/version/grstat)](https://CRAN.R-project.org/package=grstat)
 [![Last Commit](https://img.shields.io/github/last-commit/Oncostat/grstat)](https://github.com/Oncostat/grstat)
-[![R-CMD-check](https://github.com/Oncostat/grstat/actions/workflows/check-standard.yaml/badge.svg?branch=main)](https://github.com/Oncostat/grstat/actions/workflows/check-standard.yaml)
+[![R-CMD-check](https://github.com/Oncostat/grstat/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Oncostat/grstat/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 `{grstat}` is a package designed to help standardize the descriptive clinical research analyses at GR.
@@ -19,7 +19,7 @@ The package is not on CRAN, so you should install from GitHub:
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9010")
+pak::pak("Oncostat/grstat@v0.1.0.9015")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be

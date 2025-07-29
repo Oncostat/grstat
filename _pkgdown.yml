@@ -26,9 +26,20 @@ reference:
   - title: "Utils"
   - contents:
     - gr_new_project
+    - gr_officer_template
     - grstat_example
 
-  - title: "Work in progress"
+  - title: "Checks"
+  - contents:
+    - check_recist
+    - gr_recist_mapping
+    - recist_report_html
+    - recist_report_xlsx
+
+  - title: "Not validated yet"
+  - description: "These functions should be used with caution, and results should always be checked using your own code in parallel."
   - contents:
     - ae_plot_grade_sum
+    - boin_plot
+    - calc_best_response
     - waterfall_plot

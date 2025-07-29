@@ -390,7 +390,7 @@ butterfly_plot = function(
   a %>% arrange(abs(pct_ae))
   if(sort_by=="severe") a$soc_ = fct_reorder(a$soc_, abs(a$pct_severe), .fun=max)
 
-  label_percent_positive = \(x) label_percent()(x) %>% str_remove("-")
+  label_percent_positive = function(x) label_percent()(x) %>% str_remove("-")
 
   layer_blank = NULL
   if(!is.null(range_min)){
