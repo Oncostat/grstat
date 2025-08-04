@@ -60,7 +60,6 @@ calc_best_response = function(data_recist, ...,
     mutate(n = n(), .by = subjid) %>%
     mutate(response = ifelse(n==1, "Not evaluable",as.character(response))) %>%
     arrange(subjid, date) %>%
-    distinct() %>%
     mutate(
       first_date = min_narm(date, na.rm=TRUE),
       min_sum = min_narm(sum, na.rm=TRUE),
@@ -72,7 +71,7 @@ calc_best_response = function(data_recist, ...,
       delta_date=as.numeric(date - previous_date),
       delta_date= ifelse(is.na(delta_date),0,delta_date),
       delta_date_before_PD_or_end = cumsum(delta_date),
-      delta_date_before_PD_or_end = ifelse(response=="Progressive disease" ,0,delta_date_before_PD_or_end),
+      delta_date_before_PD_or_end = ifelse(response_num==4 ,0,delta_date_before_PD_or_end),
       delta_date_before_PD_or_end= replace_na(delta_date_before_PD_or_end,0),
       duree_suivi_max = max(delta_date_before_PD_or_end),
       bestresponse_withinprotocole=ifelse(previous_response_num==response_num, 1, 0 ),
@@ -88,40 +87,49 @@ calc_best_response = function(data_recist, ...,
       mutate(bestresponse=min(response_num),
              .by = subjid) %>%
       filter(bestresponse==response_num) %>%
+      mutate(response_confirmed = .recist_from_num(bestresponse),
+             response_confirmed =factor(response_confirmed,
+                                        levels = c("CR", "PR", "SD", "PD","Not evaluable"),
+                                        labels = c("Complete response","Partial response", "Stable disease","Progressive disease","Not evaluable"))) %>%
       slice_head(by=subjid) %>%
-      mutate(Overall_ORR= ifelse(response=="Complete response" | response=="Partial response",1,0),
-             CBR = ifelse(duree_suivi_max >= 152 | response=="Complete response" | response=="Partial response",1,0)) %>%
-      select(subjid, best_response=response, date, target_sum=sum,
+      mutate(Overall_ORR= ifelse(bestresponse==1 | bestresponse==2,1,0),
+             CBR = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2,1,0)) %>%
+      select(subjid, best_response=response_confirmed, date, target_sum=sum,
              target_sum_diff_first=diff_first, target_sum_diff_min=diff_min,Overall_ORR,CBR)
   } else {
     data_recist %>%
       mutate(confirmed_response = case_when(
-                    response_num == 1 & previous_response_num == 1 & delta_date >= 28 ~ 1,
-                    response_num == 1 & previous_response_num == 1 & delta_date < 28  ~ 3,
-                    response_num == 1 & previous_response_num == 2 & delta_date >= 28 ~ 2,
-                    response_num == 1 & previous_response_num == 2 & delta_date < 28  ~ 3,
-                    response_num == 1 & previous_response_num == 3                    ~ 3,
-                    response_num == 1 & previous_response_num == 4                    ~ 4,
-                    response_num == 1 & previous_response_num == 5                    ~ 5,
+        response_num == 1 & previous_response_num == 1 & delta_date >= 28 ~ 1,
+        response_num == 1 & previous_response_num == 1 & delta_date < 28  ~ 3,
+        response_num == 1 & previous_response_num == 2 & delta_date >= 28 ~ 2,
+        response_num == 1 & previous_response_num == 2 & delta_date < 28  ~ 3,
+        response_num == 1 & previous_response_num == 3                    ~ 3,
+        response_num == 1 & previous_response_num == 4                    ~ 4,
+        response_num == 1 & previous_response_num == 5                    ~ 5,
 
-                    response_num == 2 & previous_response_num <= 2 & delta_date >= 28 ~ 2,
-                    response_num == 2 & previous_response_num <= 2 & delta_date < 28  ~ 3,
-                    response_num == 2 & previous_response_num == 3                    ~ 3,
-                    response_num == 2 & previous_response_num == 4                    ~ 4,
-                    response_num == 2 & previous_response_num == 5                    ~ 5,
+        response_num == 2 & previous_response_num <= 2 & delta_date >= 28 ~ 2,
+        response_num == 2 & previous_response_num <= 2 & delta_date < 28  ~ 3,
+        response_num == 2 & previous_response_num == 3                    ~ 3,
+        response_num == 2 & previous_response_num == 4                    ~ 4,
+        response_num == 2 & previous_response_num == 5                    ~ 5,
 
-                    is.na(previous_response_num) & response_num == 4                  ~ 4,
+        is.na(previous_response_num) & response_num == 4                  ~ 4,
 
-                    TRUE ~ response_num
-                  )) %>%
+        TRUE ~ response_num
+      )) %>%
+      filter(!is.na(response))%>%
       mutate(bestresponse=min(confirmed_response),
              .by=subjid
       ) %>%
       filter(bestresponse==confirmed_response) %>%
       slice_head(by=subjid) %>%
-      mutate(Overall_ORR= ifelse(response=="Complete response" | response=="Partial response",1,0),
-             CBR = ifelse(duree_suivi_max >= 152 | response=="Complete response" | response=="Partial response",1,0)) %>%
-      select(subjid, best_response=response, date, target_sum=sum,
+      mutate(response_confirmed = .recist_from_num(bestresponse),
+             response_confirmed =factor(response_confirmed,
+                                        levels = c("CR", "PR", "SD", "PD","Not evaluable"),
+                                        labels = c("Complete response","Partial response", "Stable disease","Progressive disease","Not evaluable"))) %>%
+      mutate(Overall_ORR= ifelse(bestresponse==1 | bestresponse==2,1,0),
+             CBR = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2,1,0)) %>%
+      select(subjid, best_response=response_confirmed, date, target_sum=sum,
              target_sum_diff_first=diff_first, target_sum_diff_min=diff_min,Overall_ORR,CBR)
   }
 }
