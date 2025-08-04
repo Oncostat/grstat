@@ -43,7 +43,8 @@
 calc_best_response = function(data_recist, ...,
                               rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
                               subjid="SUBJID", exclude_post_pd=TRUE,
-                              warnings=getOption("grstat_best_resp_warnings", TRUE)) {
+                              warnings=getOption("grstat_best_resp_warnings", TRUE),
+                              confirmed = FALSE) {
   assert_class(data_recist, class="data.frame")
   assert_class(rc_sum, class="character")
   assert_class(rc_resp, class="character")
@@ -83,6 +84,47 @@ calc_best_response = function(data_recist, ...,
       diff_first = (sum - first_sum)/first_sum,
       diff_min = (sum - min_sum)/min_sum)
 
+  if (!isTRUE(confirmed)){
+    data_recist %>%
+      mutate(bestresponse=min(response_num),
+             .by = subjid) %>%
+      filter(bestresponse==response_num) %>%
+      slice_head(by=subjid) %>%
+      mutate(Overall_ORR= ifelse(response=="Complete response" | response=="Partial response",1,0),
+             CBR = ifelse(duree_suivi_max >= 152 | response=="Complete response" | response=="Partial response",1,0)) %>%
+      select(subjid, best_response=response, date, target_sum=sum,
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min,Overall_ORR,CBR)
+  } else {
+    data_recist %>%
+      mutate(confirmed_response = case_when(
+                    response_num == 1 & previous_response_num == 1 & delta_date >= 28 ~ 1,
+                    response_num == 1 & previous_response_num == 1 & delta_date < 28  ~ 3,
+                    response_num == 1 & previous_response_num == 2 & delta_date >= 28 ~ 2,
+                    response_num == 1 & previous_response_num == 2 & delta_date < 28  ~ 3,
+                    response_num == 1 & previous_response_num == 3                    ~ 3,
+                    response_num == 1 & previous_response_num == 4                    ~ 4,
+                    response_num == 1 & previous_response_num == 5                    ~ 5,
+
+                    response_num == 2 & previous_response_num <= 2 & delta_date >= 28 ~ 2,
+                    response_num == 2 & previous_response_num <= 2 & delta_date < 28  ~ 3,
+                    response_num == 2 & previous_response_num == 3                    ~ 3,
+                    response_num == 2 & previous_response_num == 4                    ~ 4,
+                    response_num == 2 & previous_response_num == 5                    ~ 5,
+
+                    is.na(previous_response_num) & response_num == 4                  ~ 4,
+
+                    TRUE ~ response_num
+                  )) %>%
+      mutate(bestresponse=min(confirmed_response),
+             .by=subjid
+      ) %>%
+      filter(bestresponse==confirmed_response) %>%
+      slice_head(by=subjid) %>%
+      mutate(Overall_ORR= ifelse(response=="Complete response" | response=="Partial response",1,0),
+             CBR = ifelse(duree_suivi_max >= 152 | response=="Complete response" | response=="Partial response",1,0)) %>%
+      select(subjid, best_response=response, date, target_sum=sum,
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min,Overall_ORR,CBR)
+  }
 }
 
 
