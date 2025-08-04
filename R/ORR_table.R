@@ -69,8 +69,14 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
     .by= Name) %>%
     add_class("ORR_table")
   }
-  if(length(confirmed) > 1){
-    cli_abort("confirmed shoulb be TRUE or FALSE (default = FALSE)")
+  else{
+    summary_df = bind_rows(ORR, response_counts) %>%
+      mutate(IC_95 = {
+        ci = clopper.pearson.ci(N, total, CI = "two.sided", alpha = 0.05)
+        glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
+      },
+      .by= Name) %>%
+      add_class("ORR_table")
   }
 
   if (confirmed){
