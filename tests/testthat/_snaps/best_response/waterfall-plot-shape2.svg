@@ -152,12 +152,12 @@
 <text x='596.51' y='298.69' style='font-size: 11.00px; font-family: sans;' textLength='71.52px' lengthAdjust='spacingAndGlyphs'>(RECIST v1.1)</text>
 <rect x='597.22' y='306.02' width='15.86' height='15.86' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #42B540;' />
 <rect x='597.22' y='323.30' width='15.86' height='15.86' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #006DD8;' />
-<rect x='597.22' y='340.58' width='15.86' height='15.86' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #925E9F;' />
-<rect x='597.22' y='357.86' width='15.86' height='15.86' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #ED0000;' />
+<rect x='597.22' y='340.58' width='15.86' height='15.86' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #ED0000;' />
+<rect x='597.22' y='357.86' width='15.86' height='15.86' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #925E9F;' />
 <text x='619.27' y='316.98' style='font-size: 8.80px; font-family: sans;' textLength='76.32px' lengthAdjust='spacingAndGlyphs'>Complete response</text>
 <text x='619.27' y='334.26' style='font-size: 8.80px; font-family: sans;' textLength='63.60px' lengthAdjust='spacingAndGlyphs'>Partial response</text>
-<text x='619.27' y='351.54' style='font-size: 8.80px; font-family: sans;' textLength='57.74px' lengthAdjust='spacingAndGlyphs'>Stable disease</text>
-<text x='619.27' y='368.82' style='font-size: 8.80px; font-family: sans;' textLength='79.26px' lengthAdjust='spacingAndGlyphs'>Progressive disease</text>
+<text x='619.27' y='351.54' style='font-size: 8.80px; font-family: sans;' textLength='79.26px' lengthAdjust='spacingAndGlyphs'>Progressive disease</text>
+<text x='619.27' y='368.82' style='font-size: 8.80px; font-family: sans;' textLength='57.74px' lengthAdjust='spacingAndGlyphs'>Stable disease</text>
 <text x='48.44' y='14.56' style='font-size: 13.20px; font-family: sans;' textLength='122.54px' lengthAdjust='spacingAndGlyphs'>waterfall-plot-shape2</text>
 </g>
 </svg>
