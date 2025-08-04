@@ -55,9 +55,8 @@ calc_best_response = function(data_recist, ...,
   data_recist = data_recist %>%
     select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
            date=any_of2(rc_date)) %>%
+    distinct() %>%
     .check_best_resp(do=warnings) %>%
-    #filter(!is.na(sum)) %>%
-    #filter(n_distinct(date)>=2, .by=subjid) %>%
     mutate(n = n(), .by = subjid) %>%
     mutate(response = ifelse(n==1, "Not evaluable",as.character(response))) %>%
     arrange(subjid, date) %>%
