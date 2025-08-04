@@ -33,7 +33,7 @@
 #'
 #'
 #' @export
-#' @importFrom dplyr arrange distinct filter mutate n_distinct select slice_min
+#' @importFrom dplyr arrange distinct filter mutate n_distinct select slice_min slice_head
 #' @importFrom forcats fct_reorder
 #'
 #' @examples
@@ -51,33 +51,37 @@ calc_best_response = function(data_recist, ...,
   assert_class(warnings, class="logical")
   grstat_dev_warn()
 
-  data_recist %>%
+  data_recist = data_recist %>%
     select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
            date=any_of2(rc_date)) %>%
     .check_best_resp(do=warnings) %>%
-    filter(!is.na(sum)) %>%
-    filter(n_distinct(date)>=2, .by=subjid) %>%
+    #filter(!is.na(sum)) %>%
+    #filter(n_distinct(date)>=2, .by=subjid) %>%
+    mutate(n = n(), .by = subjid) %>%
+    mutate(response = ifelse(n==1, "Not evaluable",as.character(response))) %>%
     arrange(subjid, date) %>%
     distinct() %>%
     mutate(
       first_date = min_narm(date, na.rm=TRUE),
       min_sum = min_narm(sum, na.rm=TRUE),
       first_sum = sum[date==first_date],
+      response_num = .encode_response(response),
+      response = fct_reorder(as.character(response), response_num),
+      previous_response_num=lag(response_num),
+      previous_date=lag(date),
+      delta_date=as.numeric(date - previous_date),
+      delta_date= ifelse(is.na(delta_date),0,delta_date),
+      delta_date_before_PD_or_end = cumsum(delta_date),
+      delta_date_before_PD_or_end = ifelse(response=="Progressive disease" ,0,delta_date_before_PD_or_end),
+      delta_date_before_PD_or_end= replace_na(delta_date_before_PD_or_end,0),
+      duree_suivi_max = max(delta_date_before_PD_or_end),
+      bestresponse_withinprotocole=ifelse(previous_response_num==response_num, 1, 0 ),
       .by=subjid,
     ) %>%
     mutate(
       first_date = date==first_date,
-      response_num = .encode_response(response),
-      response = fct_reorder(as.character(response), response_num),
       diff_first = (sum - first_sum)/first_sum,
-      diff_min = (sum - min_sum)/min_sum
-    ) %>%
-    .remove_post_pd(resp=response, date=date, do=exclude_post_pd) %>%
-    slice_min(response_num, with_ties=TRUE, na_rm=TRUE, by=c(subjid)) %>%
-    slice_min(sum,          with_ties=TRUE, na_rm=TRUE, by=c(subjid, response_num)) %>%
-    slice_min(subjid,      with_ties=FALSE, na_rm=TRUE, by=c(subjid, response_num)) %>%
-    select(subjid, best_response=response, date, target_sum=sum,
-           target_sum_diff_first=diff_first, target_sum_diff_min=diff_min)
+      diff_min = (sum - min_sum)/min_sum)
 
 }
 
