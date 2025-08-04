@@ -15,7 +15,7 @@ ORR_table(
   show_CBR = FALSE
 )
 
-\method{as_flextable}{ORR_table}(x, ..., confirmed = FALSE, show_CBR = FALSE)
+\method{as_flextable}{ORR_table}(x, ...)
 }
 \arguments{
 \item{data}{A dataset containing longitudinal RECIST data in long format.}
@@ -28,7 +28,7 @@ ORR_table(
 
 \item{subjid}{The column containing the subject ID. Default is \code{"SUBJID"}.}
 
-\item{confirmed}{Logical; if \code{TRUE}, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response. *As stated in the protocol: «For equivocal findings of progression (e.g., very small and uncertain new lesions; cystic changes or necrosis in existing lesions), treatment may continue until the next scheduled assessment». Therefore, some patients had a response after a progressive disease response, in that case best response was examine before and after PD. Scans conducted after initiating new anti-cancer therapy were not included in the ORR analyses.}
+\item{confirmed}{Logical; if \code{TRUE}, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.}
 
 \item{show_CBR}{Logical; if \code{TRUE}, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).}
 
