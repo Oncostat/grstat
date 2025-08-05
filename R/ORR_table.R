@@ -39,24 +39,24 @@
 
 ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
                      subjid="SUBJID", confirmed = FALSE, show_CBR = FALSE){
-  recist = calc_best_response(data,rc_resp=rc_resp, rc_date=rc_date,
+  recist = calc_best_response(data, rc_resp=rc_resp, rc_date=rc_date,
                               subjid=subjid, confirmed = confirmed)
 
   total = length(recist$subjid)
   response_counts = recist %>%
     crosstable(best_response, percent_pattern = "{n}") %>%
     rename(Name = variable, N = value) %>%
-    mutate(N= as.numeric(N),
+    mutate(N = as.numeric(N),
            Percentage = round(N / sum(N) * 100, 1)) %>%
     select(Name, N, Percentage)
 
   ORR = recist %>%
-    filter(Overall_ORR ==1 ) %>%
+    filter(Overall_ORR==1) %>%
     summarise(Name = "Overall ORR", N = n()) %>%
     mutate(Percentage = round(N / total * 100, 1))
 
   CBR = recist %>%
-    filter(CBR == 1) %>%
+    filter(CBR==1) %>%
     summarise(Name = "Clinical Benefit Rate (CBR)", N = n()) %>%
     mutate(Percentage = round(N / total * 100, 1))
 
@@ -68,8 +68,7 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
     },
     .by= Name) %>%
     add_class("ORR_table")
-  }
-  else{
+  } else {
     summary_df = bind_rows(ORR, response_counts) %>%
       mutate(IC_95 = {
         ci = clopper.pearson.ci(N, total, CI = "two.sided", alpha = 0.05)
@@ -80,13 +79,12 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
   }
 
   if (confirmed){
-    nom_col = c("Confirmed Best Response during treatment",paste0("N=",total),"%","IC 95%")
-  }
-  else{
-    nom_col = c("Unconfirmed Best Response during treatment",paste0("N=",total),"%","IC 95%")
+    nom_col = c("Confirmed Best Response during treatment", paste0("N=",total), "%", "IC 95%")
+  } else {
+    nom_col = c("Unconfirmed Best Response during treatment", paste0("N=",total), "%", "IC 95%")
   }
 
-  colnames(summary_df) <- nom_col
+  colnames(summary_df) = nom_col
   summary_df
 }
 
@@ -106,50 +104,43 @@ as_flextable.ORR_table = function(x, ...){
   check_dots_empty()
   Best_Response_during_treatment =  x %>%
     flextable() %>%
-    width(width = c(3,1,1,1)) %>%
-    delete_rows(i=1, part = "footer") %>%
+    width(width = c(3, 1, 1, 1)) %>%
+    delete_rows(i = 1, part = "footer") %>%
     bold(bold = TRUE, part = "header") %>%
-    surround(i = c(1,6), j = 1:4, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body")
+    surround(i = c(1, 6), j = 1:4, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body")
 
     if (colnames(x[1]) == "Unconfirmed Best Response during treatment"){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      footnote( i = 1, j = c(4),
-                value = as_paragraph(
-                  c("Clopper-Pearson (Exact) method was used for confidence interval")),
-                ref_symbols =c("*"), part = "header") %>%
+      footnote(i = 1, j = 4,
+                value = as_paragraph("Clopper-Pearson (Exact) method was used for confidence interval"),
+                ref_symbols ="*", part = "header") %>%
       valign(valign = "bottom", part = "header")
     } else{
       Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      footnote( i = 1, j = c(4,1),
-                value = as_paragraph(
-                  c("Clopper-Pearson (Exact) method was used for confidence interval",
+      footnote(i = 1, j = c(4, 1),
+                value = as_paragraph(c("Clopper-Pearson (Exact) method was used for confidence interval",
                     "For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.")),
-                ref_symbols =c("*","1"), part = "header") %>%
+                ref_symbols =c("*", "1"), part = "header") %>%
       valign(valign = "bottom", part = "header")
       }
 
-  if (nrow(x) !=7){
+  if (nrow(x) != 7){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      bold(i = c(1), j = c(1:4), bold = TRUE, part = "body")
-  } else if(nrow(x) ==7 & colnames(x[1]) != "Unconfirmed Best Response during treatment"){
+      bold(i = 1, j = c(1:4), bold = TRUE, part = "body")
+  } else if(nrow(x) == 7 & colnames(x[1]) != "Unconfirmed Best Response during treatment"){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      bold(i = c(1,7), j = c(1,2,3), bold = TRUE, part = "body") %>%
-      footnote( i = c(7), j = 1,
-                value = as_paragraph(
-                  c("CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).")),
-                ref_symbols = c("2"), part = "body") %>%
-      valign(valign = "bottom", part = "header") %>%
-      bold(i = c(1,7), j = c(1:4), bold = TRUE, part = "body")
-
+      bold(i = c(1, 7), j = c(1:4), bold = TRUE, part = "body") %>%
+      footnote( i = 7, j = 1,
+                value = as_paragraph("CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date)."),
+                ref_symbols = "2", part = "body") %>%
+      valign(valign = "bottom", part = "header")
   } else{
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      footnote( i = c(7), j = 1,
-                value = as_paragraph(
-                  c("CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).")),
-                ref_symbols = c("1"), part = "body") %>%
-      valign(valign = "bottom", part = "header") %>%
-      bold(i = c(1,7), j = c(1:4), bold = TRUE, part = "body")
-
+      bold(i = c(1, 7), j = c(1:4), bold = TRUE, part = "body") %>%
+      footnote( i = 7, j = 1,
+                value = as_paragraph("CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date)."),
+                ref_symbols = "1", part = "body") %>%
+      valign(valign = "bottom", part = "header")
   }
   Best_Response_during_treatment
 }
