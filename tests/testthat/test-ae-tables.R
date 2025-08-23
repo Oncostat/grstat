@@ -32,7 +32,7 @@ test_that("ae_table_grade() default snapshot", {
     ae_table_grade(ae, df_enrol=enrolres)
     ae_table_grade(ae, df_enrol=enrolres, arm="ARM")
     ae_table_grade(ae, df_enrol=enrolres, arm="ARM", variant = c("eq", "max"))
-    ae_table_grade(ae, df_enrol=enrolres, arm="ARM", percent=FALSE, total=FALSE)
+    ae_table_grade(ae, df_enrol=enrolres, arm="ARM", percent_pattern="{n}", total=FALSE)
 
   })
 })
