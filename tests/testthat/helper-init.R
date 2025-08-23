@@ -28,6 +28,8 @@ if(!is_testing() & !is_checking()){
   library(purrr, warn.conflicts=FALSE)
 }
 
+db_test = grstat_example(N=200)
+db_test_na = grstat_example(N=200, p_na=0.1)
 
 v=utils::View
 
