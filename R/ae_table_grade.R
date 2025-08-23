@@ -1,55 +1,50 @@
 
-#' Summary tables for AE
+#' Tabulate Adverse Events by Grade (max, ≥x, ==x)
 #'
 #' `r lifecycle::badge("stable")`\cr
-#' The function `ae_table_grade()` creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
-#' The resulting dataframe can be piped to `as_flextable()` to get a nicely formatted flextable.
+#' This function creates summary tables of adverse events (AEs) by grade, for each treatment arm if provided.
+#' By default, it shows three variants:
+#' - `"max"`: highest AE grade experienced by each patient
+#' - `"sup"`: at least one AE of grade ≥ *x*
+#' - `"eq"`: at least one AE of grade == *x*
 #'
-#' @param percent whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.
-#' @param ae_label the label of adverse events, usually "AE" or "SAE".
-#' @inheritParams ae_table_soc
-#' @inherit ae_table_soc seealso
+#' @param data_ae Data frame of adverse events, with one row per AE.
+#' @param ... Unused.
+#' @param data_pat Data frame of enrolled patients, with one row per patient.
+#' @param variant Character vector specifying which variants to compute: `"max"`, `"sup"`, `"eq"`.
+#' @param arm Name of the arm column in `data_pat`. If `NULL`, all patients are pooled.
+#' @param grade Name of the AE grade column in `data_ae`.
+#' @param subjid Name of the subject ID column (in both data frames).
+#' @param ae_label Label used in the output tables (e.g. "AE", "Toxicity").
+#' @param percent_pattern Pattern used to format counts and percentages. Use `{n}` and `{p}` as placeholders.
+#' @param percent_digits Number of digits to show for percentages.
+#' @param zero_value String to use when count is zero.
+#' @param total Logical. If `TRUE`, adds a "Total" column across arms (only if multiple arms exist).
+#' @param na_strategy A named list controlling how missing AEs or absent patients are 
+#'   displayed in the output tables. Must contain `display` (one of `"if_any"` 
+#'   or `"always"`) and `grouped` (logical).
+#' @param df_ae,df_enrol Deprecated. Use `data_ae` and `data_pat` instead.
+#' @param percent,digits Deprecated. Use `percent_pattern`and `percent_digits` instead.
 #'
-#' @return a crosstable
-#' @importFrom cli cli_abort
-#' @importFrom dplyr arrange case_match case_when cur_group filter left_join mutate rename_with select summarise
-#' @importFrom forcats fct_relevel fct_reorder
-#' @importFrom glue glue
-#' @importFrom rlang check_dots_empty check_installed
-#' @importFrom stringr str_remove str_starts str_subset
-#' @importFrom tibble lst
-#' @importFrom tidyr unpack
-#' @importFrom tidyselect matches
+#' @return A data frame of class `ae_table_grade`, ready for use with [as_flextable()].
+#'
+#' @importFrom tibble remove_rownames
+#' @importFrom flextable hline_top
+#' @importFrom tidyr pivot_wider complete unnest_longer
 #' @export
-#'
+#' 
 #' @examples
-#' tm = grstat_example()
-#' attach(tm, warn.conflicts=FALSE)
+#' db = grstat_example(N=200, p_na=0.1)
+#' ae_table_grade(db$ae, data_pat=db$enrolres, 
+#'                total=FALSE, percent_digits=1) %>%
+#'   as_flextable()
+#' 
+#' db = grstat_example(N=20, p_na=0)
+#' ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM", 
+#'                total=TRUE, zero_value="-",
+#'                na_strategy=list(display="always", grouped=TRUE)) %>%
+#'   as_flextable()
 #'
-#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
-#'   as_flextable(header_show_n=TRUE)
-#'
-#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm") %>%
-#'   as_flextable(header_show_n=TRUE)
-#'
-#' #To get SAE only, filter df_ae first
-#' ae %>%
-#'   dplyr::filter(sae=="Yes") %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="arm", ae_label="SAE") %>%
-#'   as_flextable(header_show_n=TRUE)
-#'
-#' #To describe a sub-population, filter df_enrol first
-#' enrolres2 = enrolres %>%
-#'   dplyr::filter(arm=="Control")
-#' ae %>%
-#'   ae_table_grade(df_enrol=enrolres2, arm="arm") %>%
-#'   as_flextable(header_show_n=TRUE)
-#'
-#' #You can also filter the AE table
-#' ae %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="arm") %>%
-#'   dplyr::filter(!variable %in% c("Grade 1", "Grade 2")) %>%
-#'   as_flextable(header_show_n=TRUE)
 ae_table_grade = function(
   data_ae,
   ...,
@@ -160,12 +155,13 @@ ae_table_grade = function(
 #' Converts an object of class `ae_table_grade` to a formatted `flextable`.
 #'
 #' @param x An object of class `ae_table_grade`.
-#' @param ... Reserved for future use.
+#' @param ... Unused.
 #' @param padding_v Vertical padding for cells.
 #'
 #' @return A `flextable` object ready to print or export.
 #' @export
 as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
+  check_dots_empty()
   if (missing(padding_v)) {
     padding_v = getOption("crosstable_padding_v", padding_v)
   }

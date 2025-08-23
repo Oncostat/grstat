@@ -18,25 +18,23 @@ ae_plot_grade(
 )
 }
 \arguments{
-\item{df_ae}{adverse event dataset, one row per AE, containing subjid, soc, and grade.}
+\item{df_ae, df_enrol}{Deprecated. Use \code{data_ae} and \code{data_pat} instead.}
 
-\item{...}{unused}
+\item{...}{Unused.}
 
-\item{df_enrol}{enrollment dataset, one row per patient, containing subjid (and arm if needed). All patients should be in this dataset.}
-
-\item{variant}{one or several of \code{c("max", "sup", "eq")}. \code{max} computes the maximum AE grade per patient, \code{sup} computes the number of patients having experienced at least one AE of grade higher or equal to X, and \code{eq} computes the number of patients having experienced at least one AE of grade equal to X.}
+\item{variant}{Character vector specifying which variants to compute: \code{"max"}, \code{"sup"}, \code{"eq"}.}
 
 \item{position}{Position adjustment (cf. \code{\link[ggplot2:geom_bar]{ggplot2::geom_col()}})}
 
 \item{type}{whether to present patients as proportions (\code{relative}) or as counts (\code{absolute})}
 
-\item{arm}{name of the treatment column in \code{df_enrol}. Case-insensitive. Can be set to \code{NULL}.}
+\item{arm}{Name of the arm column in \code{data_pat}. If \code{NULL}, all patients are pooled.}
 
-\item{grade}{name of the AE grade column in \code{df_ae}. Case-insensitive.}
+\item{grade}{Name of the AE grade column in \code{data_ae}.}
 
-\item{subjid}{name of the patient ID in both \code{df_ae} and \code{df_enrol}. Case-insensitive.}
+\item{subjid}{Name of the subject ID column (in both data frames).}
 
-\item{total}{whether to add a \code{total} column for each arm.}
+\item{total}{Logical. If \code{TRUE}, adds a "Total" column across arms (only if multiple arms exist).}
 }
 \value{
 a ggplot
