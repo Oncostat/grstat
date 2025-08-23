@@ -68,9 +68,8 @@
 # ae_table_grade() default snapshot
 
     Code
-      tm = db_test
-      ae = tm$ae
-      enrolres = tm$enrolres
+      ae = db_test$ae
+      enrolres = db_test$enrolres
       ae_table_grade(ae, df_enrol = enrolres)
     Output
       # A tibble: 18 x 4
@@ -164,9 +163,8 @@
 # ae_table_grade() with missing and grade>2
 
     Code
-      tm = grstat_example(p_na = 0.1)
-      ae = tm$ae
-      enrolres = tm$enrolres
+      ae = db_test_na$ae
+      enrolres = db_test_na$enrolres
       ae %>% filter(is.na(aegr) | aegr > 2) %>% ae_table_grade(df_enrol = enrolres, arm = "ARM")
     Output
       # A tibble: 21 x 6
@@ -197,9 +195,8 @@
 # ae_table_soc() default snapshot
 
     Code
-      tm = db_test
-      ae = tm$ae
-      enrolres = tm$enrolres
+      ae = db_test$ae
+      enrolres = db_test$enrolres
       ae_table_soc(ae, df_enrol = enrolres)
     Output
       # A tibble: 27 x 8
@@ -1216,6 +1213,66 @@
       102 <NA>         <NA>         1 (1%)       
       103 <NA>         5 (5%)       5 (5%)       
     Code
-      ctl = tm$enrolres %>% filter(arm == "Control") %>% pull(subjid)
-      x = tm$ae %>% filter(aesoc == "Cardiac disorders" | !subjid %in% ctl) %>% ae_table_soc(df_enrol = tm$enrolres, arm = "ARM")
+      ctl = enrolres %>% filter(arm == "Control") %>% pull(subjid)
+      ae %>% filter(aesoc == "Cardiac disorders" | !subjid %in% ctl) %>% ae_table_soc(df_enrol = enrolres, arm = "ARM")
+    Output
+      # A tibble: 27 x 15
+         soc                                                  control_G1 control_G2 control_G3 control_G4 control_G5 control_NA
+         <fct>                                                <glue>     <glue>     <glue>     <glue>     <glue>     <glue>    
+       1 Cardiac disorders                                    7 (7%)     3 (3%)     4 (4%)     <NA>       <NA>       <NA>      
+       2 Congenital, familial and genetic disorders           <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       3 Social circumstances                                 <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       4 Eye disorders                                        <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       5 Pregnancy, puerperium and perinatal conditions       <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       6 Immune system disorders                              <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       7 Surgical and medical procedures                      <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       8 Hepatobiliary disorders                              <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       9 Injury, poisoning and procedural complications       <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      10 Neoplasms benign, malignant, and unspecified         <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      11 Respiratory, thoracic and mediastinal disorders      <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      12 Ear and labyrinth disorders                          <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      13 Psychiatric disorders                                <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      14 Vascular disorders                                   <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      15 Blood and lymphatic system disorders                 <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      16 Nervous system disorders                             <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      17 Skin and subcutaneous tissue disorders               <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      18 Endocrine disorders                                  <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      19 Metabolism and nutrition disorders                   <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      20 Infections and infestations                          <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      21 Investigations                                       <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      22 Musculoskeletal and connective tissue disorders      <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      23 Reproductive system and breast disorders             <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      24 Gastrointestinal disorders                           <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      25 General disorders and administration site conditions <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      26 Renal and urinary disorders                          <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      27 No Declared AE                                       <NA>       <NA>       <NA>       <NA>       <NA>       86 (86%)  
+         control_Tot treatment_G1 treatment_G2 treatment_G3 treatment_G4 treatment_G5 treatment_NA treatment_Tot
+         <glue>      <glue>       <glue>       <glue>       <glue>       <glue>       <glue>       <glue>       
+       1 14 (14%)    4 (4%)       1 (1%)       3 (3%)       4 (4%)       <NA>         <NA>         12 (12%)     
+       2 <NA>        13 (13%)     3 (3%)       2 (2%)       4 (4%)       <NA>         <NA>         22 (22%)     
+       3 <NA>        11 (11%)     4 (4%)       3 (3%)       4 (4%)       <NA>         <NA>         22 (22%)     
+       4 <NA>        7 (7%)       5 (5%)       5 (5%)       1 (1%)       <NA>         <NA>         18 (18%)     
+       5 <NA>        7 (7%)       7 (7%)       2 (2%)       1 (1%)       <NA>         <NA>         17 (17%)     
+       6 <NA>        7 (7%)       5 (5%)       3 (3%)       1 (1%)       <NA>         <NA>         16 (16%)     
+       7 <NA>        7 (7%)       5 (5%)       2 (2%)       1 (1%)       <NA>         <NA>         15 (15%)     
+       8 <NA>        8 (8%)       5 (5%)       1 (1%)       <NA>         <NA>         <NA>         14 (14%)     
+       9 <NA>        5 (5%)       5 (5%)       2 (2%)       1 (1%)       <NA>         <NA>         13 (13%)     
+      10 <NA>        6 (6%)       5 (5%)       1 (1%)       1 (1%)       <NA>         <NA>         13 (13%)     
+      11 <NA>        4 (4%)       3 (3%)       4 (4%)       1 (1%)       1 (1%)       <NA>         13 (13%)     
+      12 <NA>        3 (3%)       5 (5%)       2 (2%)       <NA>         <NA>         <NA>         10 (10%)     
+      13 <NA>        6 (6%)       1 (1%)       2 (2%)       1 (1%)       <NA>         <NA>         10 (10%)     
+      14 <NA>        4 (4%)       2 (2%)       1 (1%)       2 (2%)       <NA>         <NA>         9 (9%)       
+      15 <NA>        3 (3%)       2 (2%)       2 (2%)       <NA>         <NA>         <NA>         7 (7%)       
+      16 <NA>        3 (3%)       3 (3%)       <NA>         1 (1%)       <NA>         <NA>         7 (7%)       
+      17 <NA>        4 (4%)       2 (2%)       <NA>         <NA>         <NA>         <NA>         6 (6%)       
+      18 <NA>        2 (2%)       2 (2%)       1 (1%)       <NA>         <NA>         <NA>         5 (5%)       
+      19 <NA>        4 (4%)       1 (1%)       <NA>         <NA>         <NA>         <NA>         5 (5%)       
+      20 <NA>        2 (2%)       <NA>         1 (1%)       <NA>         1 (1%)       <NA>         4 (4%)       
+      21 <NA>        2 (2%)       <NA>         2 (2%)       <NA>         <NA>         <NA>         4 (4%)       
+      22 <NA>        1 (1%)       1 (1%)       2 (2%)       <NA>         <NA>         <NA>         4 (4%)       
+      23 <NA>        2 (2%)       1 (1%)       1 (1%)       <NA>         <NA>         <NA>         4 (4%)       
+      24 <NA>        3 (3%)       <NA>         <NA>         <NA>         <NA>         <NA>         3 (3%)       
+      25 <NA>        2 (2%)       1 (1%)       <NA>         <NA>         <NA>         <NA>         3 (3%)       
+      26 <NA>        2 (2%)       <NA>         <NA>         1 (1%)       <NA>         <NA>         3 (3%)       
+      27 86 (86%)    <NA>         <NA>         <NA>         <NA>         <NA>         5 (5%)       5 (5%)       
 
