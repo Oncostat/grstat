@@ -40,9 +40,9 @@ library(grstat)
 library(flextable)
 library(dplyr)
 
-# tm = EDCimport::read_trialmaster("path/to/file.zip")
-tm = grstat_example()
-attach(tm)
+# db = EDCimport::read_trialmaster("path/to/file.zip")
+db = grstat_example()
+attach(db)
 
 head(ae)
 
@@ -59,8 +59,8 @@ Voir la description du package `{crosstable}` pour plus d'informations: [documen
 ### `AE_grades1` : Table des grades maximum par patient
 
 ```{r}
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="max") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="max") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
 
@@ -69,16 +69,16 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="max") %>%
 On pourrait retrouver exactement la sortie SAS en mettant `total=FALSE`.
 
 ```{r}
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at most one AE of given grade")
 ```
 
 ### `AE_grades3` : Table de tous les grades pour chaque patient
 
 ```{r}
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="eq") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
 
@@ -87,8 +87,8 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>%
 On pourrait retrouver exactement la sortie SAS en mettant `total=FALSE`.
 
 ```{r}
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="eq") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="eq") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
 
@@ -99,8 +99,8 @@ Il suffit de filtrer la table `ae` en amont et d'indiquer que le label doit êtr
 ```{r}
 ae %>% 
   filter(sae=="Yes") %>% 
-  ae_table_grade(df_enrol=enrolres, arm=NULL, variant="max", ae_label="SAE") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+  ae_table_grade(data_pat=enrolres, arm=NULL, variant="max", ae_label="SAE") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum SAE grade was as indicated.")
 ```
 
