@@ -40,11 +40,11 @@ ae_plot_grade = function(
              be consistent with `position="stack"`.')
   }
   if(type=="relative" || position=="fill"){
-    percent = "only"
+    percent_pattern = "{as.numeric(p)/100}"
     y_lab = "Patient proportion"
     add_layer = scale_y_continuous(labels=label_percent(), limits=0:1)
   } else {
-    percent = FALSE
+    percent_pattern = "{n}"
     y_lab = "Patient count"
     add_layer = NULL
   }
@@ -61,8 +61,8 @@ ae_plot_grade = function(
 
 
   tbl = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, variant=variant,
-                       arm=arm, grade=grade, subjid=subjid,
-                       percent=percent, total=total)
+                       arm=arm, grade=grade, subjid=subjid, percent_digits=Inf,
+                       percent_pattern=percent_pattern, total=total)
   p = switch(position, fill=position_fill(), stack=position_stack(),
              dodge=position_dodge(0.9))
 
