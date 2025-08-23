@@ -25,7 +25,7 @@ test_that("ae_table_grade() default snapshot", {
   local_reproducible_output(width=125)
 
   expect_snapshot({
-    tm = grstat_example()
+    tm = db_test
     ae = tm$ae
     enrolres = tm$enrolres
 
@@ -55,7 +55,7 @@ test_that("ae_table_grade() with missing and grade>2", {
 
 
 test_that("ae_table_grade() with different colnames", {
-  tm = grstat_example()
+  tm = db_test
   df_enrol = tm$enrolres %>%
     rename(ENROLLID2=subjid, TRT=arm)
   df_ae = tm$ae %>%
@@ -70,7 +70,7 @@ test_that("ae_table_grade() with different colnames", {
 
 test_that("ae_table_grade() errors", {
 
-  tm = grstat_example()
+  tm = db_test
 
   tm$ae$aegr[1:10] = 1:10
   ae_table_grade(tm$ae, df_enrol=tm$enrolres) %>%
@@ -83,11 +83,12 @@ test_that("ae_table_grade() errors", {
 })
 
 
+
 test_that("ae_table_soc() default snapshot", {
   local_reproducible_output(width=125)
 
   expect_snapshot({
-    tm = grstat_example()
+    tm = db_test
     ae = tm$ae
     enrolres = tm$enrolres
 

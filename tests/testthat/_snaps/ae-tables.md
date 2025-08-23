@@ -68,7 +68,7 @@
 # ae_table_grade() default snapshot
 
     Code
-      tm = grstat_example()
+      tm = db_test
       ae = tm$ae
       enrolres = tm$enrolres
       ae_table_grade(ae, df_enrol = enrolres)
@@ -137,7 +137,7 @@
       11 max_grade    "Patient maximum AE grade"              Grade 4        13 (13%) 21 (21%)  34 (17%) 
       12 max_grade    "Patient maximum AE grade"              Grade 5        2 (2%)   2 (2%)    4 (2%)   
     Code
-      ae_table_grade(ae, df_enrol = enrolres, arm = "ARM", percent = FALSE, total = FALSE)
+      ae_table_grade(ae, df_enrol = enrolres, arm = "ARM", percent_pattern = "{n}", total = FALSE)
     Output
       # A tibble: 18 x 5
          .id           label                                   variable       Control Treatment
@@ -197,7 +197,7 @@
 # ae_table_soc() default snapshot
 
     Code
-      tm = grstat_example()
+      tm = db_test
       ae = tm$ae
       enrolres = tm$enrolres
       ae_table_soc(ae, df_enrol = enrolres)
