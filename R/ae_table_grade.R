@@ -59,7 +59,6 @@ ae_table_grade = function(
   zero_value = "0",
   total = TRUE,
   na_strategy = list(display="if_any", grouped=FALSE),
-  # na_strategy = c("always", "grouped"),
   #deprecated
   df_ae,
   df_enrol,
@@ -184,7 +183,7 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
     flextable(col_keys = setdiff(names(x), ".id")) %>%
     set_header_df(mapping = header_df) %>%
     hline(part = "header") %>%
-    hline(part = "body", i = ~ .id != lead(.id)) %>%
+    hline(part = "body", i = ~ .id != dplyr::lead(.id)) %>%
     hline_top(part = "header", border = border2) %>%
     hline_bottom(part = "header", border = border2) %>%
     hline_bottom(part = "body", border = border2) %>%

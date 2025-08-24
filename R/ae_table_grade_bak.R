@@ -2,7 +2,7 @@
 #' Summary tables for AE
 #'
 #' `r lifecycle::badge("stable")`\cr
-#' The function `ae_table_grade()` creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
+#' The function `ae_table_grade_bak()` creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
 #' The resulting dataframe can be piped to `as_flextable()` to get a nicely formatted flextable.
 #'
 #' @param percent whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.
@@ -26,28 +26,28 @@
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
 #'
-#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
+#' ae_table_grade_bak(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
-#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm") %>%
+#' ae_table_grade_bak(df_ae=ae, df_enrol=enrolres, arm="arm") %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
 #' #To get SAE only, filter df_ae first
 #' ae %>%
 #'   dplyr::filter(sae=="Yes") %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="arm", ae_label="SAE") %>%
+#'   ae_table_grade_bak(df_enrol=enrolres, arm="arm", ae_label="SAE") %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
 #' #To describe a sub-population, filter df_enrol first
 #' enrolres2 = enrolres %>%
 #'   dplyr::filter(arm=="Control")
 #' ae %>%
-#'   ae_table_grade(df_enrol=enrolres2, arm="arm") %>%
+#'   ae_table_grade_bak(df_enrol=enrolres2, arm="arm") %>%
 #'   as_flextable(header_show_n=TRUE)
 #'
 #' #You can also filter the AE table
 #' ae %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="arm") %>%
+#'   ae_table_grade_bak(df_enrol=enrolres, arm="arm") %>%
 #'   dplyr::filter(!variable %in% c("Grade 1", "Grade 2")) %>%
 #'   as_flextable(header_show_n=TRUE)
 ae_table_grade_bak = function(
@@ -58,7 +58,7 @@ ae_table_grade_bak = function(
     percent=TRUE, digits=2,
     total=TRUE
 ){
-  check_installed("crosstable", "for `ae_table_grade()` to work.")
+  check_installed("crosstable", "for `ae_table_grade_bak()` to work.")
   check_dots_empty()
 
   assert_names_exists(df_ae, lst(subjid, grade))
