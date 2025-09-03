@@ -58,7 +58,8 @@ calc_best_response = function(data_recist, ...,
     distinct() %>%
     .check_best_resp(do=warnings) %>%
     mutate(n = n(), .by=subjid) %>%
-    mutate(response = ifelse(n==1, "Not evaluable", as.character(response))) %>%
+    filter(n >= 2) %>%
+    filter(!is.na(date)) %>%
     arrange(subjid, date) %>%
     mutate(
       first_date = min_narm(date, na.rm=TRUE),
