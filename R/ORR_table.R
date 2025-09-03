@@ -15,7 +15,6 @@
 #' @return a dataframe (`ORR_table()`) or a flextable (`as_flextable()`).
 #'
 #' @importFrom dplyr select any_of all_of
-#' @importFrom GenBinomApps clopper.pearson.ci
 #' @importFrom cli cli_abort
 #' @importFrom crosstable crosstable
 #' @export
@@ -63,7 +62,7 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
   if(show_CBR){
   summary_df = bind_rows(ORR, response_counts, CBR) %>%
     mutate(IC_95 = {
-      ci = clopper.pearson.ci(N, total, CI = "two.sided", alpha = 0.05)
+      ci = clopper_pearson_ci(N, total, CI = "two.sided", alpha = 0.05)
       glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
     },
     .by= Name) %>%
@@ -71,7 +70,7 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
   } else {
     summary_df = bind_rows(ORR, response_counts) %>%
       mutate(IC_95 = {
-        ci = clopper.pearson.ci(N, total, CI = "two.sided", alpha = 0.05)
+        ci = clopper_pearson_ci(N, total, CI = "two.sided", alpha = 0.05)
         glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
       },
       .by= Name) %>%
