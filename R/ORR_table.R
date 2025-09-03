@@ -51,12 +51,12 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
     select(Name, N, Percentage)
 
   ORR = recist %>%
-    filter(Overall_ORR==1) %>%
+    filter(Overall_Response==1) %>%
     summarise(Name = "Overall ORR", N = n()) %>%
     mutate(Percentage = round(N / total * 100, 1))
 
   CBR = recist %>%
-    filter(CBR==1) %>%
+    filter(Clinical_Benefit==1) %>%
     summarise(Name = "Clinical Benefit Rate (CBR)", N = n()) %>%
     mutate(Percentage = round(N / total * 100, 1))
 
