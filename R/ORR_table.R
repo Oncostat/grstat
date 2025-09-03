@@ -10,6 +10,7 @@
 #' @param rc_date The column containing the assessment date. Default is `"RCDT"`.
 #' @param subjid The column containing the subject ID. Default is `"SUBJID"`.
 #' @param confirmed Logical; if `TRUE`, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.
+#' @param cycle_length Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation
 #' @param show_CBR Logical; if `TRUE`, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).
 #'
 #' @return a dataframe (`ORR_table()`) or a flextable (`as_flextable()`).
@@ -37,9 +38,9 @@
 #' ORR_table(recist, show_CBR = TRUE) %>%
 #'   as_flextable()
 ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
-                     subjid="SUBJID", confirmed = FALSE, show_CBR = FALSE){
+                     subjid="SUBJID", confirmed = FALSE, show_CBR = FALSE, cycle_length =28){
   recist = calc_best_response(data, rc_resp=rc_resp, rc_date=rc_date,
-                              subjid=subjid, confirmed = confirmed)
+                              subjid=subjid, confirmed = confirmed, cycle_length = cycle_length)
 
   total = length(recist$subjid)
   response_counts = recist %>%

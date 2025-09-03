@@ -13,6 +13,7 @@
 #' @param subjid The column containing the subject ID. Default is `"SUBJID"`.
 #' @param exclude_post_pd Logical; if `TRUE` (default), assessments after the first PD are excluded.
 #' @param warnings Logical; if `TRUE` (default is taken from `getOption("grstat_best_resp_warnings", TRUE)`), emits warnings during internal checks.
+#' @param cycle_length Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation
 #'
 #'
 #' @return A tibble with one row per subject, containing:
@@ -44,7 +45,7 @@ calc_best_response = function(data_recist, ...,
                               rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
                               subjid="SUBJID", exclude_post_pd=TRUE,
                               warnings=getOption("grstat_best_resp_warnings", TRUE),
-                              confirmed = FALSE) {
+                              confirmed = FALSE, cycle_length = 28) {
   assert_class(data_recist, class="data.frame")
   assert_class(rc_sum, class="character")
   assert_class(rc_resp, class="character")
@@ -101,21 +102,21 @@ calc_best_response = function(data_recist, ...,
   } else {
     data_recist %>%
       mutate(confirmed_response = case_when(
-        response_num == 1 & previous_response_num == 1 & delta_date >= 28 ~ 1,
-        response_num == 1 & previous_response_num == 1 & delta_date < 28  ~ 3,
-        response_num == 1 & previous_response_num == 2 & delta_date >= 28 ~ 2,
-        response_num == 1 & previous_response_num == 2 & delta_date < 28  ~ 3,
-        response_num == 1 & previous_response_num == 3                    ~ 3,
-        response_num == 1 & previous_response_num == 4                    ~ 4,
-        response_num == 1 & previous_response_num == 5                    ~ 5,
+        response_num == 1 & previous_response_num == 1 & delta_date >= cycle_length ~ 1,
+        response_num == 1 & previous_response_num == 1 & delta_date < cycle_length  ~ 3,
+        response_num == 1 & previous_response_num == 2 & delta_date >= cycle_length ~ 2,
+        response_num == 1 & previous_response_num == 2 & delta_date < cycle_length  ~ 3,
+        response_num == 1 & previous_response_num == 3                              ~ 3,
+        response_num == 1 & previous_response_num == 4                              ~ 4,
+        response_num == 1 & previous_response_num == 5                              ~ 5,
 
-        response_num == 2 & previous_response_num <= 2 & delta_date >= 28 ~ 2,
-        response_num == 2 & previous_response_num <= 2 & delta_date < 28  ~ 3,
-        response_num == 2 & previous_response_num == 3                    ~ 3,
-        response_num == 2 & previous_response_num == 4                    ~ 4,
-        response_num == 2 & previous_response_num == 5                    ~ 5,
+        response_num == 2 & previous_response_num <= 2 & delta_date >= cycle_length ~ 2,
+        response_num == 2 & previous_response_num <= 2 & delta_date < cycle_length  ~ 3,
+        response_num == 2 & previous_response_num == 3                              ~ 3,
+        response_num == 2 & previous_response_num == 4                              ~ 4,
+        response_num == 2 & previous_response_num == 5                              ~ 5,
 
-        is.na(previous_response_num) & response_num == 4                  ~ 4,
+        is.na(previous_response_num) & response_num == 4                            ~ 4,
 
         TRUE ~ response_num
       )) %>%
