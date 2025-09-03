@@ -58,6 +58,7 @@ calc_best_response = function(data_recist, ...,
            date=any_of2(rc_date)) %>%
     distinct() %>%
     .check_best_resp(do=warnings) %>%
+    .remove_post_pd(resp = response, date = date) %>%
     mutate(n = n(), .by=subjid) %>%
     filter(n >= 2) %>%
     filter(!is.na(date)) %>%
