@@ -94,10 +94,10 @@ calc_best_response = function(data_recist, ...,
                                         labels = c("Complete response", "Partial response",
                                                    "Stable disease", "Progressive disease", "Not evaluable"))) %>%
       slice_head(by=subjid) %>%
-      mutate(Overall_ORR = ifelse(bestresponse==1 | bestresponse==2, 1, 0),
-             CBR = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2, 1, 0)) %>%
+      mutate(Overall_Response = ifelse(bestresponse==1 | bestresponse==2, TRUE, FALSE),
+             Clinical_Benefit = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2, TRUE, FALSE)) %>%
       select(subjid, best_response=response_confirmed, date, target_sum=sum,
-             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_ORR, CBR)
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_Response, Clinical_Benefit)
   } else {
     data_recist %>%
       mutate(confirmed_response = case_when(
@@ -128,10 +128,10 @@ calc_best_response = function(data_recist, ...,
                                         levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
                                         labels = c("Complete response","Partial response",
                                                    "Stable disease", "Progressive disease", "Not evaluable"))) %>%
-      mutate(Overall_ORR = ifelse(bestresponse==1 | bestresponse==2, 1, 0),
-             CBR = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2, 1, 0)) %>%
+      mutate(Overall_Response = ifelse(bestresponse==1 | bestresponse==2, TRUE, FALSE),
+             Clinical_Benefit = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2, TRUE, FALSE)) %>%
       select(subjid, best_response=response_confirmed, date, target_sum=sum,
-             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_ORR, CBR)
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_Response, Clinical_Benefit)
   }
 }
 
