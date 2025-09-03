@@ -13,7 +13,8 @@ calc_best_response(
   subjid = "SUBJID",
   exclude_post_pd = TRUE,
   warnings = getOption("grstat_best_resp_warnings", TRUE),
-  confirmed = FALSE
+  confirmed = FALSE,
+  cycle_length = 28
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ calc_best_response(
 \item{exclude_post_pd}{Logical; if \code{TRUE} (default), assessments after the first PD are excluded.}
 
 \item{warnings}{Logical; if \code{TRUE} (default is taken from \code{getOption("grstat_best_resp_warnings", TRUE)}), emits warnings during internal checks.}
+
+\item{cycle_length}{Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation}
 }
 \value{
 A tibble with one row per subject, containing:

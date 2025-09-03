@@ -12,7 +12,8 @@ ORR_table(
   rc_date = "RCDT",
   subjid = "SUBJID",
   confirmed = FALSE,
-  show_CBR = FALSE
+  show_CBR = FALSE,
+  cycle_length = 28
 )
 
 \method{as_flextable}{ORR_table}(x, ...)
@@ -31,6 +32,8 @@ ORR_table(
 \item{confirmed}{Logical; if \code{TRUE}, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.}
 
 \item{show_CBR}{Logical; if \code{TRUE}, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).}
+
+\item{cycle_length}{Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation}
 
 \item{x}{a dataframe, resulting of \code{ORR_table()}}
 }
