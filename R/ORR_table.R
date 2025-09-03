@@ -67,7 +67,8 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
       glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
     },
     .by= Name) %>%
-    add_class("ORR_table")
+    add_class("ORR_table") %>%
+    add_class("show_CBR_TRUE")
   } else {
     summary_df = bind_rows(ORR, response_counts) %>%
       mutate(IC_95 = {
@@ -75,16 +76,20 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
         glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
       },
       .by= Name) %>%
-      add_class("ORR_table")
+      add_class("ORR_table")%>%
+      add_class("show_CBR_FALSE")
   }
 
   if (confirmed){
-    nom_col = c("Confirmed Best Response during treatment", paste0("N=",total), "%", "IC 95%")
+    summary_df = summary_df %>%
+      structure(Name="Confirmed Best Response during treatment", N=paste0("N=",total), Percentage = "%", IC_95 = "IC 95%") %>%
+      add_class("confirmed_TRUE")
   } else {
-    nom_col = c("Unconfirmed Best Response during treatment", paste0("N=",total), "%", "IC 95%")
+    summary_df = summary_df %>%
+      structure(Name="Unconfirmed Best Response during treatment", N=paste0("N=",total), Percentage = "%", IC_95 = "IC 95%") %>%
+      add_class("confirmed_FALSE")
   }
 
-  colnames(summary_df) = nom_col
   summary_df
 }
 
@@ -102,6 +107,7 @@ ORR_table = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
 #' @importFrom officer fp_border
 as_flextable.ORR_table = function(x, ...){
   check_dots_empty()
+  colnames(x) = c(attr(x,"Name"), attr(x,"N"), attr(x,"Percentage"), attr(x,"IC_95"))
   Best_Response_during_treatment =  x %>%
     flextable() %>%
     width(width = c(3, 1, 1, 1)) %>%
@@ -109,7 +115,7 @@ as_flextable.ORR_table = function(x, ...){
     bold(bold = TRUE, part = "header") %>%
     surround(i = c(1, 6), j = 1:4, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body")
 
-    if (colnames(x[1]) == "Unconfirmed Best Response during treatment"){
+    if ("confirmed_FALSE" %in% class(x)){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
       footnote(i = 1, j = 4,
                 value = as_paragraph("Clopper-Pearson (Exact) method was used for confidence interval"),
@@ -124,10 +130,10 @@ as_flextable.ORR_table = function(x, ...){
       valign(valign = "bottom", part = "header")
       }
 
-  if (nrow(x) != 7){
+  if ("show_CBR_FALSE" %in% class(x)){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
       bold(i = 1, j = c(1:4), bold = TRUE, part = "body")
-  } else if(nrow(x) == 7 & colnames(x[1]) != "Unconfirmed Best Response during treatment"){
+  } else if("show_CBR_TRUE" %in% class(x) & "confirmed_TRUE" %in% class(x)){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
       bold(i = c(1, 7), j = c(1:4), bold = TRUE, part = "body") %>%
       footnote( i = 7, j = 1,
