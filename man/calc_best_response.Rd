@@ -12,7 +12,8 @@ calc_best_response(
   rc_date = "RCDT",
   subjid = "SUBJID",
   exclude_post_pd = TRUE,
-  warnings = getOption("grstat_best_resp_warnings", TRUE)
+  warnings = getOption("grstat_best_resp_warnings", TRUE),
+  confirmed = FALSE
 )
 }
 \arguments{

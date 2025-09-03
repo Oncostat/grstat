@@ -33,7 +33,7 @@
 #'
 #'
 #' @export
-#' @importFrom dplyr arrange distinct filter mutate n_distinct select slice_min
+#' @importFrom dplyr arrange distinct filter mutate n_distinct select slice_min slice_head
 #' @importFrom forcats fct_reorder
 #'
 #' @examples
@@ -43,7 +43,8 @@
 calc_best_response = function(data_recist, ...,
                               rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
                               subjid="SUBJID", exclude_post_pd=TRUE,
-                              warnings=getOption("grstat_best_resp_warnings", TRUE)) {
+                              warnings=getOption("grstat_best_resp_warnings", TRUE),
+                              confirmed = FALSE) {
   assert_class(data_recist, class="data.frame")
   assert_class(rc_sum, class="character")
   assert_class(rc_resp, class="character")
@@ -51,34 +52,87 @@ calc_best_response = function(data_recist, ...,
   assert_class(warnings, class="logical")
   grstat_dev_warn()
 
-  data_recist %>%
+  data_recist = data_recist %>%
     select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
            date=any_of2(rc_date)) %>%
-    .check_best_resp(do=warnings) %>%
-    filter(!is.na(sum)) %>%
-    filter(n_distinct(date)>=2, .by=subjid) %>%
-    arrange(subjid, date) %>%
     distinct() %>%
+    .check_best_resp(do=warnings) %>%
+    mutate(n = n(), .by=subjid) %>%
+    filter(n >= 2) %>%
+    filter(!is.na(date)) %>%
+    arrange(subjid, date) %>%
     mutate(
       first_date = min_narm(date, na.rm=TRUE),
       min_sum = min_narm(sum, na.rm=TRUE),
       first_sum = sum[date==first_date],
+      response_num = .encode_response(response),
+      response = fct_reorder(as.character(response), response_num),
+      previous_response_num = lag(response_num),
+      previous_date = lag(date),
+      delta_date = as.numeric(date - previous_date),
+      delta_date = ifelse(is.na(delta_date), 0, delta_date),
+      delta_date_before_PD_or_end = cumsum(delta_date),
+      delta_date_before_PD_or_end = ifelse(response_num==4, 0, delta_date_before_PD_or_end),
+      delta_date_before_PD_or_end = replace_na(delta_date_before_PD_or_end, 0),
+      duree_suivi_max = max(delta_date_before_PD_or_end),
+      bestresponse_withinprotocole = ifelse(previous_response_num==response_num, 1, 0 ),
       .by=subjid,
     ) %>%
     mutate(
       first_date = date==first_date,
-      response_num = .encode_response(response),
-      response = fct_reorder(as.character(response), response_num),
       diff_first = (sum - first_sum)/first_sum,
-      diff_min = (sum - min_sum)/min_sum
-    ) %>%
-    .remove_post_pd(resp=response, date=date, do=exclude_post_pd) %>%
-    slice_min(response_num, with_ties=TRUE, na_rm=TRUE, by=c(subjid)) %>%
-    slice_min(sum,          with_ties=TRUE, na_rm=TRUE, by=c(subjid, response_num)) %>%
-    slice_min(subjid,      with_ties=FALSE, na_rm=TRUE, by=c(subjid, response_num)) %>%
-    select(subjid, best_response=response, date, target_sum=sum,
-           target_sum_diff_first=diff_first, target_sum_diff_min=diff_min)
+      diff_min = (sum - min_sum)/min_sum)
 
+  if (!isTRUE(confirmed)){
+    data_recist %>%
+      mutate(bestresponse = min(response_num),
+             .by=subjid) %>%
+      filter(bestresponse==response_num) %>%
+      mutate(response_confirmed = .recist_from_num(bestresponse),
+             response_confirmed = factor(response_confirmed,
+                                        levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
+                                        labels = c("Complete response", "Partial response",
+                                                   "Stable disease", "Progressive disease", "Not evaluable"))) %>%
+      slice_head(by=subjid) %>%
+      mutate(Overall_ORR = ifelse(bestresponse==1 | bestresponse==2, 1, 0),
+             CBR = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2, 1, 0)) %>%
+      select(subjid, best_response=response_confirmed, date, target_sum=sum,
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_ORR, CBR)
+  } else {
+    data_recist %>%
+      mutate(confirmed_response = case_when(
+        response_num == 1 & previous_response_num == 1 & delta_date >= 28 ~ 1,
+        response_num == 1 & previous_response_num == 1 & delta_date < 28  ~ 3,
+        response_num == 1 & previous_response_num == 2 & delta_date >= 28 ~ 2,
+        response_num == 1 & previous_response_num == 2 & delta_date < 28  ~ 3,
+        response_num == 1 & previous_response_num == 3                    ~ 3,
+        response_num == 1 & previous_response_num == 4                    ~ 4,
+        response_num == 1 & previous_response_num == 5                    ~ 5,
+
+        response_num == 2 & previous_response_num <= 2 & delta_date >= 28 ~ 2,
+        response_num == 2 & previous_response_num <= 2 & delta_date < 28  ~ 3,
+        response_num == 2 & previous_response_num == 3                    ~ 3,
+        response_num == 2 & previous_response_num == 4                    ~ 4,
+        response_num == 2 & previous_response_num == 5                    ~ 5,
+
+        is.na(previous_response_num) & response_num == 4                  ~ 4,
+
+        TRUE ~ response_num
+      )) %>%
+      filter(!is.na(response))%>%
+      mutate(bestresponse = min(confirmed_response), .by=subjid) %>%
+      filter(bestresponse==confirmed_response) %>%
+      slice_head(by=subjid) %>%
+      mutate(response_confirmed = .recist_from_num(bestresponse),
+             response_confirmed = factor(response_confirmed,
+                                        levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
+                                        labels = c("Complete response","Partial response",
+                                                   "Stable disease", "Progressive disease", "Not evaluable"))) %>%
+      mutate(Overall_ORR = ifelse(bestresponse==1 | bestresponse==2, 1, 0),
+             CBR = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2, 1, 0)) %>%
+      select(subjid, best_response=response_confirmed, date, target_sum=sum,
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_ORR, CBR)
+  }
 }
 
 
