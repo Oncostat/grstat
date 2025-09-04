@@ -69,8 +69,10 @@ calc_best_response = function(data_recist, ...,
       first_sum = sum[date==first_date],
       response_num = .encode_response(response),
       response = fct_reorder(as.character(response), response_num),
+      response_num = ifelse(is.na(response),NA,response_num),
       previous_response_num = lag(response_num),
       previous_date = lag(date),
+      previous_response_num_2 = lag(response_num,2),
       delta_date = as.numeric(date - previous_date),
       delta_date = ifelse(is.na(delta_date), 0, delta_date),
       delta_date_before_PD_or_end = cumsum(delta_date),
@@ -87,6 +89,7 @@ calc_best_response = function(data_recist, ...,
 
   if (!isTRUE(confirmed)){
     data_recist %>%
+      filter(!is.na(response)) %>%
       mutate(bestresponse = min(response_num),
              .by=subjid) %>%
       filter(bestresponse==response_num) %>%
@@ -102,28 +105,50 @@ calc_best_response = function(data_recist, ...,
              target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_Response, Clinical_Benefit)
   } else {
     data_recist %>%
+      filter(!is.na(response))%>%
       mutate(confirmed_response = case_when(
-        response_num == 1 & previous_response_num == 1 & delta_date >= cycle_length ~ 1,
-        response_num == 1 & previous_response_num == 1 & delta_date < cycle_length  ~ 3,
-        response_num == 1 & previous_response_num == 2 & delta_date >= cycle_length ~ 2,
-        response_num == 1 & previous_response_num == 2 & delta_date < cycle_length  ~ 3,
-        response_num == 1 & previous_response_num == 3                              ~ 3,
-        response_num == 1 & previous_response_num == 4                              ~ 4,
-        response_num == 1 & previous_response_num == 5                              ~ 5,
+        response_num == 1 & previous_response_num == 1 & delta_date >= cycle_length                ~ 1,
+        response_num == 1 & previous_response_num == 1 & delta_date < cycle_length                 ~ 3,
+        response_num == 1 & previous_response_num == 2 & delta_date >= cycle_length                ~ 2,
+        response_num == 1 & previous_response_num == 2 & delta_date < cycle_length                 ~ 3,
+        response_num == 1 & previous_response_num == 3                                             ~ 3,
+        response_num == 1 & previous_response_num == 5                                             ~ 5,
 
-        response_num == 2 & previous_response_num <= 2 & delta_date >= cycle_length ~ 2,
-        response_num == 2 & previous_response_num <= 2 & delta_date < cycle_length  ~ 3,
-        response_num == 2 & previous_response_num == 3                              ~ 3,
-        response_num == 2 & previous_response_num == 4                              ~ 4,
-        response_num == 2 & previous_response_num == 5                              ~ 5,
+        response_num == 2 & previous_response_num <= 2 & delta_date >= cycle_length                ~ 2,
+        response_num == 2 & previous_response_num <= 2 & delta_date < cycle_length                 ~ 3,
+        response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==3               ~ 3,
+        response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==5               ~ 3,
+        response_num == 2 & previous_response_num == 3 & previous_response_num_2 <= 2              ~ 2,
+        response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==3               ~ 3,
+        response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==5               ~ 5,
+        response_num == 2 & previous_response_num == 5 & previous_response_num_2 <= 2              ~ 2,
 
-        is.na(previous_response_num) & response_num == 4                            ~ 4,
+        response_num == 4                                                                          ~ 4,
+        is.na(previous_response_num) & response_num <= 2                                           ~ 5,
+        is.na(previous_response_num_2)& (previous_response_num==3 | previous_response_num ==5) &
+          response_num <= 2                                                                        ~ 5,
 
         TRUE ~ response_num
       )) %>%
-      filter(!is.na(response))%>%
       mutate(bestresponse = min(confirmed_response), .by=subjid) %>%
-      filter(bestresponse==confirmed_response) %>%
+      mutate(response_num_lead = lead(response_num),
+             response_num_lead_2 = lead(response_num,2),
+             confirm = case_when(
+               response_num == 1 & bestresponse == 1 & response_num_lead ==1                              ~ 1,
+               response_num == 1 & bestresponse == 2 & response_num_lead ==2                              ~ 1,
+               response_num == 1 & bestresponse == 1 & (response_num_lead ==3 |response_num_lead ==5) &
+                 response_num_lead_2 <=2                                                                  ~ 1,
+               response_num == 2 & bestresponse == 2 & response_num_lead <=2                              ~ 1,
+               response_num == 2 & bestresponse == 2 & (response_num_lead ==3 |response_num_lead ==5) &
+                 response_num_lead_2 <=2                                                                  ~ 1,
+               response_num == 3 & bestresponse == 3                                                      ~ 1,
+               response_num == 4 & bestresponse == 4                                                      ~ 1,
+               response_num == 5 & bestresponse == 5                                                      ~ 1,
+
+               TRUE ~ 0
+             )) %>%
+      mutate(confirm = cumsum(confirm), .by=subjid) %>%
+      filter(confirm==1) %>%
       slice_head(by=subjid) %>%
       mutate(response_confirmed = .recist_from_num(bestresponse),
              response_confirmed = factor(response_confirmed,
