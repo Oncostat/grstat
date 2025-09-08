@@ -85,6 +85,7 @@ calc_best_response = function(data_recist, ...,
     mutate(
       first_date = date==first_date,
       diff_first = (sum - first_sum)/first_sum,
+      diff_first = ifelse (is.na(diff_first),0,diff_first),
       diff_min = (sum - min_sum)/min_sum)
 
   if (!isTRUE(confirmed)){
