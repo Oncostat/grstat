@@ -77,6 +77,28 @@ test_that("ae_table_grade() errors", {
 
 })
 
+test_that("ae_table_grade() variants add up", {
+  #variant `sup` is the cumulative sum of variant `max`
+  f = function(variant){
+    ae_table_grade(db_test$ae, df_enrol=db_test$enrolres, arm="ARM", total=TRUE,
+                   variant=variant, digits=2,  percent_pattern="{n}") %>%
+      select(-label) %>%
+      filter(str_detect(variable, "Grade")) %>%
+      arrange(desc(row_number())) %>%
+      pivot_longer(Control:Total) %>%
+      arrange(name) %>%
+      mutate(grade=stringr::str_extract(variable, "\\d"))
+  }
+  a = f("sup")
+  b = f("max")
+
+  rslt = b %>%
+    mutate(grade, max_sum=cumsum(value), .by=name, .keep="none") %>%
+    dplyr::full_join(a, by=c("grade", "name")) %>%
+    filter(value!=max_sum)
+  expect_true(nrow(rslt)==0)
+})
+
 
 
 test_that("ae_table_soc() default snapshot", {
