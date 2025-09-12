@@ -3,20 +3,20 @@
     {
       "type": "list",
       "attributes": {
-        "class": {
-          "type": "character",
-          "attributes": {},
-          "value": ["tbl_df", "tbl", "data.frame"]
-        },
-        "row.names": {
-          "type": "integer",
-          "attributes": {},
-          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]
-        },
         "names": {
           "type": "character",
           "attributes": {},
           "value": ["doc_index", "content_type", "style_name", "text", "level", "num_id", "row_id", "is_header", "cell_id", "col_span", "row_span"]
+        },
+        "class": {
+          "type": "character",
+          "attributes": {},
+          "value": ["data.frame"]
+        },
+        "row.names": {
+          "type": "character",
+          "attributes": {},
+          "value": ["1", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "11", "1.11", "1.31", "1.51", "1.7", "2.2", "2.4", "2.6", "2.8", "12", "2", "13", "14", "15", "16", "17", "18", "19", "110", "111", "112", "113", "114", "115", "116", "117", "118", "119", "120", "121", "122", "123", "124", "125", "126", "127", "128", "129", "130", "131", "132", "133", "134", "135", "136"]
         }
       },
       "value": [
@@ -38,7 +38,7 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["", "The Study", "Sponsor Protocol N°: CSET20xx/xxxEudraCT / ID-RCB No:  20xx-xxClinicaltrial.gov number:  xxxxx", "ThSdu", "", "", "", "Trial Phase : III", "REPORT AUTHORS", null, null, null, "xxx, Coordinating investigatorGustave RoussyTelephone: +33E-mail: name@gustaveroussy.fr", "xxx, BiostatisticianGustave Roussy, Bureau of Biostatistic and Epidemiology", "xxx, Data-managerGustave Roussy, Bureau of Biostatistic and Epidemiology", "xxx, PharmacovigilantGustave Roussy, Pharmacovigilance Unit", "SPONSOR", "Gustave Roussy114 Rue Edouard Vaillant94805 Villejuif Cedex", "Titre de niveau 1", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 1", "Titre de niveau 2", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 2", "Titre de niveau 3", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 3", "Titre de niveau 4", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 4", "Titre de niveau 5", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 5", "Titre de niveau 6", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 6", "Titre de niveau 7", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 7", "Titre de niveau 8", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 8", "Titre de niveau 9", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 9", "Titre 1, le retour", "", "Date first patient included: Date last patient included: ", "Analysis cut-off date: Database freeze date:", "", "CONFIDENTIALITY", "The information and the data included in the Final Report Study are confidential and the property of the sponsor. No one is authorized to publish them without the written consent of the sponsor. This support has to be kept confidential.", "", "LIST OF TABLES", " TOC \\h \\z \\c \"Table\" Aucune entrée de table d'illustration n'a été trouvée.", "", "", "", "LIST OF FIGURES", " TOC \\h \\z \\c \"Figure\" Aucune entrée de table d'illustration n'a été trouvée.", ""]
+          "value": ["", "The Great Study", "Sponsor Protocol N°: CSET2099/999EudraCT / ID-RCB No:  2099-99Clinicaltrial.gov number:  NCT00099999", "TGreStu", "", "", "2025-01-01", "Trial Phase : III", "REPORT AUTHORS", null, null, null, "Dr Armin Clusion, Coordinating investigatorGustave RoussyTelephone: +33E-mail: name@gustaveroussy.fr", "Jeanne Alise , BiostatisticianGustave Roussy, Bureau of Biostatistic and Epidemiology", "Bertrand Domise, Data-managerGustave Roussy, Bureau of Biostatistic and Epidemiology", "Arnaud Cébo, PharmacovigilantGustave Roussy, Pharmacovigilance Unit", "SPONSOR", "Gustave Roussy114 Rue Edouard Vaillant94805 Villejuif Cedex", "Titre de niveau 1", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 1", "Titre de niveau 2", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 2", "Titre de niveau 3", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 3", "Titre de niveau 4", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 4", "Titre de niveau 5", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 5", "Titre de niveau 6", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 6", "Titre de niveau 7", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 7", "Titre de niveau 8", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 8", "Titre de niveau 9", "Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau 9", "Titre 1, le retour", "", "Date first patient included: 2024-01-01Date last patient included: 2024-06-01", "Analysis cut-off date: 2024-09-01Database freeze date:2024-09-01", "", "CONFIDENTIALITY", "The information and the data included in the Final Report Study are confidential and the property of the sponsor. No one is authorized to publish them without the written consent of the sponsor. This support has to be kept confidential.", "", "LIST OF TABLES", " TOC \\h \\z \\c \"Table\" Aucune entrée de table d'illustration n'a été trouvée.", "", "", "", "LIST OF FIGURES", " TOC \\h \\z \\c \"Figure\" Aucune entrée de table d'illustration n'a été trouvée.", ""]
         },
         {
           "type": "double",
