@@ -170,7 +170,7 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
     as_tibble_col("col_keys") %>%
     left_join(arms, by=c("col_keys"="arm")) %>%
     mutate(
-      row1 = ifelse(is.na(n), col_keys, get_label(arms$arm)),
+      row1 = ifelse(is.na(n), col_keys, get_label(arms$arm, default="Arm")),
       row2 = ifelse(is.na(n), col_keys, glue("{col_keys}\n(N={n})")),
     ) %>%
     select(-n)
