@@ -20,8 +20,8 @@
 #' @param percent_digits Number of digits to show for percentages.
 #' @param zero_value String to use when count is zero.
 #' @param total Logical. If `TRUE`, adds a "Total" column across arms (only if multiple arms exist).
-#' @param na_strategy A named list controlling how missing AEs or absent patients are 
-#'   displayed in the output tables. Must contain `display` (one of `"if_any"` 
+#' @param na_strategy A named list controlling how missing AEs or absent patients are
+#'   displayed in the output tables. Must contain `display` (one of `"if_any"`
 #'   or `"always"`) and `grouped` (logical).
 #' @param df_ae,df_enrol Deprecated. Use `data_ae` and `data_pat` instead.
 #' @param percent,digits Deprecated. Use `percent_pattern`and `percent_digits` instead.
@@ -32,15 +32,15 @@
 #' @importFrom flextable hline_top
 #' @importFrom tidyr pivot_wider complete unnest_longer
 #' @export
-#' 
+#'
 #' @examples
 #' db = grstat_example(N=200, p_na=0.1)
-#' ae_table_grade(db$ae, data_pat=db$enrolres, 
+#' ae_table_grade(db$ae, data_pat=db$enrolres,
 #'                total=FALSE, percent_digits=1) %>%
 #'   as_flextable()
-#' 
+#'
 #' db = grstat_example(N=20, p_na=0)
-#' ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM", 
+#' ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM",
 #'                total=TRUE, zero_value="-",
 #'                na_strategy=list(display="always", grouped=TRUE)) %>%
 #'   as_flextable()
@@ -86,16 +86,16 @@ ae_table_grade = function(
   }
 
   df = .base_ae_table(data_ae, data_pat, arm, grade, subjid)
-  
+
   if(isFALSE(percent)){
-    lifecycle::deprecate_warn("0.1.0.9015", "ae_table_grade(percent)", 
+    lifecycle::deprecate_warn("0.1.0.9015", "ae_table_grade(percent)",
                               details = "Please use `percent_pattern` instead")
     percent_pattern = "{n}"
   }
 
   params = lst(total, digits, zero_value, percent_pattern, ae_label)
   # fmt: skip
-  x = variant %>% 
+  x = variant %>%
     map(~{
       switch(
         .x,
@@ -107,18 +107,18 @@ ae_table_grade = function(
 
   arms = list(levels = levels(factor(df$arm)), label = get_label(df$arm))
   arms = df %>% distinct(subjid, arm) %>% count(arm)
-  
+
   rtn = bind_rows(x) %>%
-    mutate(      
+    mutate(
       label = case_when(
         .id == "max_grade" ~ glue("Patient maximum {ae_label} grade"),
         .id == "any_grade_sup" ~ glue("Patient had at least one {ae_label} of grade"),
         .id == "any_grade_eq" ~ glue("Patient had at least one {ae_label} of grade "),
         .default="ERROR"
-      ),      
+      ),
       across(c(.id, label), as_factor),
       .after = .id
-    ) 
+    )
 
   cols_missing = c(glue("No {ae_label} reported"), "All grades missing", "Some grades missing")
   if (na_strategy$display %in% c("if_any", "ifany")) {
@@ -141,10 +141,10 @@ ae_table_grade = function(
       arrange(.id) %>%
       distinct()
   }
-  
-  rtn %>% 
-    structure(arms = arms) %>% 
-    remove_rownames() %>% 
+
+  rtn %>%
+    structure(arms = arms) %>%
+    remove_rownames() %>%
     add_class("ae_table_grade")
 }
 
@@ -168,17 +168,17 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
   arms = attr(x, "arms")
   header_df = names(x) %>%
     as_tibble_col("col_keys") %>%
-    left_join(arms, by=c("col_keys"="arm")) %>% 
+    left_join(arms, by=c("col_keys"="arm")) %>%
     mutate(
       row1 = ifelse(is.na(n), col_keys, get_label(arms$arm)),
       row2 = ifelse(is.na(n), col_keys, glue("{col_keys}\n(N={n})")),
-    ) %>% 
+    ) %>%
     select(-n)
   if(n_distinct(arms$arm)==1) {
     header_df = select(header_df, -row1)
   }
   border2 = structure(list(width = 2, color = "black", style = "solid"), class = "fp_border")
-  
+
   x %>%
     flextable(col_keys = setdiff(names(x), ".id")) %>%
     set_header_df(mapping = header_df) %>%
@@ -206,7 +206,7 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
   data_ae = data_ae %>%
     rename_with(tolower) %>%
     select(subjid = all_of(tolower(subjid)), grade = all_of(tolower(grade)))
-  
+
   default_arm = set_label("All patients", "Treatment arm")
   data_pat = data_pat %>%
     rename_with(tolower) %>%
@@ -279,7 +279,7 @@ max_grade = function(df, params) {
         .default = paste("Grade", max_gr)
       ),
       max_gr = max_gr %>% fct_relevel(lab_no_ae) %>% fct_last(lab_ae_na),
-      np = np(n, p, digits=params$digits, zero_value=params$zero_value, 
+      np = np(n, p, digits=params$digits, zero_value=params$zero_value,
               pattern=params$percent_pattern),
       arm = fct_last(arm, "Total")
     ) %>%
@@ -329,11 +329,11 @@ any_grade = function(df, f, params) {
       p = n / n(),
       .by = c(arm, variable)
     ) %>%
-    mutate(      
-      np = np(n, p, digits=params$digits, zero_value=params$zero_value, 
+    mutate(
+      np = np(n, p, digits=params$digits, zero_value=params$zero_value,
               pattern=params$percent_pattern),
       arm = fct_last(arm, "Total"),
-      variable = factor(variable) %>% str_replace("no_ae", lab_no_ae) %>% 
+      variable = factor(variable) %>% str_replace("no_ae", lab_no_ae) %>%
         fct_relevel(lab_no_ae) %>% fct_last("Grade = 5") %>% fct_last(lab_ae_na)
     ) %>%
     arrange(arm, variable) %>%
