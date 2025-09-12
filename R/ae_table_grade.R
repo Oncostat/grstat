@@ -1,356 +1,348 @@
 
-
-
-
-# Table ---------------------------------------------------------------------------------------
-
-
-
-#' Summary tables for AE
+#' Tabulate Adverse Events by Grade (max, ≥x, ==x)
 #'
 #' `r lifecycle::badge("stable")`\cr
-#' The function `ae_table_grade()` creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
-#' The resulting dataframe can be piped to `as_flextable()` to get a nicely formatted flextable.
+#' This function creates summary tables of adverse events (AEs) by grade, for each treatment arm if provided.
+#' By default, it shows three variants:
+#' - `"max"`: highest AE grade experienced by each patient
+#' - `"sup"`: at least one AE of grade ≥ *x*
+#' - `"eq"`: at least one AE of grade == *x*
 #'
-#' @param percent whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.
-#' @param ae_label the label of adverse events, usually "AE" or "SAE".
-#' @inheritParams ae_table_soc
-#' @inherit ae_table_soc seealso
+#' @param data_ae Data frame of adverse events, with one row per AE.
+#' @param ... Unused.
+#' @param data_pat Data frame of enrolled patients, with one row per patient.
+#' @param variant Character vector specifying which variants to compute: `"max"`, `"sup"`, `"eq"`.
+#' @param arm Name of the arm column in `data_pat`. If `NULL`, all patients are pooled.
+#' @param grade Name of the AE grade column in `data_ae`.
+#' @param subjid Name of the subject ID column (in both data frames).
+#' @param ae_label Label used in the output tables (e.g. "AE", "Toxicity").
+#' @param percent_pattern Pattern used to format counts and percentages. Use `{n}` and `{p}` as placeholders.
+#' @param percent_digits Number of digits to show for percentages.
+#' @param zero_value String to use when count is zero.
+#' @param total Logical. If `TRUE`, adds a "Total" column across arms (only if multiple arms exist).
+#' @param na_strategy A named list controlling how missing AEs or absent patients are
+#'   displayed in the output tables. Must contain `display` (one of `"if_any"`
+#'   or `"always"`) and `grouped` (logical).
+#' @param df_ae,df_enrol Deprecated. Use `data_ae` and `data_pat` instead.
+#' @param percent,digits Deprecated. Use `percent_pattern`and `percent_digits` instead.
 #'
-#' @return a crosstable
-#' @importFrom cli cli_abort
-#' @importFrom dplyr arrange case_match case_when cur_group filter left_join mutate rename_with select summarise
-#' @importFrom forcats fct_relevel fct_reorder
-#' @importFrom glue glue
-#' @importFrom rlang check_dots_empty check_installed
-#' @importFrom stringr str_remove str_starts str_subset
-#' @importFrom tibble lst
-#' @importFrom tidyselect matches
+#' @return A data frame of class `ae_table_grade`, ready for use with [as_flextable()].
+#'
+#' @importFrom tibble remove_rownames
+#' @importFrom flextable hline_top
+#' @importFrom tidyr pivot_wider complete unnest_longer
 #' @export
 #'
 #' @examples
-#' tm = grstat_example()
-#' attach(tm, warn.conflicts=FALSE)
+#' db = grstat_example(N=200, p_na=0.1)
+#' ae_table_grade(db$ae, data_pat=db$enrolres,
+#'                total=FALSE, percent_digits=1) %>%
+#'   as_flextable()
 #'
-#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
-#'   as_flextable(header_show_n=TRUE)
+#' db = grstat_example(N=20, p_na=0)
+#' ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM",
+#'                total=TRUE, zero_value="-",
+#'                na_strategy=list(display="always", grouped=TRUE)) %>%
+#'   as_flextable()
 #'
-#' ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm") %>%
-#'   as_flextable(header_show_n=TRUE)
-#'
-#' #To get SAE only, filter df_ae first
-#' ae %>%
-#'   dplyr::filter(sae=="Yes") %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="arm", ae_label="SAE") %>%
-#'   as_flextable(header_show_n=TRUE)
-#'
-#' #To describe a sub-population, filter df_enrol first
-#' enrolres2 = enrolres %>%
-#'   dplyr::filter(arm=="Control")
-#' ae %>%
-#'   ae_table_grade(df_enrol=enrolres2, arm="arm") %>%
-#'   as_flextable(header_show_n=TRUE)
-#'
-#' #You can also filter the AE table
-#' ae %>%
-#'   ae_table_grade(df_enrol=enrolres, arm="arm") %>%
-#'   dplyr::filter(!variable %in% c("Grade 1", "Grade 2")) %>%
-#'   as_flextable(header_show_n=TRUE)
 ae_table_grade = function(
-    df_ae, ..., df_enrol,
-    variant=c("max", "sup", "eq"),
-    arm=NULL, grade="AEGR", subjid="SUBJID",
-    ae_label="AE",
-    percent=TRUE, digits=2,
-    total=TRUE
-){
-  check_installed("crosstable", "for `ae_table_grade()` to work.")
+  data_ae,
+  ...,
+  data_pat,
+  variant = c("max", "sup", "eq"),
+  arm = NULL,
+  grade = "AEGR",
+  subjid = "SUBJID",
+  ae_label = "AE",
+  percent_pattern = "{n} ({p}%)",
+  percent_digits = 0,
+  zero_value = "0",
+  total = TRUE,
+  na_strategy = list(display="if_any", grouped=FALSE),
+  #deprecated
+  df_ae,
+  df_enrol,
+  percent = TRUE,
+  digits = 0
+) {
   check_dots_empty()
+  if(!missing(df_enrol)){
+    data_pat = df_enrol
+  }
+  if(!missing(df_ae)){
+    data_ae = df_ae
+  }
+  if(!missing(digits)){
+    percent_digits = digits
+  }
 
-  assert_names_exists(df_ae, lst(subjid, grade))
-  assert_names_exists(df_enrol, lst(subjid, arm))
+  assert_names_exists(data_ae, lst(subjid, grade))
+  assert_names_exists(data_pat, lst(subjid, arm))
+  assert_names_exists(na_strategy, c("display", "grouped"))
   assert_class(total, "logical")
 
-  if(missing(total) && is.null(arm)) total = FALSE
-  if(isTRUE(total)) total = "row"
+  if (missing(total) && is.null(arm)) {
+    total = FALSE
+  }
+
+  df = .base_ae_table(data_ae, data_pat, arm, grade, subjid)
+
+  if(isFALSE(percent)){
+    lifecycle::deprecate_warn("0.1.0.9015", "ae_table_grade(percent)",
+                              details = "Please use `percent_pattern` instead")
+    percent_pattern = "{n}"
+  }
+
+  params = lst(total, digits, zero_value, percent_pattern, ae_label)
+  # fmt: skip
+  x = variant %>%
+    map(~{
+      switch(
+        .x,
+        max = max_grade(df, params=params),
+        sup = any_grade(df, f=.calc_any_grade_sup, params=params),
+        eq =  any_grade(df, f=.calc_any_grade_eq, params=params)
+      )
+    })
+
+  arms = list(levels = levels(factor(df$arm)), label = get_label(df$arm))
+  arms = df %>% distinct(subjid, arm) %>% count(arm)
+
+  rtn = bind_rows(x) %>%
+    mutate(
+      label = case_when(
+        .id == "max_grade" ~ glue("Patient maximum {ae_label} grade"),
+        .id == "any_grade_sup" ~ glue("Patient had at least one {ae_label} of grade"),
+        .id == "any_grade_eq" ~ glue("Patient had at least one {ae_label} of grade "),
+        .default="ERROR"
+      ),
+      across(c(.id, label), as_factor),
+      .after = .id
+    )
+
+  cols_missing = c(glue("No {ae_label} reported"), "All grades missing", "Some grades missing")
+  if (na_strategy$display %in% c("if_any", "ifany")) {
+    rtn = rtn %>%
+      filter(
+        if_any(
+          -c(.id, label, variable),
+          ~ !variable %in% cols_missing | str_detect(.x, "[1-9]")
+        )
+      )
+  }
+
+  if (na_strategy$grouped && length(variant) > 1) {
+    rtn = rtn %>%
+      mutate(
+        .id = if_else(variable %in% cols_missing, factor("missing"), .id),
+        .id = fct_relevel(.id, "missing"),
+        label = if_else(.id == "missing", "Missing values", label)
+      ) %>%
+      arrange(.id) %>%
+      distinct()
+  }
+
+  rtn %>%
+    structure(arms = arms) %>%
+    remove_rownames() %>%
+    add_class("ae_table_grade")
+}
+
+
+#' Convert AE Table to Flextable
+#'
+#' Converts an object of class `ae_table_grade` to a formatted `flextable`.
+#'
+#' @param x An object of class `ae_table_grade`.
+#' @param ... Unused.
+#' @param padding_v Vertical padding for cells.
+#'
+#' @return A `flextable` object ready to print or export.
+#' @export
+as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
+  check_dots_empty()
+  if (missing(padding_v)) {
+    padding_v = getOption("crosstable_padding_v", padding_v)
+  }
+
+  arms = attr(x, "arms")
+  header_df = names(x) %>%
+    as_tibble_col("col_keys") %>%
+    left_join(arms, by=c("col_keys"="arm")) %>%
+    mutate(
+      row1 = ifelse(is.na(n), col_keys, get_label(arms$arm, default="Arm")),
+      row2 = ifelse(is.na(n), col_keys, glue("{col_keys}\n(N={n})")),
+    ) %>%
+    select(-n)
+  if(n_distinct(arms$arm)==1) {
+    header_df = select(header_df, -row1)
+  }
+  border2 = structure(list(width = 2, color = "black", style = "solid"), class = "fp_border")
+
+  x %>%
+    flextable(col_keys = setdiff(names(x), ".id")) %>%
+    set_header_df(mapping = header_df) %>%
+    hline(part = "header") %>%
+    hline(part = "body", i = ~ .id != dplyr::lead(.id)) %>%
+    hline_top(part = "header", border = border2) %>%
+    hline_bottom(part = "header", border = border2) %>%
+    hline_bottom(part = "body", border = border2) %>%
+    merge_h(part = "header") %>%
+    merge_v(part = "header") %>%
+    merge_v(part = "body", j = ".id", target="label") %>%
+    align(part = "header", align = "center") %>%
+    padding(padding.top = padding_v, padding.bottom = padding_v) %>%
+    set_table_properties(layout = "autofit") %>%
+    fontsize(size = 8, part = "all") %>%
+    bold(part = "header")
+}
+
+
+
+# Utils ------------------------------------------------------------------
+
+
+.base_ae_table = function(data_ae, data_pat, arm, grade, subjid) {
+  data_ae = data_ae %>%
+    rename_with(tolower) %>%
+    select(subjid = all_of(tolower(subjid)), grade = all_of(tolower(grade)))
+
   default_arm = set_label("All patients", "Treatment arm")
+  data_pat = data_pat %>%
+    rename_with(tolower) %>%
+    select(subjid = all_of(tolower(subjid)), arm = any_of(tolower(arm))) %>%
+    mutate(arm = if (is.null(.env$arm)) default_arm else .data$arm)
 
-  df_ae = df_ae %>% rename_with(tolower) %>%
-    select(subjid=tolower(subjid), grade=tolower(grade))
-  df_enrol = df_enrol %>% rename_with(tolower) %>%
-    select(subjid=tolower(subjid), arm=tolower(arm)) %>%
-    mutate(arm=if(is.null(.env$arm)) default_arm else .data$arm)
-  if(!is.numeric(df_ae$grade)){
-    cli_abort("Grade ({.val {grade}}) must be a {.cls numeric} column, not a {.cls {class(df_ae$grade)}}.",
-              class="ae_table_grade_not_num")
+  if (!is.numeric(data_ae$grade)) {
+    cli_abort(
+      "Grade ({.val {grade}}) must be a {.cls numeric} column, not a {.cls {class(data_ae$grade)}}.",
+      class = "ae_table_grade_not_num"
+    )
   }
-  if(any(!df_ae$grade %in% c(1:5, NA), na.rm=TRUE)){
-    cli_abort(c("Grade ({.val {grade}}) must be an integer between 1 and 5.",
-                i="Wrong values: {.val {setdiff(df_ae$grade, 1:5)}}"),
-              class="ae_table_grade_not_1to5")
+  if (any(!data_ae$grade %in% c(1:5, NA), na.rm = TRUE)) {
+    cli_abort(
+      c(
+        "Grade ({.val {grade}}) must be an integer between 1 and 5.",
+        i = "Wrong values: {.val {setdiff(data_ae$grade, 1:5)}}"
+      ),
+      class = "ae_table_grade_not_1to5"
+    )
   }
 
-  df = df_enrol %>%
-    left_join(df_ae, by="subjid") %>%
+  data_pat %>%
+    left_join(data_ae, by = "subjid") %>%
     arrange(subjid) %>%
     mutate(
       grade = .fix_grade_na(grade),
-    )
+    ) %>%
+    structure(ae_id = data_ae$subjid)
+}
 
-  variant = case_match(variant, "max"~"max_grade", "sup"~"any_grade_sup",
-                       "eq"~"any_grade_eq")
-  rex = variant %>% paste(collapse="|") %>% paste0("^(", ., ")")
 
-  percent_pattern = if(isTRUE(percent)) "{n} ({scales::percent(n/n_col_na,1)})"
-                    else if(percent=="only") "{n/n_col}" else "{n}"
-  percent_pattern = list(body=percent_pattern, total_col=percent_pattern)
 
-  lab_no_ae = glue("No declared {ae_label}")
+np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
+  pc = scales::label_percent(accuracy=10^(-digits), suffix="")
+  p = pc(p)
+  ifelse(is.null(zero_value) | n>0, glue(pattern), glue(zero_value))
+}
 
-  rtn = df %>%
+
+.add_total_arm = function(df, do=TRUE, label = "Total") {
+  if (isTRUE(do) && n_distinct(df$arm) > 1) {
+    df = df %>%
+      mutate(arm = factor(label)) %>%
+      bind_rows(df)
+  }
+  df
+}
+
+max_grade = function(df, params) {
+  ae_id = attr(df, "ae_id")
+  lab_no_ae = glue("No {params$ae_label} reported")
+  lab_ae_na = "All grades missing"
+  lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
+
+  a = df %>%
     summarise(
-      max_grade_na = case_when(!cur_group()$subjid %in% df_ae$subjid ~ lab_no_ae,
-                              all(is.na(grade), na.rm=TRUE) ~ "Grade all missing",
-                              .default="foobar"),
-      max_grade_1 = ifelse(max_narm(grade) == 1 , "Grade 1", "foobar"),
-      max_grade_2 = ifelse(max_narm(grade) == 2 , "Grade 2", "foobar"),
-      max_grade_3 = ifelse(max_narm(grade) == 3 , "Grade 3", "foobar"),
-      max_grade_4 = ifelse(max_narm(grade) == 4 , "Grade 4", "foobar"),
-      max_grade_5 = ifelse(max_narm(grade) == 5 , "Grade 5", "foobar"),
-      any_grade_sup_na   = case_when(!cur_group()$subjid %in% df_ae$subjid ~ lab_no_ae,
-                                     any(is.na(grade), na.rm=TRUE) ~ "Any missing grade",
-                                     .default="foobar"),,
-      any_grade_sup_1 = ifelse(any(grade >= 1, na.rm=TRUE), "Grade \u2265 1", "foobar"),
-      any_grade_sup_2 = ifelse(any(grade >= 2, na.rm=TRUE), "Grade \u2265 2", "foobar"),
-      any_grade_sup_3 = ifelse(any(grade >= 3, na.rm=TRUE), "Grade \u2265 3", "foobar"),
-      any_grade_sup_4 = ifelse(any(grade >= 4, na.rm=TRUE), "Grade \u2265 4", "foobar"),
-      any_grade_sup_5 = ifelse(any(grade >= 5, na.rm=TRUE), "Grade = 5", "foobar"),
-      any_grade_eq_na   = any_grade_sup_na,
-      any_grade_eq_1 = ifelse(any(grade == 1, na.rm=TRUE), "Grade 1", "foobar"),
-      any_grade_eq_2 = ifelse(any(grade == 2, na.rm=TRUE), "Grade 2", "foobar"),
-      any_grade_eq_3 = ifelse(any(grade == 3, na.rm=TRUE), "Grade 3", "foobar"),
-      any_grade_eq_4 = ifelse(any(grade == 4, na.rm=TRUE), "Grade 4", "foobar"),
-      any_grade_eq_5 = ifelse(any(grade == 5, na.rm=TRUE), "Grade 5", "foobar"),
-      .by=c(subjid, arm)
+      max_gr = max_narm(grade),
+      .by = c(subjid, arm)
     ) %>%
-    crosstable::crosstable(matches(rex),
-               by=arm, total=total,
-               percent_digits=digits,
-               percent_pattern=percent_pattern) %>%
-    filter(variable!="foobar" & variable!="NA") %>%
+    mutate(max_gr = ifelse(!subjid %in% ae_id, 0, max_gr))
+  a %>%
+    .add_total_arm(do=params$total, label=lab_total) %>%
+    mutate(n_arm = n(), .by = arm) %>%
+    summarise(n = n(), p = n() / unify(n_arm), .by = c(arm, max_gr)) %>%
+    complete(arm, max_gr = c(0:5, NA), fill = list(n = 0, p = 0)) %>%
     mutate(
-      label=case_when(
-        str_starts(.id, "max_grade_") ~ glue("Patient maximum {ae_label} grade"),
-        str_starts(.id, "any_grade_sup_") ~ glue("Patient had at least one {ae_label} of grade"),
-        str_starts(.id, "any_grade_eq_") ~ glue("Patient had at least one {ae_label} of grade "),
-        .default="ERROR"
+      max_gr = case_when(
+        max_gr == 0 ~ lab_no_ae,
+        is.na(max_gr) ~ lab_ae_na,
+        .default = paste("Grade", max_gr)
       ),
-      .id = str_remove(.id, "_[^_]*$") %>% factor(levels=variant),
-      label = fct_reorder(label, as.numeric(.id)),
-      variable = suppressWarnings(fct_relevel(variable, lab_no_ae, after=0)),
-      variable = suppressWarnings(fct_relevel(variable, "Grade = 5", after=Inf)),
-      variable = suppressWarnings(fct_relevel(variable, ~str_subset(.x, "missing"), after=Inf)),
+      max_gr = max_gr %>% fct_relevel(lab_no_ae) %>% fct_last(lab_ae_na),
+      np = np(n, p, digits=params$digits, zero_value=params$zero_value,
+              pattern=params$percent_pattern),
+      arm = fct_last(arm, lab_total)
     ) %>%
-    arrange(.id, label, variable)
+    rename(variable = max_gr) %>%
+    arrange(arm, variable) %>%
+    pivot_wider(id_cols = variable, names_from = arm, values_from = np) %>%
+    mutate(
+      .id = "max_grade",
+      .before = 0
+    )
+}
 
+.calc_any_grade_eq = function(grade, included) {
+  rtn = seq(5) %>%
+    set_names(~ paste0("Grade ", .x)) %>%
+    map(~ any(grade == .x, na.rm = TRUE))
+  rtn[["Some grades missing"]] = all(included) & any(is.na(grade))
+  rtn[["no_ae"]] = !all(included)
+  rtn
+}
+.calc_any_grade_sup = function(grade, included) {
+  rtn = seq(5) %>%
+    set_names(~ paste("Grade", ifelse(.x==5, "=", "\u2265"), .x)) %>%
+    map(~ any(grade >= .x, na.rm = TRUE))
+  rtn[["Some grades missing"]] = all(included) & any(is.na(grade))
+  rtn[["no_ae"]] = !all(included)
   rtn
 }
 
 
-# Plots ---------------------------------------------------------------------------------------
 
+any_grade = function(df, f, params) {
+  ae_id = attr(df, "ae_id")
+  id = if(caller_arg(f)==".calc_any_grade_sup") "any_grade_sup" else "any_grade_eq"
+  lab_no_ae = glue("No {params$ae_label} reported")
+  lab_ae_na = "Some grades missing"
+  lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
 
-
-#' Graphic representation of AEs
-#'
-#' Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
-#'
-#' @inheritParams ae_table_grade
-#' @param type whether to present patients as proportions (`relative`) or as counts (`absolute`)
-#' @param position Position adjustment (cf. [ggplot2::geom_col()])
-#'
-#' @return a ggplot
-#' @export
-#'
-#' @examples
-#' tm = grstat_example()
-#' attach(tm, warn.conflicts=FALSE)
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres)
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", variant=c("sup", "max"))
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="fill")
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="stack", type="absolute")
-#' @importFrom cli cli_warn
-#' @importFrom dplyr across cur_group mutate n
-#' @importFrom forcats as_factor
-#' @importFrom ggplot2 aes element_text facet_wrap geom_col ggplot labs position_dodge position_fill position_stack scale_y_continuous theme
-#' @importFrom scales label_percent
-#' @importFrom tidyr pivot_longer
-ae_plot_grade = function(
-    df_ae, ..., df_enrol,
-    variant = c("max", "sup", "eq"),
-    position = c("dodge", "stack", "fill"),
-    type = c("relative", "absolute"),
-    arm=NULL, grade="AEGR", subjid="SUBJID", total=FALSE
-){
-  type = match.arg(type)
-  position = match.arg(position)
-
-  if(type=="relative" && position=="stack"){
-    type = "absolute"
-    cli_warn('{.arg type} has been corrected to {.val absolute} to
-             be consistent with `position="stack"`.')
-  }
-  if(type=="relative" || position=="fill"){
-    percent = "only"
-    y_lab = "Patient proportion"
-    add_layer = scale_y_continuous(labels=label_percent(), limits=0:1)
-  } else {
-    percent = FALSE
-    y_lab = "Patient count"
-    add_layer = NULL
-  }
-
-  fill_aes = NULL
-  if(!is.null(arm)){
-    df_enrol = df_enrol %>%
-      # mutate(arm = if(is.null(.env$arm)) "All Patients" else .data$arm) %>%
-      mutate(arm2 = paste0(cur_group()[[1]], " (N=", n(), ")"),
-             .by=any_of2(arm))
-    arm="arm2"
-    fill_aes = aes(fill=name)
-  }
-
-
-  tbl = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, variant=variant,
-                       arm=arm, grade=grade, subjid=subjid,
-                       percent=percent, total=total)
-  p = switch(position, fill=position_fill(), stack=position_stack(),
-             dodge=position_dodge(0.9))
-
-  tbl %>%
-    mutate(across(-c(.id, label, variable), ~as.numeric(as.character(.x)))) %>%
-    pivot_longer(-c(.id, label, variable)) %>%
-    mutate(name=as_factor(name)) %>%
-    ggplot(aes(x=variable, y=value)) + fill_aes +
-    geom_col(position=p) +
-    labs(x=NULL, fill=NULL, y=y_lab) +
-    facet_wrap(~label, scales="free_x") +
-    add_layer +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-          legend.position="top")
-}
-
-
-
-
-#' Graphic representation of AEs
-#'
-#' `r lifecycle::badge("experimental")`\cr
-#' Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
-#'
-#' @param weights (optional) a length 5 numeric vector, giving the weights of each grade
-#' @param low the color of Grade 1 AE
-#' @param high the color of Grade 5 AE
-#' @inheritParams ae_table_soc
-#' @inherit ae_table_soc seealso
-#'
-#' @return a ggplot
-#' @export
-#' @importFrom dplyr across any_of arrange count left_join mutate rename_with select
-#' @importFrom forcats fct_infreq fct_rev
-#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_color_manual scale_fill_manual theme theme_minimal vars
-#' @importFrom glue glue
-#' @importFrom rlang check_dots_empty int
-#' @importFrom tibble deframe lst
-#' @importFrom tidyr replace_na
-#'
-#' @examples
-#' tm = grstat_example()
-#' attach(tm, warn.conflicts=FALSE)
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM")
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM", weights=c(1,1,3,6,10))
-ae_plot_grade_sum = function(
-    df_ae, ..., df_enrol,
-    low="#ffc425", high="#d11141",
-    weights=NULL,
-    arm=NULL, grade="AEGR", subjid="SUBJID"
-){
-  check_dots_empty()
-  assert_names_exists(df_ae, lst(subjid, grade))
-  assert_names_exists(df_enrol, lst(subjid, arm))
-
-  weighted = !is.null(weights)
-  if(!weighted) weights=c(1,1,1,1,1)
-  assert(is.numeric(weights))
-  assert(length(weights)==5)
-
-  df_ae = df_ae %>% rename_with(tolower) %>%
-    select(subjid=tolower(subjid), grade=tolower(grade))
-  df_enrol = df_enrol %>% rename_with(tolower) %>%
-    select(subjid=tolower(subjid), arm=tolower(arm))
-
-  df = df_enrol %>%
-    left_join(df_ae, by=tolower(subjid)) %>%
-    mutate(grade = .fix_grade_na(grade),
-           weight = weights[grade] %>% replace_na(0.1)) %>%
-    arrange(subjid)
-
-  default_arm = "All patients"
-  if(!is.null(arm)){
-    npat = deframe(count(df_enrol, arm))
-    npat["Total"] = sum(npat)
-  } else {
-    df$arm = default_arm
-    npat = int(!!default_arm:=nrow(df_enrol))
-  }
-
-  y_lab = "Count"; caption = NULL
-  if(weighted){
-    y_lab = "Weighted count"
-    caption = paste0("Grade ", 1:5, " = ", weights, collapse=", ")
-    caption = paste("Weights: ", caption)
-  }
-
-  pal = scales::pal_gradient_n(c(low, high))(seq(0, 1, length.out=5))
-
-  rtn =
-    df %>%
-    mutate(
-      arm = glue("{arm} (N={npat[arm]})"),
-      subjid = fct_infreq(factor(subjid), w=weight)
+  df %>%
+    .add_total_arm(do=params$total, label=lab_total) %>%
+    summarise(
+      tmp = list(f(grade, subjid %in% ae_id)),
+      .by = c(subjid, arm)
     ) %>%
-    count(across(c(subjid, grade, any_of("arm"))), wt=weight) %>%
-    mutate(
-      n = ifelse(is.na(grade), 0.1, n),
-      grade = fct_rev(factor(grade))
+    unnest_longer(tmp, indices_to = "variable") %>%
+    summarise(
+      n = sum(tmp),
+      p = n / n(),
+      .by = c(arm, variable)
     ) %>%
-    ggplot(aes(x=subjid, y=n, fill=grade, color=grade)) +
-    scale_fill_manual(values=rev(pal)) +
-    scale_color_manual(values=rev(pal), guide="none") +
-    geom_col() +
-    theme(axis.text.x=element_blank(),
-          axis.ticks.x=element_blank(),
-          panel.grid.major.x = element_blank()) +
-    labs(x="Patient", y=y_lab, fill="AE grade", caption=caption)
-
-  if(!is.null(arm)) rtn = rtn + facet_grid(cols=vars(arm), scales="free_x")
-
-  rtn
+    mutate(
+      np = np(n, p, digits=params$digits, zero_value=params$zero_value,
+              pattern=params$percent_pattern),
+      arm = fct_last(arm, lab_total),
+      variable = factor(variable) %>% str_replace("no_ae", lab_no_ae) %>%
+        fct_relevel(lab_no_ae) %>% fct_last("Grade = 5") %>% fct_last(lab_ae_na)
+    ) %>%
+    arrange(arm, variable) %>%
+    pivot_wider(id_cols = variable, names_from = arm, values_from = np) %>%
+    mutate(
+      .id = id,
+      .before = 0
+    )
 }
 
-
-#' @rdname ae_plot_grade_sum
-#' @usage NULL
-#' @export
-ae_plot_grade_n = ae_plot_grade_sum
-
-
-
-# Utils ---------------------------------------------------------------------------------------
-
-#' @importFrom dplyr na_if
-.fix_grade_na = function(x){
-  as.numeric(na_if(as.character(x), "NA"))
-}

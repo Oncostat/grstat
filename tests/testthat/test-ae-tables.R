@@ -25,23 +25,37 @@ test_that("ae_table_grade() default snapshot", {
   local_reproducible_output(width=125)
 
   expect_snapshot({
-    tm = grstat_example()
-    attach(tm)
+    ae = db_test$ae
+    enrolres = db_test$enrolres
 
     ae_table_grade(ae, df_enrol=enrolres)
     ae_table_grade(ae, df_enrol=enrolres, arm="ARM")
     ae_table_grade(ae, df_enrol=enrolres, arm="ARM", variant = c("eq", "max"))
-    ae_table_grade(ae, df_enrol=enrolres, arm="ARM", percent=FALSE, total=FALSE)
+    ae_table_grade(ae, df_enrol=enrolres, arm="ARM", percent_pattern="{n}", total=FALSE)
+
+  })
+})
+
+
+test_that("ae_table_grade() with missing and grade>2", {
+  local_reproducible_output(width=125)
+
+  expect_snapshot({
+    ae = db_test_na$ae
+    enrolres = db_test_na$enrolres
+
+    ae %>%
+      filter(is.na(aegr) | aegr>2) %>%
+      ae_table_grade(df_enrol=enrolres, arm="ARM")
 
   })
 })
 
 
 test_that("ae_table_grade() with different colnames", {
-  tm = grstat_example()
-  df_enrol = tm$enrolres %>%
+  df_enrol = db_test$enrolres %>%
     rename(ENROLLID2=subjid, TRT=arm)
-  df_ae = tm$ae %>%
+  df_ae = db_test$ae %>%
     rename(ENROLLID2=subjid, grade=aegr)
 
   rslt = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, subjid="ENROLLID2", grade="grade", arm="TRT") %>%
@@ -53,25 +67,46 @@ test_that("ae_table_grade() with different colnames", {
 
 test_that("ae_table_grade() errors", {
 
-  tm = grstat_example()
-
-  tm$ae$aegr[1:10] = 1:10
-  ae_table_grade(tm$ae, df_enrol=tm$enrolres) %>%
+  db_test$ae$aegr[1:10] = 1:10
+  ae_table_grade(db_test$ae, df_enrol=db_test$enrolres) %>%
     expect_error(class="ae_table_grade_not_1to5")
 
-  tm$ae$aegr[1] = "foobar"
-  ae_table_grade(tm$ae, df_enrol=tm$enrolres) %>%
+  db_test$ae$aegr[1] = "foobar"
+  ae_table_grade(db_test$ae, df_enrol=db_test$enrolres) %>%
     expect_error(class="ae_table_grade_not_num")
 
 })
+
+test_that("ae_table_grade() variants add up", {
+  #variant `sup` is the cumulative sum of variant `max`
+  f = function(variant){
+    ae_table_grade(db_test$ae, df_enrol=db_test$enrolres, arm="ARM", total=TRUE,
+                   variant=variant, digits=2,  percent_pattern="{n}") %>%
+      select(-label) %>%
+      filter(str_detect(variable, "Grade")) %>%
+      arrange(desc(row_number())) %>%
+      pivot_longer(Control:Total) %>%
+      arrange(name) %>%
+      mutate(grade=stringr::str_extract(variable, "\\d"))
+  }
+  a = f("sup")
+  b = f("max")
+
+  rslt = b %>%
+    mutate(grade, max_sum=cumsum(value), .by=name, .keep="none") %>%
+    dplyr::full_join(a, by=c("grade", "name")) %>%
+    filter(value!=max_sum)
+  expect_true(nrow(rslt)==0)
+})
+
 
 
 test_that("ae_table_soc() default snapshot", {
   local_reproducible_output(width=125)
 
   expect_snapshot({
-    tm = grstat_example()
-    attach(tm, warn.conflicts = FALSE)
+    ae = db_test$ae
+    enrolres = db_test$enrolres
 
     ae_table_soc(ae, df_enrol=enrolres)
     ae_table_soc(ae, df_enrol=enrolres, sort_by_count=FALSE)
@@ -85,14 +120,14 @@ test_that("ae_table_soc() default snapshot", {
     ae_table_soc(ae, df_enrol=enrolres, arm="ARM", term="aeterm", sort_by_count=FALSE)
 
     # with a soc only in one arm
-    ctl = tm$enrolres %>% filter(arm=="Control") %>% pull(subjid)
-    x=tm$ae %>%
+    ctl = enrolres %>% filter(arm=="Control") %>% pull(subjid)
+    ae %>%
       filter(aesoc=="Cardiac disorders" | !subjid %in% ctl) %>%
-      ae_table_soc(df_enrol=tm$enrolres, arm="ARM")
+      ae_table_soc(df_enrol=enrolres, arm="ARM")
   })
 
+  #error
   ae_table_soc(df_ae=ae, df_enrol=enrolres,
                arm="ARsM", term="AETEeRM", soc="AEtSOC", grade="AEGeR", subjid="SUBaJID") %>%
     expect_error(class="grstat_name_notfound_error")
-
 })

@@ -2,82 +2,84 @@
 % Please edit documentation in R/ae_table_grade.R
 \name{ae_table_grade}
 \alias{ae_table_grade}
-\title{Summary tables for AE}
+\title{Tabulate Adverse Events by Grade (max, ≥x, ==x)}
 \usage{
 ae_table_grade(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
+  data_pat,
   variant = c("max", "sup", "eq"),
   arm = NULL,
   grade = "AEGR",
   subjid = "SUBJID",
   ae_label = "AE",
+  percent_pattern = "{n} ({p}\%)",
+  percent_digits = 0,
+  zero_value = "0",
+  total = TRUE,
+  na_strategy = list(display = "if_any", grouped = FALSE),
+  df_ae,
+  df_enrol,
   percent = TRUE,
-  digits = 2,
-  total = TRUE
+  digits = 0
 )
 }
 \arguments{
-\item{df_ae}{adverse event dataset, one row per AE, containing subjid, soc, and grade.}
+\item{data_ae}{Data frame of adverse events, with one row per AE.}
 
-\item{...}{unused}
+\item{...}{Unused.}
 
-\item{df_enrol}{enrollment dataset, one row per patient, containing subjid (and arm if needed). All patients should be in this dataset.}
+\item{data_pat}{Data frame of enrolled patients, with one row per patient.}
 
-\item{variant}{one or several of \code{c("max", "sup", "eq")}. \code{max} computes the maximum AE grade per patient, \code{sup} computes the number of patients having experienced at least one AE of grade higher or equal to X, and \code{eq} computes the number of patients having experienced at least one AE of grade equal to X.}
+\item{variant}{Character vector specifying which variants to compute: \code{"max"}, \code{"sup"}, \code{"eq"}.}
 
-\item{arm}{name of the treatment column in \code{df_enrol}. Case-insensitive. Can be set to \code{NULL}.}
+\item{arm}{Name of the arm column in \code{data_pat}. If \code{NULL}, all patients are pooled.}
 
-\item{grade}{name of the AE grade column in \code{df_ae}. Case-insensitive.}
+\item{grade}{Name of the AE grade column in \code{data_ae}.}
 
-\item{subjid}{name of the patient ID in both \code{df_ae} and \code{df_enrol}. Case-insensitive.}
+\item{subjid}{Name of the subject ID column (in both data frames).}
 
-\item{ae_label}{the label of adverse events, usually "AE" or "SAE".}
+\item{ae_label}{Label used in the output tables (e.g. "AE", "Toxicity").}
 
-\item{percent}{whether to show percentages with counts. Defaults to TRUE. Can also be "only" to not show counts.}
+\item{percent_pattern}{Pattern used to format counts and percentages. Use \code{{n}} and \code{{p}} as placeholders.}
 
-\item{digits}{significant digits for percentages.}
+\item{percent_digits}{Number of digits to show for percentages.}
 
-\item{total}{whether to add a \code{total} column for each arm.}
+\item{zero_value}{String to use when count is zero.}
+
+\item{total}{Logical. If \code{TRUE}, adds a "Total" column across arms (only if multiple arms exist).}
+
+\item{na_strategy}{A named list controlling how missing AEs or absent patients are
+displayed in the output tables. Must contain \code{display} (one of \code{"if_any"}
+or \code{"always"}) and \code{grouped} (logical).}
+
+\item{df_ae, df_enrol}{Deprecated. Use \code{data_ae} and \code{data_pat} instead.}
+
+\item{percent, digits}{Deprecated. Use \code{percent_pattern}and \code{percent_digits} instead.}
 }
 \value{
-a crosstable
+A data frame of class \code{ae_table_grade}, ready for use with \code{\link[=as_flextable]{as_flextable()}}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}\cr
-The function \code{ae_table_grade()} creates a summary table of maximum AE grades for each patient according to the CTCAE grade.
-The resulting dataframe can be piped to \code{as_flextable()} to get a nicely formatted flextable.
+This function creates summary tables of adverse events (AEs) by grade, for each treatment arm if provided.
+By default, it shows three variants:
+\itemize{
+\item \code{"max"}: highest AE grade experienced by each patient
+\item \code{"sup"}: at least one AE of grade ≥ \emph{x}
+\item \code{"eq"}: at least one AE of grade == \emph{x}
+}
 }
 \examples{
-tm = grstat_example()
-attach(tm, warn.conflicts=FALSE)
+db = grstat_example(N=200, p_na=0.1)
+ae_table_grade(db$ae, data_pat=db$enrolres, 
+               total=FALSE, percent_digits=1) \%>\%
+  as_flextable()
 
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) \%>\%
-  as_flextable(header_show_n=TRUE)
+db = grstat_example(N=20, p_na=0)
+ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM", 
+               total=TRUE, zero_value="-",
+               na_strategy=list(display="always", grouped=TRUE)) \%>\%
+  as_flextable()
 
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm") \%>\%
-  as_flextable(header_show_n=TRUE)
-
-#To get SAE only, filter df_ae first
-ae \%>\%
-  dplyr::filter(sae=="Yes") \%>\%
-  ae_table_grade(df_enrol=enrolres, arm="arm", ae_label="SAE") \%>\%
-  as_flextable(header_show_n=TRUE)
-
-#To describe a sub-population, filter df_enrol first
-enrolres2 = enrolres \%>\%
-  dplyr::filter(arm=="Control")
-ae \%>\%
-  ae_table_grade(df_enrol=enrolres2, arm="arm") \%>\%
-  as_flextable(header_show_n=TRUE)
-
-#You can also filter the AE table
-ae \%>\%
-  ae_table_grade(df_enrol=enrolres, arm="arm") \%>\%
-  dplyr::filter(!variable \%in\% c("Grade 1", "Grade 2")) \%>\%
-  as_flextable(header_show_n=TRUE)
-}
-\seealso{
-\code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}
 }

@@ -32,59 +32,62 @@
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
     Output
-      # A tibble: 2 x 4
+      # A tibble: 5 x 4
         .id       label                    variable `All patients`
         <fct>     <fct>                    <fct>    <chr>         
-      1 max_grade Patient maximum AE grade Grade 4  1 (50%)       
-      2 max_grade Patient maximum AE grade Grade 5  1 (50%)       
+      1 max_grade Patient maximum AE grade Grade 1  0             
+      2 max_grade Patient maximum AE grade Grade 2  0             
+      3 max_grade Patient maximum AE grade Grade 3  0             
+      4 max_grade Patient maximum AE grade Grade 4  1 (50%)       
+      5 max_grade Patient maximum AE grade Grade 5  1 (50%)       
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
     Output
       # A tibble: 6 x 4
-        .id           label                                variable          `All patients`
-        <fct>         <fct>                                <fct>             <chr>         
-      1 any_grade_sup Patient had at least one AE of grade Grade ≥ 1         2 (100%)      
-      2 any_grade_sup Patient had at least one AE of grade Grade ≥ 2         2 (100%)      
-      3 any_grade_sup Patient had at least one AE of grade Grade ≥ 3         2 (100%)      
-      4 any_grade_sup Patient had at least one AE of grade Grade ≥ 4         2 (100%)      
-      5 any_grade_sup Patient had at least one AE of grade Grade = 5         1 (50%)       
-      6 any_grade_sup Patient had at least one AE of grade Any missing grade 2 (100%)      
+        .id           label                                variable            `All patients`
+        <fct>         <fct>                                <fct>               <chr>         
+      1 any_grade_sup Patient had at least one AE of grade Grade ≥ 1           2 (100%)      
+      2 any_grade_sup Patient had at least one AE of grade Grade ≥ 2           2 (100%)      
+      3 any_grade_sup Patient had at least one AE of grade Grade ≥ 3           2 (100%)      
+      4 any_grade_sup Patient had at least one AE of grade Grade ≥ 4           2 (100%)      
+      5 any_grade_sup Patient had at least one AE of grade Grade = 5           1 (50%)       
+      6 any_grade_sup Patient had at least one AE of grade Some grades missing 2 (100%)      
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
     Output
       # A tibble: 6 x 4
-        .id          label                                   variable          `All patients`
-        <fct>        <fct>                                   <fct>             <chr>         
-      1 any_grade_eq "Patient had at least one AE of grade " Grade 1           1 (50%)       
-      2 any_grade_eq "Patient had at least one AE of grade " Grade 2           2 (100%)      
-      3 any_grade_eq "Patient had at least one AE of grade " Grade 3           2 (100%)      
-      4 any_grade_eq "Patient had at least one AE of grade " Grade 4           2 (100%)      
-      5 any_grade_eq "Patient had at least one AE of grade " Grade 5           1 (50%)       
-      6 any_grade_eq "Patient had at least one AE of grade " Any missing grade 2 (100%)      
+        .id          label                                   variable            `All patients`
+        <fct>        <fct>                                   <fct>               <chr>         
+      1 any_grade_eq "Patient had at least one AE of grade " Grade 1             1 (50%)       
+      2 any_grade_eq "Patient had at least one AE of grade " Grade 2             2 (100%)      
+      3 any_grade_eq "Patient had at least one AE of grade " Grade 3             2 (100%)      
+      4 any_grade_eq "Patient had at least one AE of grade " Grade 4             2 (100%)      
+      5 any_grade_eq "Patient had at least one AE of grade " Grade 5             1 (50%)       
+      6 any_grade_eq "Patient had at least one AE of grade " Some grades missing 2 (100%)      
 
 # ae_table_grade() default snapshot
 
     Code
-      tm = grstat_example()
-      attach(tm)
+      ae = db_test$ae
+      enrolres = db_test$enrolres
       ae_table_grade(ae, df_enrol = enrolres)
     Output
       # A tibble: 18 x 4
          .id           label                                   variable       `All patients`
          <fct>         <fct>                                   <fct>          <chr>         
-       1 max_grade     "Patient maximum AE grade"              No declared AE 8 (4%)        
+       1 max_grade     "Patient maximum AE grade"              No AE reported 8 (4%)        
        2 max_grade     "Patient maximum AE grade"              Grade 1        38 (19%)      
        3 max_grade     "Patient maximum AE grade"              Grade 2        62 (31%)      
        4 max_grade     "Patient maximum AE grade"              Grade 3        54 (27%)      
        5 max_grade     "Patient maximum AE grade"              Grade 4        34 (17%)      
        6 max_grade     "Patient maximum AE grade"              Grade 5        4 (2%)        
-       7 any_grade_sup "Patient had at least one AE of grade"  No declared AE 8 (4%)        
+       7 any_grade_sup "Patient had at least one AE of grade"  No AE reported 8 (4%)        
        8 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      192 (96%)     
        9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      154 (77%)     
       10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      92 (46%)      
       11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      38 (19%)      
       12 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      4 (2%)        
-      13 any_grade_eq  "Patient had at least one AE of grade " No declared AE 8 (4%)        
+      13 any_grade_eq  "Patient had at least one AE of grade " No AE reported 8 (4%)        
       14 any_grade_eq  "Patient had at least one AE of grade " Grade 1        164 (82%)     
       15 any_grade_eq  "Patient had at least one AE of grade " Grade 2        110 (55%)     
       16 any_grade_eq  "Patient had at least one AE of grade " Grade 3        62 (31%)      
@@ -96,19 +99,19 @@
       # A tibble: 18 x 6
          .id           label                                   variable       Control  Treatment Total    
          <fct>         <fct>                                   <fct>          <chr>    <chr>     <chr>    
-       1 max_grade     "Patient maximum AE grade"              No declared AE 3 (3%)   5 (5%)    8 (4%)   
+       1 max_grade     "Patient maximum AE grade"              No AE reported 3 (3%)   5 (5%)    8 (4%)   
        2 max_grade     "Patient maximum AE grade"              Grade 1        23 (23%) 15 (15%)  38 (19%) 
        3 max_grade     "Patient maximum AE grade"              Grade 2        32 (32%) 30 (30%)  62 (31%) 
        4 max_grade     "Patient maximum AE grade"              Grade 3        27 (27%) 27 (27%)  54 (27%) 
        5 max_grade     "Patient maximum AE grade"              Grade 4        13 (13%) 21 (21%)  34 (17%) 
        6 max_grade     "Patient maximum AE grade"              Grade 5        2 (2%)   2 (2%)    4 (2%)   
-       7 any_grade_sup "Patient had at least one AE of grade"  No declared AE 3 (3%)   5 (5%)    8 (4%)   
+       7 any_grade_sup "Patient had at least one AE of grade"  No AE reported 3 (3%)   5 (5%)    8 (4%)   
        8 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      97 (97%) 95 (95%)  192 (96%)
        9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      74 (74%) 80 (80%)  154 (77%)
       10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      42 (42%) 50 (50%)  92 (46%) 
       11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      15 (15%) 23 (23%)  38 (19%) 
       12 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      2 (2%)   2 (2%)    4 (2%)   
-      13 any_grade_eq  "Patient had at least one AE of grade " No declared AE 3 (3%)   5 (5%)    8 (4%)   
+      13 any_grade_eq  "Patient had at least one AE of grade " No AE reported 3 (3%)   5 (5%)    8 (4%)   
       14 any_grade_eq  "Patient had at least one AE of grade " Grade 1        85 (85%) 79 (79%)  164 (82%)
       15 any_grade_eq  "Patient had at least one AE of grade " Grade 2        59 (59%) 51 (51%)  110 (55%)
       16 any_grade_eq  "Patient had at least one AE of grade " Grade 3        30 (30%) 32 (32%)  62 (31%) 
@@ -120,48 +123,80 @@
       # A tibble: 12 x 6
          .id          label                                   variable       Control  Treatment Total    
          <fct>        <fct>                                   <fct>          <chr>    <chr>     <chr>    
-       1 any_grade_eq "Patient had at least one AE of grade " No declared AE 3 (3%)   5 (5%)    8 (4%)   
+       1 any_grade_eq "Patient had at least one AE of grade " No AE reported 3 (3%)   5 (5%)    8 (4%)   
        2 any_grade_eq "Patient had at least one AE of grade " Grade 1        85 (85%) 79 (79%)  164 (82%)
        3 any_grade_eq "Patient had at least one AE of grade " Grade 2        59 (59%) 51 (51%)  110 (55%)
        4 any_grade_eq "Patient had at least one AE of grade " Grade 3        30 (30%) 32 (32%)  62 (31%) 
        5 any_grade_eq "Patient had at least one AE of grade " Grade 4        14 (14%) 22 (22%)  36 (18%) 
        6 any_grade_eq "Patient had at least one AE of grade " Grade 5        2 (2%)   2 (2%)    4 (2%)   
-       7 max_grade    "Patient maximum AE grade"              No declared AE 3 (3%)   5 (5%)    8 (4%)   
+       7 max_grade    "Patient maximum AE grade"              No AE reported 3 (3%)   5 (5%)    8 (4%)   
        8 max_grade    "Patient maximum AE grade"              Grade 1        23 (23%) 15 (15%)  38 (19%) 
        9 max_grade    "Patient maximum AE grade"              Grade 2        32 (32%) 30 (30%)  62 (31%) 
       10 max_grade    "Patient maximum AE grade"              Grade 3        27 (27%) 27 (27%)  54 (27%) 
       11 max_grade    "Patient maximum AE grade"              Grade 4        13 (13%) 21 (21%)  34 (17%) 
       12 max_grade    "Patient maximum AE grade"              Grade 5        2 (2%)   2 (2%)    4 (2%)   
     Code
-      ae_table_grade(ae, df_enrol = enrolres, arm = "ARM", percent = FALSE, total = FALSE)
+      ae_table_grade(ae, df_enrol = enrolres, arm = "ARM", percent_pattern = "{n}", total = FALSE)
     Output
       # A tibble: 18 x 5
          .id           label                                   variable       Control Treatment
          <fct>         <fct>                                   <fct>          <chr>   <chr>    
-       1 max_grade     "Patient maximum AE grade"              No declared AE 3       5        
+       1 max_grade     "Patient maximum AE grade"              No AE reported 3       5        
        2 max_grade     "Patient maximum AE grade"              Grade 1        23      15       
        3 max_grade     "Patient maximum AE grade"              Grade 2        32      30       
        4 max_grade     "Patient maximum AE grade"              Grade 3        27      27       
        5 max_grade     "Patient maximum AE grade"              Grade 4        13      21       
        6 max_grade     "Patient maximum AE grade"              Grade 5        2       2        
-       7 any_grade_sup "Patient had at least one AE of grade"  No declared AE 3       5        
+       7 any_grade_sup "Patient had at least one AE of grade"  No AE reported 3       5        
        8 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1      97      95       
        9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2      74      80       
       10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3      42      50       
       11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4      15      23       
       12 any_grade_sup "Patient had at least one AE of grade"  Grade = 5      2       2        
-      13 any_grade_eq  "Patient had at least one AE of grade " No declared AE 3       5        
+      13 any_grade_eq  "Patient had at least one AE of grade " No AE reported 3       5        
       14 any_grade_eq  "Patient had at least one AE of grade " Grade 1        85      79       
       15 any_grade_eq  "Patient had at least one AE of grade " Grade 2        59      51       
       16 any_grade_eq  "Patient had at least one AE of grade " Grade 3        30      32       
       17 any_grade_eq  "Patient had at least one AE of grade " Grade 4        14      22       
       18 any_grade_eq  "Patient had at least one AE of grade " Grade 5        2       2        
 
+# ae_table_grade() with missing and grade>2
+
+    Code
+      ae = db_test_na$ae
+      enrolres = db_test_na$enrolres
+      ae %>% filter(is.na(aegr) | aegr > 2) %>% ae_table_grade(df_enrol = enrolres, arm = "ARM")
+    Output
+      # A tibble: 21 x 6
+         .id           label                                   variable            Control  Treatment Total   
+         <fct>         <fct>                                   <fct>               <chr>    <chr>     <chr>   
+       1 max_grade     "Patient maximum AE grade"              No AE reported      47 (47%) 35 (35%)  82 (41%)
+       2 max_grade     "Patient maximum AE grade"              Grade 1             0        0         0       
+       3 max_grade     "Patient maximum AE grade"              Grade 2             0        0         0       
+       4 max_grade     "Patient maximum AE grade"              Grade 3             25 (25%) 25 (25%)  50 (25%)
+       5 max_grade     "Patient maximum AE grade"              Grade 4             11 (11%) 20 (20%)  31 (16%)
+       6 max_grade     "Patient maximum AE grade"              Grade 5             2 (2%)   1 (1%)    3 (2%)  
+       7 max_grade     "Patient maximum AE grade"              All grades missing  15 (15%) 19 (19%)  34 (17%)
+       8 any_grade_sup "Patient had at least one AE of grade"  No AE reported      47 (47%) 35 (35%)  82 (41%)
+       9 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 1           38 (38%) 46 (46%)  84 (42%)
+      10 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 2           38 (38%) 46 (46%)  84 (42%)
+      11 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 3           38 (38%) 46 (46%)  84 (42%)
+      12 any_grade_sup "Patient had at least one AE of grade"  Grade ≥ 4           13 (13%) 21 (21%)  34 (17%)
+      13 any_grade_sup "Patient had at least one AE of grade"  Grade = 5           2 (2%)   1 (1%)    3 (2%)  
+      14 any_grade_sup "Patient had at least one AE of grade"  Some grades missing 25 (25%) 34 (34%)  59 (29%)
+      15 any_grade_eq  "Patient had at least one AE of grade " No AE reported      47 (47%) 35 (35%)  82 (41%)
+      16 any_grade_eq  "Patient had at least one AE of grade " Grade 1             0        0         0       
+      17 any_grade_eq  "Patient had at least one AE of grade " Grade 2             0        0         0       
+      18 any_grade_eq  "Patient had at least one AE of grade " Grade 3             27 (27%) 29 (29%)  56 (28%)
+      19 any_grade_eq  "Patient had at least one AE of grade " Grade 4             12 (12%) 21 (21%)  33 (16%)
+      20 any_grade_eq  "Patient had at least one AE of grade " Grade 5             2 (2%)   1 (1%)    3 (2%)  
+      21 any_grade_eq  "Patient had at least one AE of grade " Some grades missing 25 (25%) 34 (34%)  59 (29%)
+
 # ae_table_soc() default snapshot
 
     Code
-      tm = grstat_example()
-      attach(tm, warn.conflicts = FALSE)
+      ae = db_test$ae
+      enrolres = db_test$enrolres
       ae_table_soc(ae, df_enrol = enrolres)
     Output
       # A tibble: 27 x 8
@@ -1178,6 +1213,66 @@
       102 <NA>         <NA>         1 (1%)       
       103 <NA>         5 (5%)       5 (5%)       
     Code
-      ctl = tm$enrolres %>% filter(arm == "Control") %>% pull(subjid)
-      x = tm$ae %>% filter(aesoc == "Cardiac disorders" | !subjid %in% ctl) %>% ae_table_soc(df_enrol = tm$enrolres, arm = "ARM")
+      ctl = enrolres %>% filter(arm == "Control") %>% pull(subjid)
+      ae %>% filter(aesoc == "Cardiac disorders" | !subjid %in% ctl) %>% ae_table_soc(df_enrol = enrolres, arm = "ARM")
+    Output
+      # A tibble: 27 x 15
+         soc                                                  control_G1 control_G2 control_G3 control_G4 control_G5 control_NA
+         <fct>                                                <glue>     <glue>     <glue>     <glue>     <glue>     <glue>    
+       1 Cardiac disorders                                    7 (7%)     3 (3%)     4 (4%)     <NA>       <NA>       <NA>      
+       2 Congenital, familial and genetic disorders           <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       3 Social circumstances                                 <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       4 Eye disorders                                        <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       5 Pregnancy, puerperium and perinatal conditions       <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       6 Immune system disorders                              <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       7 Surgical and medical procedures                      <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       8 Hepatobiliary disorders                              <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+       9 Injury, poisoning and procedural complications       <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      10 Neoplasms benign, malignant, and unspecified         <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      11 Respiratory, thoracic and mediastinal disorders      <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      12 Ear and labyrinth disorders                          <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      13 Psychiatric disorders                                <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      14 Vascular disorders                                   <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      15 Blood and lymphatic system disorders                 <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      16 Nervous system disorders                             <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      17 Skin and subcutaneous tissue disorders               <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      18 Endocrine disorders                                  <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      19 Metabolism and nutrition disorders                   <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      20 Infections and infestations                          <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      21 Investigations                                       <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      22 Musculoskeletal and connective tissue disorders      <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      23 Reproductive system and breast disorders             <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      24 Gastrointestinal disorders                           <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      25 General disorders and administration site conditions <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      26 Renal and urinary disorders                          <NA>       <NA>       <NA>       <NA>       <NA>       <NA>      
+      27 No Declared AE                                       <NA>       <NA>       <NA>       <NA>       <NA>       86 (86%)  
+         control_Tot treatment_G1 treatment_G2 treatment_G3 treatment_G4 treatment_G5 treatment_NA treatment_Tot
+         <glue>      <glue>       <glue>       <glue>       <glue>       <glue>       <glue>       <glue>       
+       1 14 (14%)    4 (4%)       1 (1%)       3 (3%)       4 (4%)       <NA>         <NA>         12 (12%)     
+       2 <NA>        13 (13%)     3 (3%)       2 (2%)       4 (4%)       <NA>         <NA>         22 (22%)     
+       3 <NA>        11 (11%)     4 (4%)       3 (3%)       4 (4%)       <NA>         <NA>         22 (22%)     
+       4 <NA>        7 (7%)       5 (5%)       5 (5%)       1 (1%)       <NA>         <NA>         18 (18%)     
+       5 <NA>        7 (7%)       7 (7%)       2 (2%)       1 (1%)       <NA>         <NA>         17 (17%)     
+       6 <NA>        7 (7%)       5 (5%)       3 (3%)       1 (1%)       <NA>         <NA>         16 (16%)     
+       7 <NA>        7 (7%)       5 (5%)       2 (2%)       1 (1%)       <NA>         <NA>         15 (15%)     
+       8 <NA>        8 (8%)       5 (5%)       1 (1%)       <NA>         <NA>         <NA>         14 (14%)     
+       9 <NA>        5 (5%)       5 (5%)       2 (2%)       1 (1%)       <NA>         <NA>         13 (13%)     
+      10 <NA>        6 (6%)       5 (5%)       1 (1%)       1 (1%)       <NA>         <NA>         13 (13%)     
+      11 <NA>        4 (4%)       3 (3%)       4 (4%)       1 (1%)       1 (1%)       <NA>         13 (13%)     
+      12 <NA>        3 (3%)       5 (5%)       2 (2%)       <NA>         <NA>         <NA>         10 (10%)     
+      13 <NA>        6 (6%)       1 (1%)       2 (2%)       1 (1%)       <NA>         <NA>         10 (10%)     
+      14 <NA>        4 (4%)       2 (2%)       1 (1%)       2 (2%)       <NA>         <NA>         9 (9%)       
+      15 <NA>        3 (3%)       2 (2%)       2 (2%)       <NA>         <NA>         <NA>         7 (7%)       
+      16 <NA>        3 (3%)       3 (3%)       <NA>         1 (1%)       <NA>         <NA>         7 (7%)       
+      17 <NA>        4 (4%)       2 (2%)       <NA>         <NA>         <NA>         <NA>         6 (6%)       
+      18 <NA>        2 (2%)       2 (2%)       1 (1%)       <NA>         <NA>         <NA>         5 (5%)       
+      19 <NA>        4 (4%)       1 (1%)       <NA>         <NA>         <NA>         <NA>         5 (5%)       
+      20 <NA>        2 (2%)       <NA>         1 (1%)       <NA>         1 (1%)       <NA>         4 (4%)       
+      21 <NA>        2 (2%)       <NA>         2 (2%)       <NA>         <NA>         <NA>         4 (4%)       
+      22 <NA>        1 (1%)       1 (1%)       2 (2%)       <NA>         <NA>         <NA>         4 (4%)       
+      23 <NA>        2 (2%)       1 (1%)       1 (1%)       <NA>         <NA>         <NA>         4 (4%)       
+      24 <NA>        3 (3%)       <NA>         <NA>         <NA>         <NA>         <NA>         3 (3%)       
+      25 <NA>        2 (2%)       1 (1%)       <NA>         <NA>         <NA>         <NA>         3 (3%)       
+      26 <NA>        2 (2%)       <NA>         <NA>         1 (1%)       <NA>         <NA>         3 (3%)       
+      27 86 (86%)    <NA>         <NA>         <NA>         <NA>         <NA>         5 (5%)       5 (5%)       
 

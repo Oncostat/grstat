@@ -26,15 +26,12 @@ if(!is_testing() & !is_checking()){
   library(cli, warn.conflicts=FALSE)
   library(dplyr, warn.conflicts=FALSE)
   library(purrr, warn.conflicts=FALSE)
-} else {
-  #During testing, ensure snapshots have no abbreviated tibble
-  options(
-    pillar.width=Inf,
-    pillar.print_max=Inf,
-    pillar.max_footer_lines=Inf,
-    pillar.max_extra_cols=Inf
-  )
 }
+
+db_test = grstat_example(N=200)
+db_test_na = grstat_example(N=200, p_na=0.1)
+assign("db_test", db_test, envir=globalenv())
+assign("db_test_na", db_test_na, envir=globalenv())
 
 
 v=utils::View
