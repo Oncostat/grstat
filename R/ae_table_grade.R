@@ -260,6 +260,7 @@ max_grade = function(df, params) {
   ae_id = attr(df, "ae_id")
   lab_no_ae = glue("No {params$ae_label} reported")
   lab_ae_na = "All grades missing"
+  lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
 
   a = df %>%
     summarise(
@@ -268,7 +269,7 @@ max_grade = function(df, params) {
     ) %>%
     mutate(max_gr = ifelse(!subjid %in% ae_id, 0, max_gr))
   a %>%
-    .add_total_arm(do=params$total) %>% 
+    .add_total_arm(do=params$total, label=lab_total) %>%
     mutate(n_arm = n(), .by = arm) %>%
     summarise(n = n(), p = n() / unify(n_arm), .by = c(arm, max_gr)) %>%
     complete(arm, max_gr = c(0:5, NA), fill = list(n = 0, p = 0)) %>%
@@ -281,7 +282,7 @@ max_grade = function(df, params) {
       max_gr = max_gr %>% fct_relevel(lab_no_ae) %>% fct_last(lab_ae_na),
       np = np(n, p, digits=params$digits, zero_value=params$zero_value,
               pattern=params$percent_pattern),
-      arm = fct_last(arm, "Total")
+      arm = fct_last(arm, lab_total)
     ) %>%
     rename(variable = max_gr) %>%
     arrange(arm, variable) %>%
@@ -316,9 +317,10 @@ any_grade = function(df, f, params) {
   id = if(caller_arg(f)==".calc_any_grade_sup") "any_grade_sup" else "any_grade_eq"
   lab_no_ae = glue("No {params$ae_label} reported")
   lab_ae_na = "Some grades missing"
-  
+  lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
+
   df %>%
-    .add_total_arm(do=params$total) %>% 
+    .add_total_arm(do=params$total, label=lab_total) %>%
     summarise(
       tmp = list(f(grade, subjid %in% ae_id)),
       .by = c(subjid, arm)
@@ -332,7 +334,7 @@ any_grade = function(df, f, params) {
     mutate(
       np = np(n, p, digits=params$digits, zero_value=params$zero_value,
               pattern=params$percent_pattern),
-      arm = fct_last(arm, "Total"),
+      arm = fct_last(arm, lab_total),
       variable = factor(variable) %>% str_replace("no_ae", lab_no_ae) %>%
         fct_relevel(lab_no_ae) %>% fct_last("Grade = 5") %>% fct_last(lab_ae_na)
     ) %>%
