@@ -1,7 +1,6 @@
 ---
 title: "ORR Guideline Suggestions"
 author: "Alexis COCHARD"
-date: "2025-02-17"
 output: 
   rmarkdown::html_vignette:
     number_sections: true
@@ -13,22 +12,19 @@ vignette: >
 
 # Introduction
 
-This vignette illustrates the implementation of ORR analysis in R using `grstat` package. 
-In this example, the following response-based endpoints are analysed:
+This vignette illustrates the implementation of ORR analysis in R using `grstat` package. In this example, the following response-based endpoints are analysed:
 
-*Objective Response Rate (ORR), unconfirmed and confirmed:
-Estimated separately for single-arm and two-arm studies, measuring the proportion of patients achieving a complete or partial response to treatment within a specified time frame.A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the ORR is one way to see how well a new treatment works.
+-   Overall Response Rate (ORR), unconfirmed and confirmed: Measured the proportion of patients achieving a complete or partial response to treatment within a specified time frame.A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the ORR is one way to see how well a new treatment works.
 
-*Clinical Benefit Rate (CBR):
-Calculated using two different methods, typically incorporating complete response, partial response, and stable disease to assess overall treatment benefit.
+-   Clinical Benefit Rate (CBR): Proportion of complete response, partial response, and stable disease lasting at least six months (using a window of +/-1 month for the RECIST date) to assess overall treatment benefit.
 
 This vignette covers the following steps:
 
 -   Preparation of the dataset.
 
--   Use of the `ORR_table()` function
+-   Use of the `aggregate_recist_rates()` function
 
--   Creation of a nice looking flextable from the `ORR_table()` function
+-   Creation of a nice looking flextable from the `aggregate_recist_rates()` function
 
 First, install packages if needed and load them.
 
@@ -41,15 +37,13 @@ library(grstat)
 
 ## Data Overview
 
-To calculate the ORR, we'll use the “recist” dataset.
-This dataset must be in long format (one line represents a single measure of a patient's recist criterion) and must contain at least the columns :
- 
+To calculate the ORR, we'll use the "recist" dataset. This dataset must be in long format (one line represents a single measure of a patient's recist criterion) and must contain at least the columns :
+
 -   subjid, Patient ID
 
 -   rcdt, Evaluation date
 
 -   rcresp, Global response
-
 
 ## Display dataset
 
@@ -57,16 +51,16 @@ We use `grstat_example()` to simulate data
 
 ```{r}
 db = grstat_example(N=200)
-recist = db$recist
+recist = db$recist %>%
+  select(subjid,rcresp,rcdt) %>%
+  filter(subjid<3)
 
-head(recist)
-dim(recist)
+recist
 ```
 
+# aggregate_recist_rates() function
 
-# ORR_table() function
-
-`ORR_table()` consist of 6 paramater :
+`aggregate_recist_rates()` consist of 6 paramater :
 
 -   data, the recist data.frame
 
@@ -81,22 +75,21 @@ dim(recist)
 -   show_cbr, to show the CBR in the results
 
 ```{r}
-tbl = ORR_table(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt")
+tbl = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt")
 tbl
 
 #If we want an ORR confirmed : 
-tbl2 = ORR_table(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", confirmed = TRUE)
+tbl2 = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", confirmed = TRUE)
 tbl2
 
 #If we want the CBR :
-tbl3 = ORR_table(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", confirmed = TRUE, show_CBR = TRUE)
+tbl3 = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", confirmed = TRUE, show_CBR = TRUE)
 tbl3
 ```
 
 # Transformation into a flextable
 
-To transfrome our `ORR_table` (a data.frame) into a simple flextable, we just have to use the `flextable()` function.
-But since we wan't a a more specified flextable, we will use the function `as_flextable()` that will take into account the call of our `ORR_table()` to create a flextable following a specific model
+To transfrome our `aggregate_recist_rates` (a data.frame) into a simple flextable, we just have to use the `flextable()` function. But since we wan't a a more specified flextable, we will use the function `as_flextable()` that will take into account the call of our `aggregate_recist_rates()` to create a flextable following a specific model
 
 ```{r}
 ftbl = tbl %>% as_flextable()
