@@ -240,6 +240,7 @@ fct_yesno = function(x,
 
 #' @noRd
 #' @keywords internal
+#' @source GenBinomApps
 clopper_pearson_ci = function(k, n, alpha = 0.1, CI = "upper"){
   l = round(k)
   if (is.na(k) || k < 0 || max(abs(k - l)) > 1e-07)
