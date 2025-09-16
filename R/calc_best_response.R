@@ -59,6 +59,7 @@ calc_best_response = function(data_recist, ...,
     distinct() %>%
     .check_best_resp(do=warnings) %>%
     .remove_post_pd(resp = response, date = date) %>%
+    filter(n_distinct(date)>=2, .by=subjid) %>%
     mutate(n = n(), .by=subjid) %>%
     filter(n >= 2) %>%
     filter(!is.na(date)) %>%
@@ -68,7 +69,7 @@ calc_best_response = function(data_recist, ...,
       min_sum = min_narm(sum, na.rm=TRUE),
       first_sum = sum[date==first_date],
       response_num = .encode_response(response),
-      response = fct_reorder(as.character(response), response_num),
+      #response = fct_reorder(as.character(response), response_num),
       response_num = ifelse(is.na(response),NA,response_num),
       previous_response_num = lag(response_num),
       previous_date = lag(date),
@@ -86,27 +87,27 @@ calc_best_response = function(data_recist, ...,
       first_date = date==first_date,
       diff_first = (sum - first_sum)/first_sum,
       diff_first = ifelse (is.na(diff_first),0,diff_first),
-      diff_min = (sum - min_sum)/min_sum)
+      diff_min = (sum - min_sum)/min_sum) %>%
+    filter(!is.na(response))
 
   if (!isTRUE(confirmed)){
     data_recist %>%
-      filter(!is.na(response)) %>%
       mutate(bestresponse = min(response_num),
              .by=subjid) %>%
       filter(bestresponse==response_num) %>%
-      mutate(response_confirmed = .recist_from_num(bestresponse),
-             response_confirmed = factor(response_confirmed,
+      mutate(response_unconfirmed = .recist_from_num(bestresponse),
+             response_unconfirmed = factor(response_unconfirmed,
                                         levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
                                         labels = c("Complete response", "Partial response",
                                                    "Stable disease", "Progressive disease", "Not evaluable"))) %>%
-      slice_head(by=subjid) %>%
-      mutate(Overall_Response = ifelse(bestresponse==1 | bestresponse==2, TRUE, FALSE),
-             Clinical_Benefit = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2, TRUE, FALSE)) %>%
-      select(subjid, best_response=response_confirmed, date, target_sum=sum,
-             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_Response, Clinical_Benefit)
+      slice_min(order_by =date ,by=subjid) %>%
+      mutate(overall_response = bestresponse==1 | bestresponse==2,
+             clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
+      select(subjid, best_response=response_unconfirmed, date, target_sum=sum,
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, overall_response, clinical_benefit) %>%
+      structure(confirmed = confirmed)
   } else {
     data_recist %>%
-      filter(!is.na(response))%>%
       mutate(confirmed_response = case_when(
         response_num == 1 & previous_response_num == 1 & delta_date >= cycle_length                ~ 1,
         response_num == 1 & previous_response_num == 1 & delta_date < cycle_length                 ~ 3,
@@ -150,16 +151,17 @@ calc_best_response = function(data_recist, ...,
              )) %>%
       mutate(confirm = cumsum(confirm), .by=subjid) %>%
       filter(confirm==1) %>%
-      slice_head(by=subjid) %>%
+      slice_min(order_by =date ,by=subjid) %>%
       mutate(response_confirmed = .recist_from_num(bestresponse),
              response_confirmed = factor(response_confirmed,
                                         levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
                                         labels = c("Complete response","Partial response",
                                                    "Stable disease", "Progressive disease", "Not evaluable"))) %>%
-      mutate(Overall_Response = ifelse(bestresponse==1 | bestresponse==2, TRUE, FALSE),
-             Clinical_Benefit = ifelse(duree_suivi_max >= 152 | bestresponse==1 | bestresponse==2, TRUE, FALSE)) %>%
+      mutate(overall_response = bestresponse==1 | bestresponse==2,
+             clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
       select(subjid, best_response=response_confirmed, date, target_sum=sum,
-             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, Overall_Response, Clinical_Benefit)
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, overall_response, clinical_benefit) %>%
+      structure(confirmed = confirmed)
   }
 }
 
@@ -206,5 +208,9 @@ calc_best_response = function(data_recist, ...,
     filter(n_distinct(date)<2, .by=subjid) %>%
     grstat_data_warn("Patients with <2 recist evaluations were ignored.",
                      class="check_best_resp_inf2_eval_warning")
+
+    df %>% filter(n()>1, .by=c(subjid, date)) %>%
+    grstat_data_warn("Patients with duplicate date of recist evalution but different evaluation are present in the data set",
+                     class="check_best_resp_duplic_eval_warning")
   df
 }
