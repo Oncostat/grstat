@@ -150,3 +150,63 @@ as_flextable.ORR_table = function(x, ...){
   }
   Best_Response_during_treatment
 }
+
+
+#' @examples
+#' df = grstat_example()
+#' recist %>%
+#'  calc_best_response(rc_resp="RCRESP", rc_date="RCDT",
+#'                     subjid="SUBJID", confirmed = FALSE) %>%
+#'  aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) %>%
+#'  as_flextable()
+#' #Is also possible to use the confirmation method for the ORR
+#' recist %>%
+#'  calc_best_response(rc_resp="RCRESP", rc_date="RCDT",
+#'                     subjid="SUBJID", confirmed = TRUE) %>%
+#'  aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) %>%
+#'  as_flextable()
+#'
+#' #Or show the Clinical Benefice Rate
+#' recist %>%
+#'  calc_best_response(rc_resp="RCRESP", rc_date="RCDT",
+#'                     subjid="SUBJID", confirmed = TRUE) %>%
+#'  aggregate_recist_rates_2(show_CBR = TRUE, cycle_length =28) %>%
+#'  as_flextable()
+aggregate_recist_rates_2 = function(data, ..., show_CBR = FALSE, cycle_length =28){
+  confirmed = attr(data, "confirmed")
+  recist = data %>%
+    distinct()
+
+  if(length(recist$subjid) != length(data$subjid)){
+    cli_abort(c("data should be in wide format relative to subjid",
+                i="Please check that there is no duplicate"))
+  }
+
+  total = length(recist$subjid)
+  response_counts = recist %>%
+    count(best_response, .drop=FALSE) %>%
+    mutate(p=round(n / sum(n) * 100, 1))
+
+  ORR = recist %>%
+    filter(overall_response==1) %>%
+    summarise(best_response = "Overall Response Rate (ORR)", n = n()) %>%
+    mutate(p = round(n / total * 100, 1))
+
+  CBR = NULL
+  if(show_CBR){
+    CBR = recist %>%
+      filter(clinical_benefit==1) %>%
+      summarise(best_response = "Clinical Benefit Rate (CBR)", n = n()) %>%
+      mutate(p = round(n / total * 100, 1))
+  }
+  summary_df = bind_rows(ORR, response_counts, CBR) %>%
+    mutate(ic_95 = {
+      ci = clopper_pearson_ci(n, total, CI = "two.sided", alpha = 0.05)
+      glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
+    },
+    .by= best_response) %>%
+    add_class("aggregate_recist_rates") %>%
+    structure(show_CBR=show_CBR, confirmed = confirmed, total = total)
+
+  summary_df
+}
