@@ -54,14 +54,14 @@ aggregate_recist_rates = function(data, ..., rc_resp="RCRESP", rc_date="RCDT",
 
   ORR = recist %>%
     filter(overall_response==1) %>%
-    summarise(best_response = "Overall Response Rate (ORR)", n = n()) %>%
+    count(best_response = "Overall Response Rate (ORR)") %>%
     mutate(p = round(n / total * 100, 1))
 
   CBR = NULL
   if(show_CBR){
     CBR = recist %>%
       filter(clinical_benefit==1) %>%
-      summarise(best_response = "Clinical Benefit Rate (CBR)", n = n()) %>%
+      count(best_response = "Clinical Benefit Rate (CBR)") %>%
       mutate(p = round(n / total * 100, 1))
   }
   summary_df = bind_rows(ORR, response_counts, CBR) %>%
@@ -177,14 +177,14 @@ aggregate_recist_rates_2 = function(data, ..., show_CBR = FALSE, cycle_length =2
 
   ORR = recist %>%
     filter(overall_response==1) %>%
-    summarise(best_response = "Overall Response Rate (ORR)", n = n()) %>%
+    count(best_response = "Overall Response Rate (ORR)") %>%
     mutate(p = round(n / total * 100, 1))
 
   CBR = NULL
   if(show_CBR){
     CBR = recist %>%
       filter(clinical_benefit==1) %>%
-      summarise(best_response = "Clinical Benefit Rate (CBR)", n = n()) %>%
+      count(best_response = "Clinical Benefit Rate (CBR)") %>%
       mutate(p = round(n / total * 100, 1))
   }
   summary_df = bind_rows(ORR, response_counts, CBR) %>%
