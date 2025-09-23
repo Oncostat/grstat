@@ -1,6 +1,6 @@
 
 test_that("`survfit_stack()` works", {
-
+  local_options(grstat_lifecycle_verbosity="quiet")
   set.seed(42)
   df_surv = survival::lung %>%
     as_tibble() %>%
