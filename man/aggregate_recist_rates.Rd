@@ -5,16 +5,7 @@
 \alias{as_flextable.aggregate_recist_rates}
 \title{Calculate ORR}
 \usage{
-aggregate_recist_rates(
-  data,
-  ...,
-  rc_resp = "RCRESP",
-  rc_date = "RCDT",
-  subjid = "SUBJID",
-  confirmed = FALSE,
-  show_CBR = FALSE,
-  cycle_length = 28
-)
+aggregate_recist_rates(data, ..., show_CBR = FALSE, cycle_length = 28)
 
 \method{as_flextable}{aggregate_recist_rates}(x, ...)
 }
@@ -23,6 +14,12 @@ aggregate_recist_rates(
 
 \item{...}{unused}
 
+\item{show_CBR}{Logical; if \code{TRUE}, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).}
+
+\item{cycle_length}{Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation}
+
+\item{x}{a dataframe, resulting of \code{aggregate_recist_rates()}}
+
 \item{rc_resp}{The column containing the RECIST response (e.g., \code{"CR"}, \code{"PR"}, \code{"SD"}, \code{"PD"}). Default is \code{"RCRESP"}.}
 
 \item{rc_date}{The column containing the assessment date. Default is \code{"RCDT"}.}
@@ -30,12 +27,6 @@ aggregate_recist_rates(
 \item{subjid}{The column containing the subject ID. Default is \code{"SUBJID"}.}
 
 \item{confirmed}{Logical; if \code{TRUE}, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.}
-
-\item{show_CBR}{Logical; if \code{TRUE}, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).}
-
-\item{cycle_length}{Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation}
-
-\item{x}{a dataframe, resulting of \code{aggregate_recist_rates()}}
 }
 \value{
 a dataframe (\code{aggregate_recist_rates()}) or a flextable (\code{as_flextable()}).
@@ -47,19 +38,23 @@ The function \code{aggregate_recist_rates()} creates a summary table of recist f
 The resulting dataframe can be piped to \code{as_flextable()} to get a nicely formatted flextable.
 }
 \examples{
-df = grstat_example()
-recist = df$recist
-
-aggregate_recist_rates(recist)
-
-#the resulting data.frame can be customized using as_flextable()
-aggregate_recist_rates(recist) \%>\%
-  as_flextable()
-#Is also possible to use the confirmation method for the ORR
-aggregate_recist_rates(recist, confirmed = TRUE) \%>\%
-  as_flextable()
+recist = grstat_example()$recist
+recist \%>\%
+ calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
+                    subjid = "subjid", rc_sum = "rctlsum", confirmed = FALSE) \%>\%
+ aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) \%>\%
+ as_flextable()
+#It is also possible to use the confirmation method for the ORR
+recist \%>\%
+ calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
+                    subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
+ aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) \%>\%
+ as_flextable()
 
 #Or show the Clinical Benefice Rate
-aggregate_recist_rates(recist, show_CBR = TRUE) \%>\%
-  as_flextable()
+recist \%>\%
+ calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
+                    subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
+ aggregate_recist_rates_2(show_CBR = TRUE, cycle_length =28) \%>\%
+ as_flextable()
 }
