@@ -153,7 +153,7 @@ file_str_replace = function(file, ...) {
 #' @noRd
 #' @keywords internal
 file_prepend = function(file, txt, do) {
-  if(!is_true(do)) return(file)
+  if(!isTRUE(do)) return(file)
   txt %>%
     c(readLines(file)) %>%
     writeLines(con=file)
@@ -165,7 +165,7 @@ file_prepend = function(file, txt, do) {
   if(requireNamespace("rstudioapi", quietly=TRUE) && rstudioapi::hasFun("showPrompt")) {
     rtn = rstudioapi::showPrompt(title="Enter text", message=msg, default=default)
   } else if(.Platform$OS.type == "windows") {
-    rtn = winDialogString(msg, default=default)
+    rtn = utils::winDialogString(msg, default=default)
   } else{
     rtn = readline(msg)
   }
@@ -176,7 +176,7 @@ file_prepend = function(file, txt, do) {
   if(requireNamespace("rstudioapi", quietly=TRUE) && rstudioapi::hasFun("showQuestion")) {
     rtn = rstudioapi::showQuestion(title="Confirm", message=msg, ok="Yes", cancel="No")
   } else {
-    rtn = askYesNo(msg)
+    rtn = utils::askYesNo(msg)
   }
   rtn
 }
