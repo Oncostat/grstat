@@ -52,7 +52,7 @@ We use `grstat_example()` to simulate data
 ```{r}
 db = grstat_example(N=200)
 recist = db$recist %>%
-  select(subjid,rcresp,rcdt) %>%
+  select(subjid,rcresp,rcdt,rctlsum) %>%
   filter(subjid<3)
 
 recist
@@ -75,15 +75,15 @@ recist
 -   show_cbr, to show the CBR in the results
 
 ```{r}
-tbl = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt")
+tbl = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum")
 tbl
 
 #If we want an ORR confirmed : 
-tbl2 = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", confirmed = TRUE)
+tbl2 = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum", confirmed = TRUE)
 tbl2
 
 #If we want the CBR :
-tbl3 = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", confirmed = TRUE, show_CBR = TRUE)
+tbl3 = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum", confirmed = TRUE, show_CBR = TRUE)
 tbl3
 ```
 
