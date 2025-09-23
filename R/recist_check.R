@@ -108,6 +108,7 @@ gr_recist_mapping = function(){
 #'
 #' @param recist_check the result of [check_recist()]
 #' @param output_file the report file name.
+#' @param output_dir the directory of output.
 #' @param title the HTML report title.
 #' @param open whether to open the report afterward.
 #'
@@ -117,13 +118,16 @@ gr_recist_mapping = function(){
 #' @importFrom rlang check_installed
 #'
 #' @inherit check_recist examples
-recist_report_html = function(recist_check, output_file="recist_check.html",
-                              title = "RECIST Check",
-                              open=TRUE){
+recist_report_html = function(recist_check,
+                              output_file="recist_check_{project}_{date_extraction}.html",
+                              output_dir="output/check",
+                              title = "RECIST Check - {project} - {date_extraction}",
+                              open=FALSE){
   check_installed("rmarkdown", "for `recist_report_html()` to work.")
   assert_class(recist_check, "check_recist")
   assert_extension(output_file, ext="html")
-  output_file = get_report_path(output_file)
+  output_path = get_report_path(output_dir, output_file)
+  title = get_report_title(title)
 
   rmd_path = system.file("templates", "template_recist_check.Rmd", package="grstat")
   if(!file.exists(rmd_path)){
@@ -131,7 +135,7 @@ recist_report_html = function(recist_check, output_file="recist_check.html",
               .internal=TRUE)
   }
 
-  rmarkdown::render(rmd_path, output_file=output_file, quiet=TRUE,
+  rmarkdown::render(rmd_path, output_file=output_path, quiet=TRUE,
                     params=list(recist_check=recist_check, report_title=title))
 
   if(open){
@@ -147,12 +151,14 @@ recist_report_html = function(recist_check, output_file="recist_check.html",
 #' @importFrom rlang check_installed
 #'
 #' @inherit check_recist examples
-recist_report_xlsx = function(recist_check, output_file="recist_check.xlsx",
-                              open=TRUE){
+recist_report_xlsx = function(recist_check,
+                              output_file="recist_check_{project}_{date_extraction}.xlsx",
+                              output_dir="output/check",
+                              open=FALSE){
   check_installed("openxlsx", "for `recist_report_xlsx()` to work.")
   assert_class(recist_check, "check_recist")
   assert_extension(output_file, ext="xlsx")
-  output_file = get_report_path(output_file)
+  output_file = get_report_path(output_dir, output_file)
 
   wb = openxlsx::createWorkbook()
   sup0 = which(recist_check$n_subjid>0)
@@ -692,18 +698,32 @@ recist_issue_ne = function(message, level="ERROR"){
 
 #' @importFrom fs path path_ext path_ext_remove
 #' @importFrom cli cli_warn
-get_report_path = function(output_file){
-  output_file = path(getwd(), output_file)
-  if(file.exists(output_file)){
-    output_file2 = paste0(path_ext_remove(output_file), "_bak.", path_ext(output_file))
-    cli_warn("{.arg output_file} already exists and was renamed
-             to {.path {output_file2}}.")
-    if(file.exists(output_file2)){
-      cli_warn("{.arg {output_file2}} already exists and was overwritten.")
+get_report_path = function(output_dir, output_file){
+  project = get_projname()
+  date_extraction = get_extraction_date() %>% format("%Y-%m-%d")
+  output_path = glue(output_file, .null=NULL,
+                     project=project, date_extraction=date_extraction) %>%
+    str_replace_all("__", "_") %>%
+    str_replace_all("_\\.", "\\.")
+  output_path = path(getwd(), output_dir, output_path)
+  if(file.exists(output_path)){
+    output_path2 = paste0(path_ext_remove(output_path), "_bak.", path_ext(output_path))
+    cli_warn("{.arg output_path} already exists and was renamed
+             to {.path {output_path2}}.")
+    if(file.exists(output_path2)){
+      cli_warn("{.arg {output_path2}} already exists and was overwritten.")
     }
-    file.rename(output_file, output_file2)
+    file.rename(output_path, output_path2)
   }
-  output_file
+  output_path
+}
+
+#' @importFrom fs path path_ext path_ext_remove
+#' @importFrom cli cli_warn
+get_report_title = function(x){
+  project = get_projname()
+  date_extraction = get_extraction_date() %>% format("%Y-%m-%d")
+  glue(x, .null=NULL, project=project, date_extraction=date_extraction)
 }
 
 # Print ---------------------------------------------------------------------------------------

@@ -7,21 +7,25 @@
 \usage{
 recist_report_html(
   recist_check,
-  output_file = "recist_check.html",
-  title = "RECIST Check",
-  open = TRUE
+  output_file = "recist_check_{project}_{date_extraction}.html",
+  output_dir = "output/check",
+  title = "RECIST Check - {project} - {date_extraction}",
+  open = FALSE
 )
 
 recist_report_xlsx(
   recist_check,
-  output_file = "recist_check.xlsx",
-  open = TRUE
+  output_file = "recist_check_{project}_{date_extraction}.xlsx",
+  output_dir = "output/check",
+  open = FALSE
 )
 }
 \arguments{
 \item{recist_check}{the result of \code{\link[=check_recist]{check_recist()}}}
 
 \item{output_file}{the report file name.}
+
+\item{output_dir}{the directory of output.}
 
 \item{title}{the HTML report title.}
 
