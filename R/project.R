@@ -120,8 +120,6 @@ gr_new_project = function(path, ..., trial_name=NULL,
     cli_inform("Copied {length(copied_files)} files to {.path {path}}")
   }
 
-  # browser()
-
   #open in RStudio
   if(missing(open)){
     open = .user_input_yesno("Open it in RStudio right now?") %>%
@@ -206,12 +204,8 @@ file_prepend = function(file, txt, do) {
 
 
 #' @importFrom cli boxx
+#' @importFrom stringr str_split_1
 .get_proj_header = function(headers){
-  # header_data = c("Project: {trial_name}",
-  #                 "Statistician: {stat_name}") %>%
-  #   map_chr(glue, .envir=current_env())
-  # boxx(header_data, width=80) %>% str_split_1("\n") %>% paste0("# ", .)
-
   header_data = paste(names(headers), headers, sep=": ")
   boxx(header_data, ) %>%
     str_split_1("\n") %>%
@@ -219,80 +213,3 @@ file_prepend = function(file, txt, do) {
 }
 
 
-
-#' @importFrom shiny fluidPage titlePanel fluidRow column
-#' @importFrom shiny checkboxInput actionButton verbatimTextOutput
-#' @importFrom shiny renderText renderPrint observeEvent reactiveVal req
-#' @importFrom shiny showNotification shinyApp
-#' @importFrom shinyFiles shinyDirButton shinyDirChoose parseDirPath getVolumes
-.shiny_new_project = function(){
-  ui = fluidPage(
-    style = "max-width:500px;border:1px black solid",
-    titlePanel("Sélection et options"),
-    fluidRow(
-      column(8,
-             shinyDirButton("dir", "Choisir un dossier", "Sélectionnez un dossier"),
-             # actionButton("browse", "Choisir un dossier"),
-             verbatimTextOutput("dir_txt")
-      )
-    ),
-    fluidRow(
-      column(4, checkboxInput("open", "open", TRUE)),
-      column(4, checkboxInput("verbose", "verbose", TRUE)),
-      column(4, checkboxInput("add_headers", "add_headers", TRUE))
-    ),
-    actionButton("go", "Valider"),
-    verbatimTextOutput("res")
-  )
-
-  server = function(input, output, session) {
-    volumes = shinyFiles::getVolumes()()
-    default_dir = getwd()
-    defaultRoot = str_subset(volumes, str_sub(default_dir, end=2)) %0% NULL
-    defaultPath = str_remove(default_dir, defaultRoot)
-    defaultRoot = names(volumes[volumes==defaultRoot])
-
-    shinyFiles::shinyDirChoose(input, "dir", roots=volumes, session=session,
-                               defaultRoot=defaultRoot, defaultPath=defaultPath)
-    # wd = normalizePath(getwd(), winslash = "\\", mustWork = FALSE)
-    # root = paste0(substr(wd, 1, 1), ":")
-    # rel  = strsplit(sub("^[A-Za-z]:[\\/]", "", wd), "[/\\\\]")[[1]]
-    # shinyFiles::shinyDirChoose(input, "dir", roots = volumes,
-    #                            defaultRoot = root, defaultPath = rel)
-    dir_path = reactiveVal(default_dir)
-
-    observeEvent(input$dir, {
-      # print(input$dir)
-      path = shinyFiles::parseDirPath(volumes, input$dir)
-      if (length(path)>0) dir_path(path)
-    })
-
-    observeEvent(input$browse, {
-      path = .user_input_directory()
-      output$res = renderText(path)
-    })
-
-    output$dir_txt = renderText({
-      if (is.null(dir_path())) "" else dir_path()
-    })
-
-    observeEvent(input$go, {
-      req(dir_path())
-      tryCatch({
-        res = f(
-          path = dir_path(),
-          open = input$open,
-          verbose = input$verbose,
-          add_headers = input$add_headers
-        )
-        output$res <- renderPrint({ res })
-        showNotification("f exécutée", type = "message")
-      }, error = function(e) {
-        output$res <- renderText(e$message)
-        showNotification(paste("Erreur :", e$message), type = "error")
-      })
-    })
-  }
-
-  shinyApp(ui, server)
-}
