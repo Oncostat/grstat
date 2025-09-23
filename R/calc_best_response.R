@@ -51,6 +51,10 @@ calc_best_response = function(data_recist, ...,
   assert_class(rc_resp, class="character")
   assert_class(rc_date, class="character")
   assert_class(warnings, class="logical")
+  assert_names_exists(data_recist, rc_sum)
+  assert_names_exists(data_recist, rc_resp)
+  assert_names_exists(data_recist, rc_date)
+  assert_names_exists(data_recist, subjid)
   grstat_dev_warn()
 
   data_recist = data_recist %>%
