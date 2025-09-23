@@ -43,9 +43,10 @@ Generate a report as an HTML or Excel file base on RECIST checks made by \code{\
 \dontrun{
 db = read_database()
 mapping = gr_recist_mapping()
-recist_check = check_recist(db$rc, mapping=mapping)
+supp_cols_df = enrolres \%>\% select(SUBJID, SITEC, STNO)
+recist_check = check_recist(db$rc, mapping=mapping, supp_cols_df=supp_cols_df)
 recist_check
-recist_report_html(recist_check, title="RECIST Check - Study XXX")
+recist_report_html(recist_check)
 recist_report_xlsx(recist_check)
 }
 

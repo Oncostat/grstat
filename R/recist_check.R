@@ -7,6 +7,7 @@
 #' @param rc The recist dataset to check
 #' @param mapping The character vector defining the variable mapping. Refer to [gr_recist_mapping()] for default values and adjust as needed.
 #' @param exclude_post_pd Logical; if `TRUE` (default), assessments after the first PD are excluded.
+#' @param supp_cols_df A dataframe containing additional information on patients, e.g. `SITEC` the center caption. Must contain a `SUBJID` column.
 #'
 #' @returns a tibble of nested checks, of class `check_recist`
 #' @export
@@ -20,14 +21,19 @@
 #' \dontrun{
 #' db = read_database()
 #' mapping = gr_recist_mapping()
-#' recist_check = check_recist(db$rc, mapping=mapping)
+#' supp_cols_df = enrolres %>% select(SUBJID, SITEC, STNO)
+#' recist_check = check_recist(db$rc, mapping=mapping, supp_cols_df=supp_cols_df)
 #' recist_check
-#' recist_report_html(recist_check, title="RECIST Check - Study XXX")
+#' recist_report_html(recist_check)
 #' recist_report_xlsx(recist_check)
 #' }
 #'
-check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE){
+check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE,
+                        supp_cols_df=NULL){
   grstat_dev_warn()
+  assert_class(rc, "data.frame", null.ok=FALSE)
+  assert_class(supp_cols_df, "data.frame")
+  assert_class(mapping, "character")
   rc = .apply_recist_mapping(rc, mapping) %>%
     .remove_post_pd(resp=target_resp, date=rc_date, do=exclude_post_pd)
 
@@ -45,6 +51,7 @@ check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE){
   )
 
   rtn = checks %>%
+    .add_supp_cols(supp_cols_df) %>%
     list_rbind(names_to="code") %>%
     mutate(level = factor(level, levels=c("ERROR", "WARNING", "CHECK"))) %>%
     arrange(level, desc(n_subjid)) %>%
@@ -664,6 +671,29 @@ rc_check_global_response = function(rc_short){
 
   rtn
 }
+
+#' @importFrom cli cli_abort
+#' @importFrom dplyr right_join
+#' @importFrom purrr map
+.add_supp_cols = function(checks, supp_cols_df){
+  if(is.null(supp_cols_df)){
+    return(checks)
+  }
+
+  checks %>%
+    map(~{
+      if(nrow(.x)!=1) cli_abort("There should be only one row.", .internal=TRUE)
+      if(.x$n_subjid==0) return(.x)
+
+      .x$data[[1]] = supp_cols_df %>%
+        rename_with(tolower) %>%
+        right_join(.x$data[[1]], by=c("subjid")) %>%
+        arrange(subjid)
+      .x
+
+    })
+}
+
 
 # Issues --------------------------------------------------------------------------------------
 
