@@ -45,6 +45,23 @@ today_ymd = function() {
 }
 
 
+# EDCimport -----------------------------------------------------------------------------------
+
+#' @noRd
+#' @keywords internal
+#' @importFrom EDCimport edc_lookup
+get_projname = function(){
+  edc_lookup() %>% attr("project_name")
+}
+
+#' @noRd
+#' @keywords internal
+#' @importFrom EDCimport edc_lookup
+get_extraction_date = function(){
+  edc_lookup() %>% attr("datetime_extraction")
+}
+
+
 # Labels --------------------------------------------------------------------------------------
 
 #' @noRd
