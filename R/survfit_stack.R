@@ -50,6 +50,7 @@
 #' }
 survfit_stack = function(data, surv_list){
   check_installed("survival", "for `survfit_stack()` to work")
+  grstat_dev_warn()
   assert(is_named(surv_list))
   l = lengths(surv_list)
   if(all(l==2)){
