@@ -38,11 +38,10 @@
 #'   "Event-free survival" = c("time_efs", "event_efs")
 #' )
 #'
-#' s = survfit_stack(df_surv, surv_list=surv_list)
-#' s
-#'
 #' if(require("ggsurvfit")){
-#'   s %>%
+#'
+#'   df_surv %>%
+#'     survfit_stack(surv_list=surv_list) %>%
 #'     ggsurvfit() +
 #'     add_confidence_interval() +
 #'     add_risktable() +
