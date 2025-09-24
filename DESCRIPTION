@@ -30,6 +30,7 @@ Depends:
 Imports: 
     cli,
     dplyr,
+    EDCimport,
     flextable,
     forcats,
     fs,

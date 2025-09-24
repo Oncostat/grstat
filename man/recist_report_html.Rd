@@ -7,21 +7,25 @@
 \usage{
 recist_report_html(
   recist_check,
-  output_file = "recist_check.html",
-  title = "RECIST Check",
-  open = TRUE
+  output_file = "recist_check_{project}_{date_extraction}.html",
+  output_dir = "output/check",
+  title = "RECIST Check - {project} - {date_extraction}",
+  open = FALSE
 )
 
 recist_report_xlsx(
   recist_check,
-  output_file = "recist_check.xlsx",
-  open = TRUE
+  output_file = "recist_check_{project}_{date_extraction}.xlsx",
+  output_dir = "output/check",
+  open = FALSE
 )
 }
 \arguments{
 \item{recist_check}{the result of \code{\link[=check_recist]{check_recist()}}}
 
 \item{output_file}{the report file name.}
+
+\item{output_dir}{the directory of output.}
 
 \item{title}{the HTML report title.}
 
@@ -39,9 +43,10 @@ Generate a report as an HTML or Excel file base on RECIST checks made by \code{\
 \dontrun{
 db = read_database()
 mapping = gr_recist_mapping()
-recist_check = check_recist(db$rc, mapping=mapping)
+supp_cols_df = enrolres \%>\% select(SUBJID, SITEC, STNO)
+recist_check = check_recist(db$rc, mapping=mapping, supp_cols_df=supp_cols_df)
 recist_check
-recist_report_html(recist_check, title="RECIST Check - Study XXX")
+recist_report_html(recist_check)
 recist_report_xlsx(recist_check)
 }
 
