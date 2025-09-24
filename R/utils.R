@@ -161,6 +161,11 @@ remove_class = function(x, value){
   x
 }
 
+can_be_logical = function(v) {
+  is.logical(v) ||
+    (is.numeric(v) && all(v %in% c(0, 1, NA))) ||
+    (is.character(v) && all(v %in% c("TRUE", "FALSE", NA)))
+}
 
 
 # Burgled -------------------------------------------------------------------------------------
