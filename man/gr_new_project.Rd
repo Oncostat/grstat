@@ -4,56 +4,73 @@
 \alias{gr_new_project}
 \title{Create a clinical research project}
 \usage{
-gr_new_project(path, open = TRUE, verbose = TRUE)
+gr_new_project(
+  path,
+  ...,
+  trial_name = NULL,
+  headers = NULL,
+  open = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{path}{A path. If it does not exist, it is created.}
+\item{path}{Destination directory for the project root. Wille be created if needed.}
+
+\item{...}{Dots are ignored. Reserved for future extensions.}
+
+\item{trial_name}{The abbreviated name of the trial.}
+
+\item{headers}{Optional key–value headers to inject at the top of created files}
 
 \item{open}{If \code{TRUE}, opens the new project in RStudio.}
 
-\item{verbose}{If \code{TRUE}, shows diagnostics.}
+\item{verbose}{If \code{TRUE}, print diagnostics.}
 }
 \value{
-The path to the project, invisibly.
+Invisibly, the normalized path to the created project.
 }
 \description{
 Create a clinical research project with a standardized structure:
 \preformatted{
 ├── main.R
 ├── NEWS.md
+├── README.md
+└── my_proj.Rproj
 ├── R
 │   ├── init.R
 │   ├── read.R
 │   ├── check.R
 │   ├── description.R
+│   ├── population.R
 │   ├── graph.R
 │   └── report.R
-├── README.md
-└── my_proj.Rproj
 }
 }
 \section{Structure}{
 
 At the root of the project:
 \itemize{
-\item \code{README.md} contains a short description of the project
-\item \code{NEWS.md} contains the descriptions of the versions of the project
-\item \code{main.R} is the central script that sequentially calls all the others
+\item \code{README.md}: short project description
+\item \code{NEWS.md}: version log
+\item \code{main.R}: central script that orchestrates the workflow
+\item \verb{<project>.Rproj}: RStudio project
 }
 
 In the R folder:
 \itemize{
-\item \code{init.R} loads all used packages and set options
-\item \code{read.R} reads the data and sets global variables
-\item \code{check.R} checks the data, e.g. using \code{edc_data_warn()}
-\item \code{description.R} describe the data, e.g. using \code{\link[crosstable:crosstable]{crosstable::crosstable()}}
-\item \code{graph.R} create plots, and saves them on the disk or in the \code{plots} global list
-\item \code{report.R} creat the report, e.g. using the \code{officer} package
+\item \code{init.R}: packages loading and global options
+\item \code{read.R}: data import and global variables
+\item \code{population.R}: protocol populations
+\item Files ranging from \verb{09_xxx} to \verb{15_xxx} hold your analyses
+\item \code{check.R}: data checks (e.g., \code{edc_data_warn()})
+\item \code{report.R}: report generation (e.g., \code{{{officer}}})
 }
 }
 
 \examples{
 \dontrun{
-  gr_new_project("projects/my_project_folder")
+  headers = c("Statistician"="Dan",
+              "Creation date"="2025-01-01")
+  gr_new_project(headers=headers, trial_name="MYSTUDY")
 }
 }

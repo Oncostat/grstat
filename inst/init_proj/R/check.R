@@ -1,18 +1,36 @@
 
 
 
+# Automatic RECIST checks ---------------------------------------------------------------------
 
 
-# 1/ Check age validity -----------------------------------------------------------------------
+mapping = gr_recist_mapping()
+mapping["target_sum"] = "RCTLSUM"
+recist_check = check_recist(rc, mapping=mapping)
 
-find_keyword("age")
+recist_report_html(recist_check, output_file = "output/check/recist_check_mystudy_2025-01-01.html",
+                   title="RECIST Check - Study XXX - 2025/01/01", open=FALSE)
+recist_report_xlsx(recist_check, output_file = "output/check/recist_check_mystudy_2025-01-01.xlsx",
+                   open=FALSE)
 
-# enrolreq %>%
-#   filter(age<0 | age>122) %>%
-#   edc_data_warn("Age is invalid", issue_n=1)
 
-iris %>%
-  mutate(subjid=row_number()) %>%
-  filter(Sepal.Length>7.5) %>%
-  edc_data_warn("I don't know about flowers but isn't 7.5 a lot?", issue_n=1)
+# #1: AE sans grade ---------------------------------------------------------------------------
+
+ae %>%
+  filter(is.na(AEGR)) %>%
+  select(SUBJID, SITEC, STNO, AEGR, AESDT, AESER, AETERM_S, AECIOMS) %>%
+  arrange(desc(AESER), SUBJID) %>%
+  edc_data_warn("AE: Grade manquant", issue_n=1)
+
+
+# #2: Patients sans AE ------------------------------------------------------------------------
+
+enrolres %>%
+  full_join(eos, by="SUBJID") %>%
+  mutate(d=EOSDT-ENROLLDT) %>%
+  filter(is.na(d) | d>1) %>% #Exclusion des EOS juste après randomisation
+  filter(!SUBJID %in% ae$SUBJID) %>%
+  select(SUBJID, SITEC, STNO) %>%
+  edc_data_warn("AE: Patients sans AE, à confirmer explicitement", issue_n=2)
+
 

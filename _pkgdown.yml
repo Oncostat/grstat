@@ -27,6 +27,7 @@ reference:
   - contents:
     - gr_new_project
     - gr_officer_template
+    - body_add_gr_sections_1_8
     - grstat_example
 
   - title: "Checks"

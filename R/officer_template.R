@@ -156,3 +156,46 @@ gr_officer_template = function(
   }
   doc
 }
+
+
+
+#' Adds dummy sections to the report
+#'
+#' Adds sections 1 to 8 to the report so that the first title points to the
+#' standard report section 9 "Inclusion".
+#'
+#' @param doc an officer `rdocx` object
+#' @param sections Sections to add
+#'
+#' @returns an officer `rdocx` object
+#' @export
+#' @importFrom crosstable body_add_normal body_add_title
+#'
+#' @examples
+#' officer::read_docx() %>%
+#'   body_add_gr_sections_1_8() %>%
+#'   crosstable::write_and_open()
+body_add_gr_sections_1_8 = function(doc, sections=1:8){
+  dummy_sections = c(
+    "Summary of final report (model ANSM)",
+    "List of abbrevations",
+    "Ethical and regulatory considerations",
+    "Investigators, centers, administrative structure of the study and the funding",
+    "Study rationale",
+    "Study objectives",
+    "Experimental design",
+    "Statistical consideration"
+  )
+
+  for(i in dummy_sections[sections]){
+    doc = doc %>%
+    body_add_title(i) %>%
+    body_add_normal("Copy-paste from the protocol")
+  }
+
+  doc
+}
+
+
+
+
