@@ -13,6 +13,7 @@
 #' @param subjid The column containing the subject ID. Default is `"SUBJID"`.
 #' @param exclude_post_pd Logical; if `TRUE` (default), assessments after the first PD are excluded.
 #' @param warnings Logical; if `TRUE` (default is taken from `getOption("grstat_best_resp_warnings", TRUE)`), emits warnings during internal checks.
+#' @param cycle_length Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation
 #'
 #'
 #' @return A tibble with one row per subject, containing:
@@ -33,7 +34,7 @@
 #'
 #'
 #' @export
-#' @importFrom dplyr arrange distinct filter mutate n_distinct select slice_min
+#' @importFrom dplyr arrange distinct filter mutate n_distinct select slice_min slice_head
 #' @importFrom forcats fct_reorder
 #'
 #' @examples
@@ -43,42 +44,100 @@
 calc_best_response = function(data_recist, ...,
                               rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
                               subjid="SUBJID", exclude_post_pd=TRUE,
-                              warnings=getOption("grstat_best_resp_warnings", TRUE)) {
+                              warnings=getOption("grstat_best_resp_warnings", TRUE),
+                              confirmed = FALSE, cycle_length = 28) {
   assert_class(data_recist, class="data.frame")
   assert_class(rc_sum, class="character")
   assert_class(rc_resp, class="character")
   assert_class(rc_date, class="character")
   assert_class(warnings, class="logical")
+  assert_names_exists(data_recist, rc_sum)
+  assert_names_exists(data_recist, rc_resp)
+  assert_names_exists(data_recist, rc_date)
+  assert_names_exists(data_recist, subjid)
   grstat_dev_warn()
 
-  data_recist %>%
+  data_recist = data_recist %>%
     select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
            date=any_of2(rc_date)) %>%
-    .check_best_resp(do=warnings) %>%
-    filter(!is.na(sum)) %>%
-    filter(n_distinct(date)>=2, .by=subjid) %>%
-    arrange(subjid, date) %>%
     distinct() %>%
+    .check_best_resp(do=warnings) %>%
+    .remove_post_pd(resp = response, date = date) %>%
+    filter(n_distinct(date)>=2, .by=subjid) %>%
+    mutate(n = n(), .by=subjid) %>%
+    filter(n >= 2) %>%
+    filter(!is.na(date)) %>%
+    arrange(subjid, date) %>%
     mutate(
       first_date = min_narm(date, na.rm=TRUE),
       min_sum = min_narm(sum, na.rm=TRUE),
       first_sum = sum[date==first_date],
+      response_num = .encode_response(response),
+      #response = fct_reorder(as.character(response), response_num),
+      response_num = ifelse(is.na(response),NA,response_num),
+      previous_response_num = lag(response_num),
+      previous_date = lag(date),
+      previous_response_num_2 = lag(response_num,2),
+      delta_date = as.numeric(date - previous_date),
+      delta_date = ifelse(is.na(delta_date), 0, delta_date),
+      delta_date_before_PD_or_end = cumsum(delta_date),
+      delta_date_before_PD_or_end = ifelse(response_num==4, 0, delta_date_before_PD_or_end),
+      delta_date_before_PD_or_end = replace_na(delta_date_before_PD_or_end, 0),
+      duree_suivi_max = max(delta_date_before_PD_or_end),
+      bestresponse_withinprotocole = ifelse(previous_response_num==response_num, 1, 0 ),
       .by=subjid,
     ) %>%
     mutate(
       first_date = date==first_date,
-      response_num = .encode_response(response),
-      response = fct_reorder(as.character(response), response_num),
       diff_first = (sum - first_sum)/first_sum,
-      diff_min = (sum - min_sum)/min_sum
-    ) %>%
-    .remove_post_pd(resp=response, date=date, do=exclude_post_pd) %>%
-    slice_min(response_num, with_ties=TRUE, na_rm=TRUE, by=c(subjid)) %>%
-    slice_min(sum,          with_ties=TRUE, na_rm=TRUE, by=c(subjid, response_num)) %>%
-    slice_min(subjid,      with_ties=FALSE, na_rm=TRUE, by=c(subjid, response_num)) %>%
-    select(subjid, best_response=response, date, target_sum=sum,
-           target_sum_diff_first=diff_first, target_sum_diff_min=diff_min)
+      diff_first = ifelse (is.na(diff_first),0,diff_first),
+      diff_min = (sum - min_sum)/min_sum) %>%
+    filter(!is.na(response))
 
+  if (!isTRUE(confirmed)){
+    data_recist %>%
+      mutate(bestresponse = min(response_num),
+             .by=subjid) %>%
+      filter(bestresponse==response_num) %>%
+      mutate(response_unconfirmed = .recist_from_num(bestresponse),
+             response_unconfirmed = factor(response_unconfirmed,
+                                        levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
+                                        labels = c("Complete response", "Partial response",
+                                                   "Stable disease", "Progressive disease", "Not evaluable"))) %>%
+      slice_min(order_by =date ,by=subjid) %>%
+      mutate(overall_response = bestresponse==1 | bestresponse==2,
+             clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
+      select(subjid, best_response=response_unconfirmed, date, target_sum=sum,
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, overall_response, clinical_benefit) %>%
+      structure(confirmed = confirmed)
+  } else {
+    data_recist %>%
+      mutate(confirmed_response = .confirm_response(response_num = response_num,
+                                                    previous_response_num = previous_response_num,
+                                                    delta_date = delta_date,
+                                                    cycle_length = cycle_length,
+                                                    previous_response_num_2 = previous_response_num_2)) %>%
+      mutate(bestresponse = min(confirmed_response), .by=subjid) %>%
+      mutate(response_num_lead = lead(response_num),
+             response_num_lead_2 = lead(response_num,2),
+             confirm = .confirm_response_for_date(response_num = response_num,
+                                                  bestresponse = bestresponse,
+                                                  response_num_lead = response_num_lead,
+                                                  response_num_lead_2 = response_num_lead_2)) %>%
+      mutate(confirm = cumsum(confirm), .by=subjid) %>%
+      filter(confirm==1) %>%
+      slice_min(order_by =date ,by=subjid) %>%
+      mutate(response_confirmed = .recist_from_num(bestresponse),
+             response_confirmed = factor(response_confirmed,
+                                        levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
+                                        labels = c("Complete response","Partial response",
+                                                   "Stable disease", "Progressive disease", "Not evaluable"))) %>%
+      mutate(overall_response = bestresponse==1 | bestresponse==2,
+             clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
+      select(subjid, best_response=response_confirmed, date, target_sum=sum,
+             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, overall_response, clinical_benefit) %>%
+      structure(confirmed = confirmed)
+  }
 }
 
 
@@ -124,5 +183,65 @@ calc_best_response = function(data_recist, ...,
     filter(n_distinct(date)<2, .by=subjid) %>%
     grstat_data_warn("Patients with <2 recist evaluations were ignored.",
                      class="check_best_resp_inf2_eval_warning")
+
+    df %>% filter(n()>1, .by=c(subjid, date)) %>%
+    grstat_data_warn("Patients with duplicate date of recist evalution but different evaluation are present in the data set",
+                     class="check_best_resp_duplic_eval_warning")
   df
+}
+
+
+#' @noRd
+#' @keywords internal
+.confirm_response = function(response_num = response_num,
+                             previous_response_num = previous_response_num,
+                             delta_date = delta_date,
+                             cycle_length = cycle_length,
+                             previous_response_num_2 = previous_response_num_2) {
+case_when(
+  response_num == 1 & previous_response_num == 1 & delta_date >= cycle_length                ~ 1,
+  response_num == 1 & previous_response_num == 1 & delta_date < cycle_length                 ~ 3,
+  response_num == 1 & previous_response_num == 2 & delta_date >= cycle_length                ~ 2,
+  response_num == 1 & previous_response_num == 2 & delta_date < cycle_length                 ~ 3,
+  response_num == 1 & previous_response_num == 3                                             ~ 3,
+  response_num == 1 & previous_response_num == 5                                             ~ 5,
+
+  response_num == 2 & previous_response_num <= 2 & delta_date >= cycle_length                ~ 2,
+  response_num == 2 & previous_response_num <= 2 & delta_date < cycle_length                 ~ 3,
+  response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==3               ~ 3,
+  response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==5               ~ 3,
+  response_num == 2 & previous_response_num == 3 & previous_response_num_2 <= 2              ~ 2,
+  response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==3               ~ 3,
+  response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==5               ~ 5,
+  response_num == 2 & previous_response_num == 5 & previous_response_num_2 <= 2              ~ 2,
+
+  response_num == 4                                                                          ~ 4,
+  is.na(previous_response_num) & response_num <= 2                                           ~ 5,
+  is.na(previous_response_num_2)& (previous_response_num==3 | previous_response_num ==5) &
+    response_num <= 2                                                                        ~ 5,
+
+  TRUE ~ response_num
+)
+}
+
+#' @noRd
+#' @keywords internal
+.confirm_response_for_date = function(response_num = response_num,
+                                      bestresponse = bestresponse,
+                                      response_num_lead = response_num_lead,
+                                      response_num_lead_2 = response_num_lead_2) {
+  case_when(
+    response_num == 1 & bestresponse == 1 & response_num_lead ==1                              ~ 1,
+    response_num == 1 & bestresponse == 2 & response_num_lead ==2                              ~ 1,
+    response_num == 1 & bestresponse == 1 & (response_num_lead ==3 |response_num_lead ==5) &
+      response_num_lead_2 <=2                                                                  ~ 1,
+    response_num == 2 & bestresponse == 2 & response_num_lead <=2                              ~ 1,
+    response_num == 2 & bestresponse == 2 & (response_num_lead ==3 |response_num_lead ==5) &
+      response_num_lead_2 <=2                                                                  ~ 1,
+    response_num == 3 & bestresponse == 3                                                      ~ 1,
+    response_num == 4 & bestresponse == 4                                                      ~ 1,
+    response_num == 5 & bestresponse == 5                                                      ~ 1,
+
+    TRUE ~ 0
+  )
 }
