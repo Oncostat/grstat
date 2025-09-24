@@ -12,13 +12,14 @@
 #' @importFrom cli cli_abort
 #' @importFrom glue glue
 #' @importFrom rlang caller_arg
-assert = function(x, msg=NULL, call=parent.frame()){
+assert = function(x, msg=NULL, call=parent.frame(),
+                  class="grstat_assertion_error"){
   if(is.null(msg)){
     x_str = caller_arg(x)
     msg = glue("`{x_str}` is FALSE")
   }
   if(!x){
-    cli_abort(msg, call=call, .envir=parent.frame())
+    cli_abort(msg, call=call, .envir=parent.frame(), class=class)
   }
   invisible(TRUE)
 }
@@ -30,7 +31,8 @@ assert_class = function(x, class, null.ok=TRUE){
   if(is.null(x) && null.ok) return(invisible(TRUE))
   if(!inherits(x, class)){
     cli_abort("{.arg {caller_arg(x)}} should be of class {.cls {class}}, not  {.cls {class(x)}}",
-              call=parent.frame())
+              call=parent.frame(),
+              class="grstat_class_assertion_error")
   }
   invisible(TRUE)
 }

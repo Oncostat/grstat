@@ -2,7 +2,7 @@
 
 
 test_that("calc_best_response", {
-  rlang::local_options(grstat_lifecycle_verbosity="quiet")
+  local_options(grstat_lifecycle_verbosity="quiet")
   expect_snapshot({
     db = grstat_example(N=500)
     data_br = calc_best_response(db$recist)
@@ -12,7 +12,7 @@ test_that("calc_best_response", {
 
 
 test_that("waterfall_plot", {
-  rlang::local_options(grstat_lifecycle_verbosity="quiet")
+  local_options(grstat_lifecycle_verbosity="quiet")
 
   db = grstat_example(N=50)
   data_best_resp = calc_best_response(db$recist)
