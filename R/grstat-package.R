@@ -1,6 +1,6 @@
 
 #' @keywords internal
-#' @importFrom rlang %||% :=
+#' @importFrom rlang %||% := local_options
 #' @importFrom cli qty col_green col_red
 #' @importFrom lifecycle deprecated
 "_PACKAGE"
