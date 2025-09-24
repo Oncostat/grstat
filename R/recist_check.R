@@ -134,6 +134,7 @@ recist_report_html = function(recist_check,
   assert_class(recist_check, "check_recist")
   assert_extension(output_file, ext="html")
   output_path = get_report_path(output_dir, output_file)
+  dir_create(path_dir(output_path))
   title = get_report_title(title)
 
   rmd_path = system.file("templates", "template_recist_check.Rmd", package="grstat")
@@ -165,7 +166,8 @@ recist_report_xlsx = function(recist_check,
   check_installed("openxlsx", "for `recist_report_xlsx()` to work.")
   assert_class(recist_check, "check_recist")
   assert_extension(output_file, ext="xlsx")
-  output_file = get_report_path(output_dir, output_file)
+  output_path = get_report_path(output_dir, output_file)
+  dir_create(path_dir(output_path))
 
   wb = openxlsx::createWorkbook()
   sup0 = which(recist_check$n_subjid>0)
@@ -179,12 +181,12 @@ recist_report_xlsx = function(recist_check,
     openxlsx::writeDataTable(wb, sheet, data, startRow=2)
     openxlsx::setColWidths(wb, sheet, cols = 2:ncol(data), widths="auto")
   }
-  rtn = openxlsx::saveWorkbook(wb, output_file, overwrite=TRUE, returnValue=TRUE)
+  rtn = openxlsx::saveWorkbook(wb, output_path, overwrite=TRUE, returnValue=TRUE)
   if(!isTRUE(rtn)){
-    cli_abort("Could not save the Excel file at {.path {output_file}}.")
+    cli_abort("Could not save the Excel file at {.path {output_path}}.")
   }
   if(isTRUE(open)){
-    utils::browseURL(output_file)
+    utils::browseURL(output_path)
   }
   invisible(rtn)
 }
