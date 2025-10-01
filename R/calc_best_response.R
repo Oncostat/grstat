@@ -67,7 +67,7 @@ calc_best_response = function(data_recist, ...,
     ) %>%
     mutate(
       first_date = date==first_date,
-      response_num = .encode_response(response),
+      response_num = .recist_to_num(response),
       response = fct_reorder(as.character(response), response_num),
       diff_first = (sum - first_sum)/first_sum,
       diff_min = (sum - min_sum)/min_sum
@@ -80,30 +80,6 @@ calc_best_response = function(data_recist, ...,
            target_sum_diff_first=diff_first, target_sum_diff_min=diff_min)
 
 }
-
-
-#' @importFrom cli cli_abort
-#' @importFrom dplyr case_when
-#' @importFrom stringr str_detect
-.encode_response = function(x){
-  rtn = case_when(
-    str_detect(x, "(?i)(\\W|^)(CR)(\\W|$)") | str_detect(x, "(?i)complete") ~ 1,
-    str_detect(x, "(?i)(\\W|^)(PR)(\\W|$)") | str_detect(x, "(?i)partial")  ~ 2,
-    str_detect(x, "(?i)(\\W|^)(SD)(\\W|$)") | str_detect(x, "(?i)stable")   ~ 3,
-    str_detect(x, "(?i)(\\W|^)(PD)(\\W|$)") | str_detect(x, "(?i)progres")  ~ 4,
-    is.na(x) | x %in% c("NE", "NA") | str_detect(x, "(?i)not [eval|avai]")  ~ 5,
-    .default=-99,
-  )
-  if(any(rtn == -99)){
-    wrong = sort(unique(x[rtn == -99]))
-    ok = c("CR", "PR", "SD", "PD", "NA", "NE")
-    cli_abort(c("Could not parse the following values as responses: {.val {wrong}}.",
-                i="Please reformat them using the standard notation: {.or {.val {ok}}}."),
-              class="response_encode_error")
-  }
-  rtn
-}
-
 
 
 
