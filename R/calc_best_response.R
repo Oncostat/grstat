@@ -67,7 +67,7 @@ calc_best_response = function(data_recist, ...,
     ) %>%
     mutate(
       first_date = date==first_date,
-      response_num = .encode_response(response),
+      response_num = .recist_to_num(response),
       response = fct_reorder(as.character(response), response_num),
       diff_first = (sum - first_sum)/first_sum,
       diff_min = (sum - min_sum)/min_sum
