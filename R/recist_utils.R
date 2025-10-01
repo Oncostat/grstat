@@ -31,10 +31,15 @@
 #' Encode numeric RECIST response as standard acronyms
 #' Non-CR Non-PD are turned to SD for simplicity
 #' @noRd
-.recist_from_num = function(x) {
+.recist_from_num = function(x, non_target=FALSE) {
   assert(is.numeric(x))
-  x[x==99] = 5
-  factor(x, levels=c(1:5), labels=c("CR", "PR", "SD", "PD", "Not evaluable"))
+  x[is.infinite(x)] = 5
+  if(isTRUE(non_target)){
+    labels=c("CR", "Non-CR Non-PD", "Non-CR Non-PD", "PD", "Not evaluable")
+  } else {
+    labels=c("CR", "PR", "SD", "PD", "Not evaluable")
+  }
+  factor(x, levels=c(1:5), labels=labels)
 }
 
 
