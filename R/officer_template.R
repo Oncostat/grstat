@@ -95,7 +95,8 @@ gr_officer_template = function(
     body_replace_flextable_at_bkm("TRIAL_AUTHORS",
                                   .flextable_authors(authors, title="REPORT AUTHORS")) %>%
     body_replace_flextable_at_bkm("TRIAL_SPONSOR",
-                                  .flextable_authors(sponsor, title="SPONSOR"))
+                                  .flextable_authors(sponsor, title="SPONSOR")) %>%
+    officer::cursor_end()
   rtn
 }
 
