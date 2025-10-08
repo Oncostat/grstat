@@ -6,21 +6,21 @@ output:
     number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{ORR Guideline Suggestions}
+  %\VignetteIndexEntry{BOR Guideline Suggestions}
   %\VignetteEncoding{UTF-8}
 ---
 
 # Introduction
 
-This vignette illustrates the implementation of ORR analysis in R using `grstat` package.
+This vignette illustrates the implementation of BOR analysis in R using `grstat` package.
 
--   Overall Response Rate (ORR), unconfirmed and confirmed: Measured the proportion of patients achieving a complete or partial response to treatment within a specified time frame.A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the ORR is one way to see how well a new treatment works.
 RECIST (Response Evaluation Criteria in Solid Tumors) is a standardized way to quantify how solid tumors respond to therapy by comparing changes in tumor burden on imaging.
 The four possible responses are: Complete Response (CR) (disappearance of all target lesions), Partial Response (PR) (≥ 30% decrease in the sum of longest diameters from baseline), Stable Disease (SD) (neither sufficient shrinkage for PR nor sufficient increase for progression), and Progressive Disease (PD) (≥ 20% increase in the sum from the smallest measured value (the “nadir”) or appearance of new lesions). 
 We follow the RECIST 1.1 guideline, DOI: 10.1016/j.ejca.2008.10.026 
 
 In practice we use the best overall response (i.e., the best categorical response observed from treatment start until progression) because it reflects the maximum observed benefit and avoids underestimating response due to transient fluctuations or measurement noise
 
+-   Best Overall Response (BOR), unconfirmed and confirmed: Measured the proportion of patients achieving a complete or partial response to treatment within a specified time frame.A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the BOR is one way to see how well a new treatment works.
 
 -   Clinical Benefit Rate (CBR): Proportion of complete response, partial response, and stable disease lasting at least six months (using a window of +/-1 month for the RECIST date) to assess overall treatment benefit.
 
@@ -49,7 +49,7 @@ library(grstat)
 
 ## Data Overview
 
-To calculate the ORR, we'll use the "recist" dataset. This dataset must be in long format (one line represents a single measure of a patient's recist criterion) and must contain at least the columns :
+To calculate the BOR, we'll use the "recist" dataset. This dataset must be in long format (one line represents a single measure of a patient's recist criterion) and must contain at least the columns :
 
 -   subjid, Patient ID
 
@@ -107,7 +107,7 @@ best_resp2
 tbl = aggregate_recist_rates(best_resp)
 tbl
 
-#If we want an ORR confirmed : 
+#If we want an BOR confirmed : 
 tbl2 = aggregate_recist_rates(best_resp2)
 tbl2
 
@@ -124,7 +124,7 @@ To transfrome our `aggregate_recist_rates` (a data.frame) into a simple flextabl
 ftbl = tbl %>% as_flextable()
 ftbl
 
-#It's also possible with confirmed ORR : 
+#It's also possible with confirmed BOR : 
 ftbl2 = tbl2 %>% as_flextable()
 ftbl2
 

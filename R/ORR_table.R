@@ -1,4 +1,4 @@
-#' Calculate ORR
+#' Calculate BOR
 #'
 #' @description
 #' The function `aggregate_recist_rates()` creates a summary table of recist for each possible response.
@@ -27,7 +27,7 @@
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = FALSE) %>%
 #'  aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) %>%
 #'  as_flextable()
-#' #It is also possible to use the confirmation method for the ORR
+#' #It is also possible to use the confirmation method for the BOR
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
@@ -55,9 +55,9 @@ aggregate_recist_rates = function(data, ..., show_CBR = FALSE, cycle_length =28)
     count(best_response, .drop=FALSE) %>%
     mutate(p=round(n / sum(n) * 100, 1))
 
-  ORR = recist %>%
+  BOR = recist %>%
     filter(overall_response==1) %>%
-    count(best_response = "Overall Response Rate (ORR)") %>%
+    count(best_response = "Best Overall Response (BOR)") %>%
     mutate(p = round(n / total * 100, 1))
 
   CBR = NULL
@@ -67,7 +67,7 @@ aggregate_recist_rates = function(data, ..., show_CBR = FALSE, cycle_length =28)
       count(best_response = "Clinical Benefit Rate (CBR)") %>%
       mutate(p = round(n / total * 100, 1))
   }
-  summary_df = bind_rows(ORR, response_counts, CBR) %>%
+  summary_df = bind_rows(BOR, response_counts, CBR) %>%
     mutate(ic_95 = {
       ci = clopper_pearson_ci(n, total, CI = "two.sided", alpha = 0.05)
       glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
