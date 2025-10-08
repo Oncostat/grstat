@@ -82,12 +82,66 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>%
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm.")
 ```
 
-# SOC's tables; ae_table_soc
+# SOC's tables: ae_table_soc
 
-There are two tables that we can created, one with only the SOC an also another one with the AE terms.
+The ae_table_soc() function generates System Organ Class (SOC)–level summary tables of adverse events (AEs). These tables provide an overview of AE frequencies and grades, either by SOC, by Preferred Term (PT), or stratified by treatment arm. They are useful for identifying patterns of toxicity across organ systems and comparing safety profiles between study arms.
+
+There are several common ways to present SOC tables. Below are the most frequently used formats:
+
+**AE_SOC1: Table of AE grades by SOC**
+
+This table summarises the distribution of adverse event grades by System Organ Class (SOC). You can add total = FALSE to remove the “Total” column.
 
 ```{r}
 ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL, 
+             sort_by_count=FALSE) %>% 
+  as_flextable() %>% 
+  add_footer_lines("In the header, N represents the number of patients.") %>% 
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
+```
+
+**AE_SOC2: Table of AE grades by SOC and AE terms**
+
+Displays AE grades by SOC and Preferred Term (PT), providing more detailed information about which specific events contribute to the frequencies within each SOC.
+
+```{r}
+ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term="aeterm", 
+             sort_by_count=FALSE) %>% 
+  as_flextable() %>% 
+  add_footer_lines("In the header, N represents the number of patients.") %>% 
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
+```
+
+**AE_SOC3: Table of AE grades by AE terms only (filtered for serious AEs)**
+
+Summarises AE grades by Preferred Term only, filtered for Serious Adverse Events (SAEs). To create this table, filter the AE dataset beforehand to include only serious events.
+
+```{r}
+ae %>% 
+  filter(sae=="Yes") %>%
+  ae_table_soc(df_enrol=enrolres, term=NULL, arm=NULL, sort_by_count=FALSE) %>% 
+  as_flextable() %>% 
+  add_footer_lines(c("In the header, N represents the number of patients.",
+                     "Percentages reflect the proportion of patients whose maximum SAE grade was as indicated."))
+```
+
+**AE_SOC4 / AE_SOC5: SOC tables stratified by treatment arm (without total column)**
+
+Displays AE grades by SOC, stratified by treatment arm, without a total column. This format allows direct comparison of AE profiles between study arms.
+
+```{r}
+ae_table_soc(df_ae=ae, df_enrol=enrolres, term=NULL, arm="arm", sort_by_count=FALSE) %>% 
+  as_flextable() %>% 
+  add_footer_lines("In the header, N represents the number of patients.") %>% 
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
+```
+
+**AE_SOC6: Table of SOC and AE terms, all grades combined, stratified by arm**
+
+Presents SOC and Preferred Term frequencies with all AE grades combined, stratified by treatment arm. Provides an overall summary of event occurrence per arm, regardless of grade.
+
+```{r}
+ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
              sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
