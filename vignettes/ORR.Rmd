@@ -1,5 +1,5 @@
 ---
-title: "ORR Guideline Suggestions"
+title: "BOR Guideline Suggestions"
 author: "Alexis COCHARD"
 output: 
   rmarkdown::html_vignette:
@@ -12,19 +12,31 @@ vignette: >
 
 # Introduction
 
-This vignette illustrates the implementation of ORR analysis in R using `grstat` package. In this example, the following response-based endpoints are analysed:
+This vignette illustrates the implementation of ORR analysis in R using `grstat` package.
 
 -   Overall Response Rate (ORR), unconfirmed and confirmed: Measured the proportion of patients achieving a complete or partial response to treatment within a specified time frame.A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the ORR is one way to see how well a new treatment works.
+RECIST (Response Evaluation Criteria in Solid Tumors) is a standardized way to quantify how solid tumors respond to therapy by comparing changes in tumor burden on imaging.
+The four possible responses are: Complete Response (CR) (disappearance of all target lesions), Partial Response (PR) (≥ 30% decrease in the sum of longest diameters from baseline), Stable Disease (SD) (neither sufficient shrinkage for PR nor sufficient increase for progression), and Progressive Disease (PD) (≥ 20% increase in the sum from the smallest measured value (the “nadir”) or appearance of new lesions). 
+We follow the RECIST 1.1 guideline, DOI: 10.1016/j.ejca.2008.10.026 
+
+In practice we use the best overall response (i.e., the best categorical response observed from treatment start until progression) because it reflects the maximum observed benefit and avoids underestimating response due to transient fluctuations or measurement noise
+
 
 -   Clinical Benefit Rate (CBR): Proportion of complete response, partial response, and stable disease lasting at least six months (using a window of +/-1 month for the RECIST date) to assess overall treatment benefit.
+
+-   An unconfirmed best response is defined as the best categorical response observed from treatment start until progression or end of follow-up
+
+-   A confirmed best response is defined as the best categorical consecutive response (with a minimum delay of 28 days) observed from treatment start until progression or end of follow-up. For example a CR-CR-SD-PD consecutive response is a confirmed CR best response while a PR-SD-SD-PR is a confirmed SD best response. A single SD or NE between two CR or two PR doesn't prevent confirmation. See RECIST 1.1 guidelines for more information
 
 This vignette covers the following steps:
 
 -   Preparation of the dataset.
 
+-   Use of the `calc_best_response()` function
+
 -   Use of the `aggregate_recist_rates()` function
 
--   Creation of a nice looking flextable from the `aggregate_recist_rates()` function
+-   Creation of a nice looking flextable from the `as_flextable()` function
 
 First, install packages if needed and load them.
 
@@ -45,24 +57,23 @@ To calculate the ORR, we'll use the "recist" dataset. This dataset must be in lo
 
 -   rcresp, Global response
 
+-   rctlsum, Sum of target lesions
+
 ## Display dataset
 
 We use `grstat_example()` to simulate data
 
 ```{r}
 db = grstat_example(N=200)
-recist = db$recist %>%
-  select(subjid,rcresp,rcdt,rctlsum) %>%
-  filter(subjid<3)
-
-recist
+recist = db$recist
+recist %>% filter(subjid < 4)
 ```
 
 # aggregate_recist_rates() function
 
-`aggregate_recist_rates()` consist of 6 paramater :
+`calc_best_response()` consist of 6 paramater :
 
--   data, the recist data.frame
+-   data_recist, the recist data.frame
 
 -   subjid, the column for Patient ID
 
@@ -70,20 +81,38 @@ recist
 
 -   rc_date, the column for Evaluation date
 
+-   rc_sum, the column for the Sum of target lesions
+
 -   confirmed, for a confirmed or unconfirmed response
+
+```{r}
+best_resp = calc_best_response(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum")
+best_resp
+
+#If we want a confirmed Best Response: 
+best_resp2 = calc_best_response(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum", confirmed = TRUE)
+best_resp2
+
+```
+
+# aggregate_recist_rates() function
+
+`aggregate_recist_rates()` consist of 2 paramater :
+
+-   data, the data.frame containing the best response obtain afteur using the function `calc_best_response()`
 
 -   show_cbr, to show the CBR in the results
 
 ```{r}
-tbl = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum")
+tbl = aggregate_recist_rates(best_resp)
 tbl
 
 #If we want an ORR confirmed : 
-tbl2 = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum", confirmed = TRUE)
+tbl2 = aggregate_recist_rates(best_resp2)
 tbl2
 
 #If we want the CBR :
-tbl3 = aggregate_recist_rates(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum", confirmed = TRUE, show_CBR = TRUE)
+tbl3 = aggregate_recist_rates(best_resp2, show_CBR = TRUE)
 tbl3
 ```
 
