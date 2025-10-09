@@ -58,9 +58,9 @@ By default, the function `ae_table_grade` produces three table variants within a
 
 -   The most common variant is **`variant = "max"`**, which generates the table of maximum AE grade per patient, where N = total number of patients.
 
--   The second variant, **`variant = "sup"`**, summarises the grades greater than or equal to a specified grade per patient where n is the number of unique patients who have experienced at least one AE of grade greater than or equal to X.
+-   The second variant, **`variant = "sup"`**, summarises the grades greater than or equal to a specified grade per patient where n is the number of patients having experienced at least one AE of grade higher or equal to X.
 
--   The third variant, **`variant = "eq"`**, presents all grades for all patients. In this table, each proportion represents the number of patients who experienced a given grade at least once where n is the number of unique patients who have experienced at least one AE of grade X.
+-   The third variant, **`variant = "eq"`**, presents all grades for all patients. In this table, each proportion represents the number of patients who experienced a given grade at least once where n is the number of patients having experienced at least one AE of grade equal to X.
 
 ## Default AE Table Grades - incuding All Variants (Max, Sup, Eq)
 
