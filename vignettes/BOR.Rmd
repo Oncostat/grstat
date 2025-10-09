@@ -14,9 +14,7 @@ vignette: >
 
 This vignette illustrates the implementation of BOR analysis in R using `grstat` package.
 
-RECIST (Response Evaluation Criteria in Solid Tumors) is a standardized way to quantify how solid tumors respond to therapy by comparing changes in tumor burden on imaging.
-The four possible responses are: Complete Response (CR) (disappearance of all target lesions), Partial Response (PR) (≥ 30% decrease in the sum of longest diameters from baseline), Stable Disease (SD) (neither sufficient shrinkage for PR nor sufficient increase for progression), and Progressive Disease (PD) (≥ 20% increase in the sum from the smallest measured value (the “nadir”) or appearance of new lesions). 
-We follow the RECIST 1.1 guideline, DOI: 10.1016/j.ejca.2008.10.026 
+RECIST (Response Evaluation Criteria in Solid Tumors) is a standardized way to quantify how solid tumors respond to therapy by comparing changes in tumor burden on imaging. The four possible responses are: Complete Response (CR) (disappearance of all target lesions), Partial Response (PR) (≥ 30% decrease in the sum of longest diameters from baseline), Stable Disease (SD) (neither sufficient shrinkage for PR nor sufficient increase for progression), and Progressive Disease (PD) (≥ 20% increase in the sum from the smallest measured value (the “nadir”) or appearance of new lesions). We follow the RECIST 1.1 guideline, DOI: 10.1016/j.ejca.2008.10.026
 
 In practice we use the best overall response (i.e., the best categorical response observed from treatment start until progression) because it reflects the maximum observed benefit and avoids underestimating response due to transient fluctuations or measurement noise
 
@@ -51,13 +49,13 @@ library(grstat)
 
 To calculate the BOR, we'll use the "recist" dataset. This dataset must be in long format (one line represents a single measure of a patient's recist criterion) and must contain at least the columns :
 
--   subjid, Patient ID
+-   `subjid`, Patient ID
 
--   rcdt, Evaluation date
+-   `rcdt`, Evaluation date
 
--   rcresp, Global response
+-   `rcresp`, Global response
 
--   rctlsum, Sum of target lesions
+-   `rctlsum`, Sum of target lesions
 
 ## Display dataset
 
@@ -73,17 +71,17 @@ recist %>% filter(subjid < 4)
 
 `calc_best_response()` consist of 6 paramater :
 
--   data_recist, the recist data.frame
+-   `data_recist`, the recist data.frame
 
--   subjid, the column for Patient ID
+-   `subjid`, the column for Patient ID
 
--   rc_resp, the column for Global response
+-   `rc_resp`, the column for Global response
 
--   rc_date, the column for Evaluation date
+-   `rc_date`, the column for Evaluation date
 
--   rc_sum, the column for the Sum of target lesions
+-   `rc_sum`, the column for the Sum of target lesions
 
--   confirmed, for a confirmed or unconfirmed response
+-   `confirmed`, for a confirmed or unconfirmed response
 
 ```{r}
 best_resp = calc_best_response(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum")
@@ -95,13 +93,15 @@ best_resp2
 
 ```
 
+As you can see, there are warnings. You can go to `check_recist()` for more information.
+
 # aggregate_recist_rates() function
 
 `aggregate_recist_rates()` consist of 2 paramater :
 
--   data, the data.frame containing the best response obtain afteur using the function `calc_best_response()`
+-   `data`, the data.frame containing the best response obtain afteur using the function `calc_best_response()`
 
--   show_cbr, to show the CBR in the results
+-   `show_cbr`, to show the CBR in the results
 
 ```{r}
 tbl = aggregate_recist_rates(best_resp)
@@ -134,4 +134,13 @@ ftbl3
 
 ```
 
-After that, you can add footnote, surround, etc..., like with a classical flextable object
+After that, you can add footnote, surround, bold, etc..., like with a classical flextable object (see <https://ardata-fr.github.io/flextable-book/> )
+
+```{r}
+#Example
+ftbl3 %>% bold(i=4)
+ftbl3 %>% footnote(i = 3, j = 4,
+                value = as_paragraph("test"),
+                ref_symbols ="8", part = "body")
+
+```
