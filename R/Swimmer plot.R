@@ -1,6 +1,7 @@
 # Library
 library(dplyr)
 library(lubridate)
+library(grstat)
 
 # Data Simulated
 
@@ -59,30 +60,7 @@ class(recist_with_death$death_dt)
 set.seed(2025)
 
 # assume:
-# recist   → has subjid, rcdt, rcresp
-# enrolres → has subjid, date_inclusion
-# I am not quite sure how many treatment administration subjid can have between 2 recist scans.
-
-adm <- recist %>%
-  # add inclusion date to each record
-  left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
-  # only keep records with valid (non-NA, non-progressive) responses
-  filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
-  group_by(subjid) %>%
-  mutate(
-    # simulate admission date after inclusion but before or around rcdt
-    ADMDT = pmax(
-      date_inclusion + days(sample(5:15, n(), replace = TRUE)),  # at least 5–15 days post inclusion
-      rcdt - days(sample(21:30, n(), replace = TRUE))             # around each RECIST date
-    ),
-    # assign ADMYN as Yes/No with 90% Yes and 10% No
-    ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.9, 0.1))
-  ) %>%
-  ungroup() %>%
-  select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp)
-  # select(subjid, ADMYN, ADMDT)
-
-
+# I am not quite sure how many treatment administration subjid can have between 2 recist scans, I think 21 days apart.
 
 
 adm <- recist %>%
@@ -106,21 +84,12 @@ adm <- recist %>%
 
 
 
-checks <- adm %>%
-  group_by(subjid) %>%
-  summarise(first_rcdt = min(rcdt)) %>%
-  left_join(adm) %>%
-  mutate(
-    check = (ADMDT > date_inclusion) & (ADMDT < first_rcdt)
-  ) %>%
-
-
-View(checks)
+View(adm)
 
 # Icarus breast datset
 library(RColorBrewer)
 
-#  ????? Est ce que le dataset baseline a les variable BPCONSDT,BICONSDT, ou il faut prendre les date d inclusion de enroll au lieu des dates de consentement dans baseline dataset ?????
+#  ????? Est ce que le dataset baseline a les variable BPCONSDT,BICONSDT, ou il faut prendre les date d inclusion de enroll au lieu des dates de consentement dans baseline dataset ????? Check Matthieu and Baptiste script.
 
 enrolres_v2=subset(enrolres,
                     select=c(subjid, date_inclusion))
