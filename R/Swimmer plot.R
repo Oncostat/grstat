@@ -79,7 +79,8 @@ adm <- recist %>%
     )
   ) %>%
   ungroup() %>%
-  select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp)
+  select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp) %>%
+  mutate(group="Treatment Administration")
   # select(subjid, ADMYN, ADMDT)
 
 
@@ -87,6 +88,9 @@ View(adm)
 
 # Icarus breast dataset
 library(RColorBrewer)
+data to plot needed are :
+
+  dat_swim, suivi_trt, suivi_fu
 
 #  ????? Est ce que le dataset baseline a les variable BPCONSDT,BICONSDT, ou il faut prendre les date d inclusion de enroll au lieu des dates de consentement dans baseline dataset ????? Check Matthieu and Baptiste script.
 
@@ -94,36 +98,36 @@ enrolres_v2=subset(enrolres,
                     select=c(subjid, date_inclusion))
 
 
-ADM_first <- adm %>%
+ADM_first_last <- adm %>%
   arrange(as.numeric(subjid), rcdt) %>%
   mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
-  select(subjid, ADMYN, ADMDT, ADMDT_first)
+  mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
+  select(subjid, ADMYN, ADMDT, ADMDT_first, ADMDT_last, Group)
 
 swim=enrolres_v2 %>%
-  left_join(ADM_first, by=c("subjid")) %>%
-  select(subjid, date_inclusion ,ADMYN,ADMDT,ADMDT_first)
+  left_join(ADM_first_last, by=c("subjid")) %>%
+  select(subjid, date_inclusion ,ADMYN,ADMDT_first, Group)
   # mutate(T0=consdt) %>%
   # mutate(T0bis=first_ADMDT) %>%
   # mutate(Texam=ADMDT)
 
-names(swim)
 recist_repb=recist_with_death %>%
   left_join(swim, by=c("subjid")) %>%
-  # mutate(CRFNAME="Recist")
+   mutate(Group="Recist") %>%
   # mutate(T0=consdt) %>%
   # mutate(T0bis=ADMDT_first) %>%
   # mutate(Texam=RCDT) %>%
-  select(subjid , rcdt, rcresp, death_dt, date_inclusion, ADMDT_first) %>%
+  select(subjid , rcdt, rcresp, death_dt, date_inclusion, ADMDT_first, group) %>%
   distinct()
 
 eot_v2b=eot_v2 %>%
-  left_join(patient_b, by=c("SUBJID")) %>%
+  left_join(recist_repb, by=c("SUBJID")) %>%
   mutate(Texam=EOTLADDT) %>%
-  mutate(T0=consdt) %>%
-  mutate(T0bis=ADMDT_first) %>%
-  mutate(CRFNAME="end of treatment")  %>%
-  select(SUBJID, CRFNAME, EOTLADDT, Texam, T0, T0bis)
-table(eot_v2b$CRFNAME  , useNA="always")
+  # mutate(T0=consdt) %>%
+  # mutate(T0bis=ADMDT_first) %>%
+  mutate(Group="end of treatment")  %>%
+  select(SUBJID, Group, EOTLADDT, Texam, T0, T0bis)
+table(eot_v2b$Group  , useNA="always")
 
 swim$Texam=as.POSIXct(format(swim$Texam,"%Y-%m-%d"))
 recist_repb$Texam=as.POSIXct(format(recist_repb$Texam,"%Y-%m-%d"))
@@ -144,7 +148,7 @@ swim2=bind_rows(swim, recist_repb,eot_v2b )  %>%
 
 dth_death= dth_v3 %>%
   select(SUBJID, DTHDT ) %>%
-  mutate(CRFNAME="Death")
+  mutate(Group="Death")
 dth_death$DTHDT=as.POSIXct(format(dth_death$DTHDT,"%Y-%m-%d"))
 summary(swim2)
 dth_death2=dth_death %>%
@@ -155,10 +159,10 @@ dth_death2=dth_death %>%
   distinct(SUBJID, time_to_death)
 
 swim3=bind_rows(swim2,dth_death2 ) %>%
-  mutate(CRFNAME=ifelse(!is.na(time_to_death),"Death",CRFNAME )) %>%
+  mutate(Group=ifelse(!is.na(time_to_death),"Death",Group )) %>%
   mutate(EXAMDL2bis=ifelse(!is.na(time_to_death),time_to_death,EXAMDL2bis ))
 
-table( swim3$RCRESP,  swim3$CRFNAME, useNA="always")
+table( swim3$RCRESP,  swim3$Group, useNA="always")
 table( swim3$time_to_death, useNA="always")
 
 
@@ -169,7 +173,7 @@ names(fu)
 
 fu_fu= fu %>%
   select(SUBJID, FUDT ) %>%
-  mutate(CRFNAME="Alive at last follow up2")
+  mutate(Group="Alive at last follow up2")
 table( fu_fu$FUDT, useNA="always")
 
 fu_fu$FUDT=as.POSIXct(format(fu_fu$FUDT,"%Y-%m-%d"))
@@ -183,22 +187,22 @@ fu_fu2=fu_fu %>%
   distinct(SUBJID, time_to_fu)
 
 swim4=bind_rows(swim3,fu_fu2 ) %>%
-  mutate(CRFNAME=ifelse(!is.na(time_to_fu),"Alive at last follow up2",CRFNAME )) %>%
+  mutate(Group=ifelse(!is.na(time_to_fu),"Alive at last follow up2",Group )) %>%
   mutate(EXAMDL2bis=ifelse(!is.na(time_to_fu),time_to_fu,EXAMDL2bis ))
 
-table( swim4$RCRESP,  swim4$CRFNAME, useNA="always")
+table( swim4$RCRESP,  swim4$Group, useNA="always")
 table( swim4$time_to_fu, useNA="always")
 
 
 add_legend= dth_v3 %>%
   select(SUBJID) %>%
-  mutate(CRFNAME="Alive at last follow up")  %>%
+  mutate(Group="Alive at last follow up")  %>%
   filter(SUBJID==86 ) %>%
   mutate(EXAMDL2bis=-1 )
 
 add_legend2= dth_v3 %>%
   select(SUBJID) %>%
-  mutate(CRFNAME="Treatment period")  %>%
+  mutate(Group="Treatment period")  %>%
   filter(SUBJID==86 ) %>%
   mutate(EXAMDL2bis=-1 )
 
@@ -207,25 +211,25 @@ add_legend3=bind_rows(add_legend2,add_legend )
 swim5=bind_rows(swim4,add_legend3 )
 
 
-table(swim5$RCVISIT,  swim5$CRFNAME, swim5$ADMYN,useNA="always")
-table( swim5$CRFNAME, useNA="always")
+table(swim5$RCVISIT,  swim5$Group, swim5$ADMYN,useNA="always")
+table( swim5$Group, useNA="always")
 table( swim5$ADMYN, useNA="always")
 table( swim5$RCVISIT, useNA="always")
-table( swim5$RCRESP,  swim5$CRFNAME, useNA="always")
-table( swim5$RCRESP,  swim5$CRFNAME, useNA="always")
+table( swim5$RCRESP,  swim5$Group, useNA="always")
+table( swim5$RCRESP,  swim5$Group, useNA="always")
 
 swim6=swim5 %>%
-  mutate(visit=ifelse(CRFNAME=="Treatment Administration",1, NA)) %>%
-  mutate(visit=ifelse(CRFNAME=="Recist" & RCRESP=="Complete response" ,2, visit))%>%
-  mutate(visit=ifelse(CRFNAME=="Recist" & RCRESP=="Partial response" ,2, visit))%>%
-  mutate(visit=ifelse(CRFNAME=="Recist" & RCRESP=="Stable disease" ,3, visit))%>%
-  mutate(visit=ifelse(CRFNAME=="Recist" & RCRESP=="Progressive disease" ,4, visit))%>%
-  mutate(visit=ifelse(CRFNAME=="Recist" & RCRESP=="Not evaluable" ,5, visit))%>%
-  mutate(visit=ifelse(CRFNAME=="end of treatment"  ,6, visit)) %>%
-  mutate(visit=ifelse(CRFNAME=="Death"  ,7, visit)) %>%
-  mutate(visit=ifelse(CRFNAME=="Alive at last follow up2"  ,8, visit)) %>%
-  mutate(visit=ifelse(CRFNAME=="Alive at last follow up"  ,9, visit)) %>%
-  mutate(visit=ifelse(CRFNAME=="Treatment period",10,visit )) %>%
+  mutate(visit=ifelse(Group=="Treatment Administration",1, NA)) %>%
+  mutate(visit=ifelse(Group=="Recist" & RCRESP=="Complete response" ,2, visit))%>%
+  mutate(visit=ifelse(Group=="Recist" & RCRESP=="Partial response" ,2, visit))%>%
+  mutate(visit=ifelse(Group=="Recist" & RCRESP=="Stable disease" ,3, visit))%>%
+  mutate(visit=ifelse(Group=="Recist" & RCRESP=="Progressive disease" ,4, visit))%>%
+  mutate(visit=ifelse(Group=="Recist" & RCRESP=="Not evaluable" ,5, visit))%>%
+  mutate(visit=ifelse(Group=="end of treatment"  ,6, visit)) %>%
+  mutate(visit=ifelse(Group=="Death"  ,7, visit)) %>%
+  mutate(visit=ifelse(Group=="Alive at last follow up2"  ,8, visit)) %>%
+  mutate(visit=ifelse(Group=="Alive at last follow up"  ,9, visit)) %>%
+  mutate(visit=ifelse(Group=="Treatment period",10,visit )) %>%
   filter(RCVISIT=="Treatment Period" | RCVISIT=="End of treatment" |RCVISIT== "Follow-up"|is.na(RCVISIT) )  %>%
   filter(ADMYN=="Yes" | is.na(ADMYN)) %>%
   distinct() %>%
