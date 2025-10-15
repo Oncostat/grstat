@@ -60,7 +60,7 @@ class(recist_with_death$death_dt)
 set.seed(2025)
 
 # assume:
-# I am not quite sure how many treatment administration subjid can have between 2 recist scans, I think 21 days apart.
+# I am not quite sure how many treatment administration subjid can have between 2 recist scans, I think 21 days apart. So I have created only one adm per recist scans and one adm before ever first recist scan.
 
 
 adm <- recist %>%
@@ -83,10 +83,9 @@ adm <- recist %>%
   # select(subjid, ADMYN, ADMDT)
 
 
-
 View(adm)
 
-# Icarus breast datset
+# Icarus breast dataset
 library(RColorBrewer)
 
 #  ????? Est ce que le dataset baseline a les variable BPCONSDT,BICONSDT, ou il faut prendre les date d inclusion de enroll au lieu des dates de consentement dans baseline dataset ????? Check Matthieu and Baptiste script.
@@ -95,37 +94,27 @@ enrolres_v2=subset(enrolres,
                     select=c(subjid, date_inclusion))
 
 
-ADM_vb=adm %>%
-  arrange(as.numeric(SUBJID), ADMCYCLE) %>%
-  select(SUBJID , ADMYN, ADMDT) %>%
-  group_by(SUBJID) %>%
-  mutate(subjectid=row_number()) %>%
-  mutate(ADMDT_first=ifelse(subjectid==1,ADMDT,NA)) %>%
-  mutate(ADMDT_first = as.POSIXct(ADMDT_first*3600*24 , origin="1970-01-01",format="%Y-%m-%d") )
+ADM_first <- adm %>%
+  arrange(as.numeric(subjid), rcdt) %>%
+  mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
+  select(subjid, ADMYN, ADMDT, ADMDT_first)
 
+swim=enrolres_v2 %>%
+  left_join(ADM_first, by=c("subjid")) %>%
+  select(subjid, date_inclusion ,ADMYN,ADMDT,ADMDT_first)
+  # mutate(T0=consdt) %>%
+  # mutate(T0bis=first_ADMDT) %>%
+  # mutate(Texam=ADMDT)
 
-swim=patient %>%
-  left_join(ADM_vb, by=c("SUBJID")) %>%
-  select(SUBJID, consdt, CRFNAME ,ADMYN,ADMDT,first_ADMDT) %>%
-  mutate(T0=consdt) %>%
-  mutate(T0bis=first_ADMDT) %>%
-  mutate(Texam=ADMDT)
-table(swim$CRFNAME  , useNA="always")
-
-patient_b=patient %>%
-  arrange(SUBJID) %>%
-  select(SUBJID, consdt ,first_ADMDT) %>%
-  rename(ADMDT_first =first_ADMDT)
-
-recist_repb=RECIST_v2 %>%
-  left_join(patient_b, by=c("SUBJID")) %>%
-  mutate(CRFNAME="Recist") %>%
-  mutate(T0=consdt) %>%
-  mutate(T0bis=ADMDT_first) %>%
-  mutate(Texam=RCDT) %>%
-  select(SUBJID ,CRFNAME ,RCVISIT, RCDT, RCRESP, Texam, T0, T0bis) %>%
+names(swim)
+recist_repb=recist_with_death %>%
+  left_join(swim, by=c("subjid")) %>%
+  # mutate(CRFNAME="Recist")
+  # mutate(T0=consdt) %>%
+  # mutate(T0bis=ADMDT_first) %>%
+  # mutate(Texam=RCDT) %>%
+  select(subjid , rcdt, rcresp, death_dt, date_inclusion, ADMDT_first) %>%
   distinct()
-table(recist_repb$CRFNAME  , useNA="always")
 
 eot_v2b=eot_v2 %>%
   left_join(patient_b, by=c("SUBJID")) %>%
