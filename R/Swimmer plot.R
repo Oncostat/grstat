@@ -66,7 +66,8 @@ set.seed(2025)
 
 adm <- recist %>%
   left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
-  filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
+  # filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
+  filter(!is.na(rcresp)) %>%
   arrange(subjid, rcdt) %>%   # ensure ordered by patient and RECIST
   group_by(subjid) %>%
   mutate(
@@ -83,6 +84,7 @@ adm <- recist %>%
   select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp) %>%
   mutate(group="Treatment Administration")
 
+length(unique(adm$subjid))
 
 #  Simulate EOTDT in a EOT dataset
 
@@ -122,13 +124,21 @@ eot <- eot %>%
 
 
 
-# Icarus breast dataset
+# creation of the dataset needed in order to use it  to make the Swimmer plot.
+data needed
+- enrolres (not sure if that data is really nedded)
+- recist
+- adm
+- eot
+- FU
+
+
 library(RColorBrewer)
 datasets to plot needed are :
 
-  dat_swim, suivi_trt, suivi_fu
-
 #  ????? Est ce que le dataset baseline a les variable BPCONSDT,BICONSDT, ou il faut prendre les date d inclusion de enroll au lieu des dates de consentement dans baseline dataset ????? Check Matthieu and Baptiste script.
+
+
 
 enrolres_v2=subset(enrolres,
                     select=c(subjid, date_inclusion))
@@ -140,12 +150,12 @@ ADM_first <- adm %>%
   mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
   select(subjid, ADMYN, ADMDT_first, group, ADMDT)
 
-ADM_last <- adm %>%
-  arrange(as.numeric(subjid), rcdt) %>%
-  mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
-  mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
-  mutate(date=ADMDT_last) %>%
-  select(subjid, ADMYN,  date, group)
+# ADM_last <- adm %>%
+#   arrange(as.numeric(subjid), rcdt) %>%
+#   mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
+#   mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
+#   mutate(date=ADMDT_last) %>%
+#   select(subjid, ADMYN,  date, group)
 
 swim=enrolres_v2 %>%
   left_join(ADM_first, by=c("subjid")) %>%
@@ -186,6 +196,7 @@ swim2=bind_rows(swim, recist_repb,eot_v2 )  %>%
   mutate(time_from_date_inclusion_to_rcdt_months=time_from_date_inclusion_to_rcdt/30) %>%
   mutate(time_from_first_adm_date_to_admt_months=time_from_first_adm_date_to_admt/30)
 
+length(unique(swim2$subjid))
 
 dth_death= dth_v3 %>%
   select(SUBJID, DTHDT ) %>%
