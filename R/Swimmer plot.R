@@ -1,7 +1,12 @@
+rm(list=ls())
+
 # Library
 library(dplyr)
 library(lubridate)
 library(grstat)
+# not sure if needed
+library(RColorBrewer)
+
 
 # Data Simulated
 
@@ -22,45 +27,41 @@ length(unique(enrolres$subjid))
 
 ## add simulated death date to recist
 
-
 set.seed(2025)  # reproducibility
 
-# Step 1: get last date per subject and simulate deaths (20% die)
+# get last date per subject and simulate deaths (20% die)
 
-death_info <- recist %>%
+dth <- recist %>%
   summarise(
     last_rcdt = max(rcdt, na.rm = TRUE),.by = subjid ) %>%
   mutate(
     died = rbinom(n(), 1, prob = 0.2),
-    death_dt = if_else(
+    dthdt = if_else(
       died == 1,
       last_rcdt + days(sample(30:180, n(), replace = TRUE)),
-      as.date(NA)
+      as.Date(NA)
     )
   ) %>%
-  select(subjid, death_dt, died)  # keep only ID + simulated death date
+  select(subjid, dthdt, died)  # keep only ID + simulated death date
 
-# Step 2: merge death info back to full recist dataset
+dim(dth)
+length(unique(dth$subjid))
+class(dth$dthdt)
 
-recist_with_death <- recist %>%
-  left_join(death_info, by = "subjid") %>%
+#  add RCVISIT to recist
+recist <- recist %>%
   group_by(subjid) %>%
   mutate(RCVISIT = ifelse(is.na(rcresp), "Baseline", NA)) %>%
   mutate(RCVISIT = ifelse(rcresp=="Progressive disease", "End of treatment", RCVISIT)) %>%
   ungroup()
 
-
-dim(recist_with_death)
-length(unique(recist_with_death$subjid))
-class(recist_with_death$death_dt)
-
-
+dim(recist)
+length(unique(recist$subjid))
 
 ## simulate treatment administration data
 
 set.seed(2025)
 
-# assume:
 # I am not quite sure how many treatment administration subjid can have between 2 recist scans, I think 21 days apart. So I have created only one adm per recist scans and one adm before ever first recist scan.
 
 
@@ -90,14 +91,13 @@ length(unique(adm$subjid))
 
 set.seed(2025)
 
-# Step 1: Create eot base dataset (from adm and recist_with_death)
 eot <- adm %>%
   group_by(subjid) %>%
   summarise(
     last_admdt = max(ADMDT, na.rm = TRUE),
     last_rcdt  = max(rcdt, na.rm = TRUE)
   ) %>%
-  left_join(select(recist_with_death, subjid, death_dt, died), by = "subjid")
+  left_join(select(dth, subjid, dthdt, died), by = "subjid")
 
 # Step 2: Simulate End of Treatment date (EOTLADDT)
 eot <- eot %>%
@@ -108,11 +108,11 @@ eot <- eot %>%
       died == 0 | is.na(died) ~ last_admdt + days(sample(30:120, n(), replace = TRUE)) # alive: longer gap
     ),
     # ensure EOTLADDT < death date when applicable
-    EOTLADDT = if_else(!is.na(death_dt) & EOTLADDT > death_dt,
-                       death_dt - days(sample(3:10, n(), replace = TRUE)),  # just before death
+    EOTLADDT = if_else(!is.na(dthdt) & EOTLADDT > dthdt,
+                       dthdt - days(sample(3:10, n(), replace = TRUE)),  # just before death
                        EOTLADDT)
   ) %>%
-  select(subjid, last_admdt, death_dt, died, EOTLADDT)
+  select(subjid, last_admdt, dthdt, died, EOTLADDT)
 
 # Step 3: (Optional) Add realistic censoring or ensure no future dates
 eot <- eot %>%
@@ -124,20 +124,18 @@ eot <- eot %>%
 
 
 
+# Simulate FU dataset
+
+FUDT
+
 # creation of the dataset needed in order to use it  to make the Swimmer plot.
 data needed
 - enrolres (not sure if that data is really nedded)
 - recist
 - adm
 - eot
+- dth
 - FU
-
-
-library(RColorBrewer)
-datasets to plot needed are :
-
-#  ????? Est ce que le dataset baseline a les variable BPCONSDT,BICONSDT, ou il faut prendre les date d inclusion de enroll au lieu des dates de consentement dans baseline dataset ????? Check Matthieu and Baptiste script.
-
 
 
 enrolres_v2=subset(enrolres,
@@ -164,13 +162,13 @@ swim=enrolres_v2 %>%
   # mutate(T0=consdt) %>%
   # mutate(T0bis=first_ADMDT) %>%
 
-recist_repb=recist_with_death %>%
+recist_repb=recist %>%
   left_join(swim, by=c("subjid")) %>%
    mutate(group="Recist") %>%
   # mutate(T0=consdt) %>%
   # mutate(T0bis=ADMDT_first) %>%
    mutate(date=rcdt) %>%
-  select(subjid , date, rcresp, death_dt, date_inclusion, ADMDT_first, group, RCVISIT) %>%
+  select(subjid , date, rcresp, date_inclusion, ADMDT_first, group, RCVISIT) %>%
   distinct()
 
 eot_v2=eot %>%
@@ -194,28 +192,25 @@ swim2=bind_rows(swim, recist_repb,eot_v2 )  %>%
   # mutate(examdlbis=(date-ADMDT_first)) %>%
   mutate(time_from_first_adm_date_to_admt=(date-ADMDT_first)) %>%
   mutate(time_from_date_inclusion_to_rcdt_months=time_from_date_inclusion_to_rcdt/30) %>%
-  mutate(time_from_first_adm_date_to_admt_months=time_from_first_adm_date_to_admt/30)
+  mutate(time_from_first_adm_date_to_admt_months=time_from_first_adm_date_to_admt/30) %>%
+  mutate(RCVISIT = ifelse(group == "Treatment Administration", "Treatment Period", RCVISIT))
 
 length(unique(swim2$subjid))
 
-dth_death= dth_v3 %>%
-  select(SUBJID, DTHDT ) %>%
-  mutate(group="Death")
-dth_death$DTHDT=as.POSIXct(format(dth_death$DTHDT,"%Y-%m-%d"))
-summary(swim2)
+dth_death= dth %>%
+  select(subjid, dthdt )
+
+
 dth_death2=dth_death %>%
-  left_join(swim2, by = join_by(SUBJID)) %>%
-  mutate(time_to_death=(DTHDT-T0bis)) %>%
-  mutate(time_to_death=time_to_death/30) %>%
-  select(SUBJID, time_to_death ) %>%
-  distinct(SUBJID, time_to_death)
+  left_join(swim2, by = join_by(subjid)) %>%
+  mutate(time_to_death=(dthdt-ADMDT_first)) %>%
+  mutate(time_to_death_months=time_to_death/30)
+  select(subjid, time_to_death_months ) %>%
+  distinct(subjid, time_to_death)
 
 swim3=bind_rows(swim2,dth_death2 ) %>%
   mutate(group=ifelse(!is.na(time_to_death),"Death",group )) %>%
-  mutate(EXAMDL2bis=ifelse(!is.na(time_to_death),time_to_death,EXAMDL2bis ))
-
-table( swim3$RCRESP,  swim3$group, useNA="always")
-table( swim3$time_to_death, useNA="always")
+  mutate(time_from_first_adm_date_to_admt=ifelse(!is.na(time_to_death_months),time_to_death,time_from_first_adm_date_to_admt ))
 
 
 # FU ----------------------------------------------------------------------
