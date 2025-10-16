@@ -86,6 +86,44 @@ adm <- recist %>%
 
 View(adm)
 
+#  Simulate EOTDT in a EOT dataset
+
+set.seed(2025)
+
+# Step 1: Create eot base dataset (from adm and recist_with_death)
+eot <- adm %>%
+  group_by(subjid) %>%
+  summarise(
+    last_admdt = max(ADMDT, na.rm = TRUE),
+    last_rcdt  = max(rcdt, na.rm = TRUE)
+  ) %>%
+  left_join(select(recist_with_death, subjid, death_dt, died), by = "subjid")
+
+# Step 2: Simulate End of Treatment Date (EOTLADDT)
+eot <- eot %>%
+  mutate(
+    # usually after last treatment date but before death
+    EOTLADDT = case_when(
+      died == 1 ~ last_admdt + days(sample(7:60, n(), replace = TRUE)),  # 1–2 months after treatment end
+      died == 0 | is.na(died) ~ last_admdt + days(sample(30:120, n(), replace = TRUE)) # alive: longer gap
+    ),
+    # ensure EOTLADDT < death date when applicable
+    EOTLADDT = if_else(!is.na(death_dt) & EOTLADDT > death_dt,
+                       death_dt - days(sample(3:10, n(), replace = TRUE)),  # just before death
+                       EOTLADDT)
+  ) %>%
+  select(subjid, last_admdt, death_dt, died, EOTLADDT)
+
+# Step 3: (Optional) Add realistic censoring or ensure no future dates
+eot <- eot %>%
+  mutate(
+    EOTLADDT = pmin(EOTLADDT, Sys.Date()) # prevent future dates
+  ) %>%
+  summarise(
+    EOTLADDT = max(EOTLADDT, na.rm = TRUE),.by = subjid )
+
+
+
 # Icarus breast dataset
 library(RColorBrewer)
 data to plot needed are :
@@ -98,14 +136,20 @@ enrolres_v2=subset(enrolres,
                     select=c(subjid, date_inclusion))
 
 
-ADM_first_last <- adm %>%
+ADM_first <- adm %>%
   arrange(as.numeric(subjid), rcdt) %>%
   mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
   mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
-  select(subjid, ADMYN, ADMDT, ADMDT_first, ADMDT_last, Group)
+  select(subjid, ADMYN, ADMDT_first, Group)
+
+ADM_last <- adm %>%
+  arrange(as.numeric(subjid), rcdt) %>%
+  mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
+  mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
+  select(subjid, ADMYN,  ADMDT_last, Group)
 
 swim=enrolres_v2 %>%
-  left_join(ADM_first_last, by=c("subjid")) %>%
+  left_join(ADM_first, by=c("subjid")) %>%
   select(subjid, date_inclusion ,ADMYN,ADMDT_first, Group)
   # mutate(T0=consdt) %>%
   # mutate(T0bis=first_ADMDT) %>%
@@ -120,13 +164,13 @@ recist_repb=recist_with_death %>%
   select(subjid , rcdt, rcresp, death_dt, date_inclusion, ADMDT_first, group) %>%
   distinct()
 
-eot_v2b=eot_v2 %>%
+eot_v2=eot %>%
   left_join(recist_repb, by=c("SUBJID")) %>%
-  mutate(Texam=EOTLADDT) %>%
+  # mutate(Texam=EOTLADDT) %>%
   # mutate(T0=consdt) %>%
   # mutate(T0bis=ADMDT_first) %>%
   mutate(Group="end of treatment")  %>%
-  select(SUBJID, Group, EOTLADDT, Texam, T0, T0bis)
+  select(SUBJID, Group, EOTLADDT)
 table(eot_v2b$Group  , useNA="always")
 
 swim$Texam=as.POSIXct(format(swim$Texam,"%Y-%m-%d"))
