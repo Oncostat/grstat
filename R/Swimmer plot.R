@@ -144,13 +144,14 @@ select(subjid, EOTLADDT_v2) %>%
   distinct() %>%
   filter(!is.na(EOTLADDT))
 
+
 length(unique(eot$subjid))
 
 # Simulate FU dataset
 
 set.seed(2025)
 
-FU <- eot %>%
+fu <- eot %>%
   rowwise() %>%
   mutate(
     n_fu = sample(1)  # number of follow-ups per subject
@@ -177,7 +178,8 @@ FU <- eot %>%
   distinct() %>%
   filter(!is.na(FUDT))
 
-length(unique(FU$subjid))
+
+length(unique(fu$subjid))
 
 
 # creation of the dataset needed in order to use it  to make the Swimmer plot.
@@ -223,6 +225,7 @@ recist_repb=recist %>%
   select(subjid , date, rcresp, date_inclusion, ADMDT_first, group, RCVISIT) %>%
   distinct()
 
+names(eot)
 eot_v2=eot %>%
   left_join(recist_repb, by=c("subjid")) %>%
   mutate(date=EOTLADDT) %>%
@@ -235,8 +238,6 @@ table(eot_v2$group  , useNA="always")
 
 summary(swim)
 
-
-# TO DO: change bind_row to pivot_longer
 
 swim2=bind_rows(swim, recist_repb,eot_v2 )  %>%
    # mutate(examdl=(date-date_inclusion)) %>%
@@ -256,38 +257,34 @@ dth_death= dth %>%
 dth_death2=dth_death %>%
   left_join(swim2, by = join_by(subjid)) %>%
   mutate(time_to_death=(dthdt-ADMDT_first)) %>%
-  mutate(time_to_death_months=time_to_death/30)
-  select(subjid, time_to_death_months ) %>%
+  mutate(time_to_death_months=time_to_death/30) %>%
+  select(subjid, time_to_death ) %>%
   distinct(subjid, time_to_death)
 
 swim3=bind_rows(swim2,dth_death2 ) %>%
   mutate(group=ifelse(!is.na(time_to_death),"Death",group )) %>%
-  mutate(time_from_first_adm_date_to_admt=ifelse(!is.na(time_to_death_months),time_to_death,time_from_first_adm_date_to_admt ))
+  mutate(time_from_first_adm_date_to_admt=ifelse(!is.na(time_to_death),time_to_death,time_from_first_adm_date_to_admt ))
 
 
 # FU ----------------------------------------------------------------------
 
-names(fu)
+names(FU)
 
 
-fu_fu= fu %>%
-  select(SUBJID, FUDT ) %>%
+fu_v2= fu %>%
+  select(subjid, FUDT ) %>%
   mutate(group="Alive at last follow up2")
-table( fu_fu$FUDT, useNA="always")
 
-fu_fu$FUDT=as.POSIXct(format(fu_fu$FUDT,"%Y-%m-%d"))
+fu_v3=fu_v2 %>%
+  left_join(swim3, by = join_by(subjid)) %>%
+  mutate(time_ADMDT_first_to_fu=(FUDT-ADMDT_first)) %>%
+  mutate(time_ADMDT_first_to_fu_months=time_ADMDT_first_to_fu/30) %>%
+  select(subjid, time_ADMDT_first_to_fu ) %>%
+  distinct(subjid, time_ADMDT_first_to_fu)
 
-summary(swim3)
-fu_fu2=fu_fu %>%
-  left_join(swim3, by = join_by(SUBJID)) %>%
-  mutate(time_to_fu=(FUDT-T0bis)) %>%
-  mutate(time_to_fu=time_to_fu/30) %>%
-  select(SUBJID, time_to_fu ) %>%
-  distinct(SUBJID, time_to_fu)
-
-swim4=bind_rows(swim3,fu_fu2 ) %>%
-  mutate(group=ifelse(!is.na(time_to_fu),"Alive at last follow up2",group )) %>%
-  mutate(EXAMDL2bis=ifelse(!is.na(time_to_fu),time_to_fu,EXAMDL2bis ))
+swim4=bind_rows(swim3,fu_v3 ) %>%
+  mutate(group=ifelse(!is.na(time_ADMDT_first_to_fu),"Alive at last follow up2",group )) %>%
+  mutate(time_from_first_adm_date_to_admt=ifelse(!is.na(time_ADMDT_first_to_fu),time_ADMDT_first_to_fu,time_from_first_adm_date_to_admt ))
 
 table( swim4$RCRESP,  swim4$group, useNA="always")
 table( swim4$time_to_fu, useNA="always")
