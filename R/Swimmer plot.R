@@ -11,11 +11,6 @@ library(grstat)
 tm = grstat_example()
 attach(tm)
 
-View(ae)
-View(enrolres)
-View(recist)
-
-
 dim(ae)
 dim(enrolres)
 dim(recist)
@@ -46,14 +41,19 @@ death_info <- recist %>%
   select(subjid, death_dt, died)  # keep only ID + simulated death date
 
 # Step 2: merge death info back to full recist dataset
+
 recist_with_death <- recist %>%
-  left_join(death_info, by = "subjid")
+  left_join(death_info, by = "subjid") %>%
+  group_by(subjid) %>%
+  mutate(RCVISIT = ifelse(is.na(rcresp), "Baseline", NA)) %>%
+  ungroup()
 
 
-View(recist_with_death)
 dim(recist_with_death)
 length(unique(recist_with_death$subjid))
 class(recist_with_death$death_dt)
+
+
 
 ## simulate treatment administration data
 
@@ -80,11 +80,9 @@ adm <- recist %>%
   ) %>%
   ungroup() %>%
   select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp) %>%
-  mutate(group="Treatment Administration")
+  mutate(Group="Treatment Administration")
   # select(subjid, ADMYN, ADMDT)
 
-
-View(adm)
 
 #  Simulate EOTDT in a EOT dataset
 
@@ -126,7 +124,7 @@ eot <- eot %>%
 
 # Icarus breast dataset
 library(RColorBrewer)
-data to plot needed are :
+datasets to plot needed are :
 
   dat_swim, suivi_trt, suivi_fu
 
@@ -140,42 +138,44 @@ ADM_first <- adm %>%
   arrange(as.numeric(subjid), rcdt) %>%
   mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
   mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
-  select(subjid, ADMYN, ADMDT_first, Group)
+  select(subjid, ADMYN, ADMDT_first, Group, ADMDT)
 
 ADM_last <- adm %>%
   arrange(as.numeric(subjid), rcdt) %>%
   mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
   mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
-  select(subjid, ADMYN,  ADMDT_last, Group)
+  mutate(Date=last_ADMDT) %>%
+  select(subjid, ADMYN,  Date, Group) %>%
+
 
 swim=enrolres_v2 %>%
   left_join(ADM_first, by=c("subjid")) %>%
-  select(subjid, date_inclusion ,ADMYN,ADMDT_first, Group)
+  mutate(Date=ADMDT) %>%
+  select(subjid, date_inclusion ,ADMYN,ADMDT_first, Group, Date)
   # mutate(T0=consdt) %>%
   # mutate(T0bis=first_ADMDT) %>%
-  # mutate(Texam=ADMDT)
 
 recist_repb=recist_with_death %>%
   left_join(swim, by=c("subjid")) %>%
    mutate(Group="Recist") %>%
   # mutate(T0=consdt) %>%
   # mutate(T0bis=ADMDT_first) %>%
-  # mutate(Texam=RCDT) %>%
-  select(subjid , rcdt, rcresp, death_dt, date_inclusion, ADMDT_first, group) %>%
+   mutate(Date=RCDT) %>%
+  select(subjid , Date, rcresp, death_dt, date_inclusion, ADMDT_first, group) %>%
   distinct()
 
 eot_v2=eot %>%
   left_join(recist_repb, by=c("SUBJID")) %>%
-  # mutate(Texam=EOTLADDT) %>%
+  # mutate(Date=EOTLADDT) %>%
   # mutate(T0=consdt) %>%
   # mutate(T0bis=ADMDT_first) %>%
   mutate(Group="end of treatment")  %>%
   select(SUBJID, Group, EOTLADDT)
 table(eot_v2b$Group  , useNA="always")
 
-swim$Texam=as.POSIXct(format(swim$Texam,"%Y-%m-%d"))
-recist_repb$Texam=as.POSIXct(format(recist_repb$Texam,"%Y-%m-%d"))
-eot_v2b$Texam=as.POSIXct(format(eot_v2b$Texam,"%Y-%m-%d"))
+swim$Date=as.POSIXct(format(swim$Date,"%Y-%m-%d"))
+recist_repb$Date=as.POSIXct(format(recist_repb$Date,"%Y-%m-%d"))
+eot_v2b$Date=as.POSIXct(format(eot_v2b$Date,"%Y-%m-%d"))
 
 summary(swim)
 swim$T0bis=as.POSIXct(format(swim$T0bis,"%Y-%m-%d"))
@@ -185,8 +185,8 @@ eot_v2b$T0bis=as.POSIXct(format(eot_v2b$T0bis,"%Y-%m-%d"))
 # TO DO: change bind_row to pivot_longer
 
 swim2=bind_rows(swim, recist_repb,eot_v2b )  %>%
-  mutate(examdl=(Texam-T0)/(3600*24)) %>%
-  mutate(examdlbis=(Texam-T0bis)/(3600*24)) %>%
+  mutate(examdl=(Date-T0)/(3600*24)) %>%
+  mutate(examdlbis=(Date-T0bis)/(3600*24)) %>%
   mutate(EXAMDL2=examdl/30) %>%
   mutate(EXAMDL2bis=examdlbis/30)
 
@@ -278,7 +278,7 @@ swim6=swim5 %>%
   filter(ADMYN=="Yes" | is.na(ADMYN)) %>%
   distinct() %>%
   mutate(subjid_num=as.numeric(SUBJID)) %>%
-  arrange(subjid_num, Texam)
+  arrange(subjid_num, Date)
 
 table( swim6$visit, useNA="always")
 
@@ -308,7 +308,7 @@ table(suivi$visit2)
 
 summary(suivi$examdl2bis)
 summary(suivi$visit2)
-summary(suivi$texam)
+summary(suivi$Date)
 
 # Plot --------------------------------------------------------------------
 names(suivi)
