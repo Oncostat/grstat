@@ -89,7 +89,7 @@ length(unique(adm$subjid))
 
 #  Simulate EOTDT in a EOT dataset
 
-set.seed(2025)
+# set.seed(2025)
 
 eot <- adm %>%
   group_by(subjid) %>%
@@ -122,11 +122,63 @@ eot <- eot %>%
   summarise(
     EOTLADDT = max(EOTLADDT, na.rm = TRUE),.by = subjid )
 
+length(unique(eot$subjid))
 
+# Step 4: keep EOTLADDT for all subjid that had progressive deaseas
+eot <- eot %>%
+  left_join(recist, by = "subjid") %>%
+  select(subjid, EOTLADDT, rcresp) %>%
+  mutate(
+    EOTLADDT_v2 = if_else(rcresp == "Progressive disease", EOTLADDT, as.Date(NA))
+  ) %>%
+mutate(
+  EOTLADDT = if_else(
+    runif(n()) < 0.95,          # with 70% probability
+    as.Date(NA),               # replace with NA
+    EOTLADDT                   # otherwise keep the original
+  )
+) %>%
+  mutate(EOTLADDT_v2 = if_else(is.na(EOTLADDT_v2), EOTLADDT,EOTLADDT_v2, as.Date(NA))) %>%
+select(subjid, EOTLADDT_v2) %>%
+  rename(EOTLADDT=EOTLADDT_v2) %>%
+  distinct() %>%
+  filter(!is.na(EOTLADDT))
+
+length(unique(eot$subjid))
 
 # Simulate FU dataset
 
-FUDT
+set.seed(2025)
+
+FU <- eot %>%
+  rowwise() %>%
+  mutate(
+    n_fu = sample(1)  # number of follow-ups per subject
+  ) %>%
+  do({
+    subjid <- .$subjid
+    eot_date <- .$EOTLADDT
+    n_fu <- .$n_fu
+
+    # Simulate follow-up dates: between 4 and 180 days post-EOTLADDT
+    data.frame(
+      subjid = subjid,
+      FUDT = sort(eot_date + days(sample(4:180, n_fu, replace = FALSE)))
+    )
+  }) %>%
+  ungroup() %>%
+  mutate(
+    FUDT = if_else(
+      runif(n()) < 0.7,   # 80% probability
+      as.Date(NA),        # set to missing
+      FUDT                # keep original
+    )
+  ) %>%
+  distinct() %>%
+  filter(!is.na(FUDT))
+
+length(unique(FU$subjid))
+
 
 # creation of the dataset needed in order to use it  to make the Swimmer plot.
 data needed
