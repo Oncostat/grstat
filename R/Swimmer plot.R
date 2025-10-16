@@ -182,7 +182,6 @@ length(unique(fu$subjid))
 recist <- recist %>%
   group_by(subjid) %>%
   mutate(RCVISIT = ifelse(is.na(rcresp), "Baseline", NA)) %>%
-  mutate(RCVISIT = ifelse(rcresp=="Progressive disease", "End of treatment", RCVISIT)) %>%
   ungroup()
 
 dim(recist)
@@ -289,7 +288,6 @@ swim3=bind_rows(swim2,dth_death2 ) %>%
   mutate(time_from_first_adm_date_to_admt=ifelse(!is.na(time_to_death),time_to_death,time_from_first_adm_date_to_admt ))
 
 
-
 # add fu dataset ----------------------------------------------------------
 
 
@@ -329,7 +327,7 @@ table( swim4$time_to_fu, useNA="always")
 #
 # add_legend3=bind_rows(add_legend2,add_legend )
 
-swim5=bind_rows(swim4,add_legend3 )
+# swim5=bind_rows(swim4,add_legend3 )
 
 
 table(swim5$RCVISIT,  swim5$group, swim5$ADMYN,useNA="always")
