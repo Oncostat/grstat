@@ -101,26 +101,40 @@ eot <- eot %>%
     EOTLADDT = case_when(
       died == 1 ~ last_admdt + days(sample(7:60, n(), replace = TRUE)),  # 1–2 months after treatment end
       died == 0 | is.na(died) ~ last_admdt + days(sample(30:120, n(), replace = TRUE)) # alive: longer gap
-    ),
-    # ensure EOTLADDT < death date when applicable
-    EOTLADDT = if_else(!is.na(dthdt) & EOTLADDT > dthdt,
-                       dthdt - days(sample(3:10, n(), replace = TRUE)),  # just before death
-                       EOTLADDT)
+    )
+    # # ensure EOTLADDT < death date when applicable
+    # EOTLADDT = if_else(!is.na(dthdt) & EOTLADDT > dthdt,
+    #                    dthdt - days(sample(3:10, n(), replace = TRUE)),  # just before death
+    #                    EOTLADDT)
   ) %>%
   select(subjid, last_admdt, dthdt, died, EOTLADDT)
 
 # Step 3: (Optional) Add realistic censoring or ensure no future dates
-eot <- eot %>%
-  mutate(
-    EOTLADDT = pmin(EOTLADDT, Sys.Date()) # prevent future dates
-  ) %>%
-  summarise(
-    EOTLADDT = max(EOTLADDT, na.rm = TRUE),.by = subjid )
+# eot <- eot %>%
+#   mutate(
+#     EOTLADDT = pmin(EOTLADDT, Sys.Date()) # prevent future dates
+#   ) %>%
+#   summarise(
+#     EOTLADDT = max(EOTLADDT, na.rm = TRUE),.by = subjid )
 
 length(unique(eot$subjid))
+#  something wrong as lots of subjid have a end of tretment before last adm
 
-# Step 4: keep EOTLADDT for all subjid that had progressive deaseas
-eot <- eot %>%
+eot_adjustement <- adm %>%
+  arrange(as.numeric(subjid), rcdt) %>%
+  mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
+  select(subjid, ADMDT_last) %>%
+  left_join(eot) %>%
+  left_join(dth) %>%
+  filter(!is.na(EOTLADDT)) %>%
+  mutate(time_from_end_trt_to_last_adm=EOTLADDT-ADMDT_last) %>%
+mutate(time_from_end_trt_to_last_dth=dthdt-EOTLADDT)
+  filter(time_from_end_trt_to_last_adm>0)
+
+
+# Step 4: keep EOTLADDT for all subjid that had progressive deasease
+
+eot <- eot_adjustement %>%
   left_join(recist, by = "subjid") %>%
   select(subjid, EOTLADDT, rcresp) %>%
   mutate(
@@ -128,7 +142,7 @@ eot <- eot %>%
   ) %>%
 mutate(
   EOTLADDT = if_else(
-    runif(n()) < 0.95,          # with 70% probability
+    runif(n()) < 0.99,          # with 70% probability
     as.Date(NA),               # replace with NA
     EOTLADDT                   # otherwise keep the original
   )
@@ -217,101 +231,142 @@ ADM_first <- adm %>%
   arrange(as.numeric(subjid), rcdt) %>%
   mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
   mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
-  select(subjid, ADMYN, ADMDT_first, group, ADMDT)
+  select(subjid, ADMYN, ADMDT_first, group, ADMDT) %>%
+  mutate(group="Treatment Administration") %>%
+  mutate(date=ADMDT)
+
+length(unique(ADM_first$subjid))
 
 ### join date of inclusion + first adm date + the following adm dates -------------------------------------------------------
 
-swim=enrolres_v2 %>%
+adm_v2=enrolres_v2 %>%
   left_join(ADM_first, by=c("subjid")) %>%
-  mutate(date=ADMDT) %>%
   select(subjid, date_inclusion ,ADMYN,ADMDT_first, group, date)
   # mutate(T0=consdt) %>%
   # mutate(T0bis=first_ADMDT) %>%
 
-### join the responses for those adm first and adm following dates-------------------------------------------------------
+length(unique(adm_v2$subjid))
+
+###  create the dataset date_inclusion_ADMDT_first that will be left join to every subset of the datsets
+
+date_inclusion_ADMDT_first=adm_v2 %>%
+  select(subjid,date_inclusion, ADMDT_first ) %>%
+  distinct()
+length(unique(date_inclusion_ADMDT_first$subjid))
+
+### get the recist rcdt and responses -------------------------------------------------------
 
 recist_repb=recist %>%
-  left_join(swim, by=c("subjid")) %>%
-   mutate(group="Recist") %>%
+    mutate(group="Recist") %>%
+  left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
   # mutate(T0=consdt) %>%
   # mutate(T0bis=ADMDT_first) %>%
    mutate(date=rcdt) %>%
   select(subjid , date, rcresp, date_inclusion, ADMDT_first, group, RCVISIT) %>%
   distinct()
 
+length(unique(recist_repb$subjid))
 
-### join the end of treatment dates-------------------------------------------------------
+### subset of eot datset,  end of treatment date -------------------------------------------------------
 
 names(eot)
 eot_v2=eot %>%
-  left_join(recist_repb, by=c("subjid")) %>%
+  left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
   mutate(date=EOTLADDT) %>%
   # mutate(T0=consdt) %>%
   # mutate(T0bis=ADMDT_first) %>%
-  mutate(group="end of treatment")  %>%
-  select(subjid, group, date, RCVISIT)
+  mutate(group="End of treatment")  %>%
+  select(subjid,group, date_inclusion,ADMDT_first, date) %>%
+  distinct() %>%
+  filter(!is.na(date))
+
+
 
 table(eot_v2$group  , useNA="always")
 
-### caculate time_from_date_inclusion_to_rcdt and time_from_first_adm_date_to_admt-------------------------------------------------------
+length(unique(eot_v2$subjid))
 
-summary(swim)
 
-swim2=bind_rows(swim, recist_repb,eot_v2 )  %>%
-   # mutate(examdl=(date-date_inclusion)) %>%
-   mutate(time_from_date_inclusion_to_rcdt=(date-date_inclusion)) %>%
-  # mutate(examdlbis=(date-ADMDT_first)) %>%
-  mutate(time=(date-ADMDT_first)) %>%
-  mutate(time_from_date_inclusion_to_rcdt_months=time_from_date_inclusion_to_rcdt/30) %>%
-  mutate(time_months=time/30) %>%
-  mutate(RCVISIT = ifelse(group == "Treatment Administration", "Treatment Period", RCVISIT))
-
-length(unique(swim2$subjid))
-table( swim2$time, useNA="always")
-
-#  add death dataset and calculate time_to_death------------------------------------------------------
-
+#  subset of death datset -------------------------------------------------
 
 dth_death= dth %>%
-  select(subjid, dthdt )
+  select(subjid, dthdt ) %>%
+left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
+  mutate(date=dthdt) %>%
+mutate(group="Death") %>%
+  select(subjid,group, date_inclusion,ADMDT_first, date) %>%
+  distinct() %>%
+  filter(!is.na(date))
 
 
-dth_death2=dth_death %>%
-  left_join(swim2, by = join_by(subjid)) %>%
-  mutate(time_to_death=(dthdt-ADMDT_first)) %>%
-  mutate(time_to_death_months=time_to_death/30) %>%
-  select(subjid, time_to_death ) %>%
-  distinct(subjid, time_to_death)
+length(unique(dth_death$subjid))
 
-swim3=bind_rows(swim2,dth_death2 ) %>%
-  mutate(group=ifelse(!is.na(time_to_death),"Death",group )) %>%
-  mutate(time=ifelse(!is.na(time_to_death),time_to_death,time ))
+#  subset of FU dataset -------------------------------------------------
 
-table( dth_death2$time_to_death, useNA="always")
+fu_v2= fu %>%
+  select(subjid, FUDT ) %>%
+  mutate(group="Alive at last follow up2") %>%
+  left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
+  mutate(date=FUDT) %>%
+select(subjid,group, date_inclusion,ADMDT_first, date) %>%
+  distinct() %>%
+  filter(!is.na(date))
+
+length(unique(fu_v2$subjid))
+
+### caculate time_from_date_inclusion_to_any date( any adm/fu/dth/eot) and time_from_first_adm_date_to_any dates (any adm/fu/dth/eot)-------------------------------------------------------
+
+summary(swim)
+dim(swim)
+
+swim=bind_rows(adm_v2, recist_repb ,eot_v2, dth_death, fu_v2) %>%
+   mutate(time_from_date_inclusion_to_date=(date-date_inclusion)) %>%
+  mutate(time=(date-ADMDT_first)) %>%
+  mutate(time_from_date_inclusion_to_date_months=time_from_date_inclusion_to_date/30) %>%
+  mutate(time_months=time/30)
+
+length(unique(swim$subjid))
+
+table( swim_checks$group, useNA="always")
+
+#  add death dataset and calculate time_to_death------------------------------------------------------
+#
+# dth_death2=dth_death %>%
+#   left_join(swim2, by = join_by(subjid)) %>%
+#   mutate(time_to_death=(dthdt-ADMDT_first)) %>%
+#   mutate(time_to_death_months=time_to_death/30) %>%
+#   select(subjid, time_to_death ) %>%
+#   distinct(subjid, time_to_death)
+#
+# swim3=bind_rows(swim2,dth_death2 ) %>%
+#   mutate(group=ifelse(!is.na(time_to_death),"Death",group )) %>%
+#   mutate(time=ifelse(!is.na(time_to_death),time_to_death,time ))
+#
+# table( dth_death2$time_to_death, useNA="always")
 
 # add fu dataset and calculate time_ADMDT_first_to_fu----------------------------------------------------------
 
 
-names(FU)
-
-
-fu_v2= fu %>%
-  select(subjid, FUDT ) %>%
-  mutate(group="Alive at last follow up2")
-
-fu_v3=fu_v2 %>%
-  left_join(swim3, by = join_by(subjid)) %>%
-  mutate(time_ADMDT_first_to_fu=(FUDT-ADMDT_first)) %>%
-  mutate(time_ADMDT_first_to_fu_months=time_ADMDT_first_to_fu/30) %>%
-  select(subjid, time_ADMDT_first_to_fu ) %>%
-  distinct(subjid, time_ADMDT_first_to_fu)
-
-swim4=bind_rows(swim3,fu_v3 ) %>%
-  mutate(group=ifelse(!is.na(time_ADMDT_first_to_fu),"Alive at last follow up2",group )) %>%
-  mutate(time=ifelse(!is.na(time_ADMDT_first_to_fu),time_ADMDT_first_to_fu,time ))
-
-table( swim4$RCRESP,  swim4$group, useNA="always")
-table( fu_v3$time_ADMDT_first_to_fu, useNA="always")
+# names(FU)
+#
+#
+# fu_v2= fu %>%
+#   select(subjid, FUDT ) %>%
+#   mutate(group="Alive at last follow up2")
+#
+# fu_v3=fu_v2 %>%
+#   left_join(swim3, by = join_by(subjid)) %>%
+#   mutate(time_ADMDT_first_to_fu=(FUDT-ADMDT_first)) %>%
+#   mutate(time_ADMDT_first_to_fu_months=time_ADMDT_first_to_fu/30) %>%
+#   select(subjid, time_ADMDT_first_to_fu ) %>%
+#   distinct(subjid, time_ADMDT_first_to_fu)
+#
+# swim4=bind_rows(swim3,fu_v3 ) %>%
+#   mutate(group=ifelse(!is.na(time_ADMDT_first_to_fu),"Alive at last follow up2",group )) %>%
+#   mutate(time=ifelse(!is.na(time_ADMDT_first_to_fu),time_ADMDT_first_to_fu,time ))
+#
+# table( swim4$rcresp,  swim4$group, useNA="always")
+# table( fu_v3$time_ADMDT_first_to_fu, useNA="always")
 
 
 # add_legend= dth_v3 %>%
@@ -331,36 +386,33 @@ table( fu_v3$time_ADMDT_first_to_fu, useNA="always")
 # swim5=bind_rows(swim4,add_legend3 )
 
 
-table(swim5$RCVISIT,  swim5$group, swim5$ADMYN,useNA="always")
-table( swim5$group, useNA="always")
-table( swim5$ADMYN, useNA="always")
-table( swim5$RCVISIT, useNA="always")
-table( swim5$RCRESP,  swim5$group, useNA="always")
-table( swim5$RCRESP,  swim5$group, useNA="always")
+table(swim_v2$RCVISIT,  swim$group, swim$ADMYN,useNA="always")
+table( swim$group, useNA="always")
+table( swim$ADMYN, useNA="always")
+table( swim_v2$RCVISIT, useNA="always")
+table( swim$rcresp,  swim$group, useNA="always")
 
-swim6=swim5 %>%
+swim_v2=swim %>%
   mutate(visit=ifelse(group=="Treatment Administration",1, NA)) %>%
-  mutate(visit=ifelse(group=="Recist" & RCRESP=="Complete response" ,2, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & RCRESP=="Partial response" ,2, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & RCRESP=="Stable disease" ,3, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & RCRESP=="Progressive disease" ,4, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & RCRESP=="Not evaluable" ,5, visit))%>%
-  mutate(visit=ifelse(group=="end of treatment"  ,6, visit)) %>%
+  mutate(visit=ifelse(group=="End of treatment"  ,6, visit)) %>%
   mutate(visit=ifelse(group=="Death"  ,7, visit)) %>%
+  mutate(visit=ifelse(group=="Recist" & rcresp=="Complete response" ,2, visit))%>%
+  mutate(visit=ifelse(group=="Recist" & rcresp=="Partial response" ,2, visit))%>%
+  mutate(visit=ifelse(group=="Recist" & rcresp=="Stable disease" ,3, visit))%>%
+  mutate(visit=ifelse(group=="Recist" & rcresp=="Progressive disease" ,4, visit))%>%
+  mutate(visit=ifelse(group=="Recist" & rcresp=="Not evaluable" ,5, visit))%>%
   mutate(visit=ifelse(group=="Alive at last follow up2"  ,8, visit)) %>%
-  mutate(visit=ifelse(group=="Alive at last follow up"  ,9, visit)) %>%
-  mutate(visit=ifelse(group=="Treatment period",10,visit )) %>%
-  filter(RCVISIT=="Treatment Period" | RCVISIT=="End of treatment" |RCVISIT== "Follow-up"|is.na(RCVISIT) )  %>%
+  filter(!RCVISIT %in% "Baseline") %>%
+distinct() %>%
   filter(ADMYN=="Yes" | is.na(ADMYN)) %>%
-  distinct() %>%
-  mutate(subjid_num=as.numeric(SUBJID)) %>%
+  mutate(subjid_num=as.numeric(subjid)) %>%
   arrange(subjid_num, date)
 
-table( swim6$visit, useNA="always")
+table( swim_v2$visit, useNA="always")
 
-dim(swim6)
-summary(swim6)
-suivi=swim6
+dim(swim_v2)
+summary(swim_v2)
+suivi=swim_v2
 
 length(unique(suivi$subjid))
 
