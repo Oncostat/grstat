@@ -261,13 +261,13 @@ swim2=bind_rows(swim, recist_repb,eot_v2 )  %>%
    # mutate(examdl=(date-date_inclusion)) %>%
    mutate(time_from_date_inclusion_to_rcdt=(date-date_inclusion)) %>%
   # mutate(examdlbis=(date-ADMDT_first)) %>%
-  mutate(time_from_first_adm_date_to_admt=(date-ADMDT_first)) %>%
+  mutate(time=(date-ADMDT_first)) %>%
   mutate(time_from_date_inclusion_to_rcdt_months=time_from_date_inclusion_to_rcdt/30) %>%
-  mutate(time_from_first_adm_date_to_admt_months=time_from_first_adm_date_to_admt/30) %>%
+  mutate(time_months=time/30) %>%
   mutate(RCVISIT = ifelse(group == "Treatment Administration", "Treatment Period", RCVISIT))
 
 length(unique(swim2$subjid))
-
+table( swim2$time, useNA="always")
 
 #  add death dataset and calculate time_to_death------------------------------------------------------
 
@@ -285,10 +285,11 @@ dth_death2=dth_death %>%
 
 swim3=bind_rows(swim2,dth_death2 ) %>%
   mutate(group=ifelse(!is.na(time_to_death),"Death",group )) %>%
-  mutate(time_from_first_adm_date_to_admt=ifelse(!is.na(time_to_death),time_to_death,time_from_first_adm_date_to_admt ))
+  mutate(time=ifelse(!is.na(time_to_death),time_to_death,time ))
 
+table( dth_death2$time_to_death, useNA="always")
 
-# add fu dataset ----------------------------------------------------------
+# add fu dataset and calculate time_ADMDT_first_to_fu----------------------------------------------------------
 
 
 names(FU)
@@ -307,10 +308,10 @@ fu_v3=fu_v2 %>%
 
 swim4=bind_rows(swim3,fu_v3 ) %>%
   mutate(group=ifelse(!is.na(time_ADMDT_first_to_fu),"Alive at last follow up2",group )) %>%
-  mutate(time_from_first_adm_date_to_admt=ifelse(!is.na(time_ADMDT_first_to_fu),time_ADMDT_first_to_fu,time_from_first_adm_date_to_admt ))
+  mutate(time=ifelse(!is.na(time_ADMDT_first_to_fu),time_ADMDT_first_to_fu,time ))
 
 table( swim4$RCRESP,  swim4$group, useNA="always")
-table( swim4$time_to_fu, useNA="always")
+table( fu_v3$time_ADMDT_first_to_fu, useNA="always")
 
 
 # add_legend= dth_v3 %>%
