@@ -131,7 +131,7 @@ ae_table_soc = function(
     mutate(
       # Tot = ifelse(total, Tot, 0),
       soc_ = soc_ %>% fct_infreq(w=Tot) %>%
-             fct_last(label_missing_soc, label_missing_pat)
+        fct_last(label_missing_soc, label_missing_pat)
     ) %>%
     summarise(
       across(c(matches("^G\\d$"), any_of(extra_cols)), ~{
@@ -339,6 +339,12 @@ butterfly_plot = function(
     cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
                 i="Found {n_arms} arm{?s} in column {.arg {arm}}: {.val {unique(arms)}}"),
               class="grstat_butterfly_two_arms_error")
+  }
+
+  if(any(is.na(df_enrol[["arm_"]]))){
+    cli_abort(c("{.fn grstat::butterfly_plot} does not allow missing values in {.arg arm}.",
+                i = "Found {sum(is.na(df_enrol[[arm]]))} missing value{?s}."),
+              class="grstat_butterfly_arm_na_error")
   }
 
   df = df_enrol %>%

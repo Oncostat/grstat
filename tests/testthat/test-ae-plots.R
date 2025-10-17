@@ -79,4 +79,12 @@ test_that("butterfly_plot() errors", {
     butterfly_plot(df_enrol=enrolres, arm=NULL) %>%
     expect_error(class="grstat_butterfly_two_arms_error")
 
+  # Missing values
+  enrol_na = enrolres
+  enrol_na$arm[1] = NA
+
+  ae %>%
+    butterfly_plot(df_enrol=enrol_na, arm="arm") %>%
+    expect_error(class="grstat_butterfly_arm_na_error")
+
 })
