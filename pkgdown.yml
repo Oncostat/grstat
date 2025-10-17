@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   adverse_events_sas: adverse_events_sas.html
   kaplan_meier: kaplan_meier.html
-last_built: 2025-10-06T15:27Z
+last_built: 2025-10-17T12:50Z
 urls:
   reference: https://oncostat.github.io/grstat/reference
   article: https://oncostat.github.io/grstat/articles
