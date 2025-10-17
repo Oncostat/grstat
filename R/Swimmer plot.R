@@ -6,6 +6,8 @@ library(lubridate)
 library(grstat)
 # not sure if needed
 library(RColorBrewer)
+library(forcats)
+library(ggplot2)
 
 
 # Data Simulated ----------------------------------------------------------
@@ -400,7 +402,7 @@ swim_v2=swim %>%
   mutate(visit=ifelse(group=="Recist" & rcresp=="Partial response" ,2, visit))%>%
   mutate(visit=ifelse(group=="Recist" & rcresp=="Stable disease" ,3, visit))%>%
   mutate(visit=ifelse(group=="Recist" & rcresp=="Progressive disease" ,4, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & rcresp=="Not evaluable" ,5, visit))%>%
+  mutate(visit=ifelse(group=="Recist" & rcresp=="Not Evaluable" ,5, visit))%>%
   mutate(visit=ifelse(group=="Alive at last follow up2"  ,8, visit)) %>%
   filter(!RCVISIT %in% "Baseline") %>%
 distinct() %>%
@@ -434,40 +436,80 @@ table( suivi$visit2, useNA="always")
 
 table(suivi$visit2)
 
-summary(suivi$examdl2bis)
+summary(suivi$time)
 summary(suivi$visit2)
 summary(suivi$date)
 
 names(suivi)
+
 suivi_trt = suivi %>%
   filter(visit2=="Trt Administration")%>%
   mutate(
-    subjid_num = fct_reorder(factor(subjid_num), examdl2bis, .fun=max, na.rm=TRUE)
+    subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
   ) %>%
   summarise(
-    first_trt = min(examdl2bis, na.rm=TRUE),
-    last_trt = max(examdl2bis, na.rm=TRUE),
+    first_trt = min(time, na.rm=TRUE),
+    last_trt = max(time, na.rm=TRUE),
     .by=subjid_num
   )
 
 names(suivi)
+
 suivi_fu = suivi %>%
   filter(visit2=="Alive at last follow up2" | visit2=="Trt Administration")%>%
   mutate(
-    subjid_num = fct_reorder(factor(subjid_num), examdl2bis, .fun=max, na.rm=TRUE)
+    subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
   ) %>%
   summarise(
-    first_fu = min(examdl2bis, na.rm=TRUE),
-    last_fu = max(examdl2bis, na.rm=TRUE),
+    first_fu = min(time, na.rm=TRUE),
+    last_fu = max(time, na.rm=TRUE),
     .by=subjid_num
   )
 
 
 dat_swim <-
   suivi |>
-  mutate(max_examdl2bis = max(examdl2bis, na.rm=TRUE),  .by=subjid_num) |>
-  mutate(subjid_num = fct_reorder(factor(subjid_num), max_examdl2bis,  na.rm=TRUE))
+  mutate(max_time = max(time, na.rm=TRUE),  .by=subjid_num) |>
+  mutate(subjid_num = fct_reorder(factor(subjid_num), max_time,  na.rm=TRUE))
 
 
 # plot -------------------------------------------------------------------
+
+plot_final = dat_swim %>%
+  dplyr::filter(!is.na(visit2))%>%
+  dplyr::filter(visit2!="End of trt")%>%
+  dplyr::filter(visit2!="Alive at last follow up2")%>%
+  dplyr::select(c(subjid_num,visit2,time))%>%
+  dplyr::distinct() %>%
+  filter(visit2!="Trt Administration") %>%
+  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
+  geom_point(position= position_dodge(width=0.4), size=2)+
+  geom_segment(aes(x=first_trt, y=subjid_num, xend=last_trt, yend=subjid_num), color="skyblue", alpha=0.3, linewidth=1.5,
+               inherit.aes=FALSE, data=suivi_trt)
+
+
+
+  # scale_shape_manual(values = c(19,8,15,4,18,62,15)) +
+  # scale_color_manual(values = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey",
+  #                               "SD"="yellow", "End of trt"="pink", "Death"="red", "Alive at last follow up"="grey"))+
+  #
+  # scale_x_continuous(name ="Time (in month) since first treatment administration",
+  #                    limits = c(0,28),
+  #                    breaks = seq(0,28,2))+
+  #
+  # scale_y_discrete(name="Patient")+
+  # geom_vline(xintercept=0)+
+  # theme_classic()+
+  # labs(title = "By-patient Swimmer Plot of Overall Response",
+  #      subtitle = paste0("n=",length(unique(suivi$subjid))),
+  #      shape=NULL, color=NULL)+
+  # theme(plot.title = element_text(face = "bold", size = 14, hjust = 0),
+  #       plot.subtitle = element_text(size=10, hjust=0),
+  #       axis.title.x= element_text(size=10, face="italic"),
+  #       axis.title.y= element_text(size=10, face="italic", angle = 90),
+  #       axis.ticks.y=element_blank(),
+  #       axis.text.y=element_blank(),
+  #       legend.text = element_text(size=10),
+  # )
+  #
 
