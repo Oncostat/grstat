@@ -13,9 +13,6 @@ library(ggplot2)
 # Data Simulated ----------------------------------------------------------
 
 
-# The function `grstat_example()` is used as an example dataset to illustrate the data usage.
-
-
 tm = grstat_example()
 attach(tm)
 
@@ -111,13 +108,6 @@ eot <- eot %>%
   ) %>%
   select(subjid, last_admdt, dthdt, died, EOTLADDT)
 
-# Step 3: (Optional) Add realistic censoring or ensure no future dates
-# eot <- eot %>%
-#   mutate(
-#     EOTLADDT = pmin(EOTLADDT, Sys.Date()) # prevent future dates
-#   ) %>%
-#   summarise(
-#     EOTLADDT = max(EOTLADDT, na.rm = TRUE),.by = subjid )
 
 length(unique(eot$subjid))
 #  something wrong as lots of subjid have a end of tretment before last adm
@@ -261,8 +251,6 @@ length(unique(date_inclusion_ADMDT_first$subjid))
 recist_repb=recist %>%
     mutate(group="Recist") %>%
   left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
-  # mutate(T0=consdt) %>%
-  # mutate(T0bis=ADMDT_first) %>%
    mutate(date=rcdt) %>%
   select(subjid , date, rcresp, date_inclusion, ADMDT_first, group, RCVISIT) %>%
   distinct()
@@ -275,8 +263,6 @@ names(eot)
 eot_v2=eot %>%
   left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
   mutate(date=EOTLADDT) %>%
-  # mutate(T0=consdt) %>%
-  # mutate(T0bis=ADMDT_first) %>%
   mutate(group="End of treatment")  %>%
   select(subjid,group, date_inclusion,ADMDT_first, date) %>%
   distinct() %>%
@@ -331,61 +317,7 @@ length(unique(swim$subjid))
 
 table( swim_checks$group, useNA="always")
 
-#  add death dataset and calculate time_to_death------------------------------------------------------
-#
-# dth_death2=dth_death %>%
-#   left_join(swim2, by = join_by(subjid)) %>%
-#   mutate(time_to_death=(dthdt-ADMDT_first)) %>%
-#   mutate(time_to_death_months=time_to_death/30) %>%
-#   select(subjid, time_to_death ) %>%
-#   distinct(subjid, time_to_death)
-#
-# swim3=bind_rows(swim2,dth_death2 ) %>%
-#   mutate(group=ifelse(!is.na(time_to_death),"Death",group )) %>%
-#   mutate(time=ifelse(!is.na(time_to_death),time_to_death,time ))
-#
-# table( dth_death2$time_to_death, useNA="always")
-
-# add fu dataset and calculate time_ADMDT_first_to_fu----------------------------------------------------------
-
-
-# names(FU)
-#
-#
-# fu_v2= fu %>%
-#   select(subjid, FUDT ) %>%
-#   mutate(group="Alive at last follow up2")
-#
-# fu_v3=fu_v2 %>%
-#   left_join(swim3, by = join_by(subjid)) %>%
-#   mutate(time_ADMDT_first_to_fu=(FUDT-ADMDT_first)) %>%
-#   mutate(time_ADMDT_first_to_fu_months=time_ADMDT_first_to_fu/30) %>%
-#   select(subjid, time_ADMDT_first_to_fu ) %>%
-#   distinct(subjid, time_ADMDT_first_to_fu)
-#
-# swim4=bind_rows(swim3,fu_v3 ) %>%
-#   mutate(group=ifelse(!is.na(time_ADMDT_first_to_fu),"Alive at last follow up2",group )) %>%
-#   mutate(time=ifelse(!is.na(time_ADMDT_first_to_fu),time_ADMDT_first_to_fu,time ))
-#
-# table( swim4$rcresp,  swim4$group, useNA="always")
-# table( fu_v3$time_ADMDT_first_to_fu, useNA="always")
-
-
-# add_legend= dth_v3 %>%
-#   select(SUBJID) %>%
-#   mutate(group="Alive at last follow up")  %>%
-#   filter(SUBJID==86 ) %>%
-#   mutate(EXAMDL2bis=-1 )
-#
-# add_legend2= dth_v3 %>%
-#   select(SUBJID) %>%
-#   mutate(group="Treatment period")  %>%
-#   filter(SUBJID==86 ) %>%
-#   mutate(EXAMDL2bis=-1 )
-#
-# add_legend3=bind_rows(add_legend2,add_legend )
-
-# swim5=bind_rows(swim4,add_legend3 )
+# prepare final dataset for plot ------------------------------------------
 
 
 table(swim_v2$RCVISIT,  swim$group, swim$ADMYN,useNA="always")
