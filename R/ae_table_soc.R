@@ -341,9 +341,10 @@ butterfly_plot = function(
               class="grstat_butterfly_two_arms_error")
   }
 
-  if(any(is.na(df_enrol[["arm_"]]))){
-    cli_abort(c("{.fn grstat::butterfly_plot} does not allow missing values in {.arg arm}.",
-                i = "Found {sum(is.na(df_enrol[[arm]]))} missing value{?s}."),
+  arm_na = sum(is.na(arms))
+  if(arm_na > 0){
+    cli_abort(c("{.fn grstat::butterfly_plot} found {arm_na} missing value{?s} in {.arg arm}.",
+                i = "Missing values are not allowed. Use `tidyr::drop_na({arm})` to remove them."),
               class="grstat_butterfly_arm_na_error")
   }
 
