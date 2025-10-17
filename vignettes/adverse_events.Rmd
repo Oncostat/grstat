@@ -1,0 +1,115 @@
+---
+title: "Adverse Events (AE)"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+date: "2025-01-30"
+---
+
+<!-- https://oncostat.github.io/grstat/articles/adverse_events_sas.html -->
+
+# Introduction
+
+This tutorial demonstrates how to generate adverse event (AE) summary tables in R using the `grstat` package. AE tables are a standard tool in clinical research for evaluating the severity (grade) of events and identifying specific AE terms.
+
+In this tutorial, it is demonstrated how to use two key functions:
+
+-   `ae_table_grade`, which creates table(s) summarising AE grades overall.
+
+-   `ae_table_soc`, which summarises adverse events by System Organ Class (SOC) and by grades. It reports the number and proportion of patients experiencing at least one event within each SOC, based on their maximum recorded AE grade.
+
+First, install packages if needed and load them.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(grstat)
+library(flextable)
+library(dplyr)
+```
+
+# Data Overview
+
+The function `grstat_example()` is used as an example dataset to illustrate the data usage.
+
+This analysis focuses on two datasets:
+
+-   `ae`, which contains data on adverse events.
+
+-   `enrolres`, which includes all patients and their respective treatment arms.
+
+```{r}
+
+tm = grstat_example()
+attach(tm)
+
+head(ae, 4)
+
+head(enrolres,4)
+
+```
+
+# Grade Tables only: `ae_table_grade`
+
+Create adverse event (AE) grade tables using `ae_table_grade()`.
+
+By default, the function `ae_table_grade` produces three table variants within a single output.
+
+-   The most common variant is **`variant = "max"`**, which generates the table of maximum AE grade per patient, where N = total number of patients.
+
+-   The second variant, **`variant = "sup"`**, summarises the grades greater than or equal to a specified grade per patient, where n is the number of patients having experienced at least one AE of grade higher or equal to X.
+
+-   The third variant, **`variant = "eq"`**, presents all grades for all patients. In this table, each proportion represents the number of patients who experienced a given grade at least once, where n is the number of patients having experienced at least one AE of grade equal to X.
+
+## Default AE Table Grades - incuding All Variants (Max, Sup, Eq)
+
+```{r}
+ae_table_grade(df_ae=ae, df_enrol=enrolres) %>% 
+  as_flextable(header_show_n=TRUE) %>% 
+  fontsize(size = 8, part = "all") %>% 
+  padding(padding.top=0, padding.bottom=0)
+```
+
+## Custom table of maximum AE grade per patient per arm
+
+As an extra example of AE grade table, a table of maximum grade per patient and per arm (i.e. variant = "max") is also presented.
+
+```{r}
+ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>% 
+  as_flextable(header_show_n=TRUE) %>% 
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm.") %>% 
+   fontsize(size = 8, part = "all") %>% 
+  padding(padding.top=0, padding.bottom=0)
+```
+
+# SOC's tables: `ae_table_soc`
+
+The function ae_table_soc() creates a summary table of AE grades for each patient according to AE term and SOC CTCAE. The resulting dataframe can be piped to as_flextable() to get a nicely formatted flextable.
+
+## Table of AE grades by SOC
+
+This table summarises the distribution of adverse event grades by System Organ Class (SOC). You can add total = FALSE to remove the “Total” column.
+
+```{r}
+ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL, 
+             sort_by_count=FALSE) %>% 
+    head(10) %>% 
+  as_flextable() %>% 
+  add_footer_lines("In the header, N represents the number of patients.") %>% 
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.") 
+```
+
+
+## Table of SOC and AE terms, all grades combined, stratified by arm
+
+Presents SOC and Preferred Term frequencies with all AE grades combined, stratified by treatment arm. Provides an overall summary of event occurrence per arm, regardless of grade.
+
+```{r}
+ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
+             sort_by_count=FALSE) %>%
+    head(10) %>% 
+  as_flextable() %>% 
+  add_footer_lines("In the header, N represents the number of patients.") %>% 
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
+```
