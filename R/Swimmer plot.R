@@ -451,6 +451,7 @@ suivi_fu = suivi %>%
 
 
 # Final plot --------------------------------------------------------------
+# Problems in the simulated datas I think that makes the graph a bit weird.
 
  plot_final= dat_swim %>%
    dplyr::filter(!is.na(visit2))%>%
