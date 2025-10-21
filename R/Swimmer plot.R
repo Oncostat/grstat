@@ -58,26 +58,54 @@ set.seed(2025)
 
 # I am not quite sure how many treatment administration subjid can have between 2 recist scans, I think 21 days apart. So I have created only one adm per recist scans and one adm before ever first recist scan.
 
+#
+# adm <- recist %>%
+#   left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
+#   # filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
+#   filter(!is.na(rcresp)) %>%
+#   arrange(subjid, rcdt) %>%   # ensure ordered by patient and RECIST
+#   group_by(subjid) %>%
+#   mutate(
+#     ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.9, 0.1)),
+#
+#     # first admission date
+#     ADMDT = if_else(
+#       row_number() == 1,
+#       pmin(date_inclusion + days(sample(5:15, 1)), rcdt),  # 5–15 days after inclusion but before first RECIST
+#       rcdt - days(sample(21:30, 1))          # subsequent admissions: 21–30 days before each RECIST
+#     )
+#   ) %>%
+#   ungroup() %>%
+#   select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp) %>%
+#   mutate(group="Treatment Administration")
+
 
 adm <- recist %>%
   left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
-  # filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
   filter(!is.na(rcresp)) %>%
-  arrange(subjid, rcdt) %>%   # ensure ordered by patient and RECIST
+  arrange(subjid, rcdt) %>%
   group_by(subjid) %>%
   mutate(
-    ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.9, 0.1)),
+    # Assign ADMYN: 99% Yes, 1% No
+    ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.99, 0.01)),
 
-    # first admission date
+    # Create ADMDT only if ADMYN == "Yes"
     ADMDT = if_else(
-      row_number() == 1,
-      pmin(date_inclusion + days(sample(5:15, 1)), rcdt),  # 5–15 days after inclusion but before first RECIST
-      rcdt - days(sample(21:30, 1))          # subsequent admissions: 21–30 days before each RECIST
+      ADMYN == "Yes",
+      # first admission date
+      if_else(
+        row_number() == 1,
+        pmin(date_inclusion + days(sample(5:15, 1)), rcdt), # 5–15 days after inclusion but before
+        #      first RECIST
+         rcdt - days(sample(21:30, 1))     # subsequent admissions: 21–30 days before each RECIST
+      ),
+      as.Date(NA)  # ADMDT is NA if ADMYN == "No"
     )
   ) %>%
   ungroup() %>%
-  select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp) %>%
-  mutate(group="Treatment Administration")
+  select(subjid, ADMYN, ADMDT, date_inclusion, rcdt, rcresp) %>%
+  mutate(group = "Treatment Administration")
+
 
 length(unique(adm$subjid))
 
@@ -390,11 +418,9 @@ suivi_trt = suivi %>%
     .by=subjid_num
   )
 
-names(suivi)
-
 
 suivi_fu = suivi %>%
-  filter(visit2=="Alive at last follow up2" | visit2=="Trt Administration")%>%
+  filter(visit2=="Alive at last follow up2" | visit2=="Trt Administration"| visit2 == "End of trt")%>%
   mutate(
     subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
   ) %>%
@@ -404,42 +430,40 @@ suivi_fu = suivi %>%
     .by=subjid_num
   )
 
+# # double check the code
+ check_suivi_fu <- suivi %>%
+   filter(visit2 == "Alive at last follow up2" | visit2 == "Trt Administration" | visit2 == "End of trt") %>%
+  mutate(
+    subjid_num = fct_reorder(factor(subjid_num), time, .fun = max, na.rm = TRUE)
+  ) %>%
+  group_by(subjid_num) %>%
+  mutate(
+    first_fu = min(time, na.rm=TRUE),
+     last_fu  = max(time, na.rm = TRUE)
+   ) %>%
+   ungroup() %>%
+  mutate(same=first_fu==last_fu) %>%
+  select(subjid_num,time,visit2, first_fu,last_fu,rcresp, same)
 
-# plot -------------------------------------------------------------------
-
-### Problem with the plot and the grey arrow !!! ----------------------------
+ table(check_suivi_fu$same)
 
 
 
-dat_swim_fu=bind_rows(dat_swim,suivi_fu )
 
+# Final plot --------------------------------------------------------------
 
-test_plot_final= dat_swim_fu %>%
-  dplyr::filter(!is.na(visit2))%>%
-  # dplyr::filter(visit2!="End of trt")%>%
-  dplyr::filter(visit2!="Alive at last follow up2")%>%
-  dplyr::select(c(subjid_num,visit2,time))%>%
-  dplyr::distinct() %>%
-  filter(visit2!="Trt Administration") %>%
-  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
-  geom_point(position= position_dodge(width=0.4), size=2)+
-  geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE, arrow=arrow(length=unit(0.3, "cm")))
-
-plot_final= dat_swim_sample %>%
-  dplyr::filter(!is.na(visit2))%>%
-  # dplyr::filter(visit2!="End of trt")%>%
-  dplyr::filter(visit2!="Alive at last follow up2")%>%
-  dplyr::select(c(subjid_num,visit2,time))%>%
-  dplyr::distinct() %>%
-  filter(visit2!="Trt Administration") %>%
-  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
-  geom_point(position= position_dodge(width=0.4), size=2)+
-  geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_fu_sample, arrow=arrow(length=unit(0.3, "cm")))+
+ plot_final= dat_swim %>%
+   dplyr::filter(!is.na(visit2))%>%
+   # dplyr::filter(visit2!="End of trt")%>%
+   dplyr::filter(visit2!="Alive at last follow up2")%>%
+   dplyr::select(c(subjid_num,visit2,time))%>%
+   dplyr::distinct() %>%
+   filter(visit2!="Trt Administration") %>%
+   ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
+   geom_point(position= position_dodge(width=0.4), size=2)+
+   geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_fu, arrow=arrow(length=unit(0.3, "cm")))+
   geom_segment(aes(x=first_trt, y=subjid_num, xend=last_trt, yend=subjid_num), color="skyblue", alpha=0.3, linewidth=1.5,
-               inherit.aes=FALSE, data=suivi_trt)
-
-
-
+               inherit.aes=FALSE, data=suivi_trt)+
   scale_shape_manual(values = c(19,8,15,4,16,18,62,15))+
 scale_color_manual(values = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey"))+
   scale_x_continuous(name ="Time (in days) since first treatment administration",
@@ -463,3 +487,34 @@ print(plot_final)
 
 plotly::ggplotly()
 
+# Sample plot -------------------------------------------------------------------
+
+#  Sample 100 unique subject IDs once
+selected_ids <- sample(unique(suivi_fu$subjid_num), 50)
+
+#  Filter both datasets using the same IDs
+suivi_fu_sample <- suivi_fu %>%
+  dplyr::filter(subjid_num %in% selected_ids)  %>%
+  mutate(same=first_fu==last_fu) %>%
+  mutate(first_fu=if_else(same=="TRUE",NA, first_fu))
+
+
+dat_swim_sample <- dat_swim %>%
+  dplyr::filter(subjid_num %in% selected_ids)
+
+length(unique(suivi_fu_sample$subjid_num))
+length(unique(dat_swim_sample$subjid_num))
+
+unique(suivi_fu_sample$subjid_num)
+unique(dat_swim_sample$subjid_num)
+
+plot_final= dat_swim_sample %>%
+  dplyr::filter(!is.na(visit2))%>%
+  # dplyr::filter(visit2!="End of trt")%>%
+  dplyr::filter(visit2!="Alive at last follow up2")%>%
+  dplyr::select(c(subjid_num,visit2,time))%>%
+  dplyr::distinct() %>%
+  filter(visit2!="Trt Administration") %>%
+  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
+  geom_point(position= position_dodge(width=0.4), size=2)+
+  geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_fu_sample, arrow=arrow(length=unit(0.3, "cm")))
