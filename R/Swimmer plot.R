@@ -58,56 +58,55 @@ set.seed(2025)
 
 # I am not quite sure how many treatment administration subjid can have between 2 recist scans, I think 21 days apart. So I have created only one adm per recist scans and one adm before ever first recist scan.
 
-#
-# adm <- recist %>%
-#   left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
-#   # filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
-#   filter(!is.na(rcresp)) %>%
-#   arrange(subjid, rcdt) %>%   # ensure ordered by patient and RECIST
-#   group_by(subjid) %>%
-#   mutate(
-#     ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.9, 0.1)),
-#
-#     # first admission date
-#     ADMDT = if_else(
-#       row_number() == 1,
-#       pmin(date_inclusion + days(sample(5:15, 1)), rcdt),  # 5–15 days after inclusion but before first RECIST
-#       rcdt - days(sample(21:30, 1))          # subsequent admissions: 21–30 days before each RECIST
-#     )
-#   ) %>%
-#   ungroup() %>%
-#   select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp) %>%
-#   mutate(group="Treatment Administration")
-
 
 adm <- recist %>%
   left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
+  # filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
   filter(!is.na(rcresp)) %>%
-  arrange(subjid, rcdt) %>%
+  arrange(subjid, rcdt) %>%   # ensure ordered by patient and RECIST
   group_by(subjid) %>%
   mutate(
-    # Assign ADMYN: 99% Yes, 1% No
     ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.99, 0.01)),
 
-    # Create ADMDT only if ADMYN == "Yes"
+    # first admission date
     ADMDT = if_else(
-      ADMYN == "Yes",
-      # first admission date
-      if_else(
-        row_number() == 1,
-        pmin(date_inclusion + days(sample(5:15, 1)), rcdt), # 5–15 days after inclusion but before
-        #      first RECIST
-         rcdt - days(sample(21:30, 1))     # subsequent admissions: 21–30 days before each RECIST
-      ),
-      as.Date(NA)  # ADMDT is NA if ADMYN == "No"
+      row_number() == 1,
+      pmin(date_inclusion + days(sample(5:15, 1)), rcdt),  # 5–15 days after inclusion but before first RECIST
+      rcdt - days(sample(21:30, 1))          # subsequent admissions: 21–30 days before each RECIST
     )
   ) %>%
   ungroup() %>%
-  select(subjid, ADMYN, ADMDT, date_inclusion, rcdt, rcresp) %>%
-  mutate(group = "Treatment Administration")
+  select(subjid, ADMYN, ADMDT,date_inclusion,rcdt, rcresp) %>%
+  mutate(group="Treatment Administration")
 
 
-length(unique(adm$subjid))
+# adm <- recist %>%
+#   left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
+#   filter(!is.na(rcresp)) %>%
+#   arrange(subjid, rcdt) %>%
+#   group_by(subjid) %>%
+#   mutate(
+#     # Assign ADMYN: 99% Yes, 1% No
+#     ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.99, 0.01)),
+#
+#     # Create ADMDT only if ADMYN == "Yes"
+#     ADMDT = if_else(
+#       ADMYN == "Yes",
+#       # first admission date
+#       if_else(
+#         row_number() == 1,
+#         pmin(date_inclusion + days(sample(5:15, 1)), rcdt), # 5–15 days after inclusion but before
+#         #      first RECIST
+#          rcdt - days(sample(21:30, 1))     # subsequent admissions: 21–30 days before each RECIST
+#       ),
+#       as.Date(NA)  # ADMDT is NA if ADMYN == "No"
+#     )
+#   ) %>%
+#   ungroup() %>%
+#   select(subjid, ADMYN, ADMDT, date_inclusion, rcdt, rcresp) %>%
+#   mutate(group = "Treatment Administration")
+
+ length(unique(adm$subjid))
 
 ### eot dataset -------------------------------------------------------------
 
