@@ -198,13 +198,14 @@ case_when(
   response_num == 1 & previous_response_num == 2 & delta_date >= cycle_length                ~ 2,
   response_num == 1 & previous_response_num == 2 & delta_date < cycle_length                 ~ 3,
   response_num == 1 & previous_response_num == 3                                             ~ 3,
+  response_num == 1 & previous_response_num == 5 & previous_response_num_2 == 1              ~ 1,
   response_num == 1 & previous_response_num == 5                                             ~ 5,
 
   response_num == 2 & previous_response_num <= 2 & delta_date >= cycle_length                ~ 2,
   response_num == 2 & previous_response_num <= 2 & delta_date < cycle_length                 ~ 3,
   response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==3               ~ 3,
   response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==5               ~ 3,
-  response_num == 2 & previous_response_num == 3 & previous_response_num_2 <= 2              ~ 2,
+#  response_num == 2 & previous_response_num == 3 & previous_response_num_2 <= 2              ~ 2, # A voir si on garde ou pas, pour le moment on prend en ref recist 1.1 donc on garde pas (c'est pharma sug 2023)
   response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==3               ~ 3,
   response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==5               ~ 5,
   response_num == 2 & previous_response_num == 5 & previous_response_num_2 <= 2              ~ 2,
@@ -227,11 +228,13 @@ case_when(
   case_when(
     response_num == 1 & bestresponse == 1 & response_num_lead ==1                              ~ 1,
     response_num == 1 & bestresponse == 2 & response_num_lead ==2                              ~ 1,
-    response_num == 1 & bestresponse == 1 & (response_num_lead ==3 |response_num_lead ==5) &
-      response_num_lead_2 <=2                                                                  ~ 1,
+    #response_num == 1 & bestresponse == 1 & (response_num_lead ==3 |response_num_lead ==5) &
+    #  response_num_lead_2 <=2                                                                  ~ 1, A voir si on garde ou pas, pour le moment on prend en ref recist 1.1 donc on garde pas (c'est pharma sug 2023)
+    response_num == 1 & bestresponse == 1 & response_num_lead ==5 & response_num_lead_2 ==1    ~ 1,
     response_num == 2 & bestresponse == 2 & response_num_lead <=2                              ~ 1,
-    response_num == 2 & bestresponse == 2 & (response_num_lead ==3 |response_num_lead ==5) &
-      response_num_lead_2 <=2                                                                  ~ 1,
+    #response_num == 2 & bestresponse == 2 & (response_num_lead ==3 |response_num_lead ==5) &
+    #  response_num_lead_2 <=2                                                                  ~ 1, A voir si on garde ou pas, pour le moment on prend en ref recist 1.1 donc on garde pas (c'est pharma sug 2023)
+    response_num == 2 & bestresponse == 2 & response_num_lead ==5 & response_num_lead_2 <=2    ~ 1,
     response_num == 3 & bestresponse == 3                                                      ~ 1,
     response_num == 4 & bestresponse == 4                                                      ~ 1,
     response_num == 5 & bestresponse == 5                                                      ~ 1,
