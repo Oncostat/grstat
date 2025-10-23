@@ -26,26 +26,12 @@ In practice we use the best overall response (i.e., the best categorical respons
 
 -   A confirmed best response is defined as the best categorical consecutive response (with a minimum delay of 28 days) observed from treatment start until progression or end of follow-up. For example a CR-CR-SD-PD consecutive response is a confirmed CR best response while a PR-SD-SD-PR is a confirmed SD best response. A single SD or NE between two CR or two PR doesn't prevent confirmation. See RECIST 1.1 guidelines for more information
 
-This vignette covers the following steps:
-
--   Preparation of the dataset.
-
--   Use of the `calc_best_response()` function
-
--   Use of the `aggregate_recist_rates()` function
-
--   Creation of a nice looking flextable from the `as_flextable()` function
-
-First, install packages if needed and load them.
-
 ```{r setup, warning=FALSE, message=FALSE}
 ## Load libraries
 library(grstat)
 ```
 
 # Data Preparation
-
-## Data Overview
 
 To calculate the BOR, we'll use the "recist" dataset. This dataset must be in long format (one line represents a single measure of a patient's recist criterion) and must contain at least the columns :
 
@@ -56,8 +42,6 @@ To calculate the BOR, we'll use the "recist" dataset. This dataset must be in lo
 -   `rcresp`, Global response
 
 -   `rctlsum`, Sum of target lesions
-
-## Display dataset
 
 We use `grstat_example()` to simulate data
 
