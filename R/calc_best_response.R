@@ -93,16 +93,13 @@ calc_best_response = function(data_recist, ...,
 
   if (!isTRUE(confirmed)){
     data_recist %>%
-      mutate(bestresponse = min(response_num),
-             .by=subjid) %>%
-      filter(bestresponse==response_num) %>%
-      mutate(response_unconfirmed = .recist_from_num(bestresponse),
+      slice_min(order_by =response_num, by=subjid, with_ties = FALSE) %>%
+      mutate(response_unconfirmed = .recist_from_num(response_num),
              response_unconfirmed = factor(response_unconfirmed,
                                         levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
                                         labels = c("Complete response", "Partial response",
                                                    "Stable disease", "Progressive disease", "Not evaluable"))) %>%
-      slice_min(order_by =date ,by=subjid) %>%
-      mutate(overall_response = bestresponse==1 | bestresponse==2,
+      mutate(overall_response = response_num==1 | response_num==2,
              clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
       select(subjid, best_response=response_unconfirmed, date, target_sum=sum,
              target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, overall_response, clinical_benefit) %>%
