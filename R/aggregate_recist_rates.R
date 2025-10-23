@@ -101,43 +101,33 @@ as_flextable.aggregate_recist_rates = function(x, ...){
   Best_Response_during_treatment =  x %>%
     flextable() %>%
     set_table_properties(layout="autofit") %>%
-    delete_rows(i = 1, part = "footer") %>%
     bold(bold = TRUE, part = "header") %>%
-    surround(i = c(1, 6), j = 1:4, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body")
+    surround(i = c(1, 6), border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
+    bold(i = 1, bold = TRUE, part = "body") %>%
+    footnote(i = 1, j = "ic_95",
+             value = as_paragraph(LABEL_CP),
+             ref_symbols ="*", part = "header")
 
     if (!confirmed){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      set_header_labels(best_response="Unconfirmed Best Response during treatment", n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
-      footnote(i = 1, j = 4,
-                value = as_paragraph(LABEL_CP),
-                ref_symbols ="*", part = "header") %>%
-      valign(valign = "bottom", part = "header")
+      set_header_labels(best_response="Unconfirmed Best Response during treatment", n=paste0("N=",total), p = "%", ic_95 = "IC 95%")
+
     } else{
       Best_Response_during_treatment =  Best_Response_during_treatment %>%
       set_header_labels(best_response="Confirmed Best Response during treatment", n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
-      footnote(i = 1, j = c(4, 1),
-                value = as_paragraph(c(LABEL_CP, LABEL_CONFIRMED)),
-                ref_symbols =c("*", "1"), part = "header") %>%
-      valign(valign = "bottom", part = "header")
+      footnote(i = 1, j = "best_response",
+                value = as_paragraph(LABEL_CONFIRMED),
+                ref_symbols =c("**"), part = "header")
       }
 
-  if (!show_CBR){
+    if(show_CBR){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      bold(i = 1, j = c(1:4), bold = TRUE, part = "body")
-  } else if(show_CBR & confirmed){
-    Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      bold(i = c(1, 7), j = c(1:4), bold = TRUE, part = "body") %>%
-      footnote( i = 7, j = 1,
+      bold(i = 7, bold = TRUE, part = "body") %>%
+      footnote( i = 7, j = "best_response",
                 value = as_paragraph(LABEL_CBR),
-                ref_symbols = "2", part = "body") %>%
-      valign(valign = "bottom", part = "header")
-  } else{
-    Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      bold(i = c(1, 7), j = c(1:4), bold = TRUE, part = "body") %>%
-      footnote( i = 7, j = 1,
-                value = as_paragraph(LABEL_CBR),
-                ref_symbols = "1", part = "body") %>%
-      valign(valign = "bottom", part = "header")
-  }
-  Best_Response_during_treatment
+                ref_symbols = "***", part = "body")
+    }
+
+  Best_Response_during_treatment %>%
+    valign(valign = "bottom", part = "header")
 }
