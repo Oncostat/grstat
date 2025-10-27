@@ -4,7 +4,12 @@
 \alias{check_recist}
 \title{Check a RECIST dataset}
 \usage{
-check_recist(rc, mapping = gr_recist_mapping(), exclude_post_pd = TRUE)
+check_recist(
+  rc,
+  mapping = gr_recist_mapping(),
+  exclude_post_pd = TRUE,
+  supp_cols_df = NULL
+)
 }
 \arguments{
 \item{rc}{The recist dataset to check}
@@ -12,6 +17,8 @@ check_recist(rc, mapping = gr_recist_mapping(), exclude_post_pd = TRUE)
 \item{mapping}{The character vector defining the variable mapping. Refer to \code{\link[=gr_recist_mapping]{gr_recist_mapping()}} for default values and adjust as needed.}
 
 \item{exclude_post_pd}{Logical; if \code{TRUE} (default), assessments after the first PD are excluded.}
+
+\item{supp_cols_df}{A dataframe containing additional information on patients, e.g. \code{SITEC} the center caption. Must contain a \code{SUBJID} column.}
 }
 \value{
 a tibble of nested checks, of class \code{check_recist}
@@ -25,9 +32,10 @@ Perform multiple checks on a RECIST dataset. The checks can be exported as an HT
 \dontrun{
 db = read_database()
 mapping = gr_recist_mapping()
-recist_check = check_recist(db$rc, mapping=mapping)
+supp_cols_df = enrolres \%>\% select(SUBJID, SITEC, STNO)
+recist_check = check_recist(db$rc, mapping=mapping, supp_cols_df=supp_cols_df)
 recist_check
-recist_report_html(recist_check, title="RECIST Check - Study XXX")
+recist_report_html(recist_check)
 recist_report_xlsx(recist_check)
 }
 

@@ -135,7 +135,7 @@ waterfall_plot = function(data, ...,
   resp_colors = c("CR"="#42b540", "PR"="#006dd8", "SD"="#925e9f", "PD"="#ed0000", "NA"="white")
   resp_colors = resp_colors[c("CR", "PR", "SD", "PD", "NA")]
   fill_scale = data %>%
-    distinct(best_response, resp_num = .encode_response(best_response)) %>%
+    distinct(best_response, resp_num = .recist_to_num(best_response)) %>%
     mutate(color=resp_colors[resp_num]) %>%
     select(best_response, color) %>%
     deframe()

@@ -41,5 +41,6 @@ reference:
   - contents:
     - ae_plot_grade_sum
     - boin_plot
+    - survfit_stack
     - calc_best_response
     - waterfall_plot

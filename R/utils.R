@@ -45,6 +45,23 @@ today_ymd = function() {
 }
 
 
+# EDCimport -----------------------------------------------------------------------------------
+
+#' @noRd
+#' @keywords internal
+#' @importFrom EDCimport edc_lookup
+get_projname = function(){
+  edc_lookup() %>% attr("project_name")
+}
+
+#' @noRd
+#' @keywords internal
+#' @importFrom EDCimport edc_lookup
+get_extraction_date = function(){
+  edc_lookup() %>% attr("datetime_extraction")
+}
+
+
 # Labels --------------------------------------------------------------------------------------
 
 #' @noRd
@@ -144,6 +161,11 @@ remove_class = function(x, value){
   x
 }
 
+can_be_logical = function(v) {
+  is.logical(v) ||
+    (is.numeric(v) && all(v %in% c(0, 1, NA))) ||
+    (is.character(v) && all(v %in% c("TRUE", "FALSE", NA)))
+}
 
 
 # Burgled -------------------------------------------------------------------------------------
