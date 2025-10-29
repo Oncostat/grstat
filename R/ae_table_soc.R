@@ -65,18 +65,18 @@ ae_table_soc = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
     arm=NULL, term=NULL,
+    ae_groups = NULL,
     sort_by_count=TRUE, total=TRUE, showNA=TRUE, digits=0, warn_miss=FALSE,
     grade="AEGR", soc="AESOC", subjid="SUBJID"
 ){
+
   check_dots_empty()
   default_arm = set_label("All patients", "Treatment arm")
   null_term = is.null(term)
   null_arm = is.null(arm)
   variant = arg_match(variant)
-
   assert_names_exists(df_ae, lst(subjid, term, soc, grade))
   assert_names_exists(df_enrol, lst(subjid, arm))
-
   label_missing_soc = "Missing SOC"
   label_missing_pat = "No Declared AE"
 
@@ -91,9 +91,11 @@ ae_table_soc = function(
     select(subjid_=any_of2(subjid), soc_=any_of2(soc),
            term_=any_of2(term), grade_=any_of2(grade)) %>%
     mutate(soc_ = if_else(soc_ %in% c(0, NA), label_missing_soc, soc_))
+
   df_enrol = df_enrol %>%
     select(subjid_=any_of2(subjid), arm_=any_of2(arm)) %>%
     mutate(arm_ = if(is.null(.env$arm)) default_arm else .data$arm_)
+
   if(!is.numeric(df_ae$grade_)){
     cli_abort("Grade ({.val {grade}}) should be a numeric column.")
   }
@@ -124,47 +126,141 @@ ae_table_soc = function(
     set_names(to_snake_case)
 
   extra_cols = if(total) c("NA", "Tot") else c("NA")
+
   rtn = df %>%
     summarise(calc = evaluate_grades(grade_, variant),
               .by=any_of(c("subjid_", "arm_", "soc_", "term_"))) %>%
     unnest(calc) %>%
     mutate(
-      # Tot = ifelse(total, Tot, 0),
       soc_ = soc_ %>% fct_infreq(w=Tot) %>%
         fct_last(label_missing_soc, label_missing_pat)
     ) %>%
+    summarise(across(c(matches("^G\\d$"), any_of(extra_cols)), ~{
+        # n_arm = arm_count2[[cur_group()$arm_]]
+        # label = glue("{n} ({p})", p=percent(n/n_arm, digits))
+        # label[n==0] = NA
+        # label
+      n = sum(.x)
+    }),
+    .by=any_of(c("arm_", "soc_", "term_"))
+    ) %>%
+    arrange(arm_, soc_) %>%
     summarise(
-      across(c(matches("^G\\d$"), any_of(extra_cols)), ~{
-        n = sum(.x)
-        n_arm = arm_count2[[cur_group()$arm_]]
-        label = glue("{n} ({p})", p=percent(n/n_arm, digits))
-        label[n==0] = NA
-        label
-      }),
+      arm_ = first(arm_),
+      soc_ = first(soc_),
+      G1 = first(G1),
+      G2 = first(G2),
+      G3 = first(G3),
+      G4 = first(G4),
+      G5 = first(G5),
+      `NA` = first(`NA`),
+      `Any grade` = sum(rowSums(across(G1:G5), na.rm = TRUE)),
+      `Grade 1-2` = sum(rowSums(across(G1:G2), na.rm = TRUE)),
+      `Grade 1-3` = sum(rowSums(across(G1:G3), na.rm = TRUE)),
+      `Grade 1-4` = sum(rowSums(across(G1:G4), na.rm = TRUE)),
+      `Grade 2-3` = sum(rowSums(across(G2:G3), na.rm = TRUE)),
+      `Grade 2-4` = sum(rowSums(across(G2:G4), na.rm = TRUE)),
+      `Grade 3-4` = sum(rowSums(across(G3:G4), na.rm = TRUE)),
+      `Grade >= 3` = sum(rowSums(across(G3:G5), na.rm = TRUE)),
+      `Grade >= 4` = sum(rowSums(across(G4:G5), na.rm = TRUE)),
       .by=any_of(c("arm_", "soc_", "term_"))
     ) %>%
-    arrange(arm_, soc_)
+    summarise(across(c(G1:`Grade >= 4`, any_of(extra_cols)), ~{
+      n_arm = arm_count2[[cur_group()$arm_]]
+      label = glue::glue_data(
+        list(x = .x, p = scales::percent(.x / n_arm, accuracy = 10^-digits)),
+        "{x} ({p})"
+      )
+      label[.x == 0] = NA
+      label
+    }),
+    .by=any_of(c("arm_", "soc_", "term_"))
+    )
 
   if(!total) rtn = rtn %>% select(-any_of("Tot"))
   if(!showNA) rtn = rtn %>% select(-any_of("NA"))
   if(!sort_by_count) {
     rtn = rtn %>%
-      mutate(across(any_of(c("soc_", "term_")), ~factor(as.character(.x))),
+      mutate(across(any_of(c("soc_", "term_")), ~ factor(as.character(.x))),
              soc_ = fct_relevel(soc_, label_missing_pat, after=Inf)) %>%
       arrange(arm_, soc_)
   }
 
   spec = rtn %>%
-    build_wider_spec(names_from=arm_,
-                     values_from=c(matches("^G\\d$"), any_of(c("NA", "Tot"))),
-                     names_glue="{arm_}_{.value}") %>%
+    build_wider_spec(
+      names_from = arm_,
+      values_from = c(G1:`Grade >= 4`, any_of(c("NA", "Tot"))),
+      names_glue = "{arm_}_{.value}"
+    ) %>%
     arrange(.name)
 
   rtn = rtn %>%
-    rename(soc=soc_, term=any_of("term_")) %>%
+    rename(soc = soc_, term = any_of("term_")) %>%
     pivot_wider_spec(spec) %>%
     add_class("ae_table_soc") %>%
-    arrange(soc, pick(any_of("term")))
+    arrange(soc, pick(any_of("term"))) %>%
+    select(
+      -`all_patients_Any grade`,
+      -all_patients_NA,
+      everything(),
+      `all_patients_Any grade`,
+      all_patients_NA)
+
+
+  group_list <- list(
+    "G1" = 1,
+    "G2" = 2,
+    "G3" = 3,
+    "G4"= 4,
+    "G5" = 5,
+    "NA" = NA,
+    "Any grade"  = 1:5,
+    "Grade 1-2"  = 1:2,
+    "Grade 1-3"  = 1:3,
+    "Grade 1-4"  = 1:4,
+    "Grade 2-3"  = 2:3,
+    "Grade 2-4"  = 2:4,
+    "Grade 3-4"  = 3:4,
+    "Grade >= 3"   = 3:5,
+    "Grade >= 4"   = 4:5
+  )
+
+  # --- Gestion de ae_groups ---
+  if (is.character(ae_groups)) {
+    groups_ok <- intersect(ae_groups, names(group_list))
+    col_ok <- ae_groups[ae_groups %in% paste0("G", 1:5)]
+
+    if (length(groups_ok) == 0 && length(col_ok) == 0) {
+      cli_abort("")
+    }
+
+    pattern_groups <- if (length(groups_ok) > 0)
+      paste0("all_patients_", groups_ok)
+    else character(0)
+
+    pattern_simple <- if (length(col_ok) > 0)
+      paste0("all_patients_", col_ok)
+    else character(0)
+
+    pattern_col <- c(pattern_simple, pattern_groups, "all_patients_NA")
+
+    cols_identite <- c("soc", "term", setdiff(names(rtn), grep("^all_patients_", names(rtn), value = TRUE)))
+
+    rtn <- rtn %>%
+      select(any_of(c(cols_identite, pattern_col)))
+
+  } else if (isTRUE(ae_groups)) {
+    rtn <- rtn %>%
+      select(-starts_with("all_patients_G"), everything(), matches("all_patients_NA$"))
+  } else if (identical(ae_groups, FALSE)) {
+    rtn <- rtn %>%
+      select(-starts_with("all_patients_Grade"), everything(), matches("all_patients_NA$"))
+  } else if (is.null(ae_groups)) {
+    cols_keep <- grep("^.*_(G[1-5]|NA)$", names(rtn), value = TRUE)
+    cols_identite <- c("soc", "term", setdiff(names(rtn), grep("^.*_", names(rtn), value = TRUE)))
+    rtn <- rtn %>%
+      select(any_of(c(cols_identite, cols_keep)))
+  }
 
   attr(rtn, "header") =
     glue("{a} (N={b})", a=names(arm_count), b=arm_count) %>%
@@ -175,7 +271,9 @@ ae_table_soc = function(
 }
 
 
+# other ----
 # https://coolors.co/palette/dbe5f1-b8cce4-f2dcdb-e5b9b7-ebf1dd-d7e3bc-e5e0ec-ccc1d9-dbeef3-b7dde8
+
 #' Turns an `ae_table_soc` object into a formatted `flextable`
 #'
 #' @param x a dataframe, resulting of `ae_table_soc()`
