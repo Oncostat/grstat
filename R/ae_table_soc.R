@@ -66,6 +66,7 @@ ae_table_soc = function(
     variant=c("max", "sup", "eq"),
     arm=NULL, term=NULL,
     ae_groups = NULL,
+    cols_to_show = NULL,
     sort_by_count=TRUE, total=TRUE, showNA=TRUE, digits=0, warn_miss=FALSE,
     grade="AEGR", soc="AESOC", subjid="SUBJID"
 ){
@@ -134,51 +135,41 @@ ae_table_soc = function(
     mutate(
       soc_ = soc_ %>% fct_infreq(w=Tot) %>%
         fct_last(label_missing_soc, label_missing_pat)
-    ) %>%
-    summarise(across(c(matches("^G\\d$"), any_of(extra_cols)), ~{
-        # n_arm = arm_count2[[cur_group()$arm_]]
-        # label = glue("{n} ({p})", p=percent(n/n_arm, digits))
-        # label[n==0] = NA
-        # label
-      n = sum(.x)
-    }),
-    .by=any_of(c("arm_", "soc_", "term_"))
-    ) %>%
-    arrange(arm_, soc_) %>%
-    summarise(
-      arm_ = first(arm_),
-      soc_ = first(soc_),
-      G1 = first(G1),
-      G2 = first(G2),
-      G3 = first(G3),
-      G4 = first(G4),
-      G5 = first(G5),
-      `NA` = first(`NA`),
-      `Any grade` = sum(rowSums(across(G1:G5), na.rm = TRUE)),
-      `Grade 1-2` = sum(rowSums(across(G1:G2), na.rm = TRUE)),
-      `Grade 1-3` = sum(rowSums(across(G1:G3), na.rm = TRUE)),
-      `Grade 1-4` = sum(rowSums(across(G1:G4), na.rm = TRUE)),
-      `Grade 2-3` = sum(rowSums(across(G2:G3), na.rm = TRUE)),
-      `Grade 2-4` = sum(rowSums(across(G2:G4), na.rm = TRUE)),
-      `Grade 3-4` = sum(rowSums(across(G3:G4), na.rm = TRUE)),
-      `Grade >= 3` = sum(rowSums(across(G3:G5), na.rm = TRUE)),
-      `Grade >= 4` = sum(rowSums(across(G4:G5), na.rm = TRUE)),
-      .by=any_of(c("arm_", "soc_", "term_"))
-    ) %>%
-    summarise(across(c(G1:`Grade >= 4`, any_of(extra_cols)), ~{
-      n_arm = arm_count2[[cur_group()$arm_]]
-      label = glue::glue_data(
-        list(x = .x, p = scales::percent(.x / n_arm, accuracy = 10^-digits)),
-        "{x} ({p})"
-      )
-      label[.x == 0] = NA
-      label
-    }),
-    .by=any_of(c("arm_", "soc_", "term_"))
     )
+
+
+  if (!is.null(ae_groups) && is.list(ae_groups)) {
+    for (grp_name in names(ae_groups)) {
+      cols_to_sum <- paste0("G", ae_groups[[grp_name]])
+      # Vérifie que les colonnes existent avant de sommer
+      cols_to_sum <- cols_to_sum[cols_to_sum %in% names(rtn)]
+      rtn[[grp_name]] <- if (length(cols_to_sum) > 0) rowSums(rtn[cols_to_sum], na.rm = TRUE) else 0
+    }
+  }
+
+  rtn = rtn %>%
+    summarise(
+      across(c(matches("^G\\d$"), any_of(extra_cols), any_of(names(ae_groups))), ~{
+        n = sum(.x)
+        n_arm = arm_count2[[cur_group()$arm_]]
+        label = glue("{n} ({percent(n/n_arm, digits)})")
+        label[n==0] = NA
+        label
+      }),
+      .by = any_of(c("arm_", "soc_", "term_"))
+    ) %>%
+    arrange(arm_, soc_)
 
   if(!total) rtn = rtn %>% select(-any_of("Tot"))
   if(!showNA) rtn = rtn %>% select(-any_of("NA"))
+
+
+  if (!is.null(cols_to_show)) {
+    cols_mandatory <- c("soc_", "term_", "arm_")
+    cols_keep <- union(cols_mandatory, cols_to_show)
+    rtn <- rtn %>% select(any_of(cols_keep))
+  }
+
   if(!sort_by_count) {
     rtn = rtn %>%
       mutate(across(any_of(c("soc_", "term_")), ~ factor(as.character(.x))),
@@ -187,88 +178,30 @@ ae_table_soc = function(
   }
 
   spec = rtn %>%
-    build_wider_spec(
-      names_from = arm_,
-      values_from = c(G1:`Grade >= 4`, any_of(c("NA", "Tot"))),
-      names_glue = "{arm_}_{.value}"
-    ) %>%
+    build_wider_spec(names_from = arm_,
+                     values_from = c(matches("^G\\d$"), any_of(c(names(ae_groups), "NA", "Tot"))),
+                     names_glue = "{arm_}_{.value}") %>%
     arrange(.name)
 
   rtn = rtn %>%
     rename(soc = soc_, term = any_of("term_")) %>%
     pivot_wider_spec(spec) %>%
     add_class("ae_table_soc") %>%
-    arrange(soc, pick(any_of("term"))) %>%
-    select(
-      -`all_patients_Any grade`,
-      -all_patients_NA,
-      everything(),
-      `all_patients_Any grade`,
-      all_patients_NA)
-
-
-  group_list <- list(
-    "G1" = 1,
-    "G2" = 2,
-    "G3" = 3,
-    "G4"= 4,
-    "G5" = 5,
-    "NA" = NA,
-    "Any grade"  = 1:5,
-    "Grade 1-2"  = 1:2,
-    "Grade 1-3"  = 1:3,
-    "Grade 1-4"  = 1:4,
-    "Grade 2-3"  = 2:3,
-    "Grade 2-4"  = 2:4,
-    "Grade 3-4"  = 3:4,
-    "Grade >= 3"   = 3:5,
-    "Grade >= 4"   = 4:5
-  )
-
-  # --- Gestion de ae_groups ---
-  if (is.character(ae_groups)) {
-    groups_ok <- intersect(ae_groups, names(group_list))
-    col_ok <- ae_groups[ae_groups %in% paste0("G", 1:5)]
-
-    if (length(groups_ok) == 0 && length(col_ok) == 0) {
-      cli_abort("")
-    }
-
-    pattern_groups <- if (length(groups_ok) > 0)
-      paste0("all_patients_", groups_ok)
-    else character(0)
-
-    pattern_simple <- if (length(col_ok) > 0)
-      paste0("all_patients_", col_ok)
-    else character(0)
-
-    pattern_col <- c(pattern_simple, pattern_groups, "all_patients_NA")
-
-    cols_identite <- c("soc", "term", setdiff(names(rtn), grep("^all_patients_", names(rtn), value = TRUE)))
-
-    rtn <- rtn %>%
-      select(any_of(c(cols_identite, pattern_col)))
-
-  } else if (isTRUE(ae_groups)) {
-    rtn <- rtn %>%
-      select(-starts_with("all_patients_G"), everything(), matches("all_patients_NA$"))
-  } else if (identical(ae_groups, FALSE)) {
-    rtn <- rtn %>%
-      select(-starts_with("all_patients_Grade"), everything(), matches("all_patients_NA$"))
-  } else if (is.null(ae_groups)) {
-    cols_keep <- grep("^.*_(G[1-5]|NA)$", names(rtn), value = TRUE)
-    cols_identite <- c("soc", "term", setdiff(names(rtn), grep("^.*_", names(rtn), value = TRUE)))
-    rtn <- rtn %>%
-      select(any_of(c(cols_identite, cols_keep)))
-  }
+    arrange(soc, pick(any_of("term")))
 
   attr(rtn, "header") =
-    glue("{a} (N={b})", a=names(arm_count), b=arm_count) %>%
+    glue("{a} (N={b})", a = names(arm_count), b = arm_count) %>%
     set_names(to_snake_case(names(arm_count))) %>%
     as.character()
 
   rtn
 }
+
+
+
+
+
+
 
 
 # other ----
