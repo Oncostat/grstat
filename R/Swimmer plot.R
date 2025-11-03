@@ -467,8 +467,8 @@ suivi_fu = suivi %>%
   scale_shape_manual(values = c(19,8,15,4,16,18,62,15))+
 scale_color_manual(values = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey"))+
   scale_x_continuous(name ="Time (in days) since first treatment administration",
-                     limits = c(0,300),
-                     breaks = seq(0,300,20))+
+                     limits = c(0,400),
+                     breaks = seq(0,400,20))+
   scale_y_discrete(name="Patient")+
   geom_vline(xintercept=0)+
   theme_classic()+
