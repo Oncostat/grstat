@@ -419,7 +419,7 @@ suivi_trt = suivi %>%
 
 
 suivi_fu = suivi %>%
-  filter(visit2=="Alive at last follow up2" | visit2=="Trt Administration"| visit2 == "End of trt")%>%
+  filter(visit2=="Alive at last follow up2" | visit2=="Trt Administration"| group == "Recist") %>%
   mutate(
     subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
   ) %>%
