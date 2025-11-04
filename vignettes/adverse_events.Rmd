@@ -4,9 +4,9 @@ output:
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
+%\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-date: "2025-01-30"
+  date: "2025-01-30"
 ---
 
 <!-- https://oncostat.github.io/grstat/articles/adverse_events_sas.html -->
@@ -79,7 +79,7 @@ As an extra example of AE grade table, a table of maximum grade per patient and 
 ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>% 
   as_flextable(header_show_n=TRUE) %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm.") %>% 
-   fontsize(size = 8, part = "all") %>% 
+  fontsize(size = 8, part = "all") %>% 
   padding(padding.top=0, padding.bottom=0)
 ```
 
@@ -94,12 +94,11 @@ This table summarises the distribution of adverse event grades by System Organ C
 ```{r}
 ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL, 
              sort_by_count=FALSE) %>% 
-    head(10) %>% 
+  head(10) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.") 
 ```
-
 
 ## Table of SOC and AE terms, all grades combined, stratified by arm
 
@@ -108,7 +107,7 @@ Presents SOC and Preferred Term frequencies with all AE grades combined, stratif
 ```{r}
 ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
              sort_by_count=FALSE) %>%
-    head(10) %>% 
+  head(10) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
