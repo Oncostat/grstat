@@ -4,9 +4,9 @@ output:
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
-%\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  date: "2025-01-30"
+date: "2025-01-30"
 ---
 
 <!-- https://oncostat.github.io/grstat/articles/adverse_events_sas.html -->
