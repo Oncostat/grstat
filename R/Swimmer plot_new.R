@@ -9,6 +9,7 @@ library(RColorBrewer)
 library(forcats)
 library(ggplot2)
 
+# PROBLEM: subjid_num: sometimes num , sometimes factor even integer... so not quite sure as it changes a lot the results so it needs to be well revise!
 
 # Data Simulated ----------------------------------------------------------
 
@@ -66,8 +67,8 @@ adm <- recist %>%
   arrange(subjid, rcdt) %>%   # ensure ordered by patient and RECIST
   group_by(subjid) %>%
   # cannot make this ADMYN variable correctly and I am not so sure if it is really needed
-   mutate(
-  #   ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.99, 0.01)),
+  mutate(
+    #   ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.99, 0.01)),
 
     # first admission date
     ADMDT = if_else(
@@ -108,7 +109,7 @@ adm <- recist %>%
 #   mutate(group = "Treatment Administration")
 
 
- length(unique(adm$subjid))
+length(unique(adm$subjid))
 
 ### eot dataset -------------------------------------------------------------
 
@@ -410,7 +411,7 @@ names(suivi)
 suivi_trt = suivi %>%
   filter(visit2=="Trt Administration") %>%
   mutate(
-  subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
+    subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
   ) %>%
   # arrange(subjid_num, time) %>%
   summarise(
@@ -426,10 +427,10 @@ summary(suivi_trt)
 
 suivi_fu = suivi %>%
   filter(visit2=="Alive at last follow up2" | visit2=="Trt Administration"| group == "Recist") %>%
- mutate(
-   subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
+  mutate(
+    subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
   ) %>%
-   # arrange(subjid_num, time) %>%
+  # arrange(subjid_num, time) %>%
   summarise(
     first_fu = min(time, na.rm=TRUE),
     last_fu = max(time, na.rm=TRUE),
@@ -456,20 +457,20 @@ dim(suivi_trt_fu)
 # Final plot --------------------------------------------------------------
 # Problems in the simulated datas I think that makes the graph a bit weird.
 
- plot_final= dat_swim %>%
-   dplyr::filter(!is.na(visit2))%>%
-   # dplyr::filter(visit2!="End of trt")%>%
-   dplyr::filter(visit2!="Alive at last follow up2")%>%
-   dplyr::select(c(subjid_num,visit2,time))%>%
-   dplyr::distinct() %>%
-   filter(visit2!="Trt Administration") %>%
-   ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
-   geom_point(position= position_dodge(width=0.4), size=2)+
-   geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_trt_fu, arrow=arrow(length=unit(0.3, "cm")))+
+plot_final= dat_swim %>%
+  dplyr::filter(!is.na(visit2))%>%
+  # dplyr::filter(visit2!="End of trt")%>%
+  dplyr::filter(visit2!="Alive at last follow up2")%>%
+  dplyr::select(c(subjid_num,visit2,time))%>%
+  dplyr::distinct() %>%
+  filter(visit2!="Trt Administration") %>%
+  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
+  geom_point(position= position_dodge(width=0.4), size=2)+
+  geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_trt_fu, arrow=arrow(length=unit(0.3, "cm")))+
   geom_segment(aes(x=first_trt, y=subjid_num, xend=last_trt, yend=subjid_num), color="skyblue", alpha=0.3, linewidth=1.5,
                inherit.aes=FALSE, data=suivi_trt_fu)+
   scale_shape_manual(values = c(19,8,15,4,16,18,62,15))+
-scale_color_manual(values = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey"))+
+  scale_color_manual(values = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey"))+
   scale_x_continuous(name ="Time (in days) since first treatment administration",
                      limits = c(0,400),
                      breaks = seq(0,400,20))+
@@ -491,7 +492,18 @@ print(plot_final)
 
 plotly::ggplotly()
 
+# Test SW plot function -----------------------------------------------------------
 
+swimmer_plot = function(
+    dat_swim, ..., suivi_trt_fu,
+    y = subjid_num"",
+    fill = "best_response",
+    shape = NULL,
+    arm = NULL,
+    subjid = "SUBJID",
+    resp_colors = c("CR"="#42b540", "PR"="#006dd8", "SD"="#925e9f", "PD"="#ed0000", "NA"="white"),
+    warnings = getOption("grstat_wp_warnings", TRUE)
+)
 # Sample plot -------------------------------------------------------------------
 
 #  Sample 100 unique subject IDs once
@@ -525,8 +537,9 @@ sample_plot_final= dat_swim_sample %>%
   geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_fu_sample, arrow=arrow(length=unit(0.3, "cm")))
 
 
-# Test SW plot function -----------------------------------------------------------
 
-swimmer_plot = function(dat_swim, ..., suivi_fu,...,suivi_trt,...,
-)
+
+
+
+
 
