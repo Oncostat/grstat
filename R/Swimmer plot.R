@@ -9,6 +9,7 @@ library(RColorBrewer)
 library(forcats)
 library(ggplot2)
 
+# PROBLEM: subjid_num: sometimes num , sometimes factor even integer... so not quite sure as it changes a lot the results so it needs to be well revise!
 
 # Data Simulated ----------------------------------------------------------
 
@@ -106,6 +107,7 @@ adm <- recist %>%
 #   ungroup() %>%
 #   select(subjid, ADMYN, ADMDT, date_inclusion, rcdt, rcresp) %>%
 #   mutate(group = "Treatment Administration")
+
 
 length(unique(adm$subjid))
 
@@ -346,7 +348,6 @@ swim=swim %>%
 
 swim_final=bind_rows(swim,add_legend )
 
-table(swim_final$RCVISIT,  swim_final$group, swim_final$ADMYN,useNA="always")
 table( swim_final$group, useNA="always")
 table( swim_final$ADMYN, useNA="always")
 table( swim_final$RCVISIT, useNA="always")
@@ -408,15 +409,20 @@ dat_swim <-
 names(suivi)
 
 suivi_trt = suivi %>%
-  filter(visit2=="Trt Administration")%>%
+  filter(visit2=="Trt Administration") %>%
   mutate(
     subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
   ) %>%
+  # arrange(subjid_num, time) %>%
   summarise(
     first_trt = min(time, na.rm=TRUE),
     last_trt = max(time, na.rm=TRUE),
     .by=subjid_num
   )
+
+length(unique(suivi_trt$subjid_num))
+dim(suivi_trt)
+summary(suivi_trt)
 
 
 suivi_fu = suivi %>%
@@ -424,6 +430,7 @@ suivi_fu = suivi %>%
   mutate(
     subjid_num = fct_reorder(factor(subjid_num), time, .fun=max, na.rm=TRUE)
   ) %>%
+  # arrange(subjid_num, time) %>%
   summarise(
     first_fu = min(time, na.rm=TRUE),
     last_fu = max(time, na.rm=TRUE),
@@ -431,7 +438,21 @@ suivi_fu = suivi %>%
   )
 
 
-View(suivi_fu)
+length(unique(suivi_fu$subjid_num))
+dim(suivi_fu)
+summary(suivi_fu)
+head(suivi_fu)
+
+
+# merge suivi_trt and _fu -------------------------------------------------
+
+
+names(suivi_fu)
+names(suivi_trt)
+suivi_trt_fu=suivi_trt %>%
+  full_join(suivi_fu, join_by(subjid_num))
+length(unique(suivi_trt_fu$subjid_num))
+dim(suivi_trt_fu)
 
 # Final plot --------------------------------------------------------------
 # Problems in the simulated datas I think that makes the graph a bit weird.
@@ -443,11 +464,11 @@ plot_final= dat_swim %>%
   dplyr::select(c(subjid_num,visit2,time))%>%
   dplyr::distinct() %>%
   filter(visit2!="Trt Administration") %>%
-  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
+  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2))+
   geom_point(position= position_dodge(width=0.4), size=2)+
-  geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_fu, arrow=arrow(length=unit(0.3, "cm")))+
+  geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_trt_fu, arrow=arrow(length=unit(0.3, "cm")))+
   geom_segment(aes(x=first_trt, y=subjid_num, xend=last_trt, yend=subjid_num), color="skyblue", alpha=0.3, linewidth=1.5,
-               inherit.aes=FALSE, data=suivi_trt)+
+               inherit.aes=FALSE, data=suivi_trt_fu)+
   scale_shape_manual(values = c(19,8,15,4,16,18,62,15))+
   scale_color_manual(values = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey"))+
   scale_x_continuous(name ="Time (in days) since first treatment administration",
@@ -468,9 +489,62 @@ plot_final= dat_swim %>%
         legend.text = element_text(size=10),
   )
 print(plot_final)
-stop()
+
 plotly::ggplotly()
 
+# Test SW plot function -----------------------------------------------------------
+
+
+## STEP 1 ------------------------------------------------------------------
+
+
+### step 1A ---------------------------------------------------------------
+
+# put all together without repetition of what you will exactly need and that you understand of what Dan do in first step 1a
+
+
+# not sure yet where to put that :
+# geom_point(position= position_dodge(width=0.4), size=2)
+#
+# color="grey", inherit.aes=FALSE,  data=suivi_trt_fu, arrow=arrow(length=unit(0.3, "cm")))+
+#
+#   color="skyblue", alpha=0.3, linewidth=1.5,
+
+swimmer_plot = function(
+    dat_swim, ..., suivi_trt_fu,
+    y = "subjid_num",
+    x="time",
+    color="visit2",
+    shape="visit2",
+    x="first_trt",
+    xend="last_trt",
+    x="first_fu"
+    xend="last_fu",
+    yend="subjid_num",
+    resp_shape = (values = c(19,8,15,4,16,18,62,15))+
+      resp_colors = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey")),
+warnings = getOption("grstat_wp_warnings", TRUE)
+)
+
+### step 1B ------------------------------------------------------------------
+
+# conceptualize the STEP1A
+
+swimmer_plot = function(
+    dat_points, ..., data_segments,
+    subjid = "subjid" or y="subjid",
+    time="time",
+    event="visit2",
+    first_trt="first_trt",
+    last_trt="last_trt",
+    first_fu="first_fu",
+    last_fu="last_fu",
+    yend="subjid_num",
+    resp_shape = (values = c(19,8,15,4,16,18,62,15)),
+    resp_colors = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey")),
+# not sure about the warning bits.
+warnings = getOption("grstat_wp_warnings", TRUE)
+)
 
 # Sample plot -------------------------------------------------------------------
 
@@ -493,7 +567,7 @@ length(unique(dat_swim_sample$subjid_num))
 unique(suivi_fu_sample$subjid_num)
 unique(dat_swim_sample$subjid_num)
 
-plot_final= dat_swim_sample %>%
+sample_plot_final= dat_swim_sample %>%
   dplyr::filter(!is.na(visit2))%>%
   # dplyr::filter(visit2!="End of trt")%>%
   dplyr::filter(visit2!="Alive at last follow up2")%>%
@@ -503,3 +577,11 @@ plot_final= dat_swim_sample %>%
   ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
   geom_point(position= position_dodge(width=0.4), size=2)+
   geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_fu_sample, arrow=arrow(length=unit(0.3, "cm")))
+
+
+
+
+
+
+
+
