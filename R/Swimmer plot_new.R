@@ -464,7 +464,7 @@ plot_final= dat_swim %>%
   dplyr::select(c(subjid_num,visit2,time))%>%
   dplyr::distinct() %>%
   filter(visit2!="Trt Administration") %>%
-  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2, size=visit2))+
+  ggplot( aes(x=time, y=factor(subjid_num), color=visit2, shape=visit2))+
   geom_point(position= position_dodge(width=0.4), size=2)+
   geom_segment(aes(x=first_fu, y=subjid_num, xend=last_fu, yend=subjid_num),  color="grey", inherit.aes=FALSE,  data=suivi_trt_fu, arrow=arrow(length=unit(0.3, "cm")))+
   geom_segment(aes(x=first_trt, y=subjid_num, xend=last_trt, yend=subjid_num), color="skyblue", alpha=0.3, linewidth=1.5,
@@ -494,16 +494,58 @@ plotly::ggplotly()
 
 # Test SW plot function -----------------------------------------------------------
 
+
+## STEP 1 ------------------------------------------------------------------
+
+
+### step 1A ---------------------------------------------------------------
+
+# put all together without repetition of what you will exactly need and that you understand of what Dan do in first step 1a
+
+
+# not sure yet where to put that :
+# geom_point(position= position_dodge(width=0.4), size=2)
+#
+# color="grey", inherit.aes=FALSE,  data=suivi_trt_fu, arrow=arrow(length=unit(0.3, "cm")))+
+#
+#   color="skyblue", alpha=0.3, linewidth=1.5,
+
 swimmer_plot = function(
     dat_swim, ..., suivi_trt_fu,
-    y = subjid_num"",
-    fill = "best_response",
-    shape = NULL,
-    arm = NULL,
-    subjid = "SUBJID",
-    resp_colors = c("CR"="#42b540", "PR"="#006dd8", "SD"="#925e9f", "PD"="#ed0000", "NA"="white"),
-    warnings = getOption("grstat_wp_warnings", TRUE)
+    y = "subjid_num",
+    x="time",
+    color="visit2",
+    shape="visit2",
+    x="first_trt",
+    xend="last_trt",
+    x="first_fu"
+    xend="last_fu",
+    yend="subjid_num",
+    resp_shape = (values = c(19,8,15,4,16,18,62,15))+
+      resp_colors = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey")),
+warnings = getOption("grstat_wp_warnings", TRUE)
 )
+
+### step 1B ------------------------------------------------------------------
+
+# conceptualize the STEP1A
+
+swimmer_plot = function(
+    dat_points, ..., data_segments,
+    subjid = "subjid" or y="subjid",
+    time="time",
+    event="visit2",
+    first_trt="first_trt",
+    last_trt="last_trt",
+    first_fu="first_fu",
+    last_fu="last_fu",
+    yend="subjid_num",
+    resp_shape = (values = c(19,8,15,4,16,18,62,15)),
+    resp_colors = c("Treatment period"="skyblue", "CR/PR"="green", "PD"="purple", "Not evaluable"="grey", "SD"="yellow","End of trt"="pink", "Death"="red", "Alive at last follow up"="grey")),
+# not sure about the warning bits.
+warnings = getOption("grstat_wp_warnings", TRUE)
+)
+
 # Sample plot -------------------------------------------------------------------
 
 #  Sample 100 unique subject IDs once
