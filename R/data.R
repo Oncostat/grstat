@@ -16,13 +16,13 @@
 #' @importFrom tibble lst
 grstat_example = function(N=200, seed=42, ...){
 
-  enrolres = example_enrol(N, seed, ...)
+  enrolres = example_enrol(N=N, seed=seed, ...)
 
-  ae = example_ae(enrolres, seed, ...)
+  ae = example_ae(enrolres=enrolres, seed=seed, ...)
 
-  recist = example_rc(enrolres, seed, ...)
+  recist = example_rc(enrolres=enrolres, seed=seed, ...)
 
-  fu = example_fu(enrolres, recist, seed, ...)
+  fu = example_fu(enrolres=enrolres, recist=recist, seed=seed, ...)
 
   rtn = lst(enrolres, ae, recist, fu) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
