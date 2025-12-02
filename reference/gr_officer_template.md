@@ -1,0 +1,122 @@
+# GR report template
+
+Create a `docx` template to be used with `{officer}` for a standardized
+report.
+
+## Usage
+
+``` r
+gr_officer_template(
+  title,
+  acronym,
+  ...,
+  phase = "III",
+  cset_number = "CSET20xx/xxx",
+  eudract_number = "20xx-xx",
+  ctgov_number = "xxxxx",
+  date_report = "",
+  date_first = "",
+  date_last = "",
+  date_cutoff = "",
+  date_freeze = "",
+  authors = NULL,
+  sponsor = data.frame(name = "Gustave Roussy", address = "114 Rue Edouard Vaillant",
+    code = "94805 Villejuif Cedex")
+)
+```
+
+## Arguments
+
+- title:
+
+  Study complete title
+
+- acronym:
+
+  Study acronym
+
+- ...:
+
+  Not used. Ensures that only named arguments are passed.
+
+- phase:
+
+  Study phase
+
+- cset_number:
+
+  Study CSET identifier
+
+- eudract_number:
+
+  Study EUDRACT identifier
+
+- ctgov_number:
+
+  Study identifier on clinicaltrial.gov
+
+- date_report:
+
+  Date of the report
+
+- date_first:
+
+  Date of first patient inclusion
+
+- date_last:
+
+  Date of last patient inclusion
+
+- date_cutoff:
+
+  Date of analysis cut-off
+
+- date_freeze:
+
+  Date of database freeze
+
+- authors:
+
+  A dataframe describing the report authors
+
+- sponsor:
+
+  A dataframe describing the study's sponsor
+
+## Value
+
+A `docx` object that can be saved or used with `{officer}`
+
+## Examples
+
+``` r
+authors = dplyr::bind_rows(
+  c(name="Dr Armin Clusion", role="Coordinating investigator",
+    address="Gustave Roussy", phone="+33", email="name@gustaveroussy.fr"),
+  c(name="Jeanne Alise ", role="Biostatistician",
+    address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
+  c(name="Bertrand Domise", role="Data-manager",
+    address="Gustave Roussy, Bureau of Biostatistic and Epidemiology"),
+  c(name="Arnaud Cébo", role="Pharmacovigilant",
+    address="Gustave Roussy, Pharmacovigilance Unit"),
+)
+sponsor = data.frame(name="Gustave Roussy", address="114 Rue Edouard Vaillant",
+                     code="94805 Villejuif Cedex")
+
+doc = gr_officer_template(
+  title="The Great Study", acronym="TGreStu",
+  phase="III",
+  date_report="2025-01-01",
+  date_first="2024-01-01",
+  date_last="2024-06-01",
+  date_cutoff="2024-09-01",
+  date_freeze="2024-09-01",
+  authors = authors,
+  sponsor = sponsor
+) %>%
+  officer::body_add("This is a great study, and here are the stats.")
+
+path = tempfile(fileext=".docx")
+print(doc, path)
+browseURL(path)
+```
