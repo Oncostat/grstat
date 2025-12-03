@@ -45,7 +45,7 @@ calc_best_response = function(data_recist, ...,
                               rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
                               subjid="SUBJID", exclude_post_pd=TRUE,
                               warnings=getOption("grstat_best_resp_warnings", TRUE),
-                              confirmed = FALSE, cycle_length = 28) {
+                              confirmed = FALSE, cycle_length = 28, use_pharmasug = FALSE) {
   assert_class(data_recist, class="data.frame")
   assert_class(rc_sum, class="character")
   assert_class(rc_resp, class="character")
@@ -78,7 +78,7 @@ calc_best_response = function(data_recist, ...,
       first_date = min_narm(date, na.rm=TRUE),
       min_sum = min_narm(sum, na.rm=TRUE),
       first_sum = sum[date==first_date],
-      response_num = .encode_response(response),
+      response_num = .recist_to_num(response),
       #response = fct_reorder(as.character(response), response_num),
       response_num = ifelse(is.na(response),NA,response_num),
       previous_response_num = lag(response_num),
@@ -119,14 +119,20 @@ calc_best_response = function(data_recist, ...,
                                                     previous_response_num = previous_response_num,
                                                     delta_date = delta_date,
                                                     cycle_length = cycle_length,
-                                                    previous_response_num_2 = previous_response_num_2)) %>%
+                                                    previous_response_num_2 = previous_response_num_2,
+                                                    use_pharmasug = use_pharmasug)) %>%
       mutate(bestresponse = min(confirmed_response), .by=subjid) %>%
       mutate(response_num_lead = lead(response_num),
              response_num_lead_2 = lead(response_num,2),
-             confirm = .confirm_response_for_date(response_num = response_num,
+             confirm = .is_response_confirmed(response_num = response_num,
                                                   bestresponse = bestresponse,
                                                   response_num_lead = response_num_lead,
-                                                  response_num_lead_2 = response_num_lead_2)) %>%
+                                                  response_num_lead_2 = response_num_lead_2,
+                                              use_pharmasug = use_pharmasug)) %>%
+             # confirm = .confirm_response_for_date(response_num = response_num,
+             #                                      bestresponse = bestresponse,
+             #                                      response_num_lead = response_num_lead,
+             #                                      response_num_lead_2 = response_num_lead_2)) %>%
       mutate(confirm = cumsum(confirm), .by=subjid) %>%
       filter(confirm==1) %>%
       slice_min(order_by =date ,by=subjid) %>%
@@ -200,8 +206,10 @@ calc_best_response = function(data_recist, ...,
                              previous_response_num = previous_response_num,
                              delta_date = delta_date,
                              cycle_length = cycle_length,
-                             previous_response_num_2 = previous_response_num_2) {
+                             previous_response_num_2 = previous_response_num_2,
+                             use_pharmasug = use_pharmasug) {
 case_when(
+  use_pharmasug == TRUE & response_num <= 2 & previous_response_num == 3 & previous_response_num_2 <= 2   ~ 2,
   response_num == 1 & previous_response_num == 1 & delta_date >= cycle_length                ~ 1,
   response_num == 1 & previous_response_num == 1 & delta_date < cycle_length                 ~ 3,
   response_num == 1 & previous_response_num == 2 & delta_date >= cycle_length                ~ 2,
@@ -214,7 +222,6 @@ case_when(
   response_num == 2 & previous_response_num <= 2 & delta_date < cycle_length                 ~ 3,
   response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==3               ~ 3,
   response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==5               ~ 3,
-#  response_num == 2 & previous_response_num == 3 & previous_response_num_2 <= 2              ~ 2, # A voir si on garde ou pas, pour le moment on prend en ref recist 1.1 donc on garde pas (c'est pharma sug 2023)
   response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==3               ~ 3,
   response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==5               ~ 5,
   response_num == 2 & previous_response_num == 5 & previous_response_num_2 <= 2              ~ 2,
@@ -224,7 +231,7 @@ case_when(
   is.na(previous_response_num_2)& (previous_response_num==3 | previous_response_num ==5) &
     response_num <= 2                                                                        ~ 5,
 
-  TRUE ~ response_num
+  .default = response_num
 )
 }
 
@@ -248,6 +255,33 @@ case_when(
     response_num == 4 & bestresponse == 4                                                      ~ 1,
     response_num == 5 & bestresponse == 5                                                      ~ 1,
 
-    TRUE ~ 0
+    .default = 0
   )
+}
+
+#' @noRd
+#' @keywords internal
+.is_response_confirmed = function(response_num = response_num,
+                                      bestresponse = bestresponse,
+                                      response_num_lead = response_num_lead,
+                                      response_num_lead_2 = response_num_lead_2,
+                                  use_pharmasug = use_pharmasug) {
+    CR_c = response_num == 1 & bestresponse == 1 & response_num_lead ==1
+    PR_CR_c = response_num == 1 & bestresponse == 2 & response_num_lead ==2
+    CR_c_pharmasug = response_num == 1 & bestresponse == 1 &
+      (response_num_lead ==3 |response_num_lead ==5) & response_num_lead_2 <=2
+    CR_NE_c = response_num == 1 & bestresponse == 1 & response_num_lead ==5 & response_num_lead_2 ==1
+    PR_c = response_num == 2 & bestresponse == 2 & response_num_lead <=2
+    PR_c_pharmasug = response_num == 2 & bestresponse == 2 &
+      (response_num_lead ==3 |response_num_lead ==5) &response_num_lead_2 <=2
+    PR_NE_c = response_num == 2 & bestresponse == 2 & response_num_lead ==5 & response_num_lead_2 <=2
+    SD_c = response_num == 3 & bestresponse == 3
+    PD_c = response_num == 4 & bestresponse == 4
+    NE_c = response_num == 5 & bestresponse == 5
+
+    if(isTRUE(use_pharmasug)){
+      CR_c | PR_CR_c | CR_NE_c | PR_c | PR_NE_c | SD_c | PD_c | NE_c | CR_c_pharmasug | PR_c_pharmasug
+    } else {
+      CR_c | PR_CR_c | CR_NE_c | PR_c | PR_NE_c | SD_c | PD_c | NE_c
+    }
 }
