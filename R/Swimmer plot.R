@@ -59,68 +59,61 @@ set.seed(2025)
 
 # I am not quite sure how many treatment administration subjid can have between 2 recist scans, I think 21 days apart. So I have created only one adm per recist scans and one adm before ever first recist scan.
 
-
 adm <- recist %>%
   left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
-  # filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
   filter(!is.na(rcresp)) %>%
-  arrange(subjid, rcdt) %>%   # ensure ordered by patient and RECIST
-  group_by(subjid) %>%
-  # cannot make this ADMYN variable correctly and I am not so sure if it is really needed
-  mutate(
-    #   ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.99, 0.01)),
+  arrange(subjid, rcdt) %>%
 
-    # first admission date
+  mutate(
+    first_delay  = sample(5:15, 1),
+    follow_delay = sample(21:30, 1)
+    , .by = subjid) %>%
+
+  mutate(
     ADMDT = if_else(
       row_number() == 1,
-      pmin(date_inclusion + days(sample(5:15, 1)), rcdt),  # 5–15 days after inclusion but before first RECIST
-      rcdt - days(sample(21:30, 1))          # subsequent admissions: 21–30 days before each RECIST
-    )
+      pmin(date_inclusion + days(first_delay), rcdt),
+      rcdt - days(follow_delay)
+    ),
+    .by = subjid
   ) %>%
-  ungroup() %>%
-  select(subjid, ADMDT,date_inclusion,rcdt, rcresp) %>%
-  mutate(group="Treatment Administration")
 
+  select(subjid, ADMDT, date_inclusion, rcdt, rcresp) %>%
+  mutate(group = "Treatment Administration")
 
 # adm <- recist %>%
 #   left_join(enrolres %>% select(subjid, date_inclusion), by = "subjid") %>%
+#   # filter(!is.na(rcresp), rcresp != "Progressive disease") %>%
 #   filter(!is.na(rcresp)) %>%
-#   arrange(subjid, rcdt) %>%
+#   arrange(subjid, rcdt) %>%   # ensure ordered by patient and RECIST
 #   group_by(subjid) %>%
+#   # cannot make this ADMYN variable correctly and I am not so sure if it is really needed
 #   mutate(
-#     # Assign ADMYN: 99% Yes, 1% No
-#     ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.99, 0.01)),
+#     #   ADMYN = sample(c("Yes", "No"), n(), replace = TRUE, prob = c(0.99, 0.01)),
 #
-#     # Create ADMDT only if ADMYN == "Yes"
+#     # first admission date
 #     ADMDT = if_else(
-#       ADMYN == "Yes",
-#       # first admission date
-#       if_else(
-#         row_number() == 1,
-#         pmin(date_inclusion + days(sample(5:15, 1)), rcdt), # 5–15 days after inclusion but before
-#         #      first RECIST
-#          rcdt - days(sample(21:30, 1))     # subsequent admissions: 21–30 days before each RECIST
-#       ),
-#       as.Date(NA)  # ADMDT is NA if ADMYN == "No"
+#       row_number() == 1,
+#       pmin(date_inclusion + days(sample(5:15, 1)), rcdt),  # 5–15 days after inclusion but before first RECIST
+#       rcdt - days(sample(21:30, 1))          # subsequent admissions: 21–30 days before each RECIST
 #     )
 #   ) %>%
 #   ungroup() %>%
-#   select(subjid, ADMYN, ADMDT, date_inclusion, rcdt, rcresp) %>%
-#   mutate(group = "Treatment Administration")
+#   select(subjid, ADMDT,date_inclusion,rcdt, rcresp) %>%
+#   mutate(group="Treatment Administration")
 
 
 length(unique(adm$subjid))
 
 ### eot dataset -------------------------------------------------------------
 
-# set.seed(2025)
+set.seed(2025)
 
 eot <- adm %>%
-  group_by(subjid) %>%
   summarise(
     last_admdt = max(ADMDT, na.rm = TRUE),
     last_rcdt  = max(rcdt, na.rm = TRUE)
-  ) %>%
+    ,.by = subjid) %>%
   left_join(select(dth, subjid, dthdt, died), by = "subjid")
 
 # Step 2: Simulate End of Treatment date (EOTLADDT)
@@ -138,7 +131,7 @@ eot <- eot %>%
 length(unique(eot$subjid))
 
 
-# Step 4: keep EOTLADDT for all subjid that had progressive deasease and reduce some for others
+# Step 4: keep EOTLADDT for all subjid that had progressive disease and reduce some for others
 
 eot <- eot %>%
   left_join(recist, by = "subjid") %>%
@@ -166,43 +159,52 @@ length(unique(eot$subjid))
 
 set.seed(2025)
 
-fu <- eot %>%
+# fu <- eot %>%
+#   rowwise() %>%
+#   mutate(
+#     n_fu = sample(1)  # number of follow-ups per subject
+#   ) %>%
+#   do({
+#     subjid <- .$subjid
+#     eot_date <- .$EOTLADDT
+#     n_fu <- .$n_fu
+#
+#     # Simulate follow-up dates: between 4 and 180 days post-EOTLADDT
+#     data.frame(
+#       subjid = subjid,
+#       FUDT = sort(eot_date + days(sample(4:180, n_fu, replace = FALSE)))
+#     )
+#   }) %>%
+#   ungroup() %>%
+#   mutate(
+#     FUDT = if_else(
+#       runif(n()) < 0.7,   # 80% probability
+#       as.Date(NA),        # set to missing
+#       FUDT                # keep original
+#     )
+#   ) %>%
+#   distinct() %>%
+#   filter(!is.na(FUDT))
+
+
+fu=eot %>%
   rowwise() %>%
   mutate(
-    n_fu = sample(1)  # number of follow-ups per subject
+    n_fu = sample(1),  # number of follow-ups per subject
+    FUDT = sort(EOTLADDT + days(sample(4:180, n_fu, replace = FALSE)))
   ) %>%
-  do({
-    subjid <- .$subjid
-    eot_date <- .$EOTLADDT
-    n_fu <- .$n_fu
-
-    # Simulate follow-up dates: between 4 and 180 days post-EOTLADDT
-    data.frame(
-      subjid = subjid,
-      FUDT = sort(eot_date + days(sample(4:180, n_fu, replace = FALSE)))
-    )
-  }) %>%
   ungroup() %>%
-  mutate(
-    FUDT = if_else(
-      runif(n()) < 0.7,   # 80% probability
-      as.Date(NA),        # set to missing
-      FUDT                # keep original
-    )
-  ) %>%
-  distinct() %>%
-  filter(!is.na(FUDT))
-
+  slice_sample(prop=0.35) %>%
+  select(subjid, FUDT)
 
 length(unique(fu$subjid))
+
 
 ### add rcvisit to recist ---------------------------------------------------
 
 
 recist <- recist %>%
-  group_by(subjid) %>%
-  mutate(RCVISIT = ifelse(is.na(rcresp), "Baseline", NA)) %>%
-  ungroup()
+  mutate(RCVISIT = ifelse(is.na(rcresp), "Baseline", NA), .by = subjid)
 
 dim(recist)
 length(unique(recist$subjid))
@@ -233,9 +235,9 @@ enrolres_v2=subset(enrolres,
 
 ADM_first <- adm %>%
   arrange(as.numeric(subjid), rcdt) %>%
-  mutate(ADMDT_first = first(ADMDT), .by = subjid) %>%
-  mutate(ADMDT_last = last(ADMDT), .by = subjid) %>%
-  select(subjid, ADMDT_first, group, ADMDT) %>%
+  mutate(ADMDT_min = first(ADMDT), .by = subjid) %>%
+  mutate(ADMDT_max = last(ADMDT), .by = subjid) %>%
+  select(subjid, ADMDT_min, group, ADMDT) %>%
   mutate(group="Treatment Administration") %>%
   mutate(date=ADMDT)
 
@@ -246,26 +248,26 @@ length(unique(ADM_first$subjid))
 
 adm_v2=enrolres_v2 %>%
   left_join(ADM_first, by=c("subjid")) %>%
-  select(subjid, date_inclusion ,ADMDT_first, group, date)
+  select(subjid, date_inclusion ,ADMDT_min, group, date)
 # mutate(T0=consdt) %>%
 # mutate(T0bis=first_ADMDT) %>%
 
 length(unique(adm_v2$subjid))
 
-###  create the dataset date_inclusion_ADMDT_first that will be left join to every subset of the datasets
+###  create the dataset date_inclusion_ADMDT_min that will be left join to every subset of the datasets
 
-date_inclusion_ADMDT_first=adm_v2 %>%
-  select(subjid,date_inclusion, ADMDT_first ) %>%
+date_inclusion_ADMDT_min=adm_v2 %>%
+  select(subjid,date_inclusion, ADMDT_min ) %>%
   distinct()
-length(unique(date_inclusion_ADMDT_first$subjid))
+length(unique(date_inclusion_ADMDT_min$subjid))
 
 ### subset of the dataset recist of the rcdt and responses -------------------------------------------------------
 
 recist_repb=recist %>%
   mutate(group="Recist") %>%
-  left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
+  left_join(date_inclusion_ADMDT_min, by=c("subjid")) %>%
   mutate(date=rcdt) %>%
-  select(subjid , date, rcresp, date_inclusion, ADMDT_first, group, RCVISIT) %>%
+  select(subjid , date, rcresp, date_inclusion, ADMDT_min, group, RCVISIT) %>%
   distinct()
 
 length(unique(recist_repb$subjid))
@@ -274,10 +276,10 @@ length(unique(recist_repb$subjid))
 
 names(eot)
 eot_v2=eot %>%
-  left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
+  left_join(date_inclusion_ADMDT_min, by=c("subjid")) %>%
   mutate(date=EOTLADDT) %>%
   mutate(group="End of treatment")  %>%
-  select(subjid,group, date_inclusion,ADMDT_first, date) %>%
+  select(subjid,group, date_inclusion,ADMDT_min, date) %>%
   distinct() %>%
   filter(!is.na(date))
 
@@ -292,10 +294,10 @@ length(unique(eot_v2$subjid))
 
 dth_death= dth %>%
   select(subjid, dthdt ) %>%
-  left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
+  left_join(date_inclusion_ADMDT_min, by=c("subjid")) %>%
   mutate(date=dthdt) %>%
   mutate(group="Death") %>%
-  select(subjid,group, date_inclusion,ADMDT_first, date) %>%
+  select(subjid,group, date_inclusion,ADMDT_min, date) %>%
   distinct() %>%
   filter(!is.na(date))
 
@@ -307,9 +309,9 @@ length(unique(dth_death$subjid))
 fu_v2= fu %>%
   select(subjid, FUDT ) %>%
   mutate(group="Alive at last follow up2") %>%
-  left_join(date_inclusion_ADMDT_first, by=c("subjid")) %>%
+  left_join(date_inclusion_ADMDT_min, by=c("subjid")) %>%
   mutate(date=FUDT) %>%
-  select(subjid,group, date_inclusion,ADMDT_first, date) %>%
+  select(subjid,group, date_inclusion,ADMDT_min, date) %>%
   distinct() %>%
   filter(!is.na(date))
 
@@ -319,7 +321,7 @@ length(unique(fu_v2$subjid))
 
 swim=bind_rows(adm_v2, recist_repb ,eot_v2, dth_death, fu_v2) %>%
   mutate(time_from_date_inclusion_to_date=(date-date_inclusion)) %>%
-  mutate(time=(date-ADMDT_first)) %>%
+  mutate(time=(date-ADMDT_min)) %>%
   mutate(time_from_date_inclusion_to_date_months=time_from_date_inclusion_to_date/30) %>%
   mutate(time_months=time/30)
 
@@ -349,49 +351,83 @@ swim=swim %>%
 swim_final=bind_rows(swim,add_legend )
 
 table( swim_final$group, useNA="always")
-table( swim_final$ADMYN, useNA="always")
 table( swim_final$RCVISIT, useNA="always")
 table( swim_final$rcresp,  swim_final$group, useNA="always")
 
 
-swim_v2=swim_final %>%
-  mutate(visit=ifelse(group=="Treatment Administration",1, NA)) %>%
-  mutate(visit=ifelse(group=="Recist" & rcresp=="Complete response" ,2, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & rcresp=="Partial response" ,2, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & rcresp=="Stable disease" ,3, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & rcresp=="Progressive disease" ,4, visit))%>%
-  mutate(visit=ifelse(group=="Recist" & rcresp=="Not Evaluable" ,5, visit))%>%
-  mutate(visit=ifelse(group=="End of treatment"  ,6, visit)) %>%
-  mutate(visit=ifelse(group=="Death"  ,7, visit)) %>%
-  mutate(visit=ifelse(group=="Alive at last follow up2"  ,8, visit)) %>%
-  mutate(visit=ifelse(group=="Alive at last follow up"  ,9, visit)) %>%
-  mutate(visit=ifelse(group=="Treatment period",10,visit )) %>%
+# swim_v2=swim_final %>%
+#   mutate(visit=ifelse(group=="Treatment Administration",1, NA)) %>%
+#   mutate(visit=ifelse(group=="Recist" & rcresp=="Complete response" ,2, visit))%>%
+#   mutate(visit=ifelse(group=="Recist" & rcresp=="Partial response" ,2, visit))%>%
+#   mutate(visit=ifelse(group=="Recist" & rcresp=="Stable disease" ,3, visit))%>%
+#   mutate(visit=ifelse(group=="Recist" & rcresp=="Progressive disease" ,4, visit))%>%
+#   mutate(visit=ifelse(group=="Recist" & rcresp=="Not Evaluable" ,5, visit))%>%
+#   mutate(visit=ifelse(group=="End of treatment"  ,6, visit)) %>%
+#   mutate(visit=ifelse(group=="Death"  ,7, visit)) %>%
+#   mutate(visit=ifelse(group=="Alive at last follow up2"  ,8, visit)) %>%
+#   mutate(visit=ifelse(group=="Alive at last follow up"  ,9, visit)) %>%
+#   mutate(visit=ifelse(group=="Treatment period",10,visit )) %>%
+#   filter(!RCVISIT %in% "Baseline") %>%
+#   distinct() %>%
+#   # Could not amke this that variable work but again I am not so sure how much we need it
+#   # filter(ADMYN=="Yes" | is.na(ADMYN)) %>%
+#   mutate(subjid_num=as.numeric(subjid)) %>%
+#   arrange(subjid_num, date)
+
+swim_v2 <- swim_final %>%
+  mutate(
+    visit = dplyr::case_when(
+      group == "Treatment Administration" ~ 1,
+      group == "Recist" & rcresp %in% c("Complete response", "Partial response") ~ 2,
+      group == "Recist" & rcresp == "Stable disease" ~ 3,
+      group == "Recist" & rcresp == "Progressive disease" ~ 4,
+      group == "Recist" & rcresp == "Not Evaluable" ~ 5,
+      group == "End of treatment" ~ 6,
+      group == "Death" ~ 7,
+      group == "Alive at last follow up2" ~ 8,
+      group == "Alive at last follow up" ~ 9,
+      group == "Treatment period" ~ 10,
+      TRUE ~ NA_real_
+    ),
+
+    visit2 = factor(
+      visit,
+      levels = 1:10,
+      labels = c(
+        "Trt Administration",
+        "CR/PR",
+        "SD",
+        "PD",
+        "Not evaluable",
+        "End of trt",
+        "Death",
+        "Alive at last follow up2",
+        "Alive at last follow up",
+        "Treatment period"
+      )
+    )
+  ) %>%
   filter(!RCVISIT %in% "Baseline") %>%
   distinct() %>%
-  # Could not amke this that variable work but again I am not so sure how much we need it
-  # filter(ADMYN=="Yes" | is.na(ADMYN)) %>%
-  mutate(subjid_num=as.numeric(subjid)) %>%
+  mutate(subjid_num = as.numeric(subjid)) %>%
   arrange(subjid_num, date)
 
-table( swim_v2$visit, useNA="always")
 
-dim(swim_v2)
-summary(swim_v2)
 suivi=swim_v2
 
 length(unique(suivi$subjid))
 
 table( suivi$visit, useNA="always")
 
-# Conversion de la variable visite en facteur
-
-suivi$visit2 <- factor(suivi$visit, c(1:10),
-                       c("Trt Administration",
-                         "CR/PR",
-                         "SD",
-                         "PD",
-                         "Not evaluable",
-                         "End of trt", "Death", "Alive at last follow up2",  "Alive at last follow up", "Treatment period" ))
+# # Conversion de la variable visite en facteur
+#
+# suivi$visit2 <- factor(suivi$visit, c(1:10),
+#                        c("Trt Administration",
+#                          "CR/PR",
+#                          "SD",
+#                          "PD",
+#                          "Not evaluable",
+#                          "End of trt", "Death", "Alive at last follow up2",  "Alive at last follow up", "Treatment period" ))
 
 table(suivi$rcresp, useNA="always")
 table( suivi$visit2, useNA="always")
@@ -455,7 +491,6 @@ length(unique(suivi_trt_fu$subjid_num))
 dim(suivi_trt_fu)
 
 # Final plot --------------------------------------------------------------
-# Problems in the simulated datas I think that makes the graph a bit weird.
 
 plot_final= dat_swim %>%
   dplyr::filter(!is.na(visit2))%>%
@@ -531,7 +566,7 @@ warnings = getOption("grstat_wp_warnings", TRUE)
 # conceptualize the STEP1A
 
 swimmer_plot = function(
-    dat_points, ..., data_segments,
+    data_event, ..., data_trt_fu,
     subjid = "subjid" or y="subjid",
     time="time",
     event="visit2",
@@ -545,6 +580,27 @@ swimmer_plot = function(
 # not sure about the warning bits.
 warnings = getOption("grstat_wp_warnings", TRUE)
 )
+
+
+# Step 2 the checks as Dan functions writting way------------------------------------------------------------------
+#----------------------------------------------------------
+# 1. Checks
+#----------------------------------------------------------
+if(!is.data.frame(data_points))
+  stop("data_points must be a data.frame")
+if(!is.data.frame(data_segments))
+  stop("data_segments must be a data.frame")
+
+req_points <- c(subjid, time, event)
+if(!all(req_points %in% names(data_points)))
+  stop("data_points must contain: ", paste(req_points, collapse=", "))
+
+req_segments <- c(subjid, first_trt, last_trt, first_fu, last_fu)
+if(!all(req_segments %in% names(data_segments)))
+  stop("data_segments must contain: ", paste(req_segments, collapse=", "))
+
+
+
 
 # Sample plot -------------------------------------------------------------------
 
