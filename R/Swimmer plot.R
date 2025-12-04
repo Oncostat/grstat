@@ -583,21 +583,18 @@ warnings = getOption("grstat_wp_warnings", TRUE)
 
 
 # Step 2 the checks as Dan functions writting way------------------------------------------------------------------
-#----------------------------------------------------------
-# 1. Checks
-#----------------------------------------------------------
-if(!is.data.frame(data_points))
-  stop("data_points must be a data.frame")
-if(!is.data.frame(data_segments))
-  stop("data_segments must be a data.frame")
+if(!is.data.frame(data_event))
+  stop("data_event must be a data.frame")
+if(!is.data.frame(data_trt_fu))
+  stop("data_trt_fu must be a data.frame")
 
-req_points <- c(subjid, time, event)
-if(!all(req_points %in% names(data_points)))
-  stop("data_points must contain: ", paste(req_points, collapse=", "))
+id_time_event <- c(subjid, time, event)
+if(!all(id_time_event %in% names(data_event)))
+  stop("data_event must contain: ", paste(id_time_event, collapse=", "))
 
-req_segments <- c(subjid, first_trt, last_trt, first_fu, last_fu)
-if(!all(req_segments %in% names(data_segments)))
-  stop("data_segments must contain: ", paste(req_segments, collapse=", "))
+id_trt_fu <- c(subjid, first_trt, last_trt, first_fu, last_fu)
+if(!all(id_trt_fu %in% names(data_trt_fu)))
+  stop("data_trt_fu must contain: ", paste(id_trt_fu, collapse=", "))
 
 
 
