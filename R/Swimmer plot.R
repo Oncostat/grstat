@@ -582,7 +582,9 @@ warnings = getOption("grstat_wp_warnings", TRUE)
 )
 
 
-# Step 2 the checks as Dan functions writting way------------------------------------------------------------------
+# Step 2 checks as Dan functions writting way------------------------------------------------------------------
+rlang::check_dots_empty()
+
 if(!is.data.frame(data_event))
   stop("data_event must be a data.frame")
 if(!is.data.frame(data_trt_fu))
@@ -596,7 +598,42 @@ id_trt_fu <- c(subjid, first_trt, last_trt, first_fu, last_fu)
 if(!all(id_trt_fu %in% names(data_trt_fu)))
   stop("data_trt_fu must contain: ", paste(id_trt_fu, collapse=", "))
 
+# Duplicate subject checks
+dup_ev <- data_event[[subjid]][duplicated(data_event[[subjid]])]
+if(length(dup_ev) > 0){
+  dup_list <- sort(unique(dup_ev))
+  stop("Duplicate subject IDs found in `data_event`: ",
+       paste(dup_list, collapse = ", "),
+       call. = FALSE)
+}
 
+dup_trt <- data_trt_fu[[subjid]][duplicated(data_trt_fu[[subjid]])]
+if(length(dup_trt) > 0){
+  dup_list <- sort(unique(dup_trt))
+  stop("Duplicate subject IDs found in `data_trt_fu`: ",
+       paste(dup_list, collapse = ", "),
+       call. = FALSE)
+}
+
+#' I am trying to do a help R support plus redo those checks bellow.
+#' #' Title
+#' #'
+#' #' @param data
+#' #' @param subjid
+#' #'
+#' #' @return
+#' #' @export
+#' #'
+#' #' @examples
+#' check_legacy = function(data, subjid) {
+#'   dup_id = duplicated(data[[subjid]])
+#'   if(any(dup_id)){
+#'     dup = sort(unique(data[[subjid]][dup_id]))
+#'
+#'     Ensure Unused Arguments Are Not Provided
+#'     check_dots_empty()
+#'     If the user passes any unknown argument (via `...`), the function will stop and notify the user.
+#'     This avoids silent errors and prevents ambiguous input interpretation.
 
 
 # Sample plot -------------------------------------------------------------------
