@@ -11,7 +11,6 @@
 #' @param rc_resp The column containing the RECIST response (e.g., `"CR"`, `"PR"`, `"SD"`, `"PD"`). Default is `"RCRESP"`.
 #' @param rc_date The column containing the assessment date. Default is `"RCDT"`.
 #' @param subjid The column containing the subject ID. Default is `"SUBJID"`.
-#' @param exclude_post_pd Logical; if `TRUE` (default), assessments after the first PD are excluded.
 #' @param warnings Logical; if `TRUE` (default is taken from `getOption("grstat_best_resp_warnings", TRUE)`), emits warnings during internal checks.
 #' @param cycle_length Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation
 #' @param use_pharmasug Logical, if `TRUE`, the confirmation of response will be defnied following PharmaSUG 2023 – Paper QT047 recommendation. Default is RECIST 1.1 guideline
@@ -28,10 +27,8 @@
 #' @details
 #' The function identifies the best response using the following logic:
 #' 1. Responses are ordered: `CR` > `PR` > `SD` > `PD` > `Missing`
-#' 2. Among the best responses, the one with the smallest target lesion sum is selected
-#' 3. If still tied, the earliest assessment date is selected
-#' 4. Only subjects with at least two assessments and non-missing target sum are considered
-#' 5. By default, all assessments after the first PD are excluded (`exclude_post_pd = TRUE`)
+#' 2. Among the best responses the earliest assessment date is selected. For a confirmed response, the earliest date of the confirmed response will be selected
+#' 3. Only subjects with at least two assessments and non-missing target sum are considered
 #'
 #'
 #' @export

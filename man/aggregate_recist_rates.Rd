@@ -5,7 +5,7 @@
 \alias{as_flextable.aggregate_recist_rates}
 \title{Calculate BOR}
 \usage{
-aggregate_recist_rates(data, ..., show_CBR = FALSE, cycle_length = 28)
+aggregate_recist_rates(data, ..., show_CBR = FALSE)
 
 \method{as_flextable}{aggregate_recist_rates}(x, ...)
 }
@@ -15,8 +15,6 @@ aggregate_recist_rates(data, ..., show_CBR = FALSE, cycle_length = 28)
 \item{...}{unused}
 
 \item{show_CBR}{Logical; if \code{TRUE}, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).}
-
-\item{cycle_length}{Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation}
 
 \item{x}{a dataframe, resulting of \code{aggregate_recist_rates()}}
 
@@ -42,19 +40,19 @@ recist = grstat_example()$recist
 recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = FALSE) \%>\%
- aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) \%>\%
+ aggregate_recist_rates_2(show_CBR = FALSE) \%>\%
  as_flextable()
 #It is also possible to use the confirmation method for the BOR
 recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
- aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) \%>\%
+ aggregate_recist_rates_2(show_CBR = FALSE \%>\%
  as_flextable()
 
 #Or show the Clinical Benefice Rate
 recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
- aggregate_recist_rates_2(show_CBR = TRUE, cycle_length =28) \%>\%
+ aggregate_recist_rates_2(show_CBR = TRUE) \%>\%
  as_flextable()
 }
