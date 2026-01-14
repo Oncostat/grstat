@@ -79,7 +79,6 @@ calc_best_response = function(data_recist, ...,
       min_sum = min_narm(sum, na.rm=TRUE),
       first_sum = sum[date==first_date],
       response_num = .recist_to_num(response),
-      #response = fct_reorder(as.character(response), response_num),
       response_num = ifelse(is.na(response),NA,response_num),
       previous_response_num = lag(response_num),
       previous_date = lag(date),
@@ -128,11 +127,8 @@ calc_best_response = function(data_recist, ...,
                                                   bestresponse = bestresponse,
                                                   response_num_lead = response_num_lead,
                                                   response_num_lead_2 = response_num_lead_2,
-                                              use_pharmasug = use_pharmasug)) %>%
-             # confirm = .confirm_response_for_date(response_num = response_num,
-             #                                      bestresponse = bestresponse,
-             #                                      response_num_lead = response_num_lead,
-             #                                      response_num_lead_2 = response_num_lead_2)) %>%
+                                              use_pharmasug = use_pharmasug)
+      ) %>%
       mutate(confirm = cumsum(confirm), .by=subjid) %>%
       filter(confirm==1) %>%
       slice_min(order_by =date ,by=subjid) %>%
@@ -233,30 +229,6 @@ case_when(
 
   .default = response_num
 )
-}
-
-#' @noRd
-#' @keywords internal
-.confirm_response_for_date = function(response_num = response_num,
-                                      bestresponse = bestresponse,
-                                      response_num_lead = response_num_lead,
-                                      response_num_lead_2 = response_num_lead_2) {
-  case_when(
-    response_num == 1 & bestresponse == 1 & response_num_lead ==1                              ~ 1,
-    response_num == 1 & bestresponse == 2 & response_num_lead ==2                              ~ 1,
-    #response_num == 1 & bestresponse == 1 & (response_num_lead ==3 |response_num_lead ==5) &
-    #  response_num_lead_2 <=2                                                                  ~ 1, A voir si on garde ou pas, pour le moment on prend en ref recist 1.1 donc on garde pas (c'est pharma sug 2023)
-    response_num == 1 & bestresponse == 1 & response_num_lead ==5 & response_num_lead_2 ==1    ~ 1,
-    response_num == 2 & bestresponse == 2 & response_num_lead <=2                              ~ 1,
-    #response_num == 2 & bestresponse == 2 & (response_num_lead ==3 |response_num_lead ==5) &
-    #  response_num_lead_2 <=2                                                                  ~ 1, A voir si on garde ou pas, pour le moment on prend en ref recist 1.1 donc on garde pas (c'est pharma sug 2023)
-    response_num == 2 & bestresponse == 2 & response_num_lead ==5 & response_num_lead_2 <=2    ~ 1,
-    response_num == 3 & bestresponse == 3                                                      ~ 1,
-    response_num == 4 & bestresponse == 4                                                      ~ 1,
-    response_num == 5 & bestresponse == 5                                                      ~ 1,
-
-    .default = 0
-  )
 }
 
 #' @noRd
