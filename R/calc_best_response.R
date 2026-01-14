@@ -14,6 +14,7 @@
 #' @param exclude_post_pd Logical; if `TRUE` (default), assessments after the first PD are excluded.
 #' @param warnings Logical; if `TRUE` (default is taken from `getOption("grstat_best_resp_warnings", TRUE)`), emits warnings during internal checks.
 #' @param cycle_length Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation
+#' @param use_pharmasug Logical, if `TRUE`, the confirmation of response will be defnied following PharmaSUG 2023 – Paper QT047 recommendation. Default is RECIST 1.1 guideline
 #'
 #'
 #' @return A tibble with one row per subject, containing:
@@ -90,13 +91,14 @@ calc_best_response = function(data_recist, ...,
       delta_date_before_PD_or_end = replace_na(delta_date_before_PD_or_end, 0),
       duree_suivi_max = max(delta_date_before_PD_or_end),
       bestresponse_withinprotocole = ifelse(previous_response_num==response_num, 1, 0 ),
-      .by=subjid,
+      .by=subjid
     ) %>%
     mutate(
       first_date = date==first_date,
       diff_first = (sum - first_sum)/first_sum,
       diff_first = ifelse (is.na(diff_first),0,diff_first),
-      diff_min = (sum - min_sum)/min_sum) %>%
+      diff_min = (sum - min_sum)/min_sum
+    ) %>%
     filter(!is.na(response))
 
   if (!isTRUE(confirmed)){
@@ -106,7 +108,8 @@ calc_best_response = function(data_recist, ...,
              response_unconfirmed = factor(response_unconfirmed,
                                         levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
                                         labels = c("Complete response", "Partial response",
-                                                   "Stable disease", "Progressive disease", "Not evaluable"))) %>%
+                                                   "Stable disease", "Progressive disease", "Not evaluable"))
+      ) %>%
       mutate(overall_response = response_num==1 | response_num==2,
              clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
       select(subjid, best_response=response_unconfirmed, date, target_sum=sum,
@@ -119,7 +122,8 @@ calc_best_response = function(data_recist, ...,
                                                     delta_date = delta_date,
                                                     cycle_length = cycle_length,
                                                     previous_response_num_2 = previous_response_num_2,
-                                                    use_pharmasug = use_pharmasug)) %>%
+                                                    use_pharmasug = use_pharmasug)
+      ) %>%
       mutate(bestresponse = min(confirmed_response), .by=subjid) %>%
       mutate(response_num_lead = lead(response_num),
              response_num_lead_2 = lead(response_num,2),
@@ -136,7 +140,8 @@ calc_best_response = function(data_recist, ...,
              response_confirmed = factor(response_confirmed,
                                         levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
                                         labels = c("Complete response","Partial response",
-                                                   "Stable disease", "Progressive disease", "Not evaluable"))) %>%
+                                                   "Stable disease", "Progressive disease", "Not evaluable"))
+      ) %>%
       mutate(overall_response = bestresponse==1 | bestresponse==2,
              clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
       select(subjid, best_response=response_confirmed, date, target_sum=sum,

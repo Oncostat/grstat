@@ -10,7 +10,6 @@
 #' @param rc_date The column containing the assessment date. Default is `"RCDT"`.
 #' @param subjid The column containing the subject ID. Default is `"SUBJID"`.
 #' @param confirmed Logical; if `TRUE`, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.
-#' @param cycle_length Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation
 #' @param show_CBR Logical; if `TRUE`, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).
 #'
 #' @return a dataframe (`aggregate_recist_rates()`) or a flextable (`as_flextable()`).
@@ -25,22 +24,22 @@
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = FALSE) %>%
-#'  aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) %>%
+#'  aggregate_recist_rates_2(show_CBR = FALSE) %>%
 #'  as_flextable()
 #' #It is also possible to use the confirmation method for the BOR
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
-#'  aggregate_recist_rates_2(show_CBR = FALSE, cycle_length =28) %>%
+#'  aggregate_recist_rates_2(show_CBR = FALSE %>%
 #'  as_flextable()
 #'
 #' #Or show the Clinical Benefice Rate
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
-#'  aggregate_recist_rates_2(show_CBR = TRUE, cycle_length =28) %>%
+#'  aggregate_recist_rates_2(show_CBR = TRUE) %>%
 #'  as_flextable()
-aggregate_recist_rates = function(data, ..., show_CBR = FALSE, cycle_length =28){
+aggregate_recist_rates = function(data, ..., show_CBR = FALSE){
   confirmed = attr(data, "confirmed")
   recist = data %>%
     distinct()
@@ -95,10 +94,10 @@ as_flextable.aggregate_recist_rates = function(x, ...){
   show_CBR = attr(x, "show_CBR")
   confirmed = attr(x, "confirmed")
   total = attr(x,"total")
-  LABEL_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
-  LABEL_CONFIRMED = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
-  LABEL_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date)."
-  Best_Response_during_treatment =  x %>%
+  label_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
+  label_confirmed = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
+  label_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date)."
+  best_response_during_treatment =  x %>%
     flextable() %>%
     set_table_properties(layout="autofit") %>%
     bold(bold = TRUE, part = "header") %>%
@@ -106,29 +105,29 @@ as_flextable.aggregate_recist_rates = function(x, ...){
     bold(i = 6, bold = TRUE, part = "body") %>%
     set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
     footnote(j = "ic_95",
-             value = as_paragraph(LABEL_CP),
+             value = as_paragraph(label_CP),
              ref_symbols ="*", part = "header")
 
     if (!confirmed){
-    Best_Response_during_treatment =  Best_Response_during_treatment %>%
+    best_response_during_treatment =  best_response_during_treatment %>%
       set_header_labels(best_response="Unconfirmed Best Response during treatment")
 
     } else{
-      Best_Response_during_treatment =  Best_Response_during_treatment %>%
+      best_response_during_treatment =  best_response_during_treatment %>%
       set_header_labels(best_response="Confirmed Best Response during treatment") %>%
       footnote(i = 1, j = "best_response",
-                value = as_paragraph(LABEL_CONFIRMED),
+                value = as_paragraph(label_confirmed),
                 ref_symbols =c("**"), part = "header")
       }
 
     if(show_CBR){
-    Best_Response_during_treatment =  Best_Response_during_treatment %>%
+    best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = 7, bold = TRUE, part = "body") %>%
       footnote( i = 7, j = "best_response",
-                value = as_paragraph(LABEL_CBR),
+                value = as_paragraph(label_CBR),
                 ref_symbols = "***", part = "body")
     }
 
-  Best_Response_during_treatment %>%
+  best_response_during_treatment %>%
     valign(valign = "bottom", part = "header")
 }
