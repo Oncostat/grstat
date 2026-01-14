@@ -67,7 +67,7 @@ aggregate_recist_rates = function(data, ..., show_CBR = FALSE, cycle_length =28)
       count(best_response = "Clinical Benefit Rate (CBR)") %>%
       mutate(p = round(n / total * 100, 1))
   }
-  summary_df = bind_rows(BOR, response_counts, CBR) %>%
+  summary_df = bind_rows(response_counts, BOR, CBR) %>%
     mutate(ic_95 = {
       ci = clopper_pearson_ci(n, total, CI = "two.sided", alpha = 0.05)
       glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
@@ -96,25 +96,26 @@ as_flextable.aggregate_recist_rates = function(x, ...){
   confirmed = attr(x, "confirmed")
   total = attr(x,"total")
   LABEL_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
-  LABEL_CONFIRMED = "For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
-  LABEL_CBR = "CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date)."
+  LABEL_CONFIRMED = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
+  LABEL_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date)."
   Best_Response_during_treatment =  x %>%
     flextable() %>%
     set_table_properties(layout="autofit") %>%
     bold(bold = TRUE, part = "header") %>%
-    surround(i = c(1, 6), border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
-    bold(i = 1, bold = TRUE, part = "body") %>%
-    footnote(i = 1, j = "ic_95",
+    surround(i = c(5, 6), border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
+    bold(i = 6, bold = TRUE, part = "body") %>%
+    set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
+    footnote(j = "ic_95",
              value = as_paragraph(LABEL_CP),
              ref_symbols ="*", part = "header")
 
     if (!confirmed){
     Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      set_header_labels(best_response="Unconfirmed Best Response during treatment", n=paste0("N=",total), p = "%", ic_95 = "IC 95%")
+      set_header_labels(best_response="Unconfirmed Best Response during treatment")
 
     } else{
       Best_Response_during_treatment =  Best_Response_during_treatment %>%
-      set_header_labels(best_response="Confirmed Best Response during treatment", n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
+      set_header_labels(best_response="Confirmed Best Response during treatment") %>%
       footnote(i = 1, j = "best_response",
                 value = as_paragraph(LABEL_CONFIRMED),
                 ref_symbols =c("**"), part = "header")
