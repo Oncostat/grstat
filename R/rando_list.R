@@ -38,7 +38,9 @@ randomisation_list = function(n, arms, strata, block.sizes=c(2,4), ...){
   n_strata = prod(lengths(strata))
   max_imbalance = max(block.sizes)/length(arms)
 
-  expand.grid(strata) %>%
+  strata %>%
+    map(~normalize_string(.x, lower=FALSE)) %>%
+    expand.grid() %>%
     unite("strata", everything(), sep="__") %>%
     pull(strata) %>%
     map(~{

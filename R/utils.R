@@ -129,6 +129,42 @@ apply_labels = function(data, ..., warn_missing=FALSE) {
                   ~set_label(.x, args[[cur_column()]])))
 }
 
+
+#' Clean a string to ASCII
+#'
+#' @param old_names a character vector to clean
+#' @param lower whether to convert it to lowercase
+#' @param from the current encoding. passed on to [iconv()]. `""` is the current locale.
+#'
+#' @keywords internal
+#' @noRd
+#' @importFrom stringr str_remove_all str_replace_all str_trim str_remove
+#' @source inspired by `janitor:::old_make_clean_names()`
+#' @examples
+#' x = c(
+#'   "  \r\n \"Âge ≥ 18%\"  (inclusion)  <= 30% -  Visite #1 / 'CR/PR' \n  ",
+#'   "Consentement signé ? (Oui/Non) - Date (JJ/MM/AAAA)\n",
+#'   "Événement indésirable >= Grade 3 (CTCAE v5.0) / Lié au ttt (%)",
+#'   "PS ECOG (0–4) ; baseline...  ",
+#'   "Hb (g/dL) <= 10.0 ; NFS: neutro ≥ 1.5 G/L",
+#'   "Réponse RECIST 1.1 - Best overall response (CR/PR/SD/PD)  "
+#' )
+#' normalize_string(x)
+normalize_string = function (string, lower=TRUE, from = "") {
+  if(isTRUE(lower)) string = tolower(string)
+
+  string %>%
+    str_replace_all("<=|<|\u2264", "inf") %>%
+    str_replace_all(">=|>|\u2265", "sup") %>%
+    iconv(from = from, to = "ASCII//TRANSLIT") %>%
+    str_trim() %>%
+    str_remove_all("['\"\r\n]") %>%
+    str_replace_all("%", "pct") %>%
+    str_replace_all("[^A-Za-z0-9._]+", "_") %>%
+    str_replace_all("[\\._]+", "_") %>%
+    str_remove("^_+|_+$")
+}
+
 # NA.RM ---------------------------------------------------------------------------------------
 
 max_narm = function(x, na.rm=TRUE) {
