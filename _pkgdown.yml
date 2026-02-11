@@ -28,6 +28,7 @@ reference:
     - gr_new_project
     - gr_officer_template
     - grstat_example
+    - randomisation_list
 
   - title: "Checks"
   - contents:
