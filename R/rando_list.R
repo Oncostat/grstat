@@ -29,7 +29,7 @@
 #' rando = randomisation_list(n=200, arms=c("Control", "Treatment"),
 #'                            strata=strat, block.sizes=c(4, 8))
 #' rando
-randomisation_list = function(n, arms, strata, block.sizes=c(2,4), ...){
+randomisation_list = function(n, arms, strata=NULL, block.sizes=c(2,4), ...){
   check_installed("blockrand", "for `randomisation_list()` to work.")
   grstat_dev_warn()
   .check_n(n, arms)
@@ -37,6 +37,9 @@ randomisation_list = function(n, arms, strata, block.sizes=c(2,4), ...){
   .check_blocks(block.sizes)
   n_strata = prod(lengths(strata))
   max_imbalance = max(block.sizes)/length(arms)
+  if(length(strata)==0){
+    strata=list(strata="no_strata")
+  }
 
   strata %>%
     map(~normalize_string(.x, lower=FALSE)) %>%
