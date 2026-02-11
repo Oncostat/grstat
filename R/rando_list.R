@@ -1,23 +1,39 @@
 #' Randomization lists
 #'
-#' Create randomization lists for EDC softwares using `blockrand::blockrand()` for multiple strata at once.
-#' Can use random block size.
+#' Create stratified permuted-block randomization lists for EDC/CTMS softwares.
+#' For each stratum, this function pre-generates a sequence of randomization *slots*
+#' using [blockrand::blockrand()], and then binds all strata into a single table.
+#' Random block sizes can be used to reduce predictability.
 #'
-#' @param n total number of patients
-#' @param arms treatment arms
-#' @param strata a list of stratification factors (characters)
-#' @param block.sizes block sizes (should be a multiple of the number of arms)
-#' @param ... past to [blockrand::blockrand]
+#' @param n Planned total sample size of the trial (used as the minimum number of slots
+#'   generated *per stratum* to cover worst-case enrollment).
+#' @param arms Treatment arms.
+#' @param strata A list of stratification factors (character vectors). Each combination
+#'   defines one stratum. If `NULL` or empty, a single stratum is used.
+#' @param block.sizes Random block sizes. Must be multiples of `length(arms)`.
+#' @param ... Passed to [blockrand::blockrand].
 #'
-#' @return une tibble
+#' @return A tibble
 #' @export
 #' @importFrom tidyr separate unite
+#' @importFrom stringr str_pad
 #'
 #' @section Details:
+#' The output table represents *randomization slots*, not enrolled patients.
+#' During the trial, patients are enrolled one by one, assigned to a stratum based on
+#' their characteristics, and consume the next available slot within that stratum.
+#' Slots from other strata remain unused.
 #'
-#' Maximum imbalance per strata is calculated as `max(block.sizes)/length(arms)`. \cr
-#' Global maximum imbalance is calculated as `max_imbalance*n_strata`.
+#' For operational safety, at least `n` slots are generated for each stratum. Because
+#' permuted-block randomization uses complete blocks, the number of slots per stratum
+#' may slightly exceed `n` (up to `n + max(block.sizes) - 1`).
 #'
+#' With equal allocation and block sizes that are multiples of `length(arms)`, each
+#' *complete block* is balanced across arms. However, the trial may stop after exactly
+#' `n` inclusions, which can occur in the middle of a block. In the worst-case theoretical
+#' scenario, the maximum imbalance at trial stop **within a stratum** is bounded by
+#' `max(block.sizes)/length(arms)` slots. This is a conservative bound and is typically
+#' much smaller in practice.
 #'
 #' @examples
 #' # randomisation list for 200 patients randomized in 2 treatment
@@ -29,6 +45,11 @@
 #' rando = randomisation_list(n=200, arms=c("Control", "Treatment"),
 #'                            strata=strat, block.sizes=c(4, 8))
 #' rando
+#'
+#' # Export for TrialMaster
+#' rando %>%
+#'   dplyr::select(names(strat), treatment_id) %>%
+#'   write.table("randomization_list.txt", sep="\t", row.names=FALSE)
 randomisation_list = function(n, arms, strata=NULL, block.sizes=c(2,4), ...){
   check_installed("blockrand", "for `randomisation_list()` to work.")
   grstat_dev_warn()

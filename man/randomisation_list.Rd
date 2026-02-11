@@ -4,31 +4,47 @@
 \alias{randomisation_list}
 \title{Randomization lists}
 \usage{
-randomisation_list(n, arms, strata, block.sizes = c(2, 4), ...)
+randomisation_list(n, arms, strata = NULL, block.sizes = c(2, 4), ...)
 }
 \arguments{
-\item{n}{total number of patients}
+\item{n}{Planned total sample size of the trial (used as the minimum number of slots
+generated \emph{per stratum} to cover worst-case enrollment).}
 
-\item{arms}{treatment arms}
+\item{arms}{Treatment arms.}
 
-\item{strata}{a list of stratification factors (characters)}
+\item{strata}{A list of stratification factors (character vectors). Each combination
+defines one stratum. If \code{NULL} or empty, a single stratum is used.}
 
-\item{block.sizes}{block sizes (should be a multiple of the number of arms)}
+\item{block.sizes}{Random block sizes. Must be multiples of \code{length(arms)}.}
 
-\item{...}{past to \link[blockrand:blockrand]{blockrand::blockrand}}
+\item{...}{Passed to \link[blockrand:blockrand]{blockrand::blockrand}.}
 }
 \value{
-une tibble
+A tibble
 }
 \description{
-Create randomization lists for EDC softwares using \code{blockrand::blockrand()} for multiple strata at once.
-Can use random block size.
+Create stratified permuted-block randomization lists for EDC/CTMS softwares.
+For each stratum, this function pre-generates a sequence of randomization \emph{slots}
+using \code{\link[blockrand:blockrand]{blockrand::blockrand()}}, and then binds all strata into a single table.
+Random block sizes can be used to reduce predictability.
 }
 \section{Details}{
 
+The output table represents \emph{randomization slots}, not enrolled patients.
+During the trial, patients are enrolled one by one, assigned to a stratum based on
+their characteristics, and consume the next available slot within that stratum.
+Slots from other strata remain unused.
 
-Maximum imbalance per strata is calculated as \code{max(block.sizes)/length(arms)}. \cr
-Global maximum imbalance is calculated as \code{max_imbalance*n_strata}.
+For operational safety, at least \code{n} slots are generated for each stratum. Because
+permuted-block randomization uses complete blocks, the number of slots per stratum
+may slightly exceed \code{n} (up to \code{n + max(block.sizes) - 1}).
+
+With equal allocation and block sizes that are multiples of \code{length(arms)}, each
+\emph{complete block} is balanced across arms. However, the trial may stop after exactly
+\code{n} inclusions, which can occur in the middle of a block. In the worst-case theoretical
+scenario, the maximum imbalance at trial stop \strong{within a stratum} is bounded by
+\code{max(block.sizes)/length(arms)} slots. This is a conservative bound and is typically
+much smaller in practice.
 }
 
 \examples{
@@ -41,4 +57,9 @@ strat = list(age=c("<=18m", ">18m"),
 rando = randomisation_list(n=200, arms=c("Control", "Treatment"),
                            strata=strat, block.sizes=c(4, 8))
 rando
+
+# Export for TrialMaster
+rando \%>\%
+  dplyr::select(names(strat), treatment_id) \%>\%
+  write.table("randomization_list.txt", sep="\t", row.names=FALSE)
 }
