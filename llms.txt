@@ -9,7 +9,7 @@ The package is not on CRAN, so you should install from GitHub:
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9019")
+pak::pak("Oncostat/grstat@v0.1.0.9020")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
@@ -54,6 +54,8 @@ See the full documentation on <https://oncostat.github.io/grstat/>.
   : GR report template
 - [`grstat_example()`](https://oncostat.github.io/grstat/reference/grstat_example.md)
   : Example databases
+- [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)
+  : Randomization lists
 
 ## Checks
 

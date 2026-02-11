@@ -21,6 +21,8 @@
   : GR report template
 - [`grstat_example()`](https://oncostat.github.io/grstat/reference/grstat_example.md)
   : Example databases
+- [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)
+  : Randomization lists
 
 ## Checks
 

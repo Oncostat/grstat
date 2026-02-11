@@ -25,13 +25,13 @@
 Source:
 [`DESCRIPTION`](https://github.com/oncostat/grstat/blob/main/DESCRIPTION)
 
-Chaltiel D (2025). *grstat: Clinical Research Tools*. R package version
-0.1.0.9019, <https://oncostat.github.io/grstat/>.
+Chaltiel D (2026). *grstat: Clinical Research Tools*. R package version
+0.1.0.9020, <https://oncostat.github.io/grstat/>.
 
     @Manual{,
       title = {grstat: Clinical Research Tools},
       author = {Dan Chaltiel},
-      year = {2025},
-      note = {R package version 0.1.0.9019},
+      year = {2026},
+      note = {R package version 0.1.0.9020},
       url = {https://oncostat.github.io/grstat/},
     }
