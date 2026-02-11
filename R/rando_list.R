@@ -49,14 +49,18 @@ randomisation_list = function(n, arms, strata=NULL, block.sizes=c(2,4), ...){
       blockrand::blockrand(n = n,
                            levels = arms,
                            stratum = .x,
-                           id.prefix = paste(.x, " - "),
+                           id.prefix = paste0(.x, " - "),
                            block.sizes = block.sizes/length(arms),
                            ...)
     }) %>%
     list_rbind() %>%
     separate(stratum, into=names(strata), sep="__") %>%
-    mutate(id = as.character(id)) %>%
+    rename(stratum.block.id=block.id) %>%
+    mutate(id = as.character(id),
+           i = str_pad(row_number(), max(nchar(row_number())), pad="0"),
+           treatment_id = paste(treatment, i, sep="-")) %>%
     as_tibble() %>%
+    select(-i) %>%
     structure(
       n=n, arms=arms, strata=strata, block.sizes=block.sizes, n_strata=n_strata
     ) %>%
