@@ -36,7 +36,7 @@ test_that("rando: randomisation_list() works", {
   cnt = rando %>%
     count(across(all_of(names(strat))), treatment)
   expect_equal(nrow(cnt), n_strata*n_arms)
-  expect_true(all(between(cnt$n, N/2, (N + max(block_sizes) - 1)/2)))
+  expect_true(all(dplyr::between(cnt$n, N/2, (N + max(block_sizes) - 1)/2)))
 })
 
 

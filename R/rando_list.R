@@ -78,12 +78,12 @@ randomisation_list = function(n, arms, strata=NULL, block_sizes=c(2,4), ...){
     }) %>%
     list_rbind() %>%
     separate(.data$stratum, into=names(strata), sep="__") %>%
-    rename(stratum.block.id=.data$block.id) %>%
+    rename(stratum.block.id="block.id") %>%
     mutate(id = as.character(.data$id),
            i = str_pad(row_number(), max(nchar(row_number())), pad="0"),
            treatment_id = paste(.data$treatment, .data$i, sep="-")) %>%
     as_tibble() %>%
-    select(-i) %>%
+    select(-"i") %>%
     structure(
       n=n, arms=arms, strata=strata, block_sizes=block_sizes, n_strata=n_strata
     ) %>%
