@@ -57,7 +57,7 @@ randomisation_list = function(n, arms, strata=NULL, block.sizes=c(2,4), ...){
   .check_arms(block.sizes, arms)
   .check_blocks(block.sizes)
   n_strata = prod(lengths(strata))
-  if(length(strata)==0){
+  if(length(strata)==0 || isFALSE(strata)){
     strata=list(strata="no_strata")
   }
 
