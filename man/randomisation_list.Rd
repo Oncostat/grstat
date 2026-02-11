@@ -4,7 +4,7 @@
 \alias{randomisation_list}
 \title{Randomization lists}
 \usage{
-randomisation_list(n, arms, strata = NULL, block.sizes = c(2, 4), ...)
+randomisation_list(n, arms, strata = NULL, block_sizes = c(2, 4), ...)
 }
 \arguments{
 \item{n}{Planned total sample size of the trial (used as the minimum number of slots
@@ -15,7 +15,7 @@ generated \emph{per stratum} to cover worst-case enrollment).}
 \item{strata}{A list of stratification factors (character vectors). Each combination
 defines one stratum. If \code{NULL} or empty, a single stratum is used.}
 
-\item{block.sizes}{Random block sizes. Must be multiples of \code{length(arms)}.}
+\item{block_sizes}{Random block sizes. Must be multiples of \code{length(arms)}.}
 
 \item{...}{Passed to \link[blockrand:blockrand]{blockrand::blockrand}.}
 }
@@ -37,13 +37,13 @@ Slots from other strata remain unused.
 
 For operational safety, at least \code{n} slots are generated for each stratum. Because
 permuted-block randomization uses complete blocks, the number of slots per stratum
-may slightly exceed \code{n} (up to \code{n + max(block.sizes) - 1}).
+may slightly exceed \code{n} (up to \code{n + max(block_sizes) - 1}).
 
 With equal allocation and block sizes that are multiples of \code{length(arms)}, each
 \emph{complete block} is balanced across arms. However, the trial may stop after exactly
 \code{n} inclusions, which can occur in the middle of a block. In the worst-case theoretical
 scenario, the maximum imbalance at trial stop \strong{within a stratum} is bounded by
-\code{max(block.sizes)/length(arms)} slots. This is a conservative bound and is typically
+\code{max(block_sizes)/length(arms)} slots. This is a conservative bound and is typically
 much smaller in practice.
 }
 
@@ -55,11 +55,13 @@ strat = list(age=c("<=18m", ">18m"),
              gender=c("Male", "Female"),
              group=c("A", "B", "C"))
 rando = randomisation_list(n=200, arms=c("Control", "Treatment"),
-                           strata=strat, block.sizes=c(4, 8))
+                           strata=strat, block_sizes=c(4, 8))
 rando
 
 # Export for TrialMaster
-rando \%>\%
-  dplyr::select(names(strat), treatment_id) \%>\%
-  write.table("randomization_list.txt", sep="\t", row.names=FALSE)
+if(FALSE){
+  rando \%>\%
+    dplyr::select(names(strat), treatment_id) \%>\%
+    write.table("randomization_list.txt", sep="\t", row.names=FALSE)
+}
 }

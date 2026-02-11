@@ -13,7 +13,7 @@ test_that("rando: randomisation_list() works", {
   block_sizes=c(4, 8)
 
   rando = randomisation_list(n=N, arms=arms,
-                             strata=strat, block.sizes=block_sizes) %>%
+                             strata=strat, block_sizes=block_sizes) %>%
     unite("stratum", all_of(names(strat)), remove=FALSE) %>%
     mutate(
       block.id = as.numeric(as.character(stratum.block.id)),
@@ -47,15 +47,15 @@ test_that("rando: errors and warnings", {
                group=c("A", "B", "C"))
 
   randomisation_list(n=201, arms=c("Control", "Treatment"),
-                     strata=strat, block.sizes=c(4, 8)) %>%
+                     strata=strat, block_sizes=c(4, 8)) %>%
     expect_warning(class="randomisation_list_n_warn")
 
   randomisation_list(n=300, arms=c("Control", "Treatment A", "Treatment B"),
-                     strata=strat, block.sizes=c(3)) %>%
+                     strata=strat, block_sizes=c(3)) %>%
     expect_warning(class="randomisation_list_even_block_warn")
 
   randomisation_list(n=200, arms=c("Control", "Treatment"),
-                     strata=strat, block.sizes=c(4, 8, 9)) %>%
+                     strata=strat, block_sizes=c(4, 8, 9)) %>%
     expect_error(class="randomisation_list_block_error")
 })
 
@@ -68,12 +68,13 @@ test_that("rando: snapshots", {
     strat = list(age=c("<=18m", ">18m"),
                  gender=c("Male", "Female"),
                  group=c("A", "B", "C"))
+    set.seed(42)
 
     randomisation_list(n=200, arms=c("Control", "Treatment"),
-                       strata=strat, block.sizes=c(4, 8))
+                       strata=strat, block_sizes=c(4, 8))
 
     randomisation_list(n=10, arms=c("A", "B"),
-                       strata=NULL, block.sizes=c(4, 8))
+                       strata=NULL, block_sizes=c(4, 8))
   })
 })
 
