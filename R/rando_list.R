@@ -36,7 +36,6 @@ randomisation_list = function(n, arms, strata=NULL, block.sizes=c(2,4), ...){
   .check_arms(block.sizes, arms)
   .check_blocks(block.sizes)
   n_strata = prod(lengths(strata))
-  max_imbalance = max(block.sizes)/length(arms)
   if(length(strata)==0){
     strata=list(strata="no_strata")
   }
@@ -59,8 +58,7 @@ randomisation_list = function(n, arms, strata=NULL, block.sizes=c(2,4), ...){
     mutate(id = as.character(id)) %>%
     as_tibble() %>%
     structure(
-      n=n, arms=arms, strata=strata, block.sizes=block.sizes,
-      n_strata=n_strata, max_imbalance=max_imbalance
+      n=n, arms=arms, strata=strata, block.sizes=block.sizes, n_strata=n_strata
     ) %>%
     add_class("rando_list")
 }
@@ -69,7 +67,6 @@ randomisation_list = function(n, arms, strata=NULL, block.sizes=c(2,4), ...){
 print.rando_list = function(x, ...){
   a = attributes(x)
   cli_inform("Randomisation list for {.val {a$n}} patients randomized in arms {.val {a$arms}} across {.val {a$n_strata}} strata with blocks of length {.val {a$block.sizes}}.")
-  cli_inform("The maximum imbalance per strata is {.val {a$max_imbalance}}, so the theoretical global maximum imbalance is {.val {a$n_strata*a$max_imbalance}} patients.")
   print(as_tibble(x))
 }
 
