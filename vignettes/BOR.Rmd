@@ -1,0 +1,131 @@
+---
+title: "Guideline Suggestions for the calculation of RESIST endpoints"
+author: "Alexis COCHARD"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Guideline Suggestions for the calculation of RESIST endpoints}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+This vignette illustrates the calculation of RESIST endpoints in R using `grstat` package.
+
+## RECIST definition
+
+RECIST (Response Evaluation Criteria in Solid Tumors) is a standardized way to quantify how solid tumors respond to therapy by comparing changes in tumor burden on imaging. The four possible responses are:
+
+-   Complete Response (CR) (disappearance of all target lesions),
+-   Partial Response (PR) (≥ 30% decrease in the sum of longest diameters from baseline),
+-   Stable Disease (SD) (neither sufficient shrinkage for PR nor sufficient increase for progression),
+-   Progressive Disease (PD) (≥ 20% increase in the sum from the smallest measured value (the “nadir”) or appearance of new lesions).
+
+We follow the RECIST 1.1 guideline, DOI: 10.1016/j.ejca.2008.10.026
+
+## Endpoint definition
+
+In practice we use the best overall response (i.e., the best categorical response observed from treatment start until progression) because it reflects the maximum observed benefit and avoids underestimating response due to transient fluctuations or measurement noise
+
+-   Best Overall Response (BOR), unconfirmed and confirmed: Measured the proportion of patients achieving a complete or partial response to treatment within a specified time frame.A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the BOR is one way to see how well a new treatment works.
+-   Clinical Benefit Rate (CBR): Proportion of complete response, partial response, and stable disease lasting at least six months (using a window of +/-1 month for the RECIST date) to assess overall treatment benefit.
+
+## Confirmed and Unconfirmed response
+
+Most of the time, BOR is calculated based on the unconfirmed response, but some time a confirmed response is required. We defnied the Unconfirmed and confirmed response as follow.
+
+-   An unconfirmed best response is defined as the best categorical response observed from treatment start until progression or end of follow-up
+-   A confirmed best response is defined as the best categorical consecutive response (with a minimum delay of 28 days) observed from treatment start until progression or end of follow-up. For example a CR-CR-SD-PD consecutive response is a confirmed CR best response while a PR-SD-SD-PR is a confirmed SD best response. A single SD or NE between two CR or two PR doesn't prevent confirmation. See RECIST 1.1 guidelines for more information
+
+# Data Preparation
+
+To calculate the BOR, we'll use the "recist" dataset. This dataset must be in long format (one line represents a single measure of a patient's recist criterion) and must contain at least the columns :
+
+-   `subjid`, Patient ID
+-   `rcdt`, Evaluation date
+-   `rcresp`, Global response
+-   `rctlsum`, Sum of target lesions
+
+We use `grstat_example()` to simulate data
+
+```{r}
+library(grstat)
+library(tidyverse)
+
+db = grstat_example(N=200)
+recist = db$recist
+recist %>% filter(subjid < 4)
+```
+
+# Calculation of BOR
+
+`calc_best_response()` consist of 6 paramater :
+
+-   `data_recist`, the recist data.frame
+-   `subjid`, the column for Patient ID
+-   `rc_resp`, the column for Global response
+-   `rc_date`, the column for Evaluation date
+-   `rc_sum`, the column for the Sum of target lesions
+-   `confirmed`, for a confirmed or unconfirmed response
+## Unconfirmed response
+
+```{r}
+best_resp = calc_best_response(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum")
+head(best_resp, n= 7L)
+
+```
+
+As you can see, there are warnings. You can go to `check_recist()` for more information.
+
+## Confirmed response
+
+```{r}
+confirmed_best_resp = calc_best_response(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum", confirmed = TRUE)
+head(confirmed_best_resp, n = 7L)
+
+recist %>% filter(subjid ==7)
+
+```
+
+With the confirmed method, patient 7 best response becomes Stable disease instead of Partial response. The reason is that patient 7 has a Progressive disease after his Partial response. Following the definition, the Partial response can't be confirmed. That's why the confirmed best response is now a Stable disease instead of a Partial response for the unconfirmed best response
+
+As you can see, there are warnings. You can go to `check_recist()` for more information.
+
+
+# Cration of a dataframe for BOR and CBR
+
+`aggregate_recist_rates()` consist of 2 paramater :
+
+-   `data`, the data.frame containing the best response obtain after using the function `calc_best_response()` (confirmed or unconfirmed)
+-   `show_cbr`, to show the CBR in the results
+
+```{r}
+tbl = aggregate_recist_rates(best_resp)
+tbl
+
+#It can also be used with the confirmed best response: 
+tbl2 = aggregate_recist_rates(confirmed_best_resp)
+tbl2
+
+#If we want the CBR :
+tbl3 = aggregate_recist_rates(confirmed_best_resp, show_CBR = TRUE)
+tbl3
+```
+
+# Transformation into a flextable
+
+To transfrome our `aggregate_recist_rates` (a data.frame) into a simple flextable, we will use the function `as_flextable()` that will take into account the call of our `aggregate_recist_rates()` to create a flextable following a specific model. We don't recommend using `flextable()` as the result will not display all the details.
+After that, you can add footnote, surround, bold, etc..., like with a classical flextable object (see <https://ardata-fr.github.io/flextable-book/> )
+
+```{r}
+ftbl3 = tbl3 %>% as_flextable()
+
+ftbl3 %>% 
+  bold(i=4)%>%
+  footnote(i = 3, j = 4,
+                value = as_paragraph("This is note number 8"),
+                ref_symbols ="8", part = "body")
+
+```
