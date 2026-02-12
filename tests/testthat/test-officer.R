@@ -32,12 +32,12 @@ test_that("Officer Template is working", {
 
   for(i in 1:9){
     doc = doc %>%
-      body_add_title("Titre de niveau {i}", level = i)%>%
-      body_add_normal("Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau {i}")
+      crosstable::body_add_title("Titre de niveau {i}", level = i)%>%
+      crosstable::body_add_normal("Lorem ipsum sinet dolor blablabla je suis dans un chapitre de niveau {i}")
   }
 
   doc %>%
-    body_add_title("Titre 1, le retour", level = 1)
+    crosstable::body_add_title("Titre 1, le retour", level = 1)
 
-  expect_snapshot_value(docx_summary(doc), style="json2")
+  expect_snapshot_value(officer::docx_summary(doc), style="json2")
 })
