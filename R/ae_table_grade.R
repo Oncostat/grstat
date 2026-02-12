@@ -19,7 +19,7 @@
 #'
 #' @return a crosstable
 #' @importFrom cli cli_abort
-#' @importFrom dplyr arrange case_match case_when cur_group filter left_join mutate rename_with select summarise
+#' @importFrom dplyr arrange case_when cur_group filter left_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
 #' @importFrom glue glue
 #' @importFrom rlang check_dots_empty check_installed
@@ -97,8 +97,11 @@ ae_table_grade = function(
       grade = .fix_grade_na(grade),
     )
 
-  variant = case_match(variant, "max"~"max_grade", "sup"~"any_grade_sup",
-                       "eq"~"any_grade_eq")
+  variant = case_when(
+    variant == "max" ~ "max_grade",
+    variant == "sup" ~ "any_grade_sup",
+    variant == "eq" ~ "any_grade_eq"
+  )
   rex = variant %>% paste(collapse="|") %>% paste0("^(", ., ")")
 
   percent_pattern = if(isTRUE(percent)) "{n} ({scales::percent(n/n_col_na,1)})"
