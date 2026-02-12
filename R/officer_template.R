@@ -100,7 +100,7 @@ gr_officer_template = function(
 
   rtn$doc_properties$data["title", "value"] = title
   rtn$doc_properties$data["subject", "value"] = acronym
-  rtn$doc_properties$data["creator", "value"] = "Bureau de Biostatistique et d’Épidémiologie"
+  rtn$doc_properties$data["creator", "value"] = "Bureau de Biostatistique et d\u2019\u00c9pid\u00e9miologie"
   rtn$doc_properties$data["lastModifiedBy", "value"] = ""
 
   rtn
