@@ -1,6 +1,7 @@
 
 
 test_that("Officer Template is working", {
+  stopifnot(packageVersion("officer")>"0.7")
 
   authors = dplyr::bind_rows(
     c(name="Dr Armin Clusion", role="Coordinating investigator",
