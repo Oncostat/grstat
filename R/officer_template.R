@@ -92,12 +92,14 @@ gr_officer_template = function(
       DATE_FREEZE=date_freeze
     ) %>%
     officer::footers_replace_text_at_bkm("TRIAL_NAME_FOOTER", acronym) %>%
-    officer::body_replace_flextable_at_bkm("TRIAL_AUTHORS",
+    flextable::body_replace_flextable_at_bkm("TRIAL_AUTHORS",
                                            .flextable_authors(authors, title="REPORT AUTHORS")) %>%
-    officer::body_replace_flextable_at_bkm("TRIAL_SPONSOR",
+    flextable::body_replace_flextable_at_bkm("TRIAL_SPONSOR",
                                            .flextable_authors(sponsor, title="SPONSOR")) %>%
     officer::cursor_end()
 
+  rtn$doc_properties$data["title", "value"] = title
+  rtn$doc_properties$data["subject", "value"] = acronym
   rtn$doc_properties$data["creator", "value"] = "Bureau de Biostatistique et d’Épidémiologie"
   rtn$doc_properties$data["lastModifiedBy", "value"] = ""
 
