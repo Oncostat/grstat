@@ -10,7 +10,7 @@ randomisation_list(n, arms, strata = NULL, block_sizes = c(2, 4), ...)
 \item{n}{Planned total sample size of the trial (used as the minimum number of slots
 generated \emph{per stratum} to cover worst-case enrollment).}
 
-\item{arms}{Treatment arms.}
+\item{arms}{Treatment arms. For an unbalanced design, repeat one arm label (e.g. \code{arms=c("A", "B", "B")}).}
 
 \item{strata}{A list of stratification factors (character vectors). Each combination
 defines one stratum. If \code{NULL} or empty, a single stratum is used.}

@@ -7,7 +7,7 @@
 #'
 #' @param n Planned total sample size of the trial (used as the minimum number of slots
 #'   generated *per stratum* to cover worst-case enrollment).
-#' @param arms Treatment arms.
+#' @param arms Treatment arms. For an unbalanced design, repeat one arm label (e.g. `arms=c("A", "B", "B")`).
 #' @param strata A list of stratification factors (character vectors). Each combination
 #'   defines one stratum. If `NULL` or empty, a single stratum is used.
 #' @param block_sizes Random block sizes. Must be multiples of `length(arms)`.
