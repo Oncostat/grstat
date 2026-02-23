@@ -5,11 +5,12 @@ help standardize the descriptive clinical research analyses at GR.
 
 ## Installation
 
-The package is not on CRAN, so you should install from GitHub:
+This package is not designed to be on CRAN, so you should install it
+from GitHub:
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9021")
+pak::pak("Oncostat/grstat")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
@@ -26,7 +27,16 @@ See the full documentation on <https://oncostat.github.io/grstat/>.
 - [`ae_plot_grade()`](https://oncostat.github.io/grstat/reference/ae_plot_grade.md),
   [`butterfly_plot()`](https://oncostat.github.io/grstat/reference/butterfly_plot.md)
 
-### Dev
+### Utils
 
 - [`gr_new_project()`](https://oncostat.github.io/grstat/reference/gr_new_project.md)
+- [`gr_officer_template()`](https://oncostat.github.io/grstat/reference/gr_officer_template.md)
+
+### Dev
+
+- [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)
+- [`check_recist()`](https://oncostat.github.io/grstat/reference/check_recist.md)
+- [`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md)
+- [`boin_plot()`](https://oncostat.github.io/grstat/reference/boin_plot.md)
+- [`survfit_stack()`](https://oncostat.github.io/grstat/reference/survfit_stack.md)
 - [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)

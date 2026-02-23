@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">grstat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9021</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9022</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,14 +59,15 @@
 </h1></div>
 <!-- badges: start -->
 
+<!-- badges: end -->
 <p><a href="https://oncostat.github.io/grstat/">grstat</a> is a package designed to help standardize the descriptive clinical research analyses at GR.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The package is not on CRAN, so you should install from GitHub:</p>
+<p>This package is not designed to be on CRAN, so you should install it from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install development version on Github</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"Oncostat/grstat@v0.1.0.9021"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"Oncostat/grstat"</span><span class="op">)</span></span></code></pre></div>
 <p>Note that, for reproducibility purpose, an even better solution would be to use <a href="https://rstudio.github.io/renv/articles/renv.html" class="external-link"><code>renv</code></a>.</p>
 </div>
 <div class="section level2">
@@ -86,10 +87,22 @@
 </ul>
 </div>
 <div class="section level3">
-<h3 id="dev">Dev<a class="anchor" aria-label="anchor" href="#dev"></a>
+<h3 id="utils">Utils<a class="anchor" aria-label="anchor" href="#utils"></a>
 </h3>
 <ul>
 <li><code><a href="reference/gr_new_project.html">gr_new_project()</a></code></li>
+<li><code><a href="reference/gr_officer_template.html">gr_officer_template()</a></code></li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="dev">Dev<a class="anchor" aria-label="anchor" href="#dev"></a>
+</h3>
+<ul>
+<li><code><a href="reference/randomisation_list.html">randomisation_list()</a></code></li>
+<li><code><a href="reference/check_recist.html">check_recist()</a></code></li>
+<li><code><a href="reference/calc_best_response.html">calc_best_response()</a></code></li>
+<li><code><a href="reference/boin_plot.html">boin_plot()</a></code></li>
+<li><code><a href="reference/survfit_stack.html">survfit_stack()</a></code></li>
 <li><code><a href="reference/waterfall_plot.html">waterfall_plot()</a></code></li>
 </ul>
 </div>
@@ -132,9 +145,9 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
-<li><a href="https://CRAN.R-project.org/package=grstat" class="external-link"><img src="https://www.r-pkg.org/badges/version/grstat" alt="CRAN status"></a></li>
 <li><a href="https://github.com/Oncostat/grstat" class="external-link"><img src="https://img.shields.io/github/last-commit/Oncostat/grstat" alt="Last Commit"></a></li>
 <li><a href="https://github.com/Oncostat/grstat/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/Oncostat/grstat/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/Oncostat/grstat/tree/main" class="external-link"><img src="https://img.shields.io/github/r-package/v/Oncostat/grstat/main?color=purple&amp;label=Version" alt="Current Version"></a></li>
 </ul>
 </div>
 

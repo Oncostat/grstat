@@ -22,7 +22,8 @@ randomisation_list(n, arms, strata = NULL, block_sizes = c(2, 4), ...)
 
 - arms:
 
-  Treatment arms.
+  Treatment arms. For an unbalanced design, repeat one arm label (e.g.
+  `arms=c("A", "B", "B")`).
 
 - strata:
 
