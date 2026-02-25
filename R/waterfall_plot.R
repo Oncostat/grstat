@@ -21,6 +21,7 @@
 #' @importFrom ggplot2 aes facet_wrap geom_col geom_hline ggplot labs scale_fill_manual scale_x_discrete scale_y_continuous theme_minimal
 #' @importFrom rlang check_dots_empty
 #' @importFrom scales breaks_width label_percent
+#' @importFrom cli cli_warn
 #'
 #' @examples
 #' db = grstat_example(N=50)
@@ -76,6 +77,14 @@ waterfall_plot = function(data, ...,
 
   db_wf = data %>%
     rename(shape=any_of2(shape), resp=all_of(fill), y=all_of(y)) %>%
+    {
+      na_rows = which(is.na(.$y))
+      na_y = length(na_rows)
+      if(na_y > 0){
+        if(warnings) cli_warn("{.fun waterfall_plot} will ignore {na_y} observation{?s} with missing {.var {y}} and subjid : {.val { . $subjid[na_rows]}}.")
+        filter(., !is.na(y))
+      } else .
+    } %>%
     mutate(subjid = forcats::fct_reorder2(as.character(subjid),
                                           as.numeric(resp), y))
 
