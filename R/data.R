@@ -16,17 +16,21 @@
 #' @importFrom tibble lst
 grstat_example = function(N=200, seed=42, ...){
 
-  enrolres = example_enrol(N, seed, ...)
+  enrolres = example_enrol(N=N, seed=seed, ...)
 
-  ae = example_ae(enrolres, seed, ...)
+  ae = example_ae(enrolres=enrolres, seed=seed, ...)
 
-  recist = example_rc(enrolres, seed, ...)
+  recist = example_rc(enrolres=enrolres, seed=seed, ...)
 
-  rtn = lst(enrolres, ae, recist) %>%
+  fu = example_fu(enrolres=enrolres, recist=recist, seed=seed, ...)
+
+  rtn = lst(enrolres, ae, recist, fu) %>%
     imap(~.x %>% mutate(crfname=.y %>% set_label("Form name")))
   rtn$date_extraction = "2024/01/01"
   rtn$datetime_extraction = structure(1704067200, class = c("POSIXct", "POSIXt"),
                                       tzone = "Europe/Paris")
+
+  rtn = .remove_post_event(rtn)
   rtn
 }
 
@@ -159,6 +163,7 @@ example_ae = function(enrolres, seed, p_na=0,
 }
 
 
+
 #' Simulate a RECIST dataset
 #'
 #' Internal function that simulates a synthetic RECIST dataset following the
@@ -283,6 +288,177 @@ example_rc = function(enrolres, seed,
 }
 
 
+
+
+
+# Calculer le temps de décès selon bras et statut progression. Puis en dernier, tronquer les visites recist et le suivi ae a la date de deces/censure
+
+
+#' Generate Simulated Survival Data
+#'
+#' Internal function that simulates survival data, which depend on treatment arm
+#' and date of progression if applicable.
+#'
+#' @param enrolres the enrolment result table, from [example_enrol()].
+#' @param recist the recist table with progression date, from [example_rc()].
+#' @param seed Integer. Random seed for reproducibility (can be `NULL`).
+#' @param censor_min_days minimum time in days between last RECIST evaluation and administrative censoring
+#' @param censor_max_days maximum time in days between last RECIST evaluation and administrative censoring
+#' @param ... Additional arguments (currently unused).
+#'
+#' @return A tibble with `N` rows and the following columns:
+#'
+#' - `subjid`: Subject ID
+#' - `fu_status`: Status of the patient (0 - Alive/Censored , 1 - Dead)
+#' - `fu_date`: Date of latest news (death date if dead, otherwise censoring date)
+#'
+#' @keywords internal
+#' @importFrom dplyr arrange select mutate left_join if_else n
+#' @importFrom lubridate ymd as_date days
+#' @importFrom stats rexp
+#' @importFrom forcats as_factor fct_recode
+example_fu = function(enrolres, recist, seed, lambda_censor = 0.3, lambda_control = 0.2, beta_arm = -0.6, beta_prog_status = 0.5, ...){
+
+  stopifnot(is.data.frame(enrolres), is.data.frame(recist))
+  if (!all(c("subjid", "date_inclusion") %in% names(enrolres))) {
+    stop("`enrolres` must contain columns `subjid` and `date_inclusion`.")
+  }
+  if (!all(c("subjid", "rcdt", "rcresp") %in% names(recist))) {
+    stop("`recist` must contain columns `subjid`, `rcdt` (date of RECIST evaluation) and `rcresp` (RECIST global response).")
+  }
+  if(!("arm" %in% names(enrolres))) {
+    stop("`enrolres` must contain `arm`.")
+  }
+  if(!is.null(seed)) { set.seed(seed) }
+
+
+  enrolres = enrolres %>% arrange(subjid)
+  recist = recist %>% arrange(subjid)
+
+  prog_status = .progression_status(recist)
+
+  # Survival rate assigned for each subject, according to arm of treatment and progression status
+  lambda = .surv_coef(arm = enrolres$arm, prog_status = prog_status$status, lambda_control = lambda_control,
+                      beta_arm = beta_arm, beta_prog_status = beta_prog_status)
+
+  time_to_death = rexp(n = nrow(enrolres), rate = lambda)
+  time_to_censor = rexp(n = nrow(enrolres), rate = lambda_censor)
+
+  fu_data = enrolres %>%
+
+    select(subjid, date_inclusion) %>%
+    left_join(prog_status, by = join_by(subjid)) %>%
+
+    mutate(date_inclusion = as.Date(date_inclusion),
+
+           death_date = date_inclusion + days(ceiling(time_to_death*365.25)),
+           censoring_date = date_inclusion + days(ceiling(time_to_censor*365.25)),
+
+           # Status and date of latest news
+           fu_status = fct_recode(as_factor(as.integer(death_date <= censoring_date)),
+                                  "Alive/censored" = "0",
+                                  "Dead" = "1"),
+           fu_date = if_else(condition = death_date <= censoring_date,
+                             true = death_date,
+                             false = censoring_date)) %>%
+    select(subjid, fu_status, fu_date) %>%
+    apply_labels(subjid = "Subject ID",
+                 fu_status = "Status",
+                 fu_date = "Date of last known status")
+
+    return(fu_data)
+}
+
+
+
+# Internals FU -----------------------------------------------------------------
+
+
+#' Used in `example_fu()`
+#' Extract the progression status of RECIST evaluation for each patient and return a tibble
+#' @param recist a tibble with RECIST progression status for each patients
+#' @return tibble with columns `subjid`, `prog_status` (binary variable : progressive disease or not)
+#' @noRd
+#' @keywords internal
+#' @importFrom dplyr select summarise
+.progression_status = function(recist) {
+
+  stopifnot(is.data.frame(recist))
+  if (!all(c("subjid", "rcresp") %in% names(recist))) {
+    stop("`recist` must contain columns `subjid`, and `rcresp` (RECIST global response).")
+  }
+
+  rcresp_levels = levels(recist$rcresp)
+  if (!"Progressive disease" %in% rcresp_levels) { stop("One level of `rcresp_levels` must be 'Progressive disease'. Found: ", paste(rcresp_levels, collapse = ", ")) }
+
+  progression_status = recist %>%
+    select(subjid, rcresp) %>%
+    summarise(status = any(rcresp == "Progressive disease"), .by = 'subjid') %>%
+    mutate(status = as_factor(if_else(!is.na(status), true = "Progressive disease", false = "No progression")))
+}
+
+
+#' Used in `example_fu()`
+#' Assign a survival rate parameter (exponential lambda) for each patient, depending on treatment and progression status
+#' @param arm factor vector of treatment arms (`Control` versus `Treatment`)
+#' @param prog_status factor vector of progression status (`No progressive disease` versus `progressive disease`)
+#' @param lambda_control scale parameter of an exponential baseline hazard function
+#' @return numeric vector of rates (lambda) per subject, aligned with `arm` and `prog_status`
+#' @noRd
+#' @keywords internal
+.surv_coef = function(arm, prog_status, lambda_control, beta_arm, beta_prog_status) {
+
+  if(is.null(arm)) {stop("`arm` is NULL.")}
+  if(is.null(prog_status)) {stop("`prog_status` is NULL.")}
+
+  if(!is.factor(arm)) arm = as_factor(arm)
+  if(!is.factor(prog_status)) prog_status = mutate(prog_status, status = as_factor(status))
+
+  arm_levels = levels(arm)
+  n_arm = nlevels(arm)
+  if (!"Control" %in% arm_levels) { stop("One level of `arm` must be 'Control'. Found: ", paste(arm_levels, collapse = ", ")) }
+
+  prog_status_levels = levels(prog_status)
+  n_prog_status = nlevels(prog_status)
+  if (!"Progressive disease" %in% prog_status_levels) { stop("One level of `prog_status` must be 'Progressive disease'. Found: ", paste(prog_status_levels, collapse = ", ")) }
+
+
+  if(n_arm == 2 & n_prog_status == 2) { # "Control" versus "Treatment" and "Progressive disease" versus "No Progressive disease (stable or response)"
+
+    if (!"Treatment" %in% arm_levels) { stop("One level of `arm` must be 'Treatment'. Found: ", paste(arm_levels, collapse = ", ")) }
+
+    lambda = lambda_control * exp(beta_arm*(arm == "Treatment") + beta_prog_status*(prog_status == "Progressive disease"))
+
+  } else if(n_arm != 2) { stop("Wrong number of arms of treatment: ", n_arm, ". Only two arms of treatment are supported.")
+  } else if(n_prog_status != 2) { stop("Wrong number of progression status: ", n_prog_status, ". Progression status must be a binary variable.")}
+
+  lambda
+}
+
+
+#' Used in `grstat_example()`
+#' Remove recist evaluation rows posterior to the end of the follow-up
+#' @param rtn list of data frames with enrolment, adverse event, recist evaluation and follow-up information
+#' @noRd
+#' @return list of data frames with enrolment, adverse event, recist evaluation and follow-up information with recist evaluation truncated with last follow-up date
+#' @keywords internal
+#' @importFrom dplyr left_join select filter
+.remove_post_event = function(rtn){
+
+  if(!is.list(rtn)) {stop("`rtn` must be a list of data frames.")}
+
+  if (! ("recist" %in% names(rtn)) ) { stop("One data frame in `rtn` list must be 'recist'. Found: ", names(rtn, collapse = ", ")) }
+  if (! ("fu" %in% names(rtn)) ) { stop("One data frame in `rtn` list must be 'fu'. Found: ", names(rtn, collapse = ", ")) }
+
+  rtn$recist <- rtn$recist %>%
+    left_join(rtn$fu %>% select(- crfname), by = join_by(subjid)) %>%
+    filter(rcdt <= fu_date) %>%
+    select(- c(fu_date, fu_status))
+
+  rtn
+}
+
+
 # Internals RC ------------------------------------------------------------
 
 #' Used in `example_rc()`
@@ -300,7 +476,7 @@ example_rc = function(enrolres, seed,
                    percent_change_per_month > 0 ~ 1 / rc_coef_treatement,
                    .default = rc_coef_treatement)
   percent_change_per_month = percent_change_per_month * coef
-  subj_delai = 42 * seq(rc_num_timepoints) + runif(rc_num_timepoints, -7, 7)
+  subj_delai = 15 * seq(rc_num_timepoints) + runif(rc_num_timepoints, -7, 7)
   percent_change = percent_change_per_month * subj_delai / 30.5
   percent_change = percent_change + rnorm(rc_num_timepoints, 0, rc_sd_tlsum_noise)
   percent_change = c(0, percent_change)
