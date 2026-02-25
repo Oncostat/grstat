@@ -139,12 +139,14 @@ ae_table_soc = function(
 
 
   if (!is.null(ae_groups) && is.list(ae_groups)) {
-    for (grp_name in names(ae_groups)) {
-      cols_to_sum <- paste0("G", ae_groups[[grp_name]])
-      # Vérifie que les colonnes existent avant de sommer
-      cols_to_sum <- cols_to_sum[cols_to_sum %in% names(rtn)]
-      rtn[[grp_name]] <- if (length(cols_to_sum) > 0) rowSums(rtn[cols_to_sum], na.rm = TRUE) else 0
-    }
+    grps = ae_groups %>%
+      map(~{
+        cols_to_sum = intersect(paste0("G", .x), names(rtn))
+        s = rtn[,cols_to_sum]
+        rowSums(s, na.rm=TRUE)
+      })
+
+    rtn = bind_cols(rtn, grps)
   }
 
   rtn = rtn %>%
@@ -165,9 +167,9 @@ ae_table_soc = function(
 
 
   if (!is.null(cols_to_show)) {
-    cols_mandatory <- c("soc_", "term_", "arm_")
-    cols_keep <- union(cols_mandatory, cols_to_show)
-    rtn <- rtn %>% select(any_of(cols_keep))
+    cols_mandatory = c("soc_", "term_", "arm_")
+    cols_keep = union(cols_mandatory, cols_to_show)
+    rtn = rtn %>% select(any_of(cols_keep))
   }
 
   if(!sort_by_count) {
