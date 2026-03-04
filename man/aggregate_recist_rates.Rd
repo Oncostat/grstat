@@ -5,7 +5,7 @@
 \alias{as_flextable.aggregate_recist_rates}
 \title{Calculate BOR}
 \usage{
-aggregate_recist_rates(data, ..., show_CBR = FALSE)
+aggregate_recist_rates(data, ..., derived_endpoints = c("BOR", "CBR", "DCR"))
 
 \method{as_flextable}{aggregate_recist_rates}(x, ...)
 }
@@ -14,7 +14,7 @@ aggregate_recist_rates(data, ..., show_CBR = FALSE)
 
 \item{...}{unused}
 
-\item{show_CBR}{Logical; if \code{TRUE}, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).}
+\item{derived_endpoints}{List; List of 3 different endpoints related to recist data and available in the function ("BOR", "CBR", "DCR").BOR was defined as the presence of a partial response (PR) or a complete response (CR) ; CBR was defined as the presence of a PR, a CR, or a stable disease (SD) lasting at least six months ; DCR was defined as the presence of a PR, a CR, or a SD.}
 
 \item{x}{a dataframe, resulting of \code{aggregate_recist_rates()}}
 
@@ -46,13 +46,13 @@ recist \%>\%
 recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
- aggregate_recist_rates_2(show_CBR = FALSE \%>\%
+ aggregate_recist_rates_2(derived_endpoints=c("BOR") \%>\%
  as_flextable()
 
-#Or show the Clinical Benefice Rate
+#Or show the CBR and DCR
 recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
- aggregate_recist_rates_2(show_CBR = TRUE) \%>\%
+ aggregate_recist_rates_2(derived_endpoints=c("BOR", "CBR", "DCR")) \%>\%
  as_flextable()
 }
