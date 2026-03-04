@@ -295,6 +295,7 @@ case_when(
                                use_pharmasug = use_pharmasug) {
   case_when(
     use_pharmasug == TRUE & response_num <= 2 & next_response_num == 3 & next_response_num_2 <= 2   ~ 2,
+    use_pharmasug == FALSE & response_num <= 2 & next_response_num == 3 & next_response_num_2 <= 2   ~ 3,
     response_num == 1 & next_response_num == 1 & delta_date >= cycle_length                ~ 1,
     response_num == 1 & next_response_num == 1 & delta_date < cycle_length                 ~ 3,
     response_num <= 2 & next_response_num <= 2 & delta_date >= cycle_length                ~ 2,
@@ -305,8 +306,10 @@ case_when(
     response_num == 1 & next_response_num == 5                                             ~ 5,
     response_num == 1 & next_response_num == 4                                             ~ 3,
     response_num == 2 & next_response_num == 3 & next_response_num_2 ==3               ~ 3,
+    response_num == 2 & next_response_num == 3 & next_response_num_2 ==4               ~ 3,
     response_num == 2 & next_response_num == 3 & next_response_num_2 ==5               ~ 3,
     response_num == 2 & next_response_num == 5 & next_response_num_2 ==3               ~ 3,
+    response_num == 2 & next_response_num == 5 & next_response_num_2 ==4               ~ 3,
     response_num == 2 & next_response_num == 5 & next_response_num_2 ==5               ~ 5,
     response_num == 2 & next_response_num == 5 & next_response_num_2 <= 2              ~ 2,
     response_num == 2 & next_response_num == 4                                             ~ 3,
