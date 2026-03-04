@@ -145,8 +145,8 @@ calc_best_response = function(data_recist, ...,
                                                       next_response_num_2 = next_response_num_2,
                                                       use_pharmasug = use_pharmasug)
       ) %>%
-      mutate(confirm = cumsum(confirm), .by=subjid) %>%
-      filter(confirm==1) %>%
+      mutate(bestresponse = min(response_confirmed), .by=subjid) %>%
+      filter(bestresponse==response_confirmed) %>%
       slice_min(order_by =date ,by=subjid) %>%
       mutate(response_final = .recist_from_num(bestresponse))
   }
