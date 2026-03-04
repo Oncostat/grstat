@@ -133,18 +133,19 @@ calc_best_response = function(data_recist, ...,
       mutate(confirm = cumsum(confirm), .by=subjid) %>%
       filter(confirm==1) %>%
       slice_min(order_by =date ,by=subjid) %>%
-      mutate(response_confirmed = .recist_from_num(bestresponse),
-             response_confirmed = factor(response_confirmed,
-                                        levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
-                                        labels = c("Complete response","Partial response",
-                                                   "Stable disease", "Progressive disease", "Not evaluable"))
-      ) %>%
-      mutate(overall_response = bestresponse==1 | bestresponse==2,
-             clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
-      select(subjid, best_response=response_confirmed, date, target_sum=sum,
-             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, overall_response, clinical_benefit) %>%
-      structure(confirmed = confirmed)
+      mutate(response_final = .recist_from_num(bestresponse))
   }
+
+  data_recist %>%
+    mutate(response_final = factor(response_final,
+                                       levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
+                                       labels = c("Complete response","Partial response",
+                                                  "Stable disease", "Progressive disease", "Not evaluable"))
+    ) %>%
+    mutate(six_months_confirmation = duree_suivi_max >= 183) %>%
+    select(subjid, best_response=response_final, date, target_sum=sum,
+           target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, six_months_confirmation) %>%
+    structure(confirmed = confirmed)
 }
 
 
