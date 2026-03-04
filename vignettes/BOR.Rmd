@@ -61,7 +61,7 @@ library(tidyverse)
 library(flextable)
 
 db = grstat_example(N=200)
-recist = db$recist
+recist = db$recist %>% select(subjid, rcdt, rctlsum, rcresp)
 recist %>% filter(subjid < 4)
 ```
 
