@@ -112,7 +112,7 @@ as_flextable.aggregate_recist_rates = function(x, ...){
     flextable() %>%
     set_table_properties(layout="autofit") %>%
     bold(bold = TRUE, part = "header") %>%
-    surround(i = c(5, 6), border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
+    surround(i = 5, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
     bold(i = 6, bold = TRUE, part = "body") %>%
     set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
     footnote(j = "ic_95",
@@ -129,11 +129,18 @@ as_flextable.aggregate_recist_rates = function(x, ...){
       footnote(i = 1, j = "best_response",
                 value = as_paragraph(label_confirmed),
                 ref_symbols =c("**"), part = "header")
-
-    if(show_CBR){
+  }
+  if("BOR" %in% derived_endpoints){
     best_response_during_treatment =  best_response_during_treatment %>%
-      bold(i = 7, bold = TRUE, part = "body") %>%
-      footnote( i = 7, j = "best_response",
+      bold(i = ~ best_response == "Best Overall Response (BOR)", bold = TRUE, part = "body") %>%
+      footnote( i = ~ best_response == "Best Overall Response (BOR)", j = "best_response",
+                value = as_paragraph(label_BOR),
+                ref_symbols ="B", part = "body")
+  }
+  if("CBR" %in% derived_endpoints){
+    best_response_during_treatment =  best_response_during_treatment %>%
+      bold(i = ~ best_response == "Clinical Benefit Rate (CBR)", bold = TRUE, part = "body") %>%
+      footnote( i = ~ best_response == "Clinical Benefit Rate (CBR)", j = "best_response",
                 value = as_paragraph(label_CBR),
                 ref_symbols ="C", part = "body")
   }
