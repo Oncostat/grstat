@@ -49,7 +49,8 @@ To calculate the BOR, we'll use the "recist" dataset. This dataset must be in lo
 -   `rcresp`, Global response
 -   `rctlsum`, Sum of target lesions
 
-We use `grstat_example()` to simulate data
+We use `grstat_example()` to simulate data.
+
 Warnings may appear, take them into account when using the various functions
 
 ```{r, include=FALSE}
@@ -75,11 +76,16 @@ recist %>% filter(subjid < 4)
 -   `rc_resp`, the column for Global response
 -   `rc_date`, the column for Evaluation date
 -   `rc_sum`, the column for the Sum of target lesions
--   `confirmed`, for a confirmed or unconfirmed response
-## Unconfirmed response
+-   `confirmed`, for a confirmed or unconfirmed response \## Unconfirmed response
+
+```{r eval=FALSE}
+#To change the colonnes names
+best_resp = calc_best_response(recist, subjid="test", rc_resp="test 2")
+
+```
 
 ```{r}
-best_resp = calc_best_response(recist, subjid="subjid", rc_resp="rcresp", rc_date="rcdt", rc_sum = "rctlsum")
+best_resp = calc_best_response(recist)
 head(best_resp, n= 7L)
 
 ```
@@ -106,8 +112,7 @@ With the confirmed method, patient 7 best response becomes Stable disease instea
 -   `data`, the data.frame containing the best response obtain after using the function `calc_best_response()` (confirmed or unconfirmed)
 -   `derived_endpoints=c("BOR", "CBR", "DCR")`, to show all the endpoint we want
 
-As `aggregate_recist_rates()` returns a classed data frame, we can use `as_flextable()` (instead of simply `flextable()`) to turn it into a formatted flextable, on which you can apply any modifier.
-Here, for example, we apply bold on row 4 and add a footnote on the 3rd row of the CI column.
+As `aggregate_recist_rates()` returns a classed data frame, we can use `as_flextable()` (instead of simply `flextable()`) to turn it into a formatted flextable, on which you can apply any modifier. Here, for example, we apply bold on row 4 and add a footnote on the 3rd row of the CI column.
 
 ```{r}
 tbl = aggregate_recist_rates(best_resp, derived_endpoints=c("BOR", "CBR", "DCR"))
@@ -122,5 +127,3 @@ tbl2 = aggregate_recist_rates(confirmed_best_resp, derived_endpoints=c("BOR", "C
                 ref_symbols ="8", part = "body")
 tbl2
 ```
-
-
