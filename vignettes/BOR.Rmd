@@ -27,10 +27,11 @@ We follow the RECIST 1.1 guideline, DOI: 10.1016/j.ejca.2008.10.026
 
 ## Endpoint definition
 
-In practice we use the best overall response (i.e., the best categorical response observed from treatment start until progression) because it reflects the maximum observed benefit and avoids underestimating response due to transient fluctuations or measurement noise
+Defenition of different endpoint linked to the RECIST evaluation and present in the grstat package :
 
--   Best Overall Response (BOR), unconfirmed and confirmed: Measured the proportion of patients achieving a complete or partial response to treatment within a specified time frame.A partial response is a decrease in the size of a tumor or in the amount of cancer in the body, and a complete response is the disappearance of all signs of cancer in the body. In a clinical trial, measuring the BOR is one way to see how well a new treatment works.
--   Clinical Benefit Rate (CBR): Proportion of complete response, partial response, and stable disease lasting at least six months (using a window of +/-1 month for the RECIST date) to assess overall treatment benefit.
+-   Best Overall Response (BOR): Measured the proportion of patients achieving a complete or partial response to treatment within a specified time frame. In a clinical trial, measuring the BOR is one way to see how well a new treatment works.
+-   Clinical Benefit Rate (CBR): Proportion of complete response, partial response, and stable disease lasting at least six months to assess overall treatment benefit.
+-   Disease Control Rate (DCR) : Proportion of complete response, partial response, and stable disease.
 
 ## Confirmed and Unconfirmed response
 
