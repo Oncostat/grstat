@@ -52,9 +52,12 @@ calc_best_response = function(data_recist, ...,
   assert_names_exists(data_recist, lst(subjid, rc_sum, rc_date, rc_resp))
   grstat_dev_warn()
 
+  data_recist = data_recist %>%
+    select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
+           date=any_of2(rc_date)) %>%
+    distinct()
+
   na_date = data_recist %>%
-    select(subjid=any_of2(subjid), date=any_of2(rc_date)) %>%
-    distinct() %>%
     filter(is.na(date))
   if (length(na_date$date)>0) {
     cli_abort("Some date are missing. Please check if it is normal and remove them from the recist dataset",
@@ -63,14 +66,9 @@ calc_best_response = function(data_recist, ...,
   }
 
   data_recist = data_recist %>%
-    select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
-           date=any_of2(rc_date)) %>%
-    distinct() %>%
     .check_best_resp(do=warnings) %>%
     .remove_post_pd(resp = response, date = date) %>%
     filter(n_distinct(date)>=2, .by=subjid) %>%
-    mutate(n = n(), .by=subjid) %>%
-    filter(n >= 2) %>%
     arrange(subjid, date) %>%
     mutate(
       first_date = min_narm(date, na.rm=TRUE),
