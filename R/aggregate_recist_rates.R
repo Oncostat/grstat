@@ -56,14 +56,14 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("BOR", "CBR", "
 
   if("BOR" %in% derived_endpoints){
   BOR = recist %>%
-    filter(overall_response==1) %>%
+    filter(best_response=="Complete response" | best_response=="Partial response") %>%
     count(best_response = "Best Overall Response (BOR)") %>%
     mutate(p = round(n / total * 100, 1))
   } else {BOR = data.frame()}
 
   if("CBR" %in% derived_endpoints){
     CBR = recist %>%
-      filter(clinical_benefit==1) %>%
+      filter(best_response=="Complete response" | best_response=="Partial response" | six_months_confirmation) %>%
       count(best_response = "Clinical Benefit Rate (CBR)") %>%
       mutate(p = round(n / total * 100, 1))
   } else {CBR = data.frame()}
