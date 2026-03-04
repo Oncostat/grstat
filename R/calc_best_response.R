@@ -76,11 +76,17 @@ calc_best_response = function(data_recist, ...,
       first_sum = sum[date==first_date],
       response_num = .recist_to_num(response),
       response_num = ifelse(is.na(response),NA,response_num),
-      previous_response_num = lag(response_num),
-      previous_date = lag(date),
-      previous_response_num_2 = lag(response_num,2),
-      delta_date = as.numeric(date - previous_date),
-      delta_date = ifelse(is.na(delta_date), 0, delta_date),
+      next_response_num = lead(response_num),
+      next_response_num_2 = lead(response_num,2),
+      next_date = lead(date),
+      delta_date = as.numeric(difftime(next_date, date, units="days")),
+      delta_date = replace_na(delta_date, 0),
+      #previous_response_num = lag(response_num),
+      #previous_date = lag(date),
+      #previous_response_num_2 = lag(response_num,2),
+      #delta_date = as.numeric(date - previous_date),
+      #delta_date = as.numeric(difftime(date, previous_date, units="days")),
+      #delta_date = replace_na(delta_date, 0),
       delta_date_before_PD_or_end = cumsum(delta_date),
       delta_date_before_PD_or_end = ifelse(response_num==4, 0, delta_date_before_PD_or_end),
       delta_date_before_PD_or_end = replace_na(delta_date_before_PD_or_end, 0),
@@ -97,36 +103,47 @@ calc_best_response = function(data_recist, ...,
     filter(!is.na(response))
 
   if (!isTRUE(confirmed)){
-    data_recist %>%
+    data_recist = data_recist %>%
       slice_min(order_by =response_num, by=subjid, with_ties = FALSE) %>%
-      mutate(response_unconfirmed = .recist_from_num(response_num),
-             response_unconfirmed = factor(response_unconfirmed,
-                                        levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
-                                        labels = c("Complete response", "Partial response",
-                                                   "Stable disease", "Progressive disease", "Not evaluable"))
-      ) %>%
-      mutate(overall_response = response_num==1 | response_num==2,
-             clinical_benefit = duree_suivi_max >= 152 | overall_response) %>%
-      select(subjid, best_response=response_unconfirmed, date, target_sum=sum,
-             target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, overall_response, clinical_benefit) %>%
-      structure(confirmed = confirmed)
+      mutate(response_final = .recist_from_num(response_num),
+             bestresponse = response_num)
+  # } else {
+  #   data_recist = data_recist %>%
+  #     mutate(response_confirmed = .response_confirmed(response_num = response_num,
+  #                                                   previous_response_num = previous_response_num,
+  #                                                   delta_date = delta_date,
+  #                                                   cycle_length = cycle_length,
+  #                                                   previous_response_num_2 = previous_response_num_2,
+  #                                                   use_pharmasug = use_pharmasug)
+  #     ) %>%
+  #     mutate(bestresponse = min(response_confirmed), .by=subjid) %>%
+  #     mutate(response_num_lead = lead(response_num),
+  #            response_num_lead_2 = lead(response_num,2),
+  #            date_for_confirm = .date_selection_for_response_confirmed(response_num = response_num,
+  #                                             bestresponse = bestresponse,
+  #                                             response_num_lead = response_num_lead,
+  #                                             response_num_lead_2 = response_num_lead_2,
+  #                                             use_pharmasug = use_pharmasug)
+  #     ) %>%
+  #     filter(date_for_confirm==TRUE) %>%
+  #     slice_min(order_by =date ,by=subjid) %>%
+  #     mutate(response_final = .recist_from_num(bestresponse))
+  # }
+
   } else {
-    data_recist %>%
-      mutate(confirmed_response = .confirm_response(response_num = response_num,
-                                                    previous_response_num = previous_response_num,
-                                                    delta_date = delta_date,
-                                                    cycle_length = cycle_length,
-                                                    previous_response_num_2 = previous_response_num_2,
-                                                    use_pharmasug = use_pharmasug)
-      ) %>%
-      mutate(bestresponse = min(confirmed_response), .by=subjid) %>%
-      mutate(response_num_lead = lead(response_num),
-             response_num_lead_2 = lead(response_num,2),
-             confirm = .is_response_confirmed(response_num = response_num,
-                                                  bestresponse = bestresponse,
-                                                  response_num_lead = response_num_lead,
-                                                  response_num_lead_2 = response_num_lead_2,
-                                              use_pharmasug = use_pharmasug)
+    data_recist = data_recist %>%
+      # mutate(next_response_num = lead(response_num),
+      #        next_response_num_2 = lead(response_num,2),
+      #        next_date = lead(date),
+      #        delta_date_futur = as.numeric(difftime(next_date, date, units="days")),
+      #        delta_date_futur = replace_na(delta_date_futur, 0),
+      #        .by = subjid) %>%
+      mutate(response_confirmed = .response_confirmed_V2(response_num = response_num,
+                                                      next_response_num = next_response_num,
+                                                      delta_date = delta_date,
+                                                      cycle_length = cycle_length,
+                                                      next_response_num_2 = next_response_num_2,
+                                                      use_pharmasug = use_pharmasug)
       ) %>%
       mutate(confirm = cumsum(confirm), .by=subjid) %>%
       filter(confirm==1) %>%
@@ -172,6 +189,7 @@ calc_best_response = function(data_recist, ...,
 
 
 
+
 #' @noRd
 #' @keywords internal
 #' @importFrom dplyr filter n_distinct
@@ -199,7 +217,9 @@ calc_best_response = function(data_recist, ...,
 
 #' @noRd
 #' @keywords internal
-.confirm_response = function(response_num = response_num,
+#' #' @details
+#' La fonction permet de déterminer pour chaque réponse quelle est la réponse confirmé associé en prenant en compte les réponses précédentes
+.response_confirmed = function(response_num = response_num,
                              previous_response_num = previous_response_num,
                              delta_date = delta_date,
                              cycle_length = cycle_length,
@@ -234,7 +254,9 @@ case_when(
 
 #' @noRd
 #' @keywords internal
-.is_response_confirmed = function(response_num = response_num,
+#' #' #' @details
+#' La fonction permet de déterminer pour les réponses confirmées quelle est la date du début de la confirmation
+.date_selection_for_response_confirmed = function(response_num = response_num,
                                       bestresponse = bestresponse,
                                       response_num_lead = response_num_lead,
                                       response_num_lead_2 = response_num_lead_2,
