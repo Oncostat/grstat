@@ -51,9 +51,14 @@ To calculate the BOR, we'll use the "recist" dataset. This dataset must be in lo
 
 We use `grstat_example()` to simulate data
 
+```{r, include=FALSE}
+options(grstat_lifecycle_verbosity="quiet")
+```
+
 ```{r}
 library(grstat)
 library(tidyverse)
+library(flextable)
 
 db = grstat_example(N=200)
 recist = db$recist
