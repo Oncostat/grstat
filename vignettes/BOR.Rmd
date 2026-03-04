@@ -106,33 +106,23 @@ As you can see, there are warnings. You can go to `check_recist()` for more info
 `aggregate_recist_rates()` consist of 2 paramater :
 
 -   `data`, the data.frame containing the best response obtain after using the function `calc_best_response()` (confirmed or unconfirmed)
--   `show_cbr`, to show the CBR in the results
+-   `derived_endpoints=c("BOR", "CBR", "DCR")`, to show all the endpoint we want
+
+As `aggregate_recist_rates()` returns a classed data frame, we can use `as_flextable()` (instead of simply `flextable()`) to turn it into a formatted flextable, on which you can apply any modifier.
+Here, for example, we apply bold on row 4 and add a footnote on the 3rd row of the CI column.
 
 ```{r}
-tbl = aggregate_recist_rates(best_resp)
+tbl = aggregate_recist_rates(best_resp, derived_endpoints=c("BOR", "CBR", "DCR"))
 tbl
 
-#It can also be used with the confirmed best response: 
-tbl2 = aggregate_recist_rates(confirmed_best_resp)
-tbl2
-
-#If we want the CBR :
-tbl3 = aggregate_recist_rates(confirmed_best_resp, show_CBR = TRUE)
-tbl3
-```
-
-# Transformation into a flextable
-
-To transfrome our `aggregate_recist_rates` (a data.frame) into a simple flextable, we will use the function `as_flextable()` that will take into account the call of our `aggregate_recist_rates()` to create a flextable following a specific model. We don't recommend using `flextable()` as the result will not display all the details.
-After that, you can add footnote, surround, bold, etc..., like with a classical flextable object (see <https://ardata-fr.github.io/flextable-book/> )
-
-```{r}
-ftbl3 = tbl3 %>% as_flextable()
-
-ftbl3 %>% 
+#Exampel with flextable modification:
+tbl2 = aggregate_recist_rates(confirmed_best_resp, derived_endpoints=c("BOR", "CBR", "DCR")) %>% 
+  as_flextable() %>% 
   bold(i=4)%>%
   footnote(i = 3, j = 4,
                 value = as_paragraph("This is note number 8"),
                 ref_symbols ="8", part = "body")
-
+tbl2
 ```
+
+
