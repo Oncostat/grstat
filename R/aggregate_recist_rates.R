@@ -119,11 +119,11 @@ as_flextable.aggregate_recist_rates = function(x, ...){
              value = as_paragraph(label_CP),
              ref_symbols ="*", part = "header")
 
-    if (!confirmed){
-    best_response_during_treatment =  best_response_during_treatment %>%
-      set_header_labels(best_response="Unconfirmed Best Response during treatment")
+  if (!confirmed){
+  best_response_during_treatment =  best_response_during_treatment %>%
+    set_header_labels(best_response="Unconfirmed Best Response during treatment")
 
-    } else{
+  } else{
       best_response_during_treatment =  best_response_during_treatment %>%
       set_header_labels(best_response="Confirmed Best Response during treatment") %>%
       footnote(i = 1, j = "best_response",
