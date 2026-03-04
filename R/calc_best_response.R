@@ -91,7 +91,7 @@ calc_best_response = function(data_recist, ...,
       delta_date_before_PD_or_end = ifelse(response_num==4, 0, delta_date_before_PD_or_end),
       delta_date_before_PD_or_end = replace_na(delta_date_before_PD_or_end, 0),
       duree_suivi_max = max(delta_date_before_PD_or_end),
-      bestresponse_withinprotocole = ifelse(previous_response_num==response_num, 1, 0 ),
+      #bestresponse_withinprotocole = ifelse(previous_response_num==response_num, 1, 0 ),
       .by=subjid
     ) %>%
     mutate(
