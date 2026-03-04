@@ -234,3 +234,41 @@ case_when(
       CR_c | PR_CR_c | CR_NE_c | PR_c | PR_NE_c | SD_c | PD_c | NE_c
     }
 }
+
+
+
+#' @noRd
+#' @keywords internal
+#' #' @details
+#' La fonction permet de déterminer pour chaque réponse quelle est la réponse confirmé associé en prenant en compte les réponses précédentes
+.response_confirmed_V2 = function(response_num = response_num,
+                               next_response_num = next_response_num,
+                               delta_date = delta_date,
+                               cycle_length = cycle_length,
+                               next_response_num_2 = next_response_num_2,
+                               use_pharmasug = use_pharmasug) {
+  case_when(
+    use_pharmasug == TRUE & response_num <= 2 & next_response_num == 3 & next_response_num_2 <= 2   ~ 2,
+    response_num == 1 & next_response_num == 1 & delta_date >= cycle_length                ~ 1,
+    response_num == 1 & next_response_num == 1 & delta_date < cycle_length                 ~ 3,
+    response_num <= 2 & next_response_num <= 2 & delta_date >= cycle_length                ~ 2,
+    response_num <= 2 & next_response_num <= 2 & delta_date < cycle_length                 ~ 3,
+    response_num == 1 & next_response_num == 3                                             ~ 3,
+    response_num == 1 & next_response_num == 5 & next_response_num_2 == 1              ~ 1,
+    response_num <= 2 & next_response_num == 5 & next_response_num_2 <= 2              ~ 2,
+    response_num == 1 & next_response_num == 5                                             ~ 5,
+    response_num == 1 & next_response_num == 4                                             ~ 3,
+    response_num == 2 & next_response_num == 3 & next_response_num_2 ==3               ~ 3,
+    response_num == 2 & next_response_num == 3 & next_response_num_2 ==5               ~ 3,
+    response_num == 2 & next_response_num == 5 & next_response_num_2 ==3               ~ 3,
+    response_num == 2 & next_response_num == 5 & next_response_num_2 ==5               ~ 5,
+    response_num == 2 & next_response_num == 5 & next_response_num_2 <= 2              ~ 2,
+    response_num == 2 & next_response_num == 4                                             ~ 3,
+
+    is.na(next_response_num) & response_num <= 2                                           ~ 3,
+    is.na(next_response_num_2)& (next_response_num==3 | next_response_num ==5) &
+      response_num <= 2                                                                        ~ 3,
+
+    .default = response_num
+  )
+}
