@@ -10,7 +10,7 @@
 #' @param rc_date The column containing the assessment date. Default is `"RCDT"`.
 #' @param subjid The column containing the subject ID. Default is `"SUBJID"`.
 #' @param confirmed Logical; if `TRUE`, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.
-#' @param show_CBR Logical; if `TRUE`, show the Clinical Best Response (CBR). CBR was defined as the presence of at least a partial response (PR), complete response (CR), or stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date).
+#' @param derived_endpoints List; List of 3 different endpoints related to recist data and available in the function ("BOR", "CBR", "DCR").BOR was defined as the presence of a partial response (PR) or a complete response (CR) ; CBR was defined as the presence of a PR, a CR, or a stable disease (SD) lasting at least six months ; DCR was defined as the presence of a PR, a CR, or a SD.
 #'
 #' @return a dataframe (`aggregate_recist_rates()`) or a flextable (`as_flextable()`).
 #'
@@ -30,16 +30,16 @@
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
-#'  aggregate_recist_rates_2(show_CBR = FALSE %>%
+#'  aggregate_recist_rates_2(derived_endpoints=c("BOR") %>%
 #'  as_flextable()
 #'
-#' #Or show the Clinical Benefice Rate
+#' #Or show the CBR and DCR
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
-#'  aggregate_recist_rates_2(show_CBR = TRUE) %>%
+#'  aggregate_recist_rates_2(derived_endpoints=c("BOR", "CBR", "DCR")) %>%
 #'  as_flextable()
-aggregate_recist_rates = function(data, ..., show_CBR = FALSE){
+aggregate_recist_rates = function(data, ..., derived_endpoints=c("BOR", "CBR", "DCR")){
   confirmed = attr(data, "confirmed")
   recist = data %>%
     distinct()
@@ -54,26 +54,35 @@ aggregate_recist_rates = function(data, ..., show_CBR = FALSE){
     count(best_response, .drop=FALSE) %>%
     mutate(p=round(n / sum(n) * 100, 1))
 
+  if("BOR" %in% derived_endpoints){
   BOR = recist %>%
     filter(overall_response==1) %>%
     count(best_response = "Best Overall Response (BOR)") %>%
     mutate(p = round(n / total * 100, 1))
+  } else {BOR = data.frame()}
 
-  CBR = NULL
-  if(show_CBR){
+  if("CBR" %in% derived_endpoints){
     CBR = recist %>%
       filter(clinical_benefit==1) %>%
       count(best_response = "Clinical Benefit Rate (CBR)") %>%
       mutate(p = round(n / total * 100, 1))
-  }
-  summary_df = bind_rows(response_counts, BOR, CBR) %>%
+  } else {CBR = data.frame()}
+
+  if("DCR" %in% derived_endpoints){
+    DCR = recist %>%
+      filter(best_response=="Complete response" | best_response=="Partial response" | best_response=="Stable disease") %>%
+      count(best_response = "Disease Control Rate (DCR)") %>%
+      mutate(p = round(n / total * 100, 1))
+  } else {DCR = data.frame()}
+
+  summary_df = bind_rows(response_counts, BOR, CBR, DCR) %>%
     mutate(ic_95 = {
       ci = clopper_pearson_ci(n, total, CI = "two.sided", alpha = 0.05)
       glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
     },
     .by= best_response) %>%
     add_class("aggregate_recist_rates") %>%
-    structure(show_CBR=show_CBR, confirmed = confirmed, total = total)
+    structure(derived_endpoints=derived_endpoints, confirmed = confirmed, total = total)
 
   summary_df
 }
@@ -91,12 +100,14 @@ aggregate_recist_rates = function(data, ..., show_CBR = FALSE){
 #' @importFrom officer fp_border
 as_flextable.aggregate_recist_rates = function(x, ...){
   check_dots_empty()
-  show_CBR = attr(x, "show_CBR")
+  derived_endpoints = attr(x, "derived_endpoints")
   confirmed = attr(x, "confirmed")
   total = attr(x,"total")
   label_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
   label_confirmed = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
-  label_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months (using a window of +/-1 month for the RECIST date)."
+  label_BOR = "BOR was defined as the presence of a partial response (PR) or a complete response (CR)."
+  label_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months."
+  label_DCR = "DCR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD)."
   best_response_during_treatment =  x %>%
     flextable() %>%
     set_table_properties(layout="autofit") %>%
@@ -118,15 +129,21 @@ as_flextable.aggregate_recist_rates = function(x, ...){
       footnote(i = 1, j = "best_response",
                 value = as_paragraph(label_confirmed),
                 ref_symbols =c("**"), part = "header")
-      }
 
     if(show_CBR){
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = 7, bold = TRUE, part = "body") %>%
       footnote( i = 7, j = "best_response",
                 value = as_paragraph(label_CBR),
-                ref_symbols = "***", part = "body")
-    }
+                ref_symbols ="C", part = "body")
+  }
+  if("DCR" %in% derived_endpoints){
+    best_response_during_treatment =  best_response_during_treatment %>%
+      bold(i = ~ best_response == "Disease Control Rate (DCR)", bold = TRUE, part = "body") %>%
+      footnote( i = ~ best_response == "Disease Control Rate (DCR)", j = "best_response",
+                value = as_paragraph(label_DCR),
+                ref_symbols ="D", part = "body")
+  }
 
   best_response_during_treatment %>%
     valign(valign = "bottom", part = "header")
