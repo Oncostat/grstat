@@ -50,6 +50,7 @@ To calculate the BOR, we'll use the "recist" dataset. This dataset must be in lo
 -   `rctlsum`, Sum of target lesions
 
 We use `grstat_example()` to simulate data
+Warnings may appear, take them into account when using the various functions
 
 ```{r, include=FALSE}
 options(grstat_lifecycle_verbosity="quiet")
@@ -97,9 +98,6 @@ recist %>% filter(subjid ==7)
 ```
 
 With the confirmed method, patient 7 best response becomes Stable disease instead of Partial response. The reason is that patient 7 has a Progressive disease after his Partial response. Following the definition, the Partial response can't be confirmed. That's why the confirmed best response is now a Stable disease instead of a Partial response for the unconfirmed best response
-
-As you can see, there are warnings. You can go to `check_recist()` for more information.
-
 
 # Cration of a dataframe for BOR and CBR
 
