@@ -92,10 +92,17 @@ gr_officer_template = function(
       DATE_FREEZE=date_freeze
     ) %>%
     officer::footers_replace_text_at_bkm("TRIAL_NAME_FOOTER", acronym) %>%
-    body_replace_flextable_at_bkm("TRIAL_AUTHORS",
-                                  .flextable_authors(authors, title="REPORT AUTHORS")) %>%
-    body_replace_flextable_at_bkm("TRIAL_SPONSOR",
-                                  .flextable_authors(sponsor, title="SPONSOR"))
+    flextable::body_replace_flextable_at_bkm("TRIAL_AUTHORS",
+                                           .flextable_authors(authors, title="REPORT AUTHORS")) %>%
+    flextable::body_replace_flextable_at_bkm("TRIAL_SPONSOR",
+                                           .flextable_authors(sponsor, title="SPONSOR")) %>%
+    officer::cursor_end()
+
+  rtn$doc_properties$data["title", "value"] = title
+  rtn$doc_properties$data["subject", "value"] = acronym
+  rtn$doc_properties$data["creator", "value"] = "Bureau de Biostatistique et d\u2019\u00c9pid\u00e9miologie"
+  rtn$doc_properties$data["lastModifiedBy", "value"] = ""
+
   rtn
 }
 
@@ -122,7 +129,7 @@ gr_officer_template = function(
   authors %>%
     mutate(
       x1=title,
-      across(any_of("phone"), ~if_else(is.na(.x), NA, paste("Telephone:", .x))),
+      across(any_of("phone"), ~if_else(is.na(.x), NA, paste("Phone:", .x))),
       across(any_of("email"), ~if_else(is.na(.x), NA, paste("E-mail:", .x))),
     ) %>%
     unite("details", -c(x1, name, any_of("role")), sep="\n", na.rm=TRUE) %>%
@@ -130,7 +137,9 @@ gr_officer_template = function(
     flextable(col_keys=c("x1", "x2")) %>%
     compose(
       j="x2",
-      value=as_paragraph(as_chunk(header, props=officer::fp_text(bold=TRUE)), as_chunk("\n"), as_chunk(details))
+      value=as_paragraph(as_chunk(header, props=officer::fp_text_lite(bold=TRUE)),
+                         as_chunk("\n"),
+                         as_chunk(details))
     ) %>%
     merge_v(j="x1") %>%
     delete_part("header") %>%

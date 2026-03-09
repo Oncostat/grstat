@@ -71,8 +71,8 @@ assert_extension = function(x, ext){
          msg="{.arg {caller_arg(x)}} should be a {.val .{ext}} file, not a {.val .{path_ext(x)}} file.")
 }
 
-# Checks --------------------------------------------------------------------------------------
 
+# Checks --------------------------------------------------------------------------------------
 
 #' @importFrom cli cli_warn
 #' @importFrom rlang caller_call
