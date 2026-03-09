@@ -12,7 +12,10 @@ calc_best_response(
   rc_date = "RCDT",
   subjid = "SUBJID",
   exclude_post_pd = TRUE,
-  warnings = getOption("grstat_best_resp_warnings", TRUE)
+  warnings = getOption("grstat_best_resp_warnings", TRUE),
+  confirmed = FALSE,
+  cycle_length = 28,
+  use_pharmasug = FALSE
 )
 }
 \arguments{
@@ -28,9 +31,11 @@ calc_best_response(
 
 \item{subjid}{The column containing the subject ID. Default is \code{"SUBJID"}.}
 
-\item{exclude_post_pd}{Logical; if \code{TRUE} (default), assessments after the first PD are excluded.}
-
 \item{warnings}{Logical; if \code{TRUE} (default is taken from \code{getOption("grstat_best_resp_warnings", TRUE)}), emits warnings during internal checks.}
+
+\item{cycle_length}{Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation}
+
+\item{use_pharmasug}{Logical, if \code{TRUE}, the confirmation of response will be defnied following PharmaSUG 2023 – Paper QT047 recommendation. Default is RECIST 1.1 guideline}
 }
 \value{
 A tibble with one row per subject, containing:
@@ -52,10 +57,8 @@ Ties are resolved using lesion sum, then by date.
 The function identifies the best response using the following logic:
 \enumerate{
 \item Responses are ordered: \code{CR} > \code{PR} > \code{SD} > \code{PD} > \code{Missing}
-\item Among the best responses, the one with the smallest target lesion sum is selected
-\item If still tied, the earliest assessment date is selected
+\item Among the best responses the earliest assessment date is selected. For a confirmed response, the earliest date of the confirmed response will be selected
 \item Only subjects with at least two assessments and non-missing target sum are considered
-\item By default, all assessments after the first PD are excluded (\code{exclude_post_pd = TRUE})
 }
 }
 \examples{
