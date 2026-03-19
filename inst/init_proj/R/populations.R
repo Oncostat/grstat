@@ -3,7 +3,10 @@
 
 #FIXME Ce fichier est un exemple de {grstat} qui doit être adapté à l'étude réelle
 #les populations sont définies ici pour être utilisées comme filtres dans les outputs
+
 #TODO remplacer les commentaires par les définitions exactes du protocole
+#TODO utiliser le critère adapté pour filtrer les populations. `is.na(ARM)` est un exemple.
+#TODO remplacer `enrolres` par le dataset correspondant dans votre étude
 
 
 # Pop protocolaires -------------------------------------------------------------------
@@ -13,11 +16,11 @@ pop$total = enrolres$SUBJID %>% sort()
 # Intent-to-treat (ITT) population: all randomised patients, whether or not the
 #  assigned study treatment was received.
 pop$itt = enrolres %>% filter(!is.na(ARM)) %>% pull(SUBJID) %>% sort()
-stopifnot(identical(pop$itt, pop$total))
+stopifnot(identical(pop$itt, pop$total)) #check: ITT = all patients
 
 # Modified ITT population (mITT): all randomised patients who received any amount
 #  of the assigned study treatment and met all eligibility criteria.
-pop$m_itt = pop$itt
+pop$m_itt = enrolres %>% filter(!is.na(ARM) & incl_crit=TRUE) %>% pull(SUBJID) %>% sort()
 
 # Safety population: all randomised patients who received any amount of any study
 #  treatment.

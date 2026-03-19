@@ -36,7 +36,7 @@ doc = gr_officer_template(
 # Filling -------------------------------------------------------------------------------------
 
 doc = doc %>%
-  body_add_gr_sections_1_9()
+  body_add_gr_sections_1_8()
 
 # Section 09: Inclusion -----------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ doc = doc %>%
   body_add_table_legend("Inclusions by centre") %>%
   body_add_flextable(tbl$s9_incl_centre) %>%
   body_add_normal() %>%
-  body_add_gg2(plots$inclusions, width=16, height=9) %>%
+  body_add_gg2(fig$inclusions, width=16, height=9) %>%
   body_add_figure_legend("Cumulative number of inclusions, for each arms") %>%
   body_add_normal() %>%
   body_add_img2("graph/flowchart.png", width=19, height=19) %>%
@@ -93,7 +93,7 @@ doc = doc %>%
 doc = doc %>%
   body_add_title("Efficacy", level=1) %>%
   body_add_normal("Efficacy is presented in *Figure @ref(plot_efficacy)* as a Kaplan Meier curve.") %>%
-  body_add_gg2(plots$km_efficacy, width=16, height=9) %>%
+  body_add_gg2(fig$km_efficacy, width=16, height=9) %>%
   body_add_figure_legend("Kaplan Meier curve", bookmark="plot_efficacy") %>%
   body_add_break()
 

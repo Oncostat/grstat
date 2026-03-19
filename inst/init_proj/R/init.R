@@ -77,11 +77,13 @@ set_flextable_defaults(big.mark="")
 
 # Custom fonctions ---------------------------------------------------------------
 
+#FIXME Changez les chemins d'accès aux documents de l'étude pour pouvoir utiliser `proto()` dans
+# la console et ouvrir le protocole sans avoir à connaître le chemin d'accès exact à chaque fois.
+# Utilisez des chemins d'accès absolus ou relatifs, comme vous préférez.
 
 crf = function() browseURL("../Documents/crf.pdf")
 proto = function() browseURL("../Documents/protocole.pdf")
 # proto = function() browseURL(normalizePath("//nas-01/SBE_ETUDES/path/to/protocole.pdf"))
-feuille_dm = function() browseURL("https://link/to/nextcloud")
 wd = function() browseURL(".")
 
 v=View

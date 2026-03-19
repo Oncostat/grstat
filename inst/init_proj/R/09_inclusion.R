@@ -1,6 +1,11 @@
 
 
-#TODO adapt this code to your study
+#FIXME Ce fichier est un exemple de {grstat} qui doit être adapté à l'étude réelle
+# Vous pouvez vous inspirer du code, mais il ne sera pas directement compatible avec vos populations,
+# le nombre de bras, ou les définitions de votre protocole.
+
+#TODO remplacer `enrolres` par le dataset correspondant dans votre étude
+
 
 # Tables --------------------------------------------------------------------------------------
 

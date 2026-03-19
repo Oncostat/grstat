@@ -14,18 +14,18 @@ ggsave_here = function(filename, ...){
 
 # Inclusions ----------------------------------------------------------------------------------
 
-plots$inclusions = iris %>%
+fig$inclusions = iris %>%
   ggplot(aes(x = Sepal.Length, y = Sepal.Width))+
   geom_point()
 
-ggsave_here("inclusions.png", plots$inclusions, width=10, height=5)
+ggsave_here("inclusions.png", fig$inclusions, width=10, height=5)
 
 
 # Efficacy ------------------------------------------------------------------------------------
 
 #https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html#kmunicate
 
-plots$km_efficacy = survfit2(Surv(time, status) ~ surg, data = df_colon) %>%
+fig$km_efficacy = survfit2(Surv(time, status) ~ surg, data = df_colon) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +
   add_risktable(
@@ -36,5 +36,5 @@ plots$km_efficacy = survfit2(Surv(time, status) ~ surg, data = df_colon) %>%
   scale_x_continuous(expand = c(0.02, 0)) +
   theme(legend.position.inside = c(0.85, 0.85))
 
-ggsave_here("km_efficacy.png", plots$km_efficacy, width=10, height=5)
+ggsave_here("km_efficacy.png", fig$km_efficacy, width=10, height=5)
 

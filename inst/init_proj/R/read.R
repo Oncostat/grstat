@@ -21,7 +21,8 @@ edc_viewer()
 
 # Global variables ----------------------------------------------------------------------------
 
-arms = enrolres %>% select(SUBJID, ARM)
+#FIXME adapter ces lignes avec le dataset d'enrollement
+arms = enrolres %>% select(SUBJID, ARM) #FIXME supprimer si étude monobras
 patients = sort(unique(enrolres$SUBJID))
 n_patients = length(patients)
 setdiff(1:max(as.numeric(as.character(patients))), patients) #pas de patient xx

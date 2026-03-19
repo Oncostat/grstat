@@ -27,10 +27,11 @@ ae %>%
 
 enrolres %>%
   full_join(eos, by="SUBJID") %>%
+  assert_no_duplicate() %>%
   mutate(d=EOSDT-ENROLLDT) %>%
   filter(is.na(d) | d>1) %>% #Exclusion des EOS juste après randomisation
   filter(!SUBJID %in% ae$SUBJID) %>%
   select(SUBJID, SITEC, STNO) %>%
   edc_data_warn("AE: Patients sans AE, à confirmer explicitement", issue_n=2)
 
-
+EDCimport::save_edc_data_warnings()

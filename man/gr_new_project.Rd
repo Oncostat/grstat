@@ -14,7 +14,7 @@ gr_new_project(
 )
 }
 \arguments{
-\item{path}{Destination directory for the project root. Wille be created if needed.}
+\item{path}{Destination directory for the project root. Will be created if needed.}
 
 \item{...}{Dots are ignored. Reserved for future extensions.}
 

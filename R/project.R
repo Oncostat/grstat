@@ -18,7 +18,7 @@
 #' │   └── report.R
 #' }
 #'
-#' @param path Destination directory for the project root. Wille be created if needed.
+#' @param path Destination directory for the project root. Will be created if needed.
 #' @param trial_name The abbreviated name of the trial.
 #' @param headers Optional key–value headers to inject at the top of created files
 #' @param open If `TRUE`, opens the new project in RStudio.
