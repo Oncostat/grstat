@@ -4,7 +4,8 @@
 # Vous pouvez vous inspirer du code, mais il ne sera pas directement compatible avec vos populations,
 # le nombre de bras, ou les définitions de votre protocole.
 
-#TODO remplacer `enrolres` par le dataset correspondant dans votre étude
+# Dans cet exemple, `enrolres` est le dataset d'enrollment et `eot` le dataset End of Treatment.
+# On construit des tables, graphiques et textes qu'on ajoute aux listes adaptées.
 
 
 # Tables --------------------------------------------------------------------------------------
@@ -93,6 +94,6 @@ fig$s9_inclusions = enrolres %>%
 
 # Plots: flowchart ----------------------------------------------------------------------------
 
-#use the package "flowchart", export as image and include the image in the report.
-
+#use the package `flowchart`, export as image and include the image in the report.
+# https://bruigtp.github.io/flowchart/articles/example-gallery.html#example-1
 

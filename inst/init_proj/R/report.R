@@ -1,4 +1,10 @@
 
+#FIXME Ce fichier est un exemple de {grstat} qui doit être adapté à l'étude réelle
+# Vous pouvez vous inspirer du code, mais il ne sera pas directement compatible avec
+# les paramètres de votre étude.
+
+# Dans cet exemple, on utilise les tables, figures, et textes créés dans "R/09_inclusion.R".
+# Pour les autres sections, seuls les titres des sections du rapport standard sont ajoutées.
 
 
 # Init --------------------------------------------------------------------

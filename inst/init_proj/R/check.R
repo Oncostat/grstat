@@ -1,5 +1,16 @@
 
 
+#FIXME Ce fichier est un exemple de {grstat} qui doit être adapté à l'étude réelle
+# Vous pouvez vous inspirer du code, mais il ne sera pas directement compatible avec vos populations,
+# le nombre de bras, ou les définitions de votre protocole.
+
+# Dans cet exemple, `enrolres` est le dataset d'enrollment, `rc` le dataset RECIST, `ae` le
+# dataset des toxicités, et `eos` le dataset End of Study, avec les noms de colonnes génériques
+# de TrialMaster.
+
+# Guide pour bien checker ses données : https://danchaltiel.github.io/EDCimport/articles/checking.html
+
+
 
 # Automatic RECIST checks ---------------------------------------------------------------------
 
@@ -34,4 +45,7 @@ enrolres %>%
   select(SUBJID, SITEC, STNO) %>%
   edc_data_warn("AE: Patients sans AE, à confirmer explicitement", issue_n=2)
 
-EDCimport::save_edc_data_warnings()
+
+#sauve les warnings dans un fichier à partager avec le DM
+# par défaut dans "output/check/edc_data_warnings_{project}_{date_extraction}.xlsx"
+save_edc_data_warnings()

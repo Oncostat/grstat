@@ -2,6 +2,8 @@
 
 # Read the database ---------------------------------------------------------------------------
 
+#FIXME ceci est un exemple, on peut aussi utiliser d'autres fonctions d'import, e.g. `read_all_csv()`.
+
 archive = "data/the_export_of_the_study_SAS_XPORT_2024_05_24_14_50.zip"
 
 tm = archive %>%
@@ -25,7 +27,7 @@ edc_viewer()
 arms = enrolres %>% select(SUBJID, ARM) #FIXME supprimer si étude monobras
 patients = sort(unique(enrolres$SUBJID))
 n_patients = length(patients)
-setdiff(1:max(as.numeric(as.character(patients))), patients) #pas de patient xx
+setdiff(1:max(as.numeric(as.character(patients))), patients) #pas de patient xx, si SUBJID numérique
 
 
 tbl = list() #tables

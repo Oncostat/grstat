@@ -5,8 +5,8 @@
 #les populations sont définies ici pour être utilisées comme filtres dans les outputs
 
 #TODO remplacer les commentaires par les définitions exactes du protocole
-#TODO utiliser le critère adapté pour filtrer les populations. `is.na(ARM)` est un exemple.
 #TODO remplacer `enrolres` par le dataset correspondant dans votre étude
+#TODO utiliser le critère adapté pour filtrer les populations. `is.na(ARM)` est un exemple.
 
 
 # Pop protocolaires -------------------------------------------------------------------

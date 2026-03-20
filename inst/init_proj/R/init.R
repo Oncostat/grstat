@@ -45,8 +45,8 @@ suppressPackageStartupMessages(suppressWarnings({
   library(ggsurvfit)
 }))
 
-stopifnot(packageVersion("crosstable")>="0.7.0.9000")
-stopifnot(packageVersion("EDCimport")>="0.4.1.9029")
+stopifnot(packageVersion("crosstable")>="VAR_CROSSTABLE_VERSION")
+stopifnot(packageVersion("EDCimport")>="VAR_EDCIMPORT_VERSION")
 stopifnot(packageVersion("grstat")>="VAR_GRSTAT_VERSION")
 
 edc_inform_code()
@@ -80,13 +80,20 @@ set_flextable_defaults(big.mark="")
 #FIXME Changez les chemins d'accès aux documents de l'étude pour pouvoir utiliser `proto()` dans
 # la console et ouvrir le protocole sans avoir à connaître le chemin d'accès exact à chaque fois.
 # Utilisez des chemins d'accès absolus ou relatifs, comme vous préférez.
+# Pour un chemin absolu vers le NAS, il faut utiliser `normalizePath()`.
 
 crf = function() browseURL("../Documents/crf.pdf")
 proto = function() browseURL("../Documents/protocole.pdf")
 # proto = function() browseURL(normalizePath("//nas-01/SBE_ETUDES/path/to/protocole.pdf"))
 wd = function() browseURL(".")
 
-v=View
+
+#Helper pour versionnaliser tous les graphiques
+DEFAULT_FOLDER = glue("graph/{date_extraction}/")
+dir.create(folder, showWarnings=FALSE)
+ggsave_here = function(filename, folder = DEFAULT_FOLDER, ...){
+  ggsave(glue("{folder}{filename}"), ...)
+}
 
 
 inf_narm = function(x) ifelse(is.infinite(x), NA, x)
@@ -97,6 +104,7 @@ date_minf = structure(-Inf, class = "Date")
 date_inf = structure(Inf, class = "Date")
 
 ggplotly = plotly::ggplotly
+v=View
 
 `%0%` = function (x, y) if(length(x)==0) y else x
 

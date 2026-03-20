@@ -63,15 +63,6 @@ gr_new_project = function(path, ..., trial_name=NULL,
     path = .user_input_directory()
     if(is.null(path)) cli_abort("Operation cancelled by user.")
   }
-  if(is.null(trial_name)){
-    trial_name =.user_input_text("What is the abbreviated name of the trial?")
-    if(is.null(trial_name)) cli_abort("Operation cancelled by user.")
-  }
-  add_headers = !is.null(headers)
-  if(add_headers){
-    headers = c("Trial"=trial_name, headers)
-  }
-
   dir_create(path)
   if(!is_dir(path)){
     cli_abort("`path` should be a directory.")
@@ -82,6 +73,15 @@ gr_new_project = function(path, ..., trial_name=NULL,
     cli_abort(c("`path` should be empty, but has {length(path_files)} child{?s}:",
                 i="{.path {p}}"),
               class="gr_new_project_notempty_error")
+  }
+
+  if(is.null(trial_name)){
+    trial_name =.user_input_text("What is the abbreviated name of the trial?")
+    if(is.null(trial_name)) cli_abort("Operation cancelled by user.")
+  }
+  add_headers = !is.null(headers)
+  if(add_headers){
+    headers = c("Trial"=trial_name, headers)
   }
 
   #copy template files from package to path
@@ -104,6 +104,8 @@ gr_new_project = function(path, ..., trial_name=NULL,
         file_prepend(header, do=add_headers) %>%
         file_str_replace(
           "VAR_PROJ_NAME"=trial_name,
+          "VAR_CROSSTABLE_VERSION"=as.character(packageVersion("crosstable")),
+          "VAR_EDCIMPORT_VERSION"=as.character(packageVersion("EDCimport")),
           "VAR_GRSTAT_VERSION"=as.character(packageVersion("grstat")),
           "VAR_RPROJ_FILE"=rproj_file,
           "VAR_DATE"=today_ymd()
