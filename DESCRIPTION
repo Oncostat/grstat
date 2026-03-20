@@ -29,6 +29,7 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     cli,
+    crosstable,
     dplyr,
     EDCimport,
     flextable,
@@ -49,7 +50,6 @@ Suggests:
     BOIN,
     blockrand,
     callr,
-    crosstable,
     ggsurvfit,
     gtools,
     knitr,
