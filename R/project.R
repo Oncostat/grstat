@@ -45,7 +45,7 @@
 #' @export
 #' @importFrom cli cli_abort cli_inform cli_warn
 #' @importFrom dplyr setdiff
-#' @importFrom fs dir_create dir_ls file_copy is_dir path path_dir path_package
+#' @importFrom fs dir_create dir_ls file_copy is_dir path path_dir path_package path_rel
 #' @importFrom purrr walk
 #' @importFrom rlang check_dots_empty is_installed
 #' @importFrom stringr fixed str_replace
@@ -78,8 +78,9 @@ gr_new_project = function(path, ..., trial_name=NULL,
   }
   path_files = dir_ls(path)
   if(length(path_files)>0){
-    cli_abort(c("`path` should be empty, but has {length(path_files)} child{?s}.",
-                i="{.path {str_remove(path_files, path)}}"),
+    p = path_rel(path_files, start=path)
+    cli_abort(c("`path` should be empty, but has {length(path_files)} child{?s}:",
+                i="{.path {p}}"),
               class="gr_new_project_notempty_error")
   }
 
