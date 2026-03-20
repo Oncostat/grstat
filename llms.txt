@@ -10,7 +10,7 @@ from GitHub:
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat")
+pak::pak("Oncostat/grstat@v0.1.0.9023")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
@@ -62,6 +62,8 @@ See the full documentation on <https://oncostat.github.io/grstat/>.
   : Create a clinical research project
 - [`gr_officer_template()`](https://oncostat.github.io/grstat/reference/gr_officer_template.md)
   : GR report template
+- [`body_add_gr_sections_1_8()`](https://oncostat.github.io/grstat/reference/body_add_gr_sections_1_8.md)
+  : Adds dummy sections to the report
 - [`grstat_example()`](https://oncostat.github.io/grstat/reference/grstat_example.md)
   : Example databases
 - [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)

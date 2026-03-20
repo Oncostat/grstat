@@ -19,6 +19,8 @@
   : Create a clinical research project
 - [`gr_officer_template()`](https://oncostat.github.io/grstat/reference/gr_officer_template.md)
   : GR report template
+- [`body_add_gr_sections_1_8()`](https://oncostat.github.io/grstat/reference/body_add_gr_sections_1_8.md)
+  : Adds dummy sections to the report
 - [`grstat_example()`](https://oncostat.github.io/grstat/reference/grstat_example.md)
   : Example databases
 - [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)

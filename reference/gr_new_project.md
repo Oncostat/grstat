@@ -4,27 +4,47 @@ Create a clinical research project with a standardized structure:
 
     ├── main.R
     ├── NEWS.md
+    ├── README.md
+    └── my_proj.Rproj
     ├── R
     │   ├── init.R
     │   ├── read.R
     │   ├── check.R
     │   ├── description.R
+    │   ├── population.R
     │   ├── graph.R
     │   └── report.R
-    ├── README.md
-    └── my_proj.Rproj
 
 ## Usage
 
 ``` r
-gr_new_project(path, open = TRUE, verbose = TRUE)
+gr_new_project(
+  path,
+  ...,
+  trial_name = NULL,
+  headers = NULL,
+  open = TRUE,
+  verbose = TRUE
+)
 ```
 
 ## Arguments
 
 - path:
 
-  A path. If it does not exist, it is created.
+  Destination directory for the project root. Will be created if needed.
+
+- ...:
+
+  Dots are ignored. Reserved for future extensions.
+
+- trial_name:
+
+  The abbreviated name of the trial.
+
+- headers:
+
+  Optional key–value headers to inject at the top of created files
 
 - open:
 
@@ -32,42 +52,44 @@ gr_new_project(path, open = TRUE, verbose = TRUE)
 
 - verbose:
 
-  If `TRUE`, shows diagnostics.
+  If `TRUE`, print diagnostics.
 
 ## Value
 
-The path to the project, invisibly.
+Invisibly, the normalized path to the created project.
 
 ## Structure
 
 At the root of the project:
 
-- `README.md` contains a short description of the project
+- `README.md`: short project description
 
-- `NEWS.md` contains the descriptions of the versions of the project
+- `NEWS.md`: version log
 
-- `main.R` is the central script that sequentially calls all the others
+- `main.R`: central script that orchestrates the workflow
+
+- `<project>.Rproj`: RStudio project
 
 In the R folder:
 
-- `init.R` loads all used packages and set options
+- `init.R`: packages loading and global options
 
-- `read.R` reads the data and sets global variables
+- `read.R`: data import and global variables
 
-- `check.R` checks the data, e.g. using `edc_data_warn()`
+- `population.R`: protocol populations
 
-- `description.R` describe the data, e.g. using
-  [`crosstable::crosstable()`](https://danchaltiel.github.io/crosstable/reference/crosstable.html)
+- Files ranging from `09_xxx` to `15_xxx` hold your analyses
 
-- `graph.R` create plots, and saves them on the disk or in the `plots`
-  global list
+- `check.R`: data checks (e.g., `edc_data_warn()`)
 
-- `report.R` creat the report, e.g. using the `officer` package
+- `report.R`: report generation (e.g., `{{officer}}`)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-  gr_new_project("projects/my_project_folder")
+  headers = c("Statistician"="Dan",
+              "Creation date"="2025-01-01")
+  gr_new_project(headers=headers, trial_name="MYSTUDY")
 } # }
 ```
