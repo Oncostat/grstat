@@ -16,6 +16,13 @@
 #' │   ├── population.R
 #' │   ├── graph.R
 #' │   └── report.R
+#' │   ├── 09_inclusion.R
+#' │   ├── 10_baseline.R
+#' │   ├── 11_treatments.R
+#' │   ├── 12_tolerance.R
+#' │   ├── 13_efficacy.R
+#' │   ├── 14_other_analyses.R
+#' │   ├── 15_ancillary_analyses.R
 #' }
 #'
 #' @param path Destination directory for the project root. Will be created if needed.
