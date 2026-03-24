@@ -10,7 +10,7 @@ from GitHub:
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9023")
+pak::pak("Oncostat/grstat@v0.1.0.9024")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be

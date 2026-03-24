@@ -14,6 +14,13 @@ Create a clinical research project with a standardized structure:
     │   ├── population.R
     │   ├── graph.R
     │   └── report.R
+    │   ├── 09_inclusion.R
+    │   ├── 10_baseline.R
+    │   ├── 11_treatments.R
+    │   ├── 12_tolerance.R
+    │   ├── 13_efficacy.R
+    │   ├── 14_other_analyses.R
+    │   ├── 15_ancillary_analyses.R
 
 ## Usage
 

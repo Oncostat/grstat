@@ -10,7 +10,14 @@ used to reduce predictability.
 ## Usage
 
 ``` r
-randomisation_list(n, arms, strata = NULL, block_sizes = c(2, 4), ...)
+randomisation_list(
+  n,
+  arms,
+  strata = NULL,
+  block_sizes = c(2, 4),
+  seed = 42,
+  ...
+)
 ```
 
 ## Arguments
@@ -33,6 +40,10 @@ randomisation_list(n, arms, strata = NULL, block_sizes = c(2, 4), ...)
 - block_sizes:
 
   Random block sizes. Must be multiples of `length(arms)`.
+
+- seed:
+
+  the random seed (can be `NULL`)
 
 - ...:
 
@@ -83,20 +94,20 @@ rando = randomisation_list(n=200, arms=c("Control", "Treatment"),
 rando
 #> Randomisation list for 200 patients randomized in arms "Control" and
 #> "Treatment" across 12 strata with blocks of length 4 and 8.
-#> # A tibble: 2,412 × 8
+#> # A tibble: 2,416 × 8
 #>    id      age   gender group stratum.block.id block.size treatment treatment_id
 #>    <chr>   <chr> <chr>  <chr> <fct>                 <dbl> <fct>     <chr>       
-#>  1 inf18m… inf1… Male   A     1                         8 Control   Control-0001
-#>  2 inf18m… inf1… Male   A     1                         8 Treatment Treatment-0…
-#>  3 inf18m… inf1… Male   A     1                         8 Control   Control-0003
-#>  4 inf18m… inf1… Male   A     1                         8 Treatment Treatment-0…
-#>  5 inf18m… inf1… Male   A     1                         8 Treatment Treatment-0…
-#>  6 inf18m… inf1… Male   A     1                         8 Control   Control-0006
-#>  7 inf18m… inf1… Male   A     1                         8 Control   Control-0007
-#>  8 inf18m… inf1… Male   A     1                         8 Treatment Treatment-0…
-#>  9 inf18m… inf1… Male   A     2                         8 Control   Control-0009
-#> 10 inf18m… inf1… Male   A     2                         8 Treatment Treatment-0…
-#> # ℹ 2,402 more rows
+#>  1 inf18m… inf1… Male   A     1                         4 Control   Control-0001
+#>  2 inf18m… inf1… Male   A     1                         4 Treatment Treatment-0…
+#>  3 inf18m… inf1… Male   A     1                         4 Control   Control-0003
+#>  4 inf18m… inf1… Male   A     1                         4 Treatment Treatment-0…
+#>  5 inf18m… inf1… Male   A     2                         8 Treatment Treatment-0…
+#>  6 inf18m… inf1… Male   A     2                         8 Treatment Treatment-0…
+#>  7 inf18m… inf1… Male   A     2                         8 Control   Control-0007
+#>  8 inf18m… inf1… Male   A     2                         8 Treatment Treatment-0…
+#>  9 inf18m… inf1… Male   A     2                         8 Treatment Treatment-0…
+#> 10 inf18m… inf1… Male   A     2                         8 Control   Control-0010
+#> # ℹ 2,406 more rows
 
 # Export for TrialMaster
 if(FALSE){
