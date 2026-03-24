@@ -11,6 +11,7 @@
 #' @param strata A list of stratification factors (character vectors). Each combination
 #'   defines one stratum. If `NULL` or empty, a single stratum is used.
 #' @param block_sizes Random block sizes. Must be multiples of `length(arms)`.
+#' @param seed the random seed (can be `NULL`)
 #' @param ... Passed to [blockrand::blockrand].
 #'
 #' @return A tibble
@@ -52,9 +53,10 @@
 #'     dplyr::select(names(strat), treatment_id) %>%
 #'     write.table("randomization_list.txt", sep="\t", row.names=FALSE)
 #' }
-randomisation_list = function(n, arms, strata=NULL, block_sizes=c(2,4), ...){
+randomisation_list = function(n, arms, strata=NULL, block_sizes=c(2,4), seed=42, ...){
   check_installed("blockrand", "for `randomisation_list()` to work.")
   grstat_dev_warn()
+  set.seed(seed)
   .check_n(n, arms)
   .check_arms(block_sizes, arms)
   .check_blocks(block_sizes)

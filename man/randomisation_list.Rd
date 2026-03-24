@@ -4,7 +4,14 @@
 \alias{randomisation_list}
 \title{Randomization lists}
 \usage{
-randomisation_list(n, arms, strata = NULL, block_sizes = c(2, 4), ...)
+randomisation_list(
+  n,
+  arms,
+  strata = NULL,
+  block_sizes = c(2, 4),
+  seed = 42,
+  ...
+)
 }
 \arguments{
 \item{n}{Planned total sample size of the trial (used as the minimum number of slots
@@ -16,6 +23,8 @@ generated \emph{per stratum} to cover worst-case enrollment).}
 defines one stratum. If \code{NULL} or empty, a single stratum is used.}
 
 \item{block_sizes}{Random block sizes. Must be multiples of \code{length(arms)}.}
+
+\item{seed}{the random seed (can be \code{NULL})}
 
 \item{...}{Passed to \link[blockrand:blockrand]{blockrand::blockrand}.}
 }
