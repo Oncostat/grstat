@@ -1,7 +1,6 @@
 
 test_that("rando: randomisation_list() works", {
   local_options(grstat_lifecycle_verbosity="quiet")
-  set.seed(42)
 
   strat = list(age=c("<=18m", ">18m"),
                gender=c("Male", "Female"),

@@ -4852,23 +4852,19 @@
     Message
       Randomisation list for 10 patients randomized in arms "A" and "B" across 1 strata with blocks of length 4 and 8.
     Output
-      # A tibble: 16 x 6
+      # A tibble: 12 x 6
          id             strata    stratum.block.id block.size treatment treatment_id
          <chr>          <chr>     <fct>                 <dbl> <fct>     <chr>       
-       1 no_strata - 01 no_strata 1                         8 B         B-01        
-       2 no_strata - 02 no_strata 1                         8 A         A-02        
-       3 no_strata - 03 no_strata 1                         8 B         B-03        
-       4 no_strata - 04 no_strata 1                         8 B         B-04        
-       5 no_strata - 05 no_strata 1                         8 A         A-05        
-       6 no_strata - 06 no_strata 1                         8 A         A-06        
-       7 no_strata - 07 no_strata 1                         8 A         A-07        
-       8 no_strata - 08 no_strata 1                         8 B         B-08        
-       9 no_strata - 09 no_strata 2                         8 A         A-09        
-      10 no_strata - 10 no_strata 2                         8 B         B-10        
-      11 no_strata - 11 no_strata 2                         8 B         B-11        
-      12 no_strata - 12 no_strata 2                         8 B         B-12        
-      13 no_strata - 13 no_strata 2                         8 B         B-13        
-      14 no_strata - 14 no_strata 2                         8 A         A-14        
-      15 no_strata - 15 no_strata 2                         8 A         A-15        
-      16 no_strata - 16 no_strata 2                         8 A         A-16        
+       1 no_strata - 01 no_strata 1                         4 A         A-01        
+       2 no_strata - 02 no_strata 1                         4 B         B-02        
+       3 no_strata - 03 no_strata 1                         4 A         A-03        
+       4 no_strata - 04 no_strata 1                         4 B         B-04        
+       5 no_strata - 05 no_strata 2                         8 B         B-05        
+       6 no_strata - 06 no_strata 2                         8 B         B-06        
+       7 no_strata - 07 no_strata 2                         8 A         A-07        
+       8 no_strata - 08 no_strata 2                         8 B         B-08        
+       9 no_strata - 09 no_strata 2                         8 B         B-09        
+      10 no_strata - 10 no_strata 2                         8 A         A-10        
+      11 no_strata - 11 no_strata 2                         8 A         A-11        
+      12 no_strata - 12 no_strata 2                         8 A         A-12        
 
