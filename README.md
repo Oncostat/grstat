@@ -18,7 +18,7 @@ This package is not designed to be on CRAN, so you should install it from GitHub
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9025")
+pak::pak("Oncostat/grstat@v0.1.0.9026")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
