@@ -1,5 +1,6 @@
 #' Stack multiple survival endpoints into a single `survfit2` object
 #'
+#' `r lifecycle::badge("experimental")`\cr
 #' This function combines several survival endpoints from the same dataset by stacking them
 #' into a long format and fitting a single `survfit` object.
 #' It does **not** support competing risks models (i.e., when the event variable is a factor).

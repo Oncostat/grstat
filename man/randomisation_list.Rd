@@ -32,6 +32,7 @@ defines one stratum. If \code{NULL} or empty, a single stratum is used.}
 A tibble
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
 Create stratified permuted-block randomization lists for EDC/CTMS softwares.
 For each stratum, this function pre-generates a sequence of randomization \emph{slots}
 using \code{\link[blockrand:blockrand]{blockrand::blockrand()}}, and then binds all strata into a single table.
