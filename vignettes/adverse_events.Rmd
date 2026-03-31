@@ -19,6 +19,8 @@ In this tutorial, it is demonstrated how to use two key functions:
 
 -   `ae_table_soc()`, which summarises adverse events by System Organ Class (SOC) and by grades. It reports the number and proportion of patients experiencing at least one event within each SOC, based on their maximum recorded AE grade.
 
+Additional features are available via the `help()` function.
+
 First, install packages if needed and load them.
 
 ```{r setup, message=FALSE, warning=FALSE}
