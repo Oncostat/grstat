@@ -16,7 +16,6 @@
 #'
 #' @importFrom dplyr select any_of all_of
 #' @importFrom cli cli_abort
-#' @importFrom crosstable crosstable
 #' @export
 #'
 #' @examples
@@ -26,7 +25,7 @@
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = FALSE) %>%
 #'  aggregate_recist_rates(derived_endpoints=c("ORR", "CBR", "DCR")) %>%
 #'  as_flextable()
-#' #It is also possible to use the confirmation method for the BOR
+#' #It is also possible to use the confirmation method for the ORR
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
@@ -55,21 +54,21 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
     filter(best_response=="Complete response" | best_response=="Partial response") %>%
     count(best_response = "Objective Response Rate (ORR)") %>%
     mutate(p = round(n / total * 100, 1))
-  } else {BOR = data.frame()}
+  }
 
   if("CBR" %in% derived_endpoints){
     CBR = recist %>%
       filter(best_response=="Complete response" | best_response=="Partial response" | six_months_confirmation) %>%
       count(best_response = "Clinical Benefit Rate (CBR)") %>%
       mutate(p = round(n / total * 100, 1))
-  } else {CBR = data.frame()}
+  }
 
   if("DCR" %in% derived_endpoints){
     DCR = recist %>%
       filter(best_response=="Complete response" | best_response=="Partial response" | best_response=="Stable disease") %>%
       count(best_response = "Disease Control Rate (DCR)") %>%
       mutate(p = round(n / total * 100, 1))
-  } else {DCR = data.frame()}
+  }
 
   summary_df = bind_rows(response_counts, ORR, CBR, DCR) %>%
     mutate(ic_95 = {
@@ -126,6 +125,7 @@ as_flextable.aggregate_recist_rates = function(x, ...){
                 value = as_paragraph(label_confirmed),
                 ref_symbols =c("**"), part = "header")
   }
+  if("ORR" %in% derived_endpoints){
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Objective Response Rate (ORR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Objective Response Rate (ORR)", j = "best_response",
@@ -137,14 +137,14 @@ as_flextable.aggregate_recist_rates = function(x, ...){
       bold(i = ~ best_response == "Clinical Benefit Rate (CBR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Clinical Benefit Rate (CBR)", j = "best_response",
                 value = as_paragraph(label_CBR),
-                ref_symbols ="C", part = "body")
+                ref_symbols ="CBR", part = "body")
   }
   if("DCR" %in% derived_endpoints){
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Disease Control Rate (DCR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Disease Control Rate (DCR)", j = "best_response",
                 value = as_paragraph(label_DCR),
-                ref_symbols ="D", part = "body")
+                ref_symbols ="DCR", part = "body")
   }
 
   best_response_during_treatment %>%
