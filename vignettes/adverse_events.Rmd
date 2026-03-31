@@ -53,9 +53,9 @@ head(enrolres,4)
 
 Create adverse event (AE) grade tables using `ae_table_grade()`.
 
-The function `ae_table_grade` produces different AE grade table summaries based on the value of the variant argument ("max", "sup", "eq"), which defines the summary type applied to the AE grades. By default, all three summary types are returned within a single output.
+The function `ae_table_grade` produces AE grade table summaries based on the variant argument, which can take three different values (“max”, “sup”, “eq”) and determines the type of summary applied to AE grades. When variant = NULL (or not specified), all three summary types are returned in a single output by default.
 
--   The most common summary type, **`variant = "max"`**, generates a table showing the maximum AE grade per patient, where N is the total number of patients in the study.
+-   The summary type, **`variant = "max"`**, generates a table showing the maximum AE grade per patient, where N is the total number of patients in the study.
 
 -   **`variant = "sup"`**, summarises the grades greater than or equal to a specified grade per patient, where n is the number of patients having experienced at least one AE of grade ≥ X, where X ∈ {1, 2, 3, 4, 5}.
 
