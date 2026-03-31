@@ -5,7 +5,7 @@
 \alias{as_flextable.aggregate_recist_rates}
 \title{Calculate BOR}
 \usage{
-aggregate_recist_rates(data, ..., derived_endpoints = c("BOR", "CBR", "DCR"))
+aggregate_recist_rates(data, ..., derived_endpoints = c("ORR", "CBR", "DCR"))
 
 \method{as_flextable}{aggregate_recist_rates}(x, ...)
 }
@@ -14,7 +14,7 @@ aggregate_recist_rates(data, ..., derived_endpoints = c("BOR", "CBR", "DCR"))
 
 \item{...}{unused}
 
-\item{derived_endpoints}{List; List of 3 different endpoints related to recist data and available in the function ("BOR", "CBR", "DCR").BOR was defined as the presence of a partial response (PR) or a complete response (CR) ; CBR was defined as the presence of a PR, a CR, or a stable disease (SD) lasting at least six months ; DCR was defined as the presence of a PR, a CR, or a SD.}
+\item{derived_endpoints}{Character; Derived endpoints to compute from BOR. One or several of c("ORR", "CBR", "DCR"). See vignette("BOR") for endpoint definitions.}
 
 \item{x}{a dataframe, resulting of \code{aggregate_recist_rates()}}
 
@@ -40,19 +40,13 @@ recist = grstat_example()$recist
 recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = FALSE) \%>\%
- aggregate_recist_rates_2(show_CBR = FALSE) \%>\%
+ aggregate_recist_rates(derived_endpoints=c("ORR", "CBR", "DCR")) \%>\%
  as_flextable()
-#It is also possible to use the confirmation method for the BOR
+#It is also possible to use the confirmation method for the ORR
 recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
- aggregate_recist_rates_2(derived_endpoints=c("BOR") \%>\%
+ aggregate_recist_rates(derived_endpoints=c("ORR") \%>\%
  as_flextable()
 
-#Or show the CBR and DCR
-recist \%>\%
- calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
-                    subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
- aggregate_recist_rates_2(derived_endpoints=c("BOR", "CBR", "DCR")) \%>\%
- as_flextable()
 }
