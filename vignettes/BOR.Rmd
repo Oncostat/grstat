@@ -1,12 +1,12 @@
 ---
-title: "Guideline Suggestions for the calculation of RESIST endpoints"
+title: "Calculation of RECIST Best Overall Response in grstat"
 author: "Alexis COCHARD"
 output: 
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Guideline Suggestions for the calculation of RESIST endpoints}
+  %\VignetteIndexEntry{Calculation of RECIST Best Overall Response in grstat}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -18,46 +18,57 @@ This vignette illustrates the calculation of RESIST endpoints in R using `grstat
 
 RECIST (Response Evaluation Criteria in Solid Tumors) is a standardized way to quantify how solid tumors respond to therapy by comparing changes in tumor burden on imaging. The four possible responses are:
 
--   Complete Response (CR) (disappearance of all target lesions),
--   Partial Response (PR) (≥ 30% decrease in the sum of longest diameters from baseline),
--   Stable Disease (SD) (neither sufficient shrinkage for PR nor sufficient increase for progression),
--   Progressive Disease (PD) (≥ 20% increase in the sum from the smallest measured value (the “nadir”) or appearance of new lesions).
+-   Complete Response (CR) : disappearance of all target lesions,
+-   Partial Response (PR) : ≥ 30% decrease in the sum of longest diameters from baseline,
+-   Stable Disease (SD) : neither sufficient shrinkage for PR nor sufficient increase for progression,
+-   Progressive Disease (PD) : ≥ 20% increase in the sum from the smallest measured value (the “nadir”) or appearance of new lesions.
 
-We follow the RECIST 1.1 guideline, DOI: 10.1016/j.ejca.2008.10.026
+We follow the RECIST 1.1 guideline, DOI: 10.1016/j.ejca.2008.10.026 available [here](https://project.eortc.org/recist/wp-content/uploads/sites/4/2015/03/RECISTGuidelines.pdf)
 
 ## Endpoint definition
 
-Defenition of different endpoint linked to the RECIST evaluation and present in the grstat package :
+The Best Overall Response (BOR) is defined as the best response observed for a patient during follow-up. BOR captures the maximum tumor shrinkage achieved under treatment, reflecting the patient’s best observed benefit, although it does not account for its duration.
 
--   Best Overall Response (BOR): Measured the proportion of patients achieving a complete or partial response to treatment within a specified time frame. In a clinical trial, measuring the BOR is one way to see how well a new treatment works.
--   Clinical Benefit Rate (CBR): Proportion of complete response, partial response, and stable disease lasting at least six months to assess overall treatment benefit.
--   Disease Control Rate (DCR) : Proportion of complete response, partial response, and stable disease.
+Several summary endpoints are then defined as proportions derived from BOR:
+
+-   Objective Response Rate (ORR): Proportion of patients with BOR equal to complete response (CR) or partial response (PR).
+-   Clinical Benefit Rate (CBR): Proportion of patients with BOR equal to CR, PR, or stable disease (SD) lasting at least a predefined duration (e.g., 6 months).
+-   Disease Control Rate (DCR): Proportion of patients with BOR equal to CR, PR, or SD.
+
+Note that ORR is sometimes defined at a specific timepoint rather than based on BOR. Such definitions depend on follow-up duration and may introduce ambiguity due to censoring and incomplete assessments
 
 ## Confirmed and Unconfirmed response
 
-Most of the time, BOR is calculated based on the unconfirmed response, but some time a confirmed response is required. We defnied the Unconfirmed and confirmed response as follow.
+Most of the time, BOR is calculated based on the unconfirmed response, but some time a confirmed response is required. We defined the Unconfirmed and confirmed response as follow.
 
 -   An unconfirmed best response is defined as the best categorical response observed from treatment start until progression or end of follow-up
--   A confirmed best response is defined as the best categorical consecutive response (with a minimum delay of 28 days) observed from treatment start until progression or end of follow-up. For example a CR-CR-SD-PD consecutive response is a confirmed CR best response while a PR-SD-SD-PR is a confirmed SD best response. A single SD or NE between two CR or two PR doesn't prevent confirmation. See RECIST 1.1 guidelines for more information
+-   A confirmed best response is defined as the best categorical consecutive response (with a minimum delay of 28 days) observed from treatment start until progression or end of follow-up. For example :
+    -   A CR-CR-SD-PD consecutive response is a confirmed CR best response;
+
+    -   A PR-SD-SD-PR is a confirmed SD best response;
+
+    -   A single NE (and a single SD if you follow the [PharmaSUG recommendation](https://pharmasug.org/proceedings/2023/QT/PharmaSUG-2023-QT-047.pdf)) between two CR or two PR doesn't prevent confirmation.
+
+See RECIST 1.1 guidelines for more information
 
 # Data Preparation
 
-To calculate the BOR, we'll use the "recist" dataset. This dataset must be in long format (one line represents a single measure of a patient's recist criterion) and must contain at least the columns :
+To calculate BOR, we need a RECIST dataset in long format (one row per patient assessment) containing at least the following columns :
 
 -   `subjid`, Patient ID
 -   `rcdt`, Evaluation date
 -   `rcresp`, Global response
 -   `rctlsum`, Sum of target lesions
 
-We use `grstat_example()` to simulate data.
+In this vignette, we use `grstat_example()` to simulate such data.
 
-Warnings may appear, take them into account when using the various functions
+Note that warnings about your RECIST data may appear, so be sure to take them into account!
 
 ```{r, include=FALSE}
 options(grstat_lifecycle_verbosity="quiet")
 ```
 
-```{r}
+```{r message=FALSE}
 library(grstat)
 library(tidyverse)
 library(flextable)
@@ -69,61 +80,61 @@ recist %>% filter(subjid < 4)
 
 # Calculation of BOR
 
-`calc_best_response()` consist of 6 paramater :
+The calculation of the Best Overall Response is performed using `calc_best_response()`, which takes N parameters :
 
 -   `data_recist`, the recist data.frame
--   `subjid`, the column for Patient ID
--   `rc_resp`, the column for Global response
--   `rc_date`, the column for Evaluation date
--   `rc_sum`, the column for the Sum of target lesions
--   `confirmed`, for a confirmed or unconfirmed response \## Unconfirmed response
+-   `confirmed`, for a confirmed or unconfirmed response
+-   `cols`, a vector with column names (`subjid`, `rc_resp`, `rc_date`, and `rc_sum`, the column names for, respectively, Patient ID, Global response, Evaluation date, and Sum of target lesions)
 
-```{r eval=FALSE}
-#To change the colonnes names
-best_resp = calc_best_response(recist, subjid="test", rc_resp="test 2")
-
-```
+## Unconfirmed response
 
 ```{r}
 best_resp = calc_best_response(recist)
 head(best_resp, n= 7L)
-
 ```
 
 As you can see, there are warnings. You can go to `check_recist()` for more information.
 
+If your column names aren't recognized, you can specify them using the parameter cols
+
+```{r eval=FALSE}
+best_resp = calc_best_response(recist, cols = c(rc_resp="Glb_resp", subjid="Pat_Num"),)
+
+```
+
 ## Confirmed response
 
 ```{r}
-confirmed_best_resp = calc_best_response(recist, subjid="subjid", rc_resp="rcresp", 
-                                         rc_date="rcdt", rc_sum = "rctlsum", confirmed = TRUE)
+confirmed_best_resp = calc_best_response(recist, confirmed = TRUE)
 head(confirmed_best_resp, n = 7L)
 
+#To illustrate the difference between a confirmed and an unconfirmed response, let's focus on patient 7.
 recist %>% filter(subjid ==7)
 
 ```
 
 With the confirmed method, patient 7 best response becomes Stable disease instead of Partial response. The reason is that patient 7 has a Progressive disease after his Partial response. Following the definition, the Partial response can't be confirmed. That's why the confirmed best response is now a Stable disease instead of a Partial response for the unconfirmed best response
 
-# Cration of a dataframe for BOR and CBR
+# Calculate the different RECIST rates
 
-`aggregate_recist_rates()` consist of 2 paramater :
+To summarize patient-level responses and compute derived rates, we use the `aggregate_recist_rates()` function that consist of 2 paramater :
 
 -   `data`, the data.frame containing the best response obtain after using the function `calc_best_response()` (confirmed or unconfirmed)
--   `derived_endpoints=c("BOR", "CBR", "DCR")`, to show all the endpoint we want
+-   `derived_endpoints=c("ORR", "CBR", "DCR")`, to show all the endpoint we want
+
+```{r}
+tbl = aggregate_recist_rates(best_resp, derived_endpoints=c("ORR", "CBR", "DCR"))
+tbl
+```
 
 As `aggregate_recist_rates()` returns a classed data frame, we can use `as_flextable()` (instead of simply `flextable()`) to turn it into a formatted flextable, on which you can apply any modifier. Here, for example, we apply bold on row 4 and add a footnote on the 3rd row of the CI column.
 
 ```{r}
-tbl = aggregate_recist_rates(best_resp, derived_endpoints=c("BOR", "CBR", "DCR"))
-tbl
-
 #Exampel with flextable modification:
-tbl2 = aggregate_recist_rates(confirmed_best_resp, derived_endpoints=c("BOR", "CBR", "DCR")) %>% 
+tbl %>% 
   as_flextable() %>% 
   bold(i=4)%>%
   footnote(i = 3, j = 4,
                 value = as_paragraph("This is note number 8"),
                 ref_symbols ="8", part = "body")
-tbl2
 ```
