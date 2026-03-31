@@ -7,10 +7,7 @@
 calc_best_response(
   data_recist,
   ...,
-  rc_sum = "RCTLSUM",
-  rc_resp = "RCRESP",
-  rc_date = "RCDT",
-  subjid = "SUBJID",
+  cols = c(rc_sum = "RCTLSUM", rc_resp = "RCRESP", rc_date = "RCDT", subjid = "SUBJID"),
   exclude_post_pd = TRUE,
   warnings = getOption("grstat_best_resp_warnings", TRUE),
   confirmed = FALSE,
@@ -23,13 +20,13 @@ calc_best_response(
 
 \item{...}{Not used. Ensures that only named arguments are passed.}
 
-\item{rc_sum}{The column containing the sum of target lesions. Default is \code{"RCTLSUM"}.}
-
-\item{rc_resp}{The column containing the RECIST response (e.g., \code{"CR"}, \code{"PR"}, \code{"SD"}, \code{"PD"}). Default is \code{"RCRESP"}.}
-
-\item{rc_date}{The column containing the assessment date. Default is \code{"RCDT"}.}
-
-\item{subjid}{The column containing the subject ID. Default is \code{"SUBJID"}.}
+\item{cols}{a vector with column names inside \code{calc_best_response()}
+\itemize{
+\item \code{subjid} The column containing the subject ID. Default is \code{"SUBJID"}.
+\item \code{rc_sum} The column containing the sum of target lesions. Default is \code{"RCTLSUM"}.
+\item \code{rc_date} The column containing the assessment date. Default is \code{"RCDT"}.
+\item \code{rc_resp} The column containing the RECIST response (e.g., \code{"CR"}, \code{"PR"}, \code{"SD"}, \code{"PD"}). Default is \code{"RCRESP"}.
+}}
 
 \item{warnings}{Logical; if \code{TRUE} (default is taken from \code{getOption("grstat_best_resp_warnings", TRUE)}), emits warnings during internal checks.}
 

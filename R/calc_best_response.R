@@ -7,10 +7,11 @@
 #'
 #' @param data_recist A dataset containing longitudinal RECIST data in long format.
 #' @param ... Not used. Ensures that only named arguments are passed.
-#' @param rc_sum The column containing the sum of target lesions. Default is `"RCTLSUM"`.
-#' @param rc_resp The column containing the RECIST response (e.g., `"CR"`, `"PR"`, `"SD"`, `"PD"`). Default is `"RCRESP"`.
-#' @param rc_date The column containing the assessment date. Default is `"RCDT"`.
-#' @param subjid The column containing the subject ID. Default is `"SUBJID"`.
+#' @param cols a vector with column names inside `calc_best_response()`
+#' * `subjid` The column containing the subject ID. Default is `"SUBJID"`.
+#' * `rc_sum` The column containing the sum of target lesions. Default is `"RCTLSUM"`.
+#' * `rc_date` The column containing the assessment date. Default is `"RCDT"`.
+#' * `rc_resp` The column containing the RECIST response (e.g., `"CR"`, `"PR"`, `"SD"`, `"PD"`). Default is `"RCRESP"`.
 #' @param warnings Logical; if `TRUE` (default is taken from `getOption("grstat_best_resp_warnings", TRUE)`), emits warnings during internal checks.
 #' @param cycle_length Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation
 #' @param use_pharmasug Logical, if `TRUE`, the confirmation of response will be defnied following PharmaSUG 2023 – Paper QT047 recommendation. Default is RECIST 1.1 guideline
@@ -40,15 +41,23 @@
 #' db$recist %>%
 #'   calc_best_response()
 calc_best_response = function(data_recist, ...,
-                              rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT",
-                              subjid="SUBJID", exclude_post_pd=TRUE,
+                              cols = c(rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT", subjid="SUBJID"),
+                              exclude_post_pd=TRUE,
                               warnings=getOption("grstat_best_resp_warnings", TRUE),
                               confirmed = FALSE, cycle_length = 28, use_pharmasug = FALSE) {
+  rc_sum = cols["rc_sum"]
+  rc_resp = cols["rc_resp"]
+  rc_date = cols["rc_date"]
+  subjid = cols["subjid"]
   assert_class(data_recist, class="data.frame")
   assert_class(rc_sum, class="character")
   assert_class(rc_resp, class="character")
   assert_class(rc_date, class="character")
+  assert_class(subjid, class="character")
   assert_class(warnings, class="logical")
+  assert_class(confirmed, "logical")
+  assert_class(cycle_length, "numeric")
+  assert_class(use_pharmasug, "logical")
   assert_names_exists(data_recist, lst(subjid, rc_sum, rc_date, rc_resp))
   grstat_dev_warn()
 
