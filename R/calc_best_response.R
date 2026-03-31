@@ -90,17 +90,10 @@ calc_best_response = function(data_recist, ...,
       next_date = lead(date),
       delta_date = as.numeric(difftime(next_date, date, units="days")),
       delta_date = replace_na(delta_date, 0),
-      #previous_response_num = lag(response_num),
-      #previous_date = lag(date),
-      #previous_response_num_2 = lag(response_num,2),
-      #delta_date = as.numeric(date - previous_date),
-      #delta_date = as.numeric(difftime(date, previous_date, units="days")),
-      #delta_date = replace_na(delta_date, 0),
       delta_date_before_PD_or_end = cumsum(delta_date),
       delta_date_before_PD_or_end = ifelse(response_num==4, 0, delta_date_before_PD_or_end),
       delta_date_before_PD_or_end = replace_na(delta_date_before_PD_or_end, 0),
       duree_suivi_max = max(delta_date_before_PD_or_end),
-      #bestresponse_withinprotocole = ifelse(previous_response_num==response_num, 1, 0 ),
       .by=subjid
     ) %>%
     mutate(
@@ -116,38 +109,9 @@ calc_best_response = function(data_recist, ...,
       slice_min(order_by =response_num, by=subjid, with_ties = FALSE) %>%
       mutate(response_final = .recist_from_num(response_num),
              bestresponse = response_num)
-  # } else {
-  #   data_recist = data_recist %>%
-  #     mutate(response_confirmed = .response_confirmed(response_num = response_num,
-  #                                                   previous_response_num = previous_response_num,
-  #                                                   delta_date = delta_date,
-  #                                                   cycle_length = cycle_length,
-  #                                                   previous_response_num_2 = previous_response_num_2,
-  #                                                   use_pharmasug = use_pharmasug)
-  #     ) %>%
-  #     mutate(bestresponse = min(response_confirmed), .by=subjid) %>%
-  #     mutate(response_num_lead = lead(response_num),
-  #            response_num_lead_2 = lead(response_num,2),
-  #            date_for_confirm = .date_selection_for_response_confirmed(response_num = response_num,
-  #                                             bestresponse = bestresponse,
-  #                                             response_num_lead = response_num_lead,
-  #                                             response_num_lead_2 = response_num_lead_2,
-  #                                             use_pharmasug = use_pharmasug)
-  #     ) %>%
-  #     filter(date_for_confirm==TRUE) %>%
-  #     slice_min(order_by =date ,by=subjid) %>%
-  #     mutate(response_final = .recist_from_num(bestresponse))
-  # }
-
   } else {
     data_recist = data_recist %>%
-      # mutate(next_response_num = lead(response_num),
-      #        next_response_num_2 = lead(response_num,2),
-      #        next_date = lead(date),
-      #        delta_date_futur = as.numeric(difftime(next_date, date, units="days")),
-      #        delta_date_futur = replace_na(delta_date_futur, 0),
-      #        .by = subjid) %>%
-      mutate(response_confirmed = .response_confirmed_V2(response_num = response_num,
+      mutate(response_confirmed = .response_confirmed(response_num = response_num,
                                                       next_response_num = next_response_num,
                                                       delta_date = delta_date,
                                                       cycle_length = cycle_length,
@@ -223,109 +187,40 @@ calc_best_response = function(data_recist, ...,
   df
 }
 
-
 #' @noRd
 #' @keywords internal
 #' #' @details
 #' La fonction permet de déterminer pour chaque réponse quelle est la réponse confirmé associé en prenant en compte les réponses précédentes
 .response_confirmed = function(response_num = response_num,
-                             previous_response_num = previous_response_num,
-                             delta_date = delta_date,
-                             cycle_length = cycle_length,
-                             previous_response_num_2 = previous_response_num_2,
-                             use_pharmasug = use_pharmasug) {
-case_when(
-  use_pharmasug == TRUE & response_num <= 2 & previous_response_num == 3 & previous_response_num_2 <= 2   ~ 2,
-  response_num == 1 & previous_response_num == 1 & delta_date >= cycle_length                ~ 1,
-  response_num == 1 & previous_response_num == 1 & delta_date < cycle_length                 ~ 3,
-  response_num == 1 & previous_response_num == 2 & delta_date >= cycle_length                ~ 2,
-  response_num == 1 & previous_response_num == 2 & delta_date < cycle_length                 ~ 3,
-  response_num == 1 & previous_response_num == 3                                             ~ 3,
-  response_num == 1 & previous_response_num == 5 & previous_response_num_2 == 1              ~ 1,
-  response_num == 1 & previous_response_num == 5                                             ~ 5,
-
-  response_num == 2 & previous_response_num <= 2 & delta_date >= cycle_length                ~ 2,
-  response_num == 2 & previous_response_num <= 2 & delta_date < cycle_length                 ~ 3,
-  response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==3               ~ 3,
-  response_num == 2 & previous_response_num == 3 & previous_response_num_2 ==5               ~ 3,
-  response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==3               ~ 3,
-  response_num == 2 & previous_response_num == 5 & previous_response_num_2 ==5               ~ 5,
-  response_num == 2 & previous_response_num == 5 & previous_response_num_2 <= 2              ~ 2,
-
-  response_num == 4                                                                          ~ 4,
-  is.na(previous_response_num) & response_num <= 2                                           ~ 5,
-  is.na(previous_response_num_2)& (previous_response_num==3 | previous_response_num ==5) &
-    response_num <= 2                                                                        ~ 5,
-
-  .default = response_num
-)
-}
-
-#' @noRd
-#' @keywords internal
-#' #' #' @details
-#' La fonction permet de déterminer pour les réponses confirmées quelle est la date du début de la confirmation
-.date_selection_for_response_confirmed = function(response_num = response_num,
-                                      bestresponse = bestresponse,
-                                      response_num_lead = response_num_lead,
-                                      response_num_lead_2 = response_num_lead_2,
-                                  use_pharmasug = use_pharmasug) {
-    CR_c = response_num == 1 & bestresponse == 1 & response_num_lead ==1
-    PR_CR_c = response_num == 1 & bestresponse == 2 & response_num_lead ==2
-    CR_c_pharmasug = response_num == 1 & bestresponse == 1 &
-      (response_num_lead ==3 |response_num_lead ==5) & response_num_lead_2 <=2
-    CR_NE_c = response_num == 1 & bestresponse == 1 & response_num_lead ==5 & response_num_lead_2 ==1
-    PR_c = response_num == 2 & bestresponse == 2 & response_num_lead <=2
-    PR_c_pharmasug = response_num == 2 & bestresponse == 2 &
-      (response_num_lead ==3 |response_num_lead ==5) &response_num_lead_2 <=2
-    PR_NE_c = response_num == 2 & bestresponse == 2 & response_num_lead ==5 & response_num_lead_2 <=2
-    SD_c = response_num == 3 & bestresponse == 3
-    PD_c = response_num == 4 & bestresponse == 4
-    NE_c = response_num == 5 & bestresponse == 5
-
-    if(isTRUE(use_pharmasug)){
-      CR_c | PR_CR_c | CR_NE_c | PR_c | PR_NE_c | SD_c | PD_c | NE_c | CR_c_pharmasug | PR_c_pharmasug
-    } else {
-      CR_c | PR_CR_c | CR_NE_c | PR_c | PR_NE_c | SD_c | PD_c | NE_c
-    }
-}
-
-
-
-#' @noRd
-#' @keywords internal
-#' #' @details
-#' La fonction permet de déterminer pour chaque réponse quelle est la réponse confirmé associé en prenant en compte les réponses précédentes
-.response_confirmed_V2 = function(response_num = response_num,
                                next_response_num = next_response_num,
                                delta_date = delta_date,
                                cycle_length = cycle_length,
                                next_response_num_2 = next_response_num_2,
                                use_pharmasug = use_pharmasug) {
   case_when(
-    use_pharmasug == TRUE & response_num <= 2 & next_response_num == 3 & next_response_num_2 <= 2   ~ 2,
+    use_pharmasug == TRUE & response_num <= 2 & next_response_num == 3 & next_response_num_2 <= 2    ~ 2,
     use_pharmasug == FALSE & response_num <= 2 & next_response_num == 3 & next_response_num_2 <= 2   ~ 3,
-    response_num == 1 & next_response_num == 1 & delta_date >= cycle_length                ~ 1,
-    response_num == 1 & next_response_num == 1 & delta_date < cycle_length                 ~ 3,
-    response_num <= 2 & next_response_num <= 2 & delta_date >= cycle_length                ~ 2,
-    response_num <= 2 & next_response_num <= 2 & delta_date < cycle_length                 ~ 3,
-    response_num == 1 & next_response_num == 3                                             ~ 3,
-    response_num == 1 & next_response_num == 5 & next_response_num_2 == 1              ~ 1,
-    response_num <= 2 & next_response_num == 5 & next_response_num_2 <= 2              ~ 2,
-    response_num == 1 & next_response_num == 5                                             ~ 5,
-    response_num == 1 & next_response_num == 4                                             ~ 3,
-    response_num == 2 & next_response_num == 3 & next_response_num_2 ==3               ~ 3,
-    response_num == 2 & next_response_num == 3 & next_response_num_2 ==4               ~ 3,
-    response_num == 2 & next_response_num == 3 & next_response_num_2 ==5               ~ 3,
-    response_num == 2 & next_response_num == 5 & next_response_num_2 ==3               ~ 3,
-    response_num == 2 & next_response_num == 5 & next_response_num_2 ==4               ~ 3,
-    response_num == 2 & next_response_num == 5 & next_response_num_2 ==5               ~ 5,
-    response_num == 2 & next_response_num == 5 & next_response_num_2 <= 2              ~ 2,
-    response_num == 2 & next_response_num == 4                                             ~ 3,
+    response_num == 1 & next_response_num == 1 & delta_date >= cycle_length                          ~ 1,
+    response_num == 1 & next_response_num == 1 & delta_date < cycle_length                           ~ 3,
+    response_num <= 2 & next_response_num <= 2 & delta_date >= cycle_length                          ~ 2,
+    response_num <= 2 & next_response_num <= 2 & delta_date < cycle_length                           ~ 3,
+    response_num == 1 & next_response_num == 3                                                       ~ 3,
+    response_num == 1 & next_response_num == 5 & next_response_num_2 == 1                            ~ 1,
+    response_num <= 2 & next_response_num == 5 & next_response_num_2 <= 2                            ~ 2,
+    response_num == 1 & next_response_num == 5                                                       ~ 5,
+    response_num == 1 & next_response_num == 4                                                       ~ 3,
+    response_num == 2 & next_response_num == 3 & next_response_num_2 ==3                             ~ 3,
+    response_num == 2 & next_response_num == 3 & next_response_num_2 ==4                             ~ 3,
+    response_num == 2 & next_response_num == 3 & next_response_num_2 ==5                             ~ 3,
+    response_num == 2 & next_response_num == 5 & next_response_num_2 ==3                             ~ 3,
+    response_num == 2 & next_response_num == 5 & next_response_num_2 ==4                             ~ 3,
+    response_num == 2 & next_response_num == 5 & next_response_num_2 ==5                             ~ 5,
+    response_num == 2 & next_response_num == 5 & next_response_num_2 <= 2                            ~ 2,
+    response_num == 2 & next_response_num == 4                                                       ~ 3,
 
-    is.na(next_response_num) & response_num <= 2                                           ~ 3,
+    is.na(next_response_num) & response_num <= 2                                                     ~ 3,
     is.na(next_response_num_2)& (next_response_num==3 | next_response_num ==5) &
-      response_num <= 2                                                                        ~ 3,
+      response_num <= 2                                                                              ~ 3,
 
     .default = response_num
   )
