@@ -111,3 +111,13 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm",
   add_footer_lines("In the header, N represents the number of patients.") %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
+
+**Using sort_by_count=TRUE**
+
+```{r}
+ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
+             sort_by_count=TRUE) %>%
+  as_flextable() %>% 
+  add_footer_lines("In the header, N represents the number of patients.") %>% 
+  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
+```
