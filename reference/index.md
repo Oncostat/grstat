@@ -23,10 +23,13 @@
   : Adds dummy sections to the report
 - [`grstat_example()`](https://oncostat.github.io/grstat/reference/grstat_example.md)
   : Example databases
-- [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)
-  : Randomization lists
 
-## Checks
+## Preview features
+
+These functions should be used with caution, and results should always
+be checked using your own code in parallel.
+
+### RECIST Checks
 
 - [`check_recist()`](https://oncostat.github.io/grstat/reference/check_recist.md)
   **\[experimental\]** : Check a RECIST dataset
@@ -36,22 +39,25 @@
   [`recist_report_xlsx()`](https://oncostat.github.io/grstat/reference/recist_report_html.md)
   **\[experimental\]** : Create a RECIST check report (HTML or Excel)
 
-## Not validated yet
+### Misc
 
-- [`ae_plot_grade_sum()`](https://oncostat.github.io/grstat/reference/ae_plot_grade_sum.md)
-  **\[experimental\]** : Graphic representation of AEs
-
-- [`boin_plot()`](https://oncostat.github.io/grstat/reference/boin_plot.md)
-  **\[experimental\]** : Plot BOIN decision boundaries and patient-level
-  data
-
-- [`survfit_stack()`](https://oncostat.github.io/grstat/reference/survfit_stack.md)
-  :
-
-  Stack multiple survival endpoints into a single `survfit2` object
+- [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)
+  **\[experimental\]** : Randomization lists
 
 - [`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md)
   **\[experimental\]** : Calculate Best RECIST Response
 
+- [`survfit_stack()`](https://oncostat.github.io/grstat/reference/survfit_stack.md)
+  **\[experimental\]** :
+
+  Stack multiple survival endpoints into a single `survfit2` object
+
+### Plots
+
+- [`boin_plot()`](https://oncostat.github.io/grstat/reference/boin_plot.md)
+  **\[experimental\]** : Plot BOIN decision boundaries and patient-level
+  data
 - [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)
   : Waterfall plot for RECIST data
+- [`ae_plot_grade_sum()`](https://oncostat.github.io/grstat/reference/ae_plot_grade_sum.md)
+  **\[experimental\]** : Graphic representation of AEs

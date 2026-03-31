@@ -1,5 +1,6 @@
 # Randomization lists
 
+**\[experimental\]**  
 Create stratified permuted-block randomization lists for EDC/CTMS
 softwares. For each stratum, this function pre-generates a sequence of
 randomization *slots* using
