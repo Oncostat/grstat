@@ -1,12 +1,14 @@
 ---
 title: "Adverse Events (AE)"
+author: "Livia Pierotti"
+date: "2026-04-01"
 output: 
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Adverse Events (AE)}
   %\VignetteEncoding{UTF-8}
-date: "2025"
 ---
 
 # Introduction
