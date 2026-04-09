@@ -58,6 +58,6 @@ be checked using your own code in parallel.
   **\[experimental\]** : Plot BOIN decision boundaries and patient-level
   data
 - [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)
-  : Waterfall plot for RECIST data
+  : Waterfall plot for RECIST best response data
 - [`ae_plot_grade_sum()`](https://oncostat.github.io/grstat/reference/ae_plot_grade_sum.md)
   **\[experimental\]** : Graphic representation of AEs

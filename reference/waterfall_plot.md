@@ -1,8 +1,7 @@
-# Waterfall plot for RECIST data
+# Waterfall plot for RECIST best response data
 
-Creates a waterfall plot showing the change from baseline in target
-lesion size for individual patients, optionally grouped by treatment
-arm.
+Creates a waterfall plot showing the best percent change from baseline
+in target lesion size for each subject.
 
 ## Usage
 
@@ -25,9 +24,8 @@ waterfall_plot(
 
 - data:
 
-  A dataset containing RECIST best response data. Use
-  [calc_best_response](https://oncostat.github.io/grstat/reference/calc_best_response.md)
-  to format your raw data.
+  A data frame with one row per subject, typically produced by
+  [`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md).
 
 - ...:
 
@@ -35,39 +33,53 @@ waterfall_plot(
 
 - y:
 
-  The column representing the numeric outcome (typically change in tumor
-  size). Default is `"target_sum_diff_first"`.
+  Name of the numeric column used for the bar height. Defaults to
+  `"target_sum_diff_first"`.
 
 - fill:
 
-  The column indicating the filling color. Default is `"best_response"`,
-  the best response category.
+  Name of the categorical column used for bar fill color. Defaults to
+  `"best_response"`.
 
 - shape:
 
-  The column to use for an shape layer (e.g., indicating mutation
-  status).
+  Optional name of a categorical column used to add a symbol above or
+  below each bar.
 
 - arm:
 
-  The column indicating treatment arms for faceting.
+  Optional name of a column used to facet the plot by treatment arm.
 
 - subjid:
 
-  The column identifying subjects. Default is `"SUBJID"`.
+  Name of the subject identifier column. Defaults to `"SUBJID"`.
 
 - resp_colors:
 
-  Colors assigned to response categories.
+  Named vector of colors used for RECIST response categories.
 
 - warnings:
 
-  Whether to display warnings.
+  Logical. If `TRUE`, warnings are emitted when missing values are
+  detected in plotted variables.
 
 ## Value
 
-A `ggplot` object representing a waterfall plot of tumor size change by
-patient.
+A `ggplot` object.
+
+## Details
+
+The input data must contain **one row per subject**, use
+[`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md)
+to convert from long-format RECIST data.
+
+Bars are drawn for individual subjects, optionally faceted by treatment
+arm. Horizontal dashed reference lines are added at -30\\ to common
+RECIST response thresholds.
+
+## See also
+
+[`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md)
 
 ## Examples
 
@@ -75,19 +87,18 @@ patient.
 db = grstat_example(N=50)
 data_best_resp = calc_best_response(db$recist)
 
-#simple example
+# Basic waterfall plot
 waterfall_plot(data_best_resp)
 
 
-#facet by arm
+# Facet by arm
 data_best_resp %>%
   dplyr::left_join(db$enrolres, by="subjid") %>%
   waterfall_plot(arm="ARM")
 
 
 
-#add symbols
-#use the NA level to not show the case
+# Add symbols
 set.seed(0)
 data_symbols = db$recist %>%
   dplyr::summarise(
@@ -105,5 +116,4 @@ data_best_resp %>%
   dplyr::left_join(data_symbols, by="subjid") %>%
   waterfall_plot(shape="example_event") +
   ggplot2::labs(shape="Event")
-
 ```

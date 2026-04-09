@@ -10,7 +10,7 @@ from GitHub:
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9027")
+pak::pak("Oncostat/grstat@v0.1.0.9028")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
@@ -101,7 +101,7 @@ be checked using your own code in parallel.
   **\[experimental\]** : Plot BOIN decision boundaries and patient-level
   data
 - [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)
-  : Waterfall plot for RECIST data
+  : Waterfall plot for RECIST best response data
 - [`ae_plot_grade_sum()`](https://oncostat.github.io/grstat/reference/ae_plot_grade_sum.md)
   **\[experimental\]** : Graphic representation of AEs
 
