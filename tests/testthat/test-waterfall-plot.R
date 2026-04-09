@@ -1,3 +1,5 @@
+
+
 test_that("waterfall_plot", {
   local_options(grstat_lifecycle_verbosity="quiet")
 
@@ -37,15 +39,20 @@ test_that("waterfall_plot", {
   set.seed(123)
   data_na =
     data_best_resp %>%
-    dplyr::mutate(
-      target_sum_diff_first = runif(n(), -0.6, 0.3),
+    mutate(
+      ttt = ifelse(runif(n())<0.5, "EXP", "CTRL"),
+      tl_sum_diff_first = target_sum_diff_first,
       target_sum_diff_first = replace(target_sum_diff_first, c(1, 3, 10), NA)
     )
 
-  expect_warning(
-    p <- waterfall_plot(data_na, warnings = TRUE),
-    regexp = "ignore"
-  )
+  #waterfall works with missing values in y
+  waterfall_plot(data_na, warnings=TRUE) %>% 
+    expect_warning(class = "waterfall_plot_missing_warning")
 
+  #waterfall works with other column names
+  data_na %>% 
+    select(id=subjid, bor=best_response, ttt, tl_sum_diff_first) %>%
+    waterfall_plot(subjid="id", y="tl_sum_diff_first", fill="bor", arm="ttt") %>% 
+    expect_silent()
 
 })
