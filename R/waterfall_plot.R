@@ -83,8 +83,8 @@ waterfall_plot = function(data, ...,
   fill_scale = .get_fill_scale(db_wf, resp_colors)
 
   db_wf_missing = db_wf %>% 
-    filter(if_any(everything(), ~is.na(.x) & !is.nan(.x))) %>% 
-    select(subjid, where(~any(is.na(.x) & !is.nan(.x))))
+    filter(if_any(-any_of("shape"), ~is.na(.x) & !is.nan(.x))) %>% 
+    select(subjid, where(~any(is.na(.x) & !is.nan(.x))), -any_of("shape"))
   if(nrow(db_wf_missing) > 0 && warnings){
     cli_warn(c("!" = "Missing values detected in {.fun waterfall_plot}.",
               "i" = "Subjects with missing values: {.val {db_wf_missing$subjid}}.",
