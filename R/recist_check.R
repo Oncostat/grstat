@@ -564,6 +564,7 @@ rc_check_target_response = function(rc, rc_short){
 #' Check impossible cases for Target Lesions response
 #' @keywords internal
 #' @importFrom dplyr arrange case_when desc filter mutate transmute
+#' @importFrom EDCimport fct_yesno
 rc_check_global_response = function(rc_short){
   rtn = list()
 
@@ -648,6 +649,7 @@ rc_check_global_response = function(rc_short){
 
 
 #' @importFrom dplyr any_of arrange mutate select
+#' @importFrom EDCimport fct_yesno
 #' @importFrom rlang has_name
 #' @importFrom stringr str_detect
 #' @importFrom tibble as_tibble

@@ -21,6 +21,7 @@ The names of the list elements will be used as a grouping variable in the output
 A \code{survfit} object (or \code{survfit2} if \code{ggsurvfit} is installed)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
 This function combines several survival endpoints from the same dataset by stacking them
 into a long format and fitting a single \code{survfit} object.
 It does \strong{not} support competing risks models (i.e., when the event variable is a factor).

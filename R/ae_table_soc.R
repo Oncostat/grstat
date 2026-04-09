@@ -187,7 +187,7 @@ ae_table_soc = function(
 #' @rdname ae_table_soc
 #' @export
 #'
-#' @importFrom dplyr case_match lag lead transmute
+#' @importFrom dplyr lag lead transmute
 #' @importFrom flextable align bg bold flextable fontsize hline hline_bottom merge_h merge_v padding set_header_df set_table_properties valign
 #' @importFrom purrr map map_int
 #' @importFrom rlang check_dots_empty set_names
@@ -223,14 +223,16 @@ as_flextable.ae_table_soc = function(x,
                          too_few="align_start", cols_remove=FALSE) %>%
     transmute(
       col_keys,
-      row1 = case_match(h1,
-                        "soc" ~ "",
-                        "term" ~ "",
-                        .default=table_ae_header[h1]),
-      row2 = case_match(h1,
-                        "soc" ~ "CTCAE SOC",
-                        "term" ~ "CTCAE v4.0 Term",
-                        .default=h2)
+      row1 = case_when(
+        h1 == "soc" ~ "",
+        h1 == "term" ~ "",
+        .default = table_ae_header[h1]
+      ),
+      row2 = case_when(
+        h1 == "soc" ~ "CTCAE SOC",
+        h1 == "term" ~ "CTCAE v4.0 Term",
+        .default = h2
+      ),
     )
 
   col1 = header_df$col_keys %in% c("soc", "term") %>% which() %>% max()

@@ -49,7 +49,7 @@ snapshot_review_bg = function(...){
 
 
 is_testing_in_buildpane = function(){
-  str_ends(getwd(), "testthat/?")
+  stringr::str_ends(getwd(), "testthat/?")
 }
 
 
