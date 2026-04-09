@@ -2,7 +2,7 @@
 % Please edit documentation in R/waterfall_plot.R
 \name{waterfall_plot}
 \alias{waterfall_plot}
-\title{Waterfall plot for RECIST data}
+\title{Waterfall plot for RECIST best response data}
 \usage{
 waterfall_plot(
   data,
@@ -18,46 +18,58 @@ waterfall_plot(
 )
 }
 \arguments{
-\item{data}{A dataset containing RECIST best response data. Use \link{calc_best_response} to format your raw data.}
+\item{data}{A data frame with one row per subject, typically produced by
+\code{\link[=calc_best_response]{calc_best_response()}}.}
 
 \item{...}{Not used. Ensures that only named arguments are passed.}
 
-\item{y}{The column representing the numeric outcome (typically change in tumor size). Default is \code{"target_sum_diff_first"}.}
+\item{y}{Name of the numeric column used for the bar height. Defaults to
+\code{"target_sum_diff_first"}.}
 
-\item{fill}{The column indicating the filling color. Default is \code{"best_response"}, the best response category.}
+\item{fill}{Name of the categorical column used for bar fill color. Defaults
+to \code{"best_response"}.}
 
-\item{shape}{The column to use for an shape layer (e.g., indicating mutation status).}
+\item{shape}{Optional name of a categorical column used to add a symbol
+above or below each bar.}
 
-\item{arm}{The column indicating treatment arms for faceting.}
+\item{arm}{Optional name of a column used to facet the plot by treatment arm.}
 
-\item{subjid}{The column identifying subjects. Default is \code{"SUBJID"}.}
+\item{subjid}{Name of the subject identifier column. Defaults to \code{"SUBJID"}.}
 
-\item{resp_colors}{Colors assigned to response categories.}
+\item{resp_colors}{Named vector of colors used for RECIST response categories.}
 
-\item{warnings}{Whether to display warnings.}
+\item{warnings}{Logical. If \code{TRUE}, warnings are emitted when missing values
+are detected in plotted variables.}
 }
 \value{
-A \code{ggplot} object representing a waterfall plot of tumor size change by patient.
+A \code{ggplot} object.
 }
 \description{
-Creates a waterfall plot showing the change from baseline in target lesion size
-for individual patients, optionally grouped by treatment arm.
+Creates a waterfall plot showing the best percent change from baseline in
+target lesion size for each subject.
+}
+\details{
+The input data must contain \strong{one row per subject}, use \code{\link[=calc_best_response]{calc_best_response()}}
+to convert from long-format RECIST data.
+
+Bars are drawn for individual subjects, optionally faceted by treatment arm.
+Horizontal dashed reference lines are added at -30\\% and +20\\%, corresponding
+to common RECIST response thresholds.
 }
 \examples{
 db = grstat_example(N=50)
 data_best_resp = calc_best_response(db$recist)
 
-#simple example
+# Basic waterfall plot
 waterfall_plot(data_best_resp)
 
-#facet by arm
+# Facet by arm
 data_best_resp \%>\%
   dplyr::left_join(db$enrolres, by="subjid") \%>\%
   waterfall_plot(arm="ARM")
 
 
-#add symbols
-#use the NA level to not show the case
+# Add symbols
 set.seed(0)
 data_symbols = db$recist \%>\%
   dplyr::summarise(
@@ -74,5 +86,7 @@ data_best_resp \%>\%
   dplyr::left_join(data_symbols, by="subjid") \%>\%
   waterfall_plot(shape="example_event") +
   ggplot2::labs(shape="Event")
-
+}
+\seealso{
+\code{\link[=calc_best_response]{calc_best_response()}}
 }
