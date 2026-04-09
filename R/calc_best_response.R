@@ -200,6 +200,7 @@ calc_best_response = function(data_recist, ...,
                                use_pharmasug = use_pharmasug,
                                duree_suivi_max = duree_suivi_max) {
   case_when(
+    duree_suivi_max <= 42 &  response_num == 4                                                       ~ 4, # Si il y a une PD dans les 41 premiers jours, quoi qu'il arrive ça sera une PD en confirmed
     duree_suivi_max <= 42 &  use_pharmasug == TRUE                                                   ~ 4, # Si moins de 6 semaines de suivi, on ne peut pas confirmer une SD donc d'après PharmaSUG ça sera une PD
     duree_suivi_max <= 42                                                                            ~ 5, # Si moins de 6 semaines de suivi, on ne peut pas confirmer une SD donc ça sera une NE par defaut
     use_pharmasug == TRUE  & response_num <= 2 & next_response_num == 3 & next_response_num_2 <= 2   ~ 2,
