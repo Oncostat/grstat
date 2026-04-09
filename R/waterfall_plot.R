@@ -76,7 +76,6 @@ waterfall_plot = function(data, ...,
 
 
   db_wf = data %>%
-    rename(shape=any_of2(shape), resp=all_of(fill), y=all_of(y)) %>%
     {
       na_rows = which(is.na(.$y))
       na_y = length(na_rows)
@@ -87,6 +86,8 @@ waterfall_plot = function(data, ...,
     } %>%
     mutate(subjid = forcats::fct_reorder2(as.character(subjid),
                                           as.numeric(resp), y))
+      select(subjid=any_of2(subjid), shape=any_of2(shape), arm=any_of2(arm),
+             resp=all_of(fill), y=all_of(y)) %>%
 
   p =
   db_wf %>%
