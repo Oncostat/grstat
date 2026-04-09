@@ -74,14 +74,13 @@ waterfall_plot = function(data, ...,
   y_lab = "Target lesions reduction from baseline"
   if(y!="target_sum_diff_first") y_lab=y
   fill_lab = "Best Global Response \n(RECIST v1.1)"
-  fill_scale = .get_fill_scale(data, resp_colors)
-
 
   db_wf = data %>%
       select(subjid=any_of2(subjid), shape=any_of2(shape), arm=any_of2(arm),
              resp=all_of(fill), y=all_of(y)) %>%
       mutate(subjid = fct_reorder2(as.character(subjid), as.numeric(resp),
                                    y, .na_rm=FALSE))
+  fill_scale = .get_fill_scale(db_wf, resp_colors)
 
   db_wf_missing = db_wf %>% 
     filter(if_any(everything(), ~is.na(.x) & !is.nan(.x))) %>% 
@@ -150,8 +149,8 @@ waterfall_plot = function(data, ...,
   resp_colors = c("CR"="#42b540", "PR"="#006dd8", "SD"="#925e9f", "PD"="#ed0000", "NA"="white")
   resp_colors = resp_colors[c("CR", "PR", "SD", "PD", "NA")]
   fill_scale = data %>%
-    distinct(best_response, resp_num = .recist_to_num(best_response)) %>%
+    distinct(resp, resp_num = .recist_to_num(resp)) %>%
     mutate(color=resp_colors[resp_num]) %>%
-    select(best_response, color) %>%
+    select(resp, color) %>%
     deframe()
 }
