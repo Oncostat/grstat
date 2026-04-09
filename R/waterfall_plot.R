@@ -93,7 +93,8 @@ waterfall_plot = function(data, ...,
   
   p =
   db_wf %>%
-    ggplot(aes(x=subjid, y=y, group=subjid, fill=resp)) +
+    ggplot() +
+    aes(x=subjid, y=y, fill=resp) +
     geom_hline(yintercept=c(-.3, .2), linetype="dashed") +
     geom_col(color='black') +
     .get_shape_layer(shape, shape_nudge=0.05) +
