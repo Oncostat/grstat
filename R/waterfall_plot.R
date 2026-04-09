@@ -71,6 +71,8 @@ waterfall_plot = function(data, ...,
   check_dots_empty()
   assert_names_exists(data, c(y, fill, subjid))
 
+  y_lab = "Target lesions reduction from baseline"
+  if(y!="target_sum_diff_first") y_lab=y
   fill_lab = "Best Global Response \n(RECIST v1.1)"
   fill_scale = .get_fill_scale(data, resp_colors)
 
@@ -101,7 +103,7 @@ waterfall_plot = function(data, ...,
     scale_x_discrete(labels = NULL, breaks = NULL) +
     scale_y_continuous(labels=label_percent(), breaks=breaks_width(0.2)) +
     scale_fill_manual(values=fill_scale) +
-    labs(x = "", y="Target lesions reduction from baseline", fill=fill_lab) +
+    labs(x = "", y=y_lab, fill=fill_lab) +
     theme_minimal() +
     guides(
       color = guide_legend(order = 1),
