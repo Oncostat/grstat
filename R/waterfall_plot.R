@@ -76,18 +76,10 @@ waterfall_plot = function(data, ...,
 
 
   db_wf = data %>%
-    {
-      na_rows = which(is.na(.$y))
-      na_y = length(na_rows)
-      if(na_y > 0){
-        if(warnings) cli_warn("{.fun waterfall_plot} will ignore {na_y} observation{?s} with missing {.var {y}} and subjid : {.val { . $subjid[na_rows]}}.")
-        filter(., !is.na(y))
-      } else .
-    } %>%
-    mutate(subjid = forcats::fct_reorder2(as.character(subjid),
-                                          as.numeric(resp), y))
       select(subjid=any_of2(subjid), shape=any_of2(shape), arm=any_of2(arm),
              resp=all_of(fill), y=all_of(y)) %>%
+      mutate(subjid = fct_reorder2(as.character(subjid), as.numeric(resp),
+                                   y, .na_rm=FALSE))
 
   p =
   db_wf %>%
