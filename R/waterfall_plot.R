@@ -27,7 +27,8 @@
 #'   are detected in plotted variables.
 #'
 #' @export
-#' @importFrom dplyr all_of mutate rename
+#' @importFrom dplyr all_of if_any mutate rename where
+#' @importFrom forcats fct_reorder2
 #' @importFrom ggplot2 aes facet_wrap geom_col geom_hline ggplot labs scale_fill_manual scale_x_discrete scale_y_continuous theme_minimal
 #' @importFrom rlang check_dots_empty
 #' @importFrom scales breaks_width label_percent
