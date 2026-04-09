@@ -81,6 +81,16 @@ waterfall_plot = function(data, ...,
       mutate(subjid = fct_reorder2(as.character(subjid), as.numeric(resp),
                                    y, .na_rm=FALSE))
 
+  db_wf_missing = db_wf %>% 
+    filter(if_any(everything(), ~is.na(.x) & !is.nan(.x))) %>% 
+    select(subjid, where(~any(is.na(.x) & !is.nan(.x))))
+  if(nrow(db_wf_missing) > 0 && warnings){
+    cli_warn(c("!" = "Missing values detected in {.fun waterfall_plot}.",
+              "i" = "Subjects with missing values: {.val {db_wf_missing$subjid}}.",
+              "i" = "Columns with missing values: {.val {colnames(db_wf_missing)[-1]}}."),
+            class="waterfall_plot_missing_warning")
+  }
+  
   p =
   db_wf %>%
     ggplot(aes(x=subjid, y=y, group=subjid, fill=resp)) +
