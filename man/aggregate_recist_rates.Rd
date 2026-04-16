@@ -38,7 +38,7 @@ recist \%>\%
 recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
- aggregate_recist_rates(derived_endpoints=c("ORR") \%>\%
+ aggregate_recist_rates(derived_endpoints=c("ORR")) \%>\%
  as_flextable()
 
 }

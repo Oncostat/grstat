@@ -25,7 +25,7 @@
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
-#'  aggregate_recist_rates(derived_endpoints=c("ORR") %>%
+#'  aggregate_recist_rates(derived_endpoints=c("ORR")) %>%
 #'  as_flextable()
 #'
 aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "DCR")){
