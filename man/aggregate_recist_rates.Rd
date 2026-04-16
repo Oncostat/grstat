@@ -24,6 +24,7 @@ a dataframe (\code{aggregate_recist_rates()}) or a flextable (\code{as_flextable
 a formatted flextable
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
 The function \code{aggregate_recist_rates()} creates a summary table of recist for each possible response.
 The resulting dataframe can be piped to \code{as_flextable()} to get a nicely formatted flextable.
 }

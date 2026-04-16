@@ -1,6 +1,6 @@
 #' Calculate BOR
 #'
-#' @description
+#' `r lifecycle::badge("experimental")`\cr
 #' The function `aggregate_recist_rates()` creates a summary table of recist for each possible response.
 #' The resulting dataframe can be piped to `as_flextable()` to get a nicely formatted flextable.
 #'

@@ -46,13 +46,13 @@ test_that("waterfall_plot", {
     )
 
   #waterfall works with missing values in y
-  waterfall_plot(data_na, warnings=TRUE) %>% 
+  waterfall_plot(data_na, warnings=TRUE) %>%
     expect_warning(class = "waterfall_plot_missing_warning")
 
   #waterfall works with other column names
-  data_na %>% 
+  data_na %>%
     select(id=subjid, bor=best_response, ttt, tl_sum_diff_first) %>%
-    waterfall_plot(subjid="id", y="tl_sum_diff_first", fill="bor", arm="ttt") %>% 
+    waterfall_plot(subjid="id", y="tl_sum_diff_first", fill="bor", arm="ttt") %>%
     expect_silent()
 
 })
