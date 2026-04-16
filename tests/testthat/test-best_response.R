@@ -67,6 +67,10 @@ test_that("validation best response", {
     as_tibble() %>%
     mutate(subjid=row_number(), .before=1)
 
+  test = c(212,"CR-CR-NA-NA","CR","CR",NA,NA)
+  grid = rbind(grid, test) %>%
+    mutate(subjid = as.numeric(subjid))
+
   base_recist =  grid %>%
     transmute(subjid=row_number(), RCRESP = stringr::str_split(paste0("NA-", seq), "-")) %>%
     unnest(RCRESP) %>%
@@ -106,3 +110,27 @@ test_that("validation best response", {
   })
 })
 
+test_that("Non excluion patient", {
+  local_reproducible_output(width=125)
+
+   non_excl_unconf = tibble(
+    SUBJID = 145,
+    RCDT = c(lubridate::today(), lubridate::today()+28),
+    RCTLSUM = c(100, NA),
+    RCRESP = c(NA, "CR"),
+  ) %>%
+    calc_best_response(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP")
+
+   non_excl_conf = tibble(
+     SUBJID = 145,
+     RCDT = c(lubridate::today(), lubridate::today()+28),
+     RCTLSUM = c(100, NA),
+     RCRESP = c(NA, "CR"),
+   ) %>%
+     calc_best_response(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP", confirmed = TRUE)
+
+  expect_snapshot({
+    as.data.frame(non_excl_unconf)
+    as.data.frame(non_excl_conf)
+  })
+})

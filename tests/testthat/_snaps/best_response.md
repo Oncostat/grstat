@@ -1229,6 +1229,7 @@
       209    209 NE-NE-NE-SD            Stable disease            Stable disease            Stable disease
       210    210 NE-NE-NE-PD       Progressive disease       Progressive disease       Progressive disease
       211    211 NE-NE-NE-NE             Not evaluable             Not evaluable             Not evaluable
+      212    212 CR-CR-NA-NA         Complete response             Not evaluable            Stable disease
           best_response_conf_sup_28
       1           Complete response
       2           Complete response
@@ -1441,4 +1442,18 @@
       209            Stable disease
       210       Progressive disease
       211             Not evaluable
+      212         Complete response
+
+# Non excluion patient
+
+    Code
+      as.data.frame(non_excl_unconf)
+    Output
+        subjid     best_response       date target_sum target_sum_diff_first target_sum_diff_min six_months_confirmation
+      1    145 Complete response 2026-05-14         NA                     0                  NA                   FALSE
+    Code
+      as.data.frame(non_excl_conf)
+    Output
+        subjid best_response       date target_sum target_sum_diff_first target_sum_diff_min six_months_confirmation
+      1    145 Not evaluable 2026-05-14         NA                     0                  NA                   FALSE
 
