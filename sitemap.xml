@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://oncostat.github.io/grstat/404.html</loc></url>
+<url><loc>https://oncostat.github.io/grstat/articles/BOR.html</loc></url>
 <url><loc>https://oncostat.github.io/grstat/articles/adverse_events.html</loc></url>
 <url><loc>https://oncostat.github.io/grstat/articles/adverse_events_sas.html</loc></url>
 <url><loc>https://oncostat.github.io/grstat/articles/index.html</loc></url>
@@ -11,6 +12,7 @@
 <url><loc>https://oncostat.github.io/grstat/reference/ae_plot_grade_sum.html</loc></url>
 <url><loc>https://oncostat.github.io/grstat/reference/ae_table_grade.html</loc></url>
 <url><loc>https://oncostat.github.io/grstat/reference/ae_table_soc.html</loc></url>
+<url><loc>https://oncostat.github.io/grstat/reference/aggregate_recist_rates.html</loc></url>
 <url><loc>https://oncostat.github.io/grstat/reference/body_add_gr_sections_1_8.html</loc></url>
 <url><loc>https://oncostat.github.io/grstat/reference/boin_plot.html</loc></url>
 <url><loc>https://oncostat.github.io/grstat/reference/butterfly_plot.html</loc></url>

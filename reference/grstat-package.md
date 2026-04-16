@@ -32,3 +32,6 @@ Other contributors:
 - Nusaïbah Ibrahimi <nusaibah.ibrahimi@gustaveroussy.fr> \[contributor\]
 
 - Livia Pierotti <livia.pierotti@gustaveroussy.fr> \[contributor\]
+
+- Alexis Cochard <alexis.cochard@gustaveroussy.fr>
+  ([ORCID](https://orcid.org/0009-0008-0171-6840)) \[contributor\]

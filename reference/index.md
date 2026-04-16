@@ -47,6 +47,10 @@ be checked using your own code in parallel.
 - [`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md)
   **\[experimental\]** : Calculate Best RECIST Response
 
+- [`aggregate_recist_rates()`](https://oncostat.github.io/grstat/reference/aggregate_recist_rates.md)
+  [`as_flextable(`*`<aggregate_recist_rates>`*`)`](https://oncostat.github.io/grstat/reference/aggregate_recist_rates.md)
+  **\[experimental\]** : Calculate BOR
+
 - [`survfit_stack()`](https://oncostat.github.io/grstat/reference/survfit_stack.md)
   **\[experimental\]** :
 

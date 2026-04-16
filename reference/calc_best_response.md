@@ -11,12 +11,11 @@ date.
 calc_best_response(
   data_recist,
   ...,
-  rc_sum = "RCTLSUM",
-  rc_resp = "RCRESP",
-  rc_date = "RCDT",
-  subjid = "SUBJID",
-  exclude_post_pd = TRUE,
-  warnings = getOption("grstat_best_resp_warnings", TRUE)
+  cols = c(rc_sum = "RCTLSUM", rc_resp = "RCRESP", rc_date = "RCDT", subjid = "SUBJID"),
+  warnings = getOption("grstat_best_resp_warnings", TRUE),
+  confirmed = FALSE,
+  cycle_length = 28,
+  use_pharmasug = FALSE
 )
 ```
 
@@ -30,34 +29,45 @@ calc_best_response(
 
   Not used. Ensures that only named arguments are passed.
 
-- rc_sum:
+- cols:
 
-  The column containing the sum of target lesions. Default is
-  `"RCTLSUM"`.
+  a vector with column names inside `calc_best_response()`
 
-- rc_resp:
+  - `subjid` The column containing the subject ID. Default is
+    `"SUBJID"`.
 
-  The column containing the RECIST response (e.g., `"CR"`, `"PR"`,
-  `"SD"`, `"PD"`). Default is `"RCRESP"`.
+  - `rc_sum` The column containing the sum of target lesions. Default is
+    `"RCTLSUM"`.
 
-- rc_date:
+  - `rc_date` The column containing the assessment date. Default is
+    `"RCDT"`.
 
-  The column containing the assessment date. Default is `"RCDT"`.
-
-- subjid:
-
-  The column containing the subject ID. Default is `"SUBJID"`.
-
-- exclude_post_pd:
-
-  Logical; if `TRUE` (default), assessments after the first PD are
-  excluded.
+  - `rc_resp` The column containing the RECIST response (e.g., `"CR"`,
+    `"PR"`, `"SD"`, `"PD"`). Default is `"RCRESP"`.
 
 - warnings:
 
   Logical; if `TRUE` (default is taken from
   `getOption("grstat_best_resp_warnings", TRUE)`), emits warnings during
   internal checks.
+
+- confirmed:
+
+  Logical; if `TRUE`, use the cofirmation method to determine the best
+  response. For CR & PR confirmation of response had to be be
+  demonstrated with an assessment 4 weeks or later from the initial
+  response for response.
+
+- cycle_length:
+
+  Numeric, Time between two cycle (used for confirmation), default = 28
+  days following PharmaSUG 2023 – Paper QT047 recommendation
+
+- use_pharmasug:
+
+  Logical, if `TRUE`, the confirmation of response will be defnied
+  following PharmaSUG 2023 – Paper QT047 recommendation. Default is
+  RECIST 1.1 guideline
 
 ## Value
 
@@ -83,16 +93,12 @@ The function identifies the best response using the following logic:
 
 1.  Responses are ordered: `CR` \> `PR` \> `SD` \> `PD` \> `Missing`
 
-2.  Among the best responses, the one with the smallest target lesion
-    sum is selected
+2.  Among the best responses the earliest assessment date is selected.
+    For a confirmed response, the earliest date of the confirmed
+    response will be selected
 
-3.  If still tied, the earliest assessment date is selected
-
-4.  Only subjects with at least two assessments and non-missing target
+3.  Only subjects with at least two assessments and non-missing target
     sum are considered
-
-5.  By default, all assessments after the first PD are excluded
-    (`exclude_post_pd = TRUE`)
 
 ## Examples
 
@@ -100,15 +106,10 @@ The function identifies the best response using the following logic:
 db = grstat_example()
 db$recist %>%
   calc_best_response()
-#> Warning: Function `calc_best_response()` (`?grstat::calc_best_response()`) is not yet
-#> validated and may produce incorrect results.
-#> ! Always double-check the results using your own code.
-#> ℹ Please send your feedback to the grstat team.
-#> This warning is displayed once every 8 hours.
 #> Warning: Target Lesions Length Sum is missing at baseline. (2 patients: #72 and #193)
-#> # A tibble: 199 × 6
+#> # A tibble: 200 × 7
 #>    subjid best_response       date       target_sum target_sum_diff_first
-#>     <int> <fct>               <date>          <dbl>                 <dbl>
+#>  *  <int> <fct>               <date>          <dbl>                 <dbl>
 #>  1      1 Complete response   2023-04-16        0                  -1    
 #>  2      2 Progressive disease 2023-04-23       40.6                 1.33 
 #>  3      3 Stable disease      2023-05-13       79                   0.122
@@ -116,9 +117,9 @@ db$recist %>%
 #>  5      5 Complete response   2023-07-05        0                  -1    
 #>  6      6 Complete response   2023-08-31        0                  -1    
 #>  7      7 Partial response    2023-09-16       50.5                -0.512
-#>  8      8 Partial response    2023-09-10       17.9                -0.469
-#>  9      9 Partial response    2024-01-12        0                  -1    
+#>  8      8 Partial response    2023-08-05       20.3                -0.398
+#>  9      9 Partial response    2023-09-03       16                  -0.310
 #> 10     10 Complete response   2024-01-11        0                  -1    
-#> # ℹ 189 more rows
-#> # ℹ 1 more variable: target_sum_diff_min <dbl>
+#> # ℹ 190 more rows
+#> # ℹ 2 more variables: target_sum_diff_min <dbl>, six_months_confirmation <lgl>
 ```

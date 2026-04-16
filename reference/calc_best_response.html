@@ -11,7 +11,7 @@ Ties are resolved using lesion sum, then by date."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">grstat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9028</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9029</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +24,7 @@ Ties are resolved using lesion sum, then by date."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/adverse_events_sas.html">Adverse Events : Macros SAS</a></li>
     <li><a class="dropdown-item" href="../articles/adverse_events.html">Adverse Events (AE)</a></li>
+    <li><a class="dropdown-item" href="../articles/BOR.html">Calculation of RECIST Best Overall Response in grstat</a></li>
     <li><a class="dropdown-item" href="../articles/kaplan_meier.html">Kaplan-Meier Guideline Suggestions</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -54,12 +55,11 @@ Ties are resolved using lesion sum, then by date.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calc_best_response</span><span class="op">(</span></span>
 <span>  <span class="va">data_recist</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  rc_sum <span class="op">=</span> <span class="st">"RCTLSUM"</span>,</span>
-<span>  rc_resp <span class="op">=</span> <span class="st">"RCRESP"</span>,</span>
-<span>  rc_date <span class="op">=</span> <span class="st">"RCDT"</span>,</span>
-<span>  subjid <span class="op">=</span> <span class="st">"SUBJID"</span>,</span>
-<span>  exclude_post_pd <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  warnings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"grstat_best_resp_warnings"</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rc_sum <span class="op">=</span> <span class="st">"RCTLSUM"</span>, rc_resp <span class="op">=</span> <span class="st">"RCRESP"</span>, rc_date <span class="op">=</span> <span class="st">"RCDT"</span>, subjid <span class="op">=</span> <span class="st">"SUBJID"</span><span class="op">)</span>,</span>
+<span>  warnings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"grstat_best_resp_warnings"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  confirmed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cycle_length <span class="op">=</span> <span class="fl">28</span>,</span>
+<span>  use_pharmasug <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -75,28 +75,28 @@ Ties are resolved using lesion sum, then by date.</p>
 <dd><p>Not used. Ensures that only named arguments are passed.</p></dd>
 
 
-<dt id="arg-rc-sum">rc_sum<a class="anchor" aria-label="anchor" href="#arg-rc-sum"></a></dt>
-<dd><p>The column containing the sum of target lesions. Default is <code>"RCTLSUM"</code>.</p></dd>
-
-
-<dt id="arg-rc-resp">rc_resp<a class="anchor" aria-label="anchor" href="#arg-rc-resp"></a></dt>
-<dd><p>The column containing the RECIST response (e.g., <code>"CR"</code>, <code>"PR"</code>, <code>"SD"</code>, <code>"PD"</code>). Default is <code>"RCRESP"</code>.</p></dd>
-
-
-<dt id="arg-rc-date">rc_date<a class="anchor" aria-label="anchor" href="#arg-rc-date"></a></dt>
-<dd><p>The column containing the assessment date. Default is <code>"RCDT"</code>.</p></dd>
-
-
-<dt id="arg-subjid">subjid<a class="anchor" aria-label="anchor" href="#arg-subjid"></a></dt>
-<dd><p>The column containing the subject ID. Default is <code>"SUBJID"</code>.</p></dd>
-
-
-<dt id="arg-exclude-post-pd">exclude_post_pd<a class="anchor" aria-label="anchor" href="#arg-exclude-post-pd"></a></dt>
-<dd><p>Logical; if <code>TRUE</code> (default), assessments after the first PD are excluded.</p></dd>
+<dt id="arg-cols">cols<a class="anchor" aria-label="anchor" href="#arg-cols"></a></dt>
+<dd><p>a vector with column names inside <code>calc_best_response()</code></p><ul><li><p><code>subjid</code> The column containing the subject ID. Default is <code>"SUBJID"</code>.</p></li>
+<li><p><code>rc_sum</code> The column containing the sum of target lesions. Default is <code>"RCTLSUM"</code>.</p></li>
+<li><p><code>rc_date</code> The column containing the assessment date. Default is <code>"RCDT"</code>.</p></li>
+<li><p><code>rc_resp</code> The column containing the RECIST response (e.g., <code>"CR"</code>, <code>"PR"</code>, <code>"SD"</code>, <code>"PD"</code>). Default is <code>"RCRESP"</code>.</p></li>
+</ul></dd>
 
 
 <dt id="arg-warnings">warnings<a class="anchor" aria-label="anchor" href="#arg-warnings"></a></dt>
 <dd><p>Logical; if <code>TRUE</code> (default is taken from <code>getOption("grstat_best_resp_warnings", TRUE)</code>), emits warnings during internal checks.</p></dd>
+
+
+<dt id="arg-confirmed">confirmed<a class="anchor" aria-label="anchor" href="#arg-confirmed"></a></dt>
+<dd><p>Logical; if <code>TRUE</code>, use the cofirmation method to determine the best response. For CR &amp; PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.</p></dd>
+
+
+<dt id="arg-cycle-length">cycle_length<a class="anchor" aria-label="anchor" href="#arg-cycle-length"></a></dt>
+<dd><p>Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation</p></dd>
+
+
+<dt id="arg-use-pharmasug">use_pharmasug<a class="anchor" aria-label="anchor" href="#arg-use-pharmasug"></a></dt>
+<dd><p>Logical, if <code>TRUE</code>, the confirmation of response will be defnied following PharmaSUG 2023 – Paper QT047 recommendation. Default is RECIST 1.1 guideline</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -111,10 +111,8 @@ Ties are resolved using lesion sum, then by date.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The function identifies the best response using the following logic:</p><ol><li><p>Responses are ordered: <code>CR</code> &gt; <code>PR</code> &gt; <code>SD</code> &gt; <code>PD</code> &gt; <code>Missing</code></p></li>
-<li><p>Among the best responses, the one with the smallest target lesion sum is selected</p></li>
-<li><p>If still tied, the earliest assessment date is selected</p></li>
+<li><p>Among the best responses the earliest assessment date is selected. For a confirmed response, the earliest date of the confirmed response will be selected</p></li>
 <li><p>Only subjects with at least two assessments and non-missing target sum are considered</p></li>
-<li><p>By default, all assessments after the first PD are excluded (<code>exclude_post_pd = TRUE</code>)</p></li>
 </ol></div>
 
     <div class="section level2">
@@ -122,15 +120,10 @@ Ties are resolved using lesion sum, then by date.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">db</span> <span class="op">=</span> <span class="fu"><a href="grstat_example.html">grstat_example</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">db</span><span class="op">$</span><span class="va">recist</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">calc_best_response</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Function `calc_best_response()` (`?grstat::calc_best_response()`) is not yet</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> validated and may produce incorrect results.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Always double-check the results using your own code.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please send your feedback to the <span style="color: #0000BB;">grstat</span> team.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Target Lesions Length Sum is missing at baseline. (2 patients: #72 and #193)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 199 × 6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 200 × 7</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    subjid best_response       date       target_sum target_sum_diff_first</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  <span style="color: #BCBCBC;">*</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>      1 Complete response   2023-04-16        0                  -<span style="color: #BB0000;">1</span>    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>      2 Progressive disease 2023-04-23       40.6                 1.33 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>      3 Stable disease      2023-05-13       79                   0.122</span>
@@ -138,11 +131,11 @@ Ties are resolved using lesion sum, then by date.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>      5 Complete response   2023-07-05        0                  -<span style="color: #BB0000;">1</span>    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>      6 Complete response   2023-08-31        0                  -<span style="color: #BB0000;">1</span>    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>      7 Partial response    2023-09-16       50.5                -<span style="color: #BB0000;">0.512</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>      8 Partial response    2023-09-10       17.9                -<span style="color: #BB0000;">0.469</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>      9 Partial response    2024-01-12        0                  -<span style="color: #BB0000;">1</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>      8 Partial response    2023-08-05       20.3                -<span style="color: #BB0000;">0.398</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>      9 Partial response    2023-09-03       16                  -<span style="color: #BB0000;">0.310</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>     10 Complete response   2024-01-11        0                  -<span style="color: #BB0000;">1</span>    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 189 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: target_sum_diff_min &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 190 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: target_sum_diff_min &lt;dbl&gt;, six_months_confirmation &lt;lgl&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

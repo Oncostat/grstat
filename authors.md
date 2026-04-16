@@ -20,18 +20,21 @@
 
 - **Livia Pierotti**. Contributor.
 
+- **Alexis Cochard**. Contributor.
+  [](https://orcid.org/0009-0008-0171-6840)
+
 ## Citation
 
 Source:
 [`DESCRIPTION`](https://github.com/oncostat/grstat/blob/main/DESCRIPTION)
 
 Chaltiel D (2026). *grstat: Clinical Research Tools*. R package version
-0.1.0.9028, <https://oncostat.github.io/grstat/>.
+0.1.0.9029, <https://oncostat.github.io/grstat/>.
 
     @Manual{,
       title = {grstat: Clinical Research Tools},
       author = {Dan Chaltiel},
       year = {2026},
-      note = {R package version 0.1.0.9028},
+      note = {R package version 0.1.0.9029},
       url = {https://oncostat.github.io/grstat/},
     }
