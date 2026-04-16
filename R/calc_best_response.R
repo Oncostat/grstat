@@ -134,6 +134,11 @@ calc_best_response = function(data_recist, ...,
     mutate(six_months_confirmation = duree_suivi_max >= 183) %>%
     select(subjid, best_response=response_final, date, target_sum=sum,
            target_sum_diff_first=diff_first, target_sum_diff_min=diff_min, six_months_confirmation) %>%
+    apply_labels(best_response = "Best Overall Response",
+                 date = "First date of Best Overall Response",
+                 target_sum_diff_first = "Evolution of lesion size since first measure",
+                 target_sum_diff_min = "Evolution of lesion size since smallest measure",
+                 six_months_confirmation = "Minimum 6 months since first evaluation") %>%
     structure(confirmed = confirmed)
 }
 

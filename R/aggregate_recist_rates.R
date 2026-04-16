@@ -77,6 +77,10 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
     },
     .by= best_response) %>%
     add_class("aggregate_recist_rates") %>%
+    apply_labels(best_response = "Best Overall Response",
+                 n = "Number of patient",
+                 p = "Percentage",
+                 ic_95 = "IC 95%") %>%
     structure(derived_endpoints=derived_endpoints, confirmed = confirmed, total = total)
 
   summary_df
