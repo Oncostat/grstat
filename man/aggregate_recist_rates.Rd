@@ -17,14 +17,6 @@ aggregate_recist_rates(data, ..., derived_endpoints = c("ORR", "CBR", "DCR"))
 \item{derived_endpoints}{Character; Derived endpoints to compute from BOR. One or several of c("ORR", "CBR", "DCR"). See vignette("BOR") for endpoint definitions.}
 
 \item{x}{a dataframe, resulting of \code{aggregate_recist_rates()}}
-
-\item{rc_resp}{The column containing the RECIST response (e.g., \code{"CR"}, \code{"PR"}, \code{"SD"}, \code{"PD"}). Default is \code{"RCRESP"}.}
-
-\item{rc_date}{The column containing the assessment date. Default is \code{"RCDT"}.}
-
-\item{subjid}{The column containing the subject ID. Default is \code{"SUBJID"}.}
-
-\item{confirmed}{Logical; if \code{TRUE}, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.}
 }
 \value{
 a dataframe (\code{aggregate_recist_rates()}) or a flextable (\code{as_flextable()}).

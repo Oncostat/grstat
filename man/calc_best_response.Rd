@@ -8,7 +8,6 @@ calc_best_response(
   data_recist,
   ...,
   cols = c(rc_sum = "RCTLSUM", rc_resp = "RCRESP", rc_date = "RCDT", subjid = "SUBJID"),
-  exclude_post_pd = TRUE,
   warnings = getOption("grstat_best_resp_warnings", TRUE),
   confirmed = FALSE,
   cycle_length = 28,
@@ -29,6 +28,8 @@ calc_best_response(
 }}
 
 \item{warnings}{Logical; if \code{TRUE} (default is taken from \code{getOption("grstat_best_resp_warnings", TRUE)}), emits warnings during internal checks.}
+
+\item{confirmed}{Logical; if \code{TRUE}, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.}
 
 \item{cycle_length}{Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation}
 

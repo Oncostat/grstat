@@ -13,6 +13,7 @@
 #' * `rc_date` The column containing the assessment date. Default is `"RCDT"`.
 #' * `rc_resp` The column containing the RECIST response (e.g., `"CR"`, `"PR"`, `"SD"`, `"PD"`). Default is `"RCRESP"`.
 #' @param warnings Logical; if `TRUE` (default is taken from `getOption("grstat_best_resp_warnings", TRUE)`), emits warnings during internal checks.
+#' @param confirmed Logical; if `TRUE`, use the cofirmation method to determine the best response. For CR & PR confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response.
 #' @param cycle_length Numeric, Time between two cycle (used for confirmation), default = 28 days following PharmaSUG 2023 – Paper QT047 recommendation
 #' @param use_pharmasug Logical, if `TRUE`, the confirmation of response will be defnied following PharmaSUG 2023 – Paper QT047 recommendation. Default is RECIST 1.1 guideline
 #'
@@ -42,7 +43,6 @@
 #'   calc_best_response()
 calc_best_response = function(data_recist, ...,
                               cols = c(rc_sum="RCTLSUM", rc_resp="RCRESP", rc_date="RCDT", subjid="SUBJID"),
-                              exclude_post_pd=TRUE,
                               warnings=getOption("grstat_best_resp_warnings", TRUE),
                               confirmed = FALSE, cycle_length = 28, use_pharmasug = FALSE) {
   rc_sum = cols["rc_sum"]
