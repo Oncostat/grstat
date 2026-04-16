@@ -2,16 +2,20 @@
 % Please edit documentation in R/standardisation_modeles.R
 \name{report_coxph}
 \alias{report_coxph}
-\title{Title}
+\title{Result sentence}
 \usage{
-report_coxph(fit, label)
+report_coxph(fit, label, arm)
 }
 \arguments{
-\item{label}{}
+\item{fit}{an object of class coxph, output of the survival::coxph function}
+
+\item{label}{a string corresponding to the label for treatment}
+
+\item{arm}{a string corresponding to the treatment arm variable name in the coxph}
 }
 \value{
 a string
 }
 \description{
-Title
+Result sentence
 }
