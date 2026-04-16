@@ -28,6 +28,7 @@ Other contributors:
   \item Aldéric Fraslin \email{alderic.fraslin@gustaveroussy.fr} (\href{https://orcid.org/0000-0003-2235-0012}{ORCID}) [contributor]
   \item Nusaïbah Ibrahimi \email{nusaibah.ibrahimi@gustaveroussy.fr} [contributor]
   \item Livia Pierotti \email{livia.pierotti@gustaveroussy.fr} [contributor]
+  \item Alexis Cochard \email{alexis.cochard@gustaveroussy.fr} (\href{https://orcid.org/0009-0008-0171-6840}{ORCID}) [contributor]
 }
 
 }

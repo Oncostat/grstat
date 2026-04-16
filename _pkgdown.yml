@@ -43,6 +43,7 @@ reference:
   - contents:
     - randomisation_list
     - calc_best_response
+    - aggregate_recist_rates
     - survfit_stack
   - subtitle: "Plots"
   - contents:

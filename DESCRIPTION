@@ -18,7 +18,10 @@ Authors@R: c(
       person("Nusaïbah", "Ibrahimi", role = "ctb",
              email = "nusaibah.ibrahimi@gustaveroussy.fr"), 
       person("Livia", "Pierotti", role = c("ctb"),
-             email = "livia.pierotti@gustaveroussy.fr")
+             email = "livia.pierotti@gustaveroussy.fr"),
+      person("Alexis", "Cochard", role = c("ctb"),
+             email = "alexis.cochard@gustaveroussy.fr",
+             comment = c(ORCID = "0009-0008-0171-6840"))
     )
 Maintainer: Dan Chaltiel <dan.chaltiel@gustaveroussy.fr>
 Description: Gives tools to standardize the output of clinical research description.
@@ -38,6 +41,7 @@ Imports:
     ggplot2,
     glue,
     lifecycle,
+    officer,
     patchwork,
     purrr,
     rlang,
@@ -53,13 +57,14 @@ Suggests:
     ggsurvfit,
     gtools,
     knitr,
-    officer,
+    lubridate,
     openxlsx,
     plotly,
     rmarkdown,
     rstudioapi,
     survival,
     testthat (>= 3.0.0),
+    tidyverse,
     usethis,
     utils,
     vdiffr
