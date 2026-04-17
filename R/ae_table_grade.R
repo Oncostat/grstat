@@ -28,9 +28,14 @@
 #'
 #' @return A data frame of class `ae_table_grade`, ready for use with [as_flextable()].
 #'
-#' @importFrom tibble remove_rownames
-#' @importFrom flextable hline_top
-#' @importFrom tidyr pivot_wider complete unnest_longer
+#' @importFrom cli cli_abort
+#' @importFrom dplyr arrange case_when cur_group filter left_join mutate rename_with select summarise
+#' @importFrom forcats fct_relevel fct_reorder
+#' @importFrom glue glue
+#' @importFrom rlang check_dots_empty check_installed
+#' @importFrom stringr str_remove str_starts str_subset
+#' @importFrom tibble lst
+#' @importFrom tidyselect matches
 #' @export
 #'
 #' @examples
@@ -237,7 +242,6 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
     ) %>%
     structure(ae_id = data_ae$subjid)
 }
-
 
 
 np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {

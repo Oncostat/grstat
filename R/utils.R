@@ -45,6 +45,23 @@ today_ymd = function() {
 }
 
 
+# EDCimport -----------------------------------------------------------------------------------
+
+#' @noRd
+#' @keywords internal
+#' @importFrom EDCimport edc_lookup
+get_projname = function(){
+  edc_lookup() %>% attr("project_name")
+}
+
+#' @noRd
+#' @keywords internal
+#' @importFrom EDCimport edc_lookup
+get_extraction_date = function(){
+  edc_lookup() %>% attr("datetime_extraction")
+}
+
+
 # Labels --------------------------------------------------------------------------------------
 
 #' @noRd
@@ -112,6 +129,42 @@ apply_labels = function(data, ..., warn_missing=FALSE) {
                   ~set_label(.x, args[[cur_column()]])))
 }
 
+
+#' Clean a string to ASCII
+#'
+#' @param old_names a character vector to clean
+#' @param lower whether to convert it to lowercase
+#' @param from the current encoding. passed on to [iconv()]. `""` is the current locale.
+#'
+#' @keywords internal
+#' @noRd
+#' @importFrom stringr str_remove_all str_replace_all str_trim str_remove
+#' @source inspired by `janitor:::old_make_clean_names()`
+#' @examples
+#' x = c(
+#'   "  \r\n \"Âge ≥ 18%\"  (inclusion)  <= 30% -  Visite #1 / 'CR/PR' \n  ",
+#'   "Consentement signé ? (Oui/Non) - Date (JJ/MM/AAAA)\n",
+#'   "Événement indésirable >= Grade 3 (CTCAE v5.0) / Lié au ttt (%)",
+#'   "PS ECOG (0–4) ; baseline...  ",
+#'   "Hb (g/dL) <= 10.0 ; NFS: neutro ≥ 1.5 G/L",
+#'   "Réponse RECIST 1.1 - Best overall response (CR/PR/SD/PD)  "
+#' )
+#' normalize_string(x)
+normalize_string = function (string, lower=TRUE, from = "") {
+  if(isTRUE(lower)) string = tolower(string)
+
+  string %>%
+    str_replace_all("<=|<|\u2264", "inf") %>%
+    str_replace_all(">=|>|\u2265", "sup") %>%
+    iconv(from = from, to = "ASCII//TRANSLIT") %>%
+    str_trim() %>%
+    str_remove_all("['\"\r\n]") %>%
+    str_replace_all("%", "pct") %>%
+    str_replace_all("[^A-Za-z0-9._]+", "_") %>%
+    str_replace_all("[\\._]+", "_") %>%
+    str_remove("^_+|_+$")
+}
+
 # NA.RM ---------------------------------------------------------------------------------------
 
 max_narm = function(x, na.rm=TRUE) {
@@ -144,6 +197,11 @@ remove_class = function(x, value){
   x
 }
 
+can_be_logical = function(v) {
+  is.logical(v) ||
+    (is.numeric(v) && all(v %in% c(0, 1, NA))) ||
+    (is.character(v) && all(v %in% c("TRUE", "FALSE", NA)))
+}
 
 
 # Burgled -------------------------------------------------------------------------------------
@@ -236,3 +294,54 @@ fct_yesno = function(x,
 
   factor(yesno, levels=c(TRUE,FALSE), labels=output) %>% copy_label_from(x)
 }
+
+
+#' @noRd
+#' @keywords internal
+#' @source GenBinomApps
+#' @importFrom stats qbeta
+clopper_pearson_ci = function(k, n, alpha = 0.1, CI = "upper"){
+  l = round(k)
+  if (is.na(k) || k < 0 || max(abs(k - l)) > 1e-07)
+    stop("'k' must be nonnegative and integer")
+  m = round(n)
+  if (is.na(n) || n < k || max(abs(n - m)) > 1e-07)
+    stop("'n' must be nonnegative and integer >= k")
+  if (alpha < 0 || alpha > 1) {
+    stop("'alpha' must be a number between 0 and 1")
+  }
+  if (CI == "upper") {
+    ll = 0
+    if (k == n) {
+      ul = 1
+    } else {
+      ul = qbeta(1 - alpha, k + 1, n - k)
+    }
+  } else if (CI == "lower") {
+    ul = 1
+    if (k == 0) {
+      ll = 0
+    } else {
+      ll = qbeta(alpha, k, n - k + 1)
+    }
+  } else if (CI == "two.sided") {
+    ll = qbeta(alpha / 2, k, n - k + 1)
+    ul = qbeta(1 - alpha / 2, k + 1, n - k)
+    if (k == 0) {
+      ll = 0
+    } else if (k == n) {
+      ul = 1
+    }
+  } else {
+    stop("undefined CI detected")
+  }
+  data.frame(
+    Confidence.Interval = CI,
+    Lower.limit = ll,
+    Upper.limit = ul,
+    alpha = alpha,
+    row.names = ""
+  )
+}
+
+

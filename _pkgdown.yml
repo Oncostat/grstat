@@ -27,19 +27,26 @@ reference:
   - contents:
     - gr_new_project
     - gr_officer_template
+    - body_add_gr_sections_1_8
     - grstat_example
 
-  - title: "Checks"
+
+  - title: "Preview features"
+    description: "These functions should be used with caution, and results should always be checked using your own code in parallel."
+  - subtitle: "RECIST Checks"
   - contents:
     - check_recist
     - gr_recist_mapping
     - recist_report_html
     - recist_report_xlsx
-
-  - title: "Not validated yet"
-  - description: "These functions should be used with caution, and results should always be checked using your own code in parallel."
+  - subtitle: "Misc"
   - contents:
-    - ae_plot_grade_sum
-    - boin_plot
+    - randomisation_list
     - calc_best_response
+    - aggregate_recist_rates
+    - survfit_stack
+  - subtitle: "Plots"
+  - contents:
+    - boin_plot
     - waterfall_plot
+    - ae_plot_grade_sum

@@ -131,7 +131,7 @@ ae_table_soc = function(
     mutate(
       # Tot = ifelse(total, Tot, 0),
       soc_ = soc_ %>% fct_infreq(w=Tot) %>%
-             fct_last(label_missing_soc, label_missing_pat)
+        fct_last(label_missing_soc, label_missing_pat)
     ) %>%
     summarise(
       across(c(matches("^G\\d$"), any_of(extra_cols)), ~{
@@ -187,7 +187,7 @@ ae_table_soc = function(
 #' @rdname ae_table_soc
 #' @export
 #'
-#' @importFrom dplyr case_match lag lead transmute
+#' @importFrom dplyr lag lead transmute
 #' @importFrom flextable align bg bold flextable fontsize hline hline_bottom merge_h merge_v padding set_header_df set_table_properties valign
 #' @importFrom purrr map map_int
 #' @importFrom rlang check_dots_empty set_names
@@ -223,14 +223,16 @@ as_flextable.ae_table_soc = function(x,
                          too_few="align_start", cols_remove=FALSE) %>%
     transmute(
       col_keys,
-      row1 = case_match(h1,
-                        "soc" ~ "",
-                        "term" ~ "",
-                        .default=table_ae_header[h1]),
-      row2 = case_match(h1,
-                        "soc" ~ "CTCAE SOC",
-                        "term" ~ "CTCAE v4.0 Term",
-                        .default=h2)
+      row1 = case_when(
+        h1 == "soc" ~ "",
+        h1 == "term" ~ "",
+        .default = table_ae_header[h1]
+      ),
+      row2 = case_when(
+        h1 == "soc" ~ "CTCAE SOC",
+        h1 == "term" ~ "CTCAE v4.0 Term",
+        .default = h2
+      ),
     )
 
   col1 = header_df$col_keys %in% c("soc", "term") %>% which() %>% max()
@@ -339,6 +341,13 @@ butterfly_plot = function(
     cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
                 i="Found {n_arms} arm{?s} in column {.arg {arm}}: {.val {unique(arms)}}"),
               class="grstat_butterfly_two_arms_error")
+  }
+
+  arm_na = sum(is.na(arms))
+  if(arm_na > 0){
+    cli_abort(c("{.fn grstat::butterfly_plot} found {arm_na} missing value{?s} in {.arg arm}.",
+                i = "Missing values are not allowed. Use `tidyr::drop_na({arm})` to remove them."),
+              class="grstat_butterfly_arm_na_error")
   }
 
   df = df_enrol %>%

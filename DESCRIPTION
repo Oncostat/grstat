@@ -1,7 +1,7 @@
 Package: grstat
 Type: Package
 Title: Clinical Research Tools
-Version: 0.1.0.9015
+Version: 0.1.0.9029
 Authors@R: c(
       person("Team Oncostat", role = c("cph", "fnd"),
              comment = c(ROR = "01ed4t417")),
@@ -18,7 +18,10 @@ Authors@R: c(
       person("Nusaïbah", "Ibrahimi", role = "ctb",
              email = "nusaibah.ibrahimi@gustaveroussy.fr"), 
       person("Livia", "Pierotti", role = c("ctb"),
-             email = "livia.pierotti@gustaveroussy.fr")
+             email = "livia.pierotti@gustaveroussy.fr"),
+      person("Alexis", "Cochard", role = c("ctb"),
+             email = "alexis.cochard@gustaveroussy.fr",
+             comment = c(ORCID = "0009-0008-0171-6840"))
     )
 Maintainer: Dan Chaltiel <dan.chaltiel@gustaveroussy.fr>
 Description: Gives tools to standardize the output of clinical research description.
@@ -29,13 +32,16 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     cli,
+    crosstable,
     dplyr,
+    EDCimport,
     flextable,
     forcats,
     fs,
     ggplot2,
     glue,
     lifecycle,
+    officer,
     patchwork,
     purrr,
     rlang,
@@ -46,18 +52,19 @@ Imports:
     tidyselect
 Suggests: 
     BOIN,
+    blockrand,
     callr,
-    crosstable,
     ggsurvfit,
     gtools,
     knitr,
-    officer,
+    lubridate,
     openxlsx,
     plotly,
     rmarkdown,
     rstudioapi,
     survival,
     testthat (>= 3.0.0),
+    tidyverse,
     usethis,
     utils,
     vdiffr

@@ -1,42 +1,57 @@
 
-#' Waterfall plot for RECIST data
+#' Waterfall plot for RECIST best response data
 #'
-#' Creates a waterfall plot showing the change from baseline in target lesion size
-#' for individual patients, optionally grouped by treatment arm.
+#' Creates a waterfall plot showing the best percent change from baseline in
+#' target lesion size for each subject.
 #'
-#' @param data A dataset containing RECIST best response data. Use [calc_best_response] to format your raw data.
+#' The input data must contain **one row per subject**, use [calc_best_response()]
+#' to convert from long-format RECIST data.
+#'
+#' Bars are drawn for individual subjects, optionally faceted by treatment arm.
+#' Horizontal dashed reference lines are added at -30\% and +20\%, corresponding
+#' to common RECIST response thresholds.
+#'
+#' @param data A data frame with one row per subject, typically produced by
+#'   [calc_best_response()].
 #' @param ... Not used. Ensures that only named arguments are passed.
-#' @param y The column representing the numeric outcome (typically change in tumor size). Default is `"target_sum_diff_first"`.
-#' @param fill The column indicating the filling color. Default is `"best_response"`, the best response category.
-#' @param shape The column to use for an shape layer (e.g., indicating mutation status).
-#' @param arm The column indicating treatment arms for faceting.
-#' @param subjid The column identifying subjects. Default is `"SUBJID"`.
-#' @param resp_colors Colors assigned to response categories.
-#' @param warnings Whether to display warnings.
-#'
-#' @return A `ggplot` object representing a waterfall plot of tumor size change by patient.
+#' @param y Name of the numeric column used for the bar height. Defaults to
+#'   `"target_sum_diff_first"`.
+#' @param fill Name of the categorical column used for bar fill color. Defaults
+#'   to `"best_response"`.
+#' @param shape Optional name of a categorical column used to add a symbol
+#'   above or below each bar.
+#' @param arm Optional name of a column used to facet the plot by treatment arm.
+#' @param subjid Name of the subject identifier column. Defaults to `"SUBJID"`.
+#' @param resp_colors Named vector of colors used for RECIST response categories.
+#' @param warnings Logical. If `TRUE`, warnings are emitted when missing values
+#'   are detected in plotted variables.
 #'
 #' @export
-#' @importFrom dplyr all_of mutate rename
+#' @importFrom dplyr all_of if_any mutate rename where
+#' @importFrom forcats fct_reorder2
 #' @importFrom ggplot2 aes facet_wrap geom_col geom_hline ggplot labs scale_fill_manual scale_x_discrete scale_y_continuous theme_minimal
 #' @importFrom rlang check_dots_empty
 #' @importFrom scales breaks_width label_percent
+#' @importFrom cli cli_warn
+#'
+#' @return A `ggplot` object.
+#'
+#' @seealso [calc_best_response()]
 #'
 #' @examples
 #' db = grstat_example(N=50)
 #' data_best_resp = calc_best_response(db$recist)
 #'
-#' #simple example
+#' # Basic waterfall plot
 #' waterfall_plot(data_best_resp)
 #'
-#' #facet by arm
+#' # Facet by arm
 #' data_best_resp %>%
 #'   dplyr::left_join(db$enrolres, by="subjid") %>%
 #'   waterfall_plot(arm="ARM")
 #'
 #'
-#' #add symbols
-#' #use the NA level to not show the case
+#' # Add symbols
 #' set.seed(0)
 #' data_symbols = db$recist %>%
 #'   dplyr::summarise(
@@ -53,7 +68,6 @@
 #'   dplyr::left_join(data_symbols, by="subjid") %>%
 #'   waterfall_plot(shape="example_event") +
 #'   ggplot2::labs(shape="Event")
-#'
 waterfall_plot = function(data, ...,
                           y="target_sum_diff_first", fill="best_response",
                           shape=NULL, arm=NULL, subjid="SUBJID",
@@ -70,25 +84,38 @@ waterfall_plot = function(data, ...,
   check_dots_empty()
   assert_names_exists(data, c(y, fill, subjid))
 
+  y_lab = "Target lesions reduction from baseline"
+  if(y!="target_sum_diff_first") y_lab=y
   fill_lab = "Best Global Response \n(RECIST v1.1)"
-  fill_scale = .get_fill_scale(data, resp_colors)
-
 
   db_wf = data %>%
-    rename(shape=any_of2(shape), resp=all_of(fill), y=all_of(y)) %>%
-    mutate(subjid = forcats::fct_reorder2(as.character(subjid),
-                                          as.numeric(resp), y))
+      select(subjid=any_of2(subjid), shape=any_of2(shape), arm=any_of2(arm),
+             resp=all_of(fill), y=all_of(y)) %>%
+      mutate(subjid = fct_reorder2(as.character(subjid), as.numeric(resp),
+                                   y, .na_rm=FALSE))
+  fill_scale = .get_fill_scale(db_wf, resp_colors)
 
+  db_wf_missing = db_wf %>% 
+    filter(if_any(-any_of("shape"), ~is.na(.x) & !is.nan(.x))) %>% 
+    select(subjid, where(~any(is.na(.x) & !is.nan(.x))), -any_of("shape"))
+  if(nrow(db_wf_missing) > 0 && warnings){
+    cli_warn(c("!" = "Missing values detected in {.fun waterfall_plot}.",
+              "i" = "Subjects with missing values: {.val {db_wf_missing$subjid}}.",
+              "i" = "Columns with missing values: {.val {colnames(db_wf_missing)[-1]}}."),
+            class="waterfall_plot_missing_warning")
+  }
+  
   p =
   db_wf %>%
-    ggplot(aes(x=subjid, y=y, group=subjid, fill=resp)) +
+    ggplot() +
+    aes(x=subjid, y=y, fill=resp) +
     geom_hline(yintercept=c(-.3, .2), linetype="dashed") +
     geom_col(color='black') +
     .get_shape_layer(shape, shape_nudge=0.05) +
     scale_x_discrete(labels = NULL, breaks = NULL) +
     scale_y_continuous(labels=label_percent(), breaks=breaks_width(0.2)) +
     scale_fill_manual(values=fill_scale) +
-    labs(x = "", y="Target lesions reduction from baseline", fill=fill_lab) +
+    labs(x = "", y=y_lab, fill=fill_lab) +
     theme_minimal() +
     guides(
       color = guide_legend(order = 1),
@@ -135,8 +162,8 @@ waterfall_plot = function(data, ...,
   resp_colors = c("CR"="#42b540", "PR"="#006dd8", "SD"="#925e9f", "PD"="#ed0000", "NA"="white")
   resp_colors = resp_colors[c("CR", "PR", "SD", "PD", "NA")]
   fill_scale = data %>%
-    distinct(best_response, resp_num = .encode_response(best_response)) %>%
+    distinct(resp, resp_num = .recist_to_num(resp)) %>%
     mutate(color=resp_colors[resp_num]) %>%
-    select(best_response, color) %>%
+    select(resp, color) %>%
     deframe()
 }
