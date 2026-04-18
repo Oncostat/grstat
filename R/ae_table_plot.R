@@ -14,7 +14,7 @@
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres)
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", variant=c("sup", "max"))
+#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", measure=c("sup", "max"))
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="fill")
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="stack", type="absolute")
@@ -26,7 +26,7 @@
 #' @importFrom tidyr pivot_longer
 ae_plot_grade = function(
     df_ae, ..., df_enrol,
-    variant = c("max", "sup", "eq"),
+    measure = c("max", "sup", "eq"),
     position = c("dodge", "stack", "fill"),
     type = c("relative", "absolute"),
     arm=NULL, grade="AEGR", subjid="SUBJID", total=FALSE
@@ -60,7 +60,7 @@ ae_plot_grade = function(
   }
 
 
-  tbl = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, variant=variant,
+  tbl = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, measure=measure,
                        arm=arm, grade=grade, subjid=subjid, percent_digits=Inf,
                        percent_pattern=percent_pattern, total=total)
   p = switch(position, fill=position_fill(), stack=position_stack(),
@@ -73,7 +73,7 @@ ae_plot_grade = function(
     ggplot(aes(x=variable, y=value)) + fill_aes +
     geom_col(position=p) +
     labs(x=NULL, fill=NULL, y=y_lab) +
-    facet_wrap(~label, scales="free_x") +
+    facet_wrap(~measure, scales="free_x") +
     add_layer +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
           legend.position="top")

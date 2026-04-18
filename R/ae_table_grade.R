@@ -11,7 +11,7 @@
 #' @param data_ae Data frame of adverse events, with one row per AE.
 #' @param ... Unused.
 #' @param data_pat Data frame of enrolled patients, with one row per patient.
-#' @param variant Character vector specifying which variants to compute: `"max"`, `"sup"`, `"eq"`.
+#' @param measure Character vector specifying which variants to compute: `"max"`, `"sup"`, `"eq"`.
 #' @param arm Name of the arm column in `data_pat`. If `NULL`, all patients are pooled.
 #' @param grade Name of the AE grade column in `data_ae`.
 #' @param subjid Name of the subject ID column (in both data frames).
@@ -24,6 +24,7 @@
 #'   displayed in the output tables. Must contain `display` (one of `"if_any"`
 #'   or `"always"`) and `grouped` (logical).
 #' @param df_ae,df_enrol Deprecated. Use `data_ae` and `data_pat` instead.
+#' @param variant Deprecated. Use `measure` instead.
 #' @param percent,digits Deprecated. Use `percent_pattern`and `percent_digits` instead.
 #'
 #' @return A data frame of class `ae_table_grade`, ready for use with [as_flextable()].
@@ -46,6 +47,7 @@
 #'
 #' db = grstat_example(N=20, p_na=0)
 #' ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM",
+#'                measure=c("max", "sup"), 
 #'                total=TRUE, zero_value="-",
 #'                na_strategy=list(display="always", grouped=TRUE)) %>%
 #'   as_flextable()
@@ -54,7 +56,7 @@ ae_table_grade = function(
   data_ae,
   ...,
   data_pat,
-  variant = c("max", "sup", "eq"),
+  measure = c("max", "sup", "eq"),
   arm = NULL,
   grade = "AEGR",
   subjid = "SUBJID",
@@ -67,6 +69,7 @@ ae_table_grade = function(
   #deprecated
   df_ae,
   df_enrol,
+  variant,
   percent = TRUE,
   digits = 0
 ) {
@@ -79,6 +82,9 @@ ae_table_grade = function(
   }
   if(!missing(digits)){
     percent_digits = digits
+  }
+  if(!missing(variant)){
+    measure = variant
   }
 
   assert_names_exists(data_ae, lst(subjid, grade))
@@ -100,7 +106,7 @@ ae_table_grade = function(
 
   params = lst(total, digits, zero_value, percent_pattern, ae_label)
   # fmt: skip
-  x = variant %>%
+  x = measure %>%
     map(~{
       switch(
         .x,
@@ -115,13 +121,13 @@ ae_table_grade = function(
 
   rtn = bind_rows(x) %>%
     mutate(
-      label = case_when(
-        .id == "max_grade" ~ glue("Patient maximum {ae_label} grade"),
-        .id == "any_grade_sup" ~ glue("Patient had at least one {ae_label} of grade"),
-        .id == "any_grade_eq" ~ glue("Patient had at least one {ae_label} of grade "),
+      measure = case_when(
+        .id == "max_grade" ~ glue("Patients by maximum {ae_label} grade"),
+        .id == "any_grade_sup" ~ glue("Patients with at least one {ae_label} at or above each grade"),
+        .id == "any_grade_eq" ~ glue("Patients with at least one {ae_label} at each grade "),
         .default="ERROR"
       ),
-      across(c(.id, label), as_factor),
+      across(c(.id, measure), as_factor),
       .after = .id
     )
 
@@ -130,18 +136,18 @@ ae_table_grade = function(
     rtn = rtn %>%
       filter(
         if_any(
-          -c(.id, label, variable),
-          ~ !variable %in% cols_missing | str_detect(.x, "[1-9]")
+          -c(.id, measure, level),
+          ~ !level %in% cols_missing | str_detect(.x, "[1-9]")
         )
       )
   }
 
-  if (na_strategy$grouped && length(variant) > 1) {
+  if (na_strategy$grouped && length(measure) > 1) {
     rtn = rtn %>%
       mutate(
-        .id = if_else(variable %in% cols_missing, factor("missing"), .id),
-        .id = fct_relevel(.id, "missing"),
-        label = if_else(.id == "missing", "Missing values", label)
+        .id = if_else(level %in% cols_missing, factor("missing"), .id),
+        .id = fct_relevel(.id, "missing", after = Inf),
+        measure = if_else(.id == "missing", "Missing values", label)
       ) %>%
       arrange(.id) %>%
       distinct()
@@ -194,7 +200,7 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
     hline_bottom(part = "body", border = border2) %>%
     merge_h(part = "header") %>%
     merge_v(part = "header") %>%
-    merge_v(part = "body", j = ".id", target="label") %>%
+    merge_v(part = "body", j = ".id", target="measure") %>%
     align(part = "header", align = "center") %>%
     padding(padding.top = padding_v, padding.bottom = padding_v) %>%
     set_table_properties(layout = "autofit") %>%
@@ -288,9 +294,9 @@ max_grade = function(df, params) {
               pattern=params$percent_pattern),
       arm = fct_last(arm, lab_total)
     ) %>%
-    rename(variable = max_gr) %>%
-    arrange(arm, variable) %>%
-    pivot_wider(id_cols = variable, names_from = arm, values_from = np) %>%
+    rename(level = max_gr) %>%
+    arrange(arm, level) %>%
+    pivot_wider(id_cols = level, names_from = arm, values_from = np) %>%
     mutate(
       .id = "max_grade",
       .before = 0
@@ -329,21 +335,21 @@ any_grade = function(df, f, params) {
       tmp = list(f(grade, subjid %in% ae_id)),
       .by = c(subjid, arm)
     ) %>%
-    unnest_longer(tmp, indices_to = "variable") %>%
+    unnest_longer(tmp, indices_to = "level") %>%
     summarise(
       n = sum(tmp),
       p = n / n(),
-      .by = c(arm, variable)
+      .by = c(arm, level)
     ) %>%
     mutate(
       np = np(n, p, digits=params$digits, zero_value=params$zero_value,
               pattern=params$percent_pattern),
       arm = fct_last(arm, lab_total),
-      variable = factor(variable) %>% str_replace("no_ae", lab_no_ae) %>%
+      level = factor(level) %>% str_replace("no_ae", lab_no_ae) %>%
         fct_relevel(lab_no_ae) %>% fct_last("Grade = 5") %>% fct_last(lab_ae_na)
     ) %>%
-    arrange(arm, variable) %>%
-    pivot_wider(id_cols = variable, names_from = arm, values_from = np) %>%
+    arrange(arm, level) %>%
+    pivot_wider(id_cols = level, names_from = arm, values_from = np) %>%
     mutate(
       .id = id,
       .before = 0
