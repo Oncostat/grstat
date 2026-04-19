@@ -72,24 +72,21 @@ test_that("validation best response", {
   })
 })
 
-test_that("Non excluion patient", {
+test_that("Missing values don't exclude patients", {
   local_reproducible_output(width=125)
-
-   non_excl_unconf = tibble(
+  date0 = lubridate::ymd("2026-01-01")
+  data = tibble(
     SUBJID = 145,
-    RCDT = c(lubridate::today(), lubridate::today()+28),
+    RCDT = c(date0, date0+28),
     RCTLSUM = c(100, NA),
     RCRESP = c(NA, "CR"),
-  ) %>%
+  )
+
+  non_excl_unconf = data %>%
     calc_best_response(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP")
 
-   non_excl_conf = tibble(
-     SUBJID = 145,
-     RCDT = c(lubridate::today(), lubridate::today()+28),
-     RCTLSUM = c(100, NA),
-     RCRESP = c(NA, "CR"),
-   ) %>%
-     calc_best_response(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP", confirmed = TRUE)
+  non_excl_conf = data %>%
+    calc_best_response(rc_date="RCDT", rc_sum="RCTLSUM", rc_resp="RCRESP", confirmed = TRUE)
 
   expect_snapshot({
     as.data.frame(non_excl_unconf)

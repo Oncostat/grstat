@@ -1457,3 +1457,16 @@
         subjid best_response       date target_sum target_sum_diff_first target_sum_diff_min six_months_confirmation
       1    145 Not evaluable 2026-05-14         NA                     0                  NA                   FALSE
 
+# Missing values don't exclude patients
+
+    Code
+      as.data.frame(non_excl_unconf)
+    Output
+        subjid     best_response       date target_sum target_sum_diff_first target_sum_diff_min six_months_confirmation
+      1    145 Complete response 2026-01-29         NA                     0                  NA                   FALSE
+    Code
+      as.data.frame(non_excl_conf)
+    Output
+        subjid best_response       date target_sum target_sum_diff_first target_sum_diff_min six_months_confirmation
+      1    145 Not evaluable 2026-01-29         NA                     0                  NA                   FALSE
+
