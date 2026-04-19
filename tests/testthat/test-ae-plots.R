@@ -4,15 +4,15 @@ test_that("ae_plot_grade() works", {
   enrolres = db_test$enrolres
   rlang::local_options(ae_table_grade_na_strategy = list(display="if_any", grouped=FALSE))
 
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres)
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres)
   vdiffr::expect_doppelganger("ae-plot-grade-1arm", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", measure=c("sup", "max"))
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", measure=c("sup", "max"))
   vdiffr::expect_doppelganger("ae-plot-grade-2arms", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", type="absolute")
   vdiffr::expect_doppelganger("ae-plot-grade-2arms-absolute", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="fill")
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="fill")
   vdiffr::expect_doppelganger("ae-plot-grade-2arms-fill", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="stack", type="absolute")
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="stack", type="absolute")
   vdiffr::expect_doppelganger("ae-plot-grade-2arms-stack", p)
 
 })

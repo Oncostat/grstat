@@ -18,18 +18,27 @@
 #' @examples
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres)
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", measure=c("sup", "max"))
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="fill")
-#' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="stack", type="absolute")
+#' ae_plot_grade(data_ae=ae, data_pat=enrolres)
+#' ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", measure=c("sup", "max"))
+#' ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", type="absolute")
+#' ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="fill")
+#' ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="stack", type="absolute")
 ae_plot_grade = function(
-    df_ae, ..., df_enrol,
-    measure = c("max", "sup", "eq"),
-    position = c("dodge", "stack", "fill"),
-    type = c("relative", "absolute"),
-    arm=NULL, grade="AEGR", subjid="SUBJID", total=FALSE
+  data_ae, ..., data_pat,
+  measure = c("max", "sup", "eq"),
+  position = c("dodge", "stack", "fill"),
+  type = c("relative", "absolute"),
+  arm=NULL, grade="AEGR", subjid="SUBJID", total=FALSE,
+  na_strategy = list(display="always", grouped=TRUE)
 ){
+  dots = list(...)
+  data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae  
+  data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
+  measure = if(has_name(dots, "variant")) dots$variant else measure
+  # browser()
+  check_dots_empty2(except = c("df_ae", "df_enrol", "variant"))
+  
+  na_strategy = if(is_missing(na_strategy)) na_strategy else getOption("ae_table_grade_na_strategy", na_strategy)
   type = match.arg(type)
   position = match.arg(position)
 
@@ -50,7 +59,7 @@ ae_plot_grade = function(
 
   fill_aes = NULL
   if(!is.null(arm)){
-    df_enrol = df_enrol %>%
+    data_pat = data_pat %>%
       # mutate(arm = if(is.null(.env$arm)) "All Patients" else .data$arm) %>%
       mutate(arm2 = paste0(cur_group()[[1]], " (N=", n(), ")"),
              .by=any_of2(arm))
@@ -58,21 +67,21 @@ ae_plot_grade = function(
     fill_aes = aes(fill=name)
   }
 
-
-  tbl = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, measure=measure,
+  tbl = ae_table_grade(data_ae=data_ae, data_pat=data_pat, measure=measure,
                        arm=arm, grade=grade, subjid=subjid, percent_digits=0,
-                       percent_pattern=percent_pattern, total=total)
+                       percent_pattern=percent_pattern, total=total, na_strategy=na_strategy)
   p = switch(position, fill=position_fill(), stack=position_stack(),
              dodge=position_dodge(0.9))
 
   tbl %>%
-    mutate(across(-c(.id, label, variable), ~as.numeric(as.character(.x)))) %>%
-    pivot_longer(-c(.id, label, variable)) %>%
-    mutate(name=as_factor(name)) %>%
-    ggplot(aes(x=variable, y=value)) + fill_aes +
+    # filter(.id!="missing") %>%
+    mutate(across(-c(.id, measure, level), ~as.numeric(as.character(.x)))) %>%
+    pivot_longer(-c(.id, measure, level)) %>%
+    mutate(measure=as_factor(measure)) %>%
+    ggplot(aes(x=level, y=value)) + fill_aes +
     geom_col(position=p) +
     labs(x=NULL, fill=NULL, y=y_lab) +
-    facet_wrap(~measure, scales="free_x") +
+    facet_wrap(~measure, scales="free_x", space="free_x", nrow=1) +
     add_layer +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
           legend.position="top")
