@@ -2,10 +2,11 @@
 test_that("ae_plot_grade() works", {
   ae = db_test$ae
   enrolres = db_test$enrolres
+  rlang::local_options(ae_table_grade_na_strategy = list(display="if_any", grouped=FALSE))
 
   p = ae_plot_grade(df_ae=ae, df_enrol=enrolres)
   vdiffr::expect_doppelganger("ae-plot-grade-1arm", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", variant=c("sup", "max"))
+  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", measure=c("sup", "max"))
   vdiffr::expect_doppelganger("ae-plot-grade-2arms", p)
   p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
   vdiffr::expect_doppelganger("ae-plot-grade-2arms-absolute", p)

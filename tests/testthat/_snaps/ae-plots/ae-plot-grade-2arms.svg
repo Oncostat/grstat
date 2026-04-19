@@ -101,7 +101,7 @@
 </defs>
 <g clip-path='url(#cpNDUuNTF8Mzc3LjI4fDYxLjk4fDc4LjYz)'>
 <rect x='45.51' y='61.98' width='331.76' height='16.65' style='stroke-width: 1.07; stroke: none; fill: #D9D9D9;' />
-<text x='211.40' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='141.40px' lengthAdjust='spacingAndGlyphs'>Patient had at least one AE of grade</text>
+<text x='211.40' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='205.00px' lengthAdjust='spacingAndGlyphs'>Patients with at least one AE at or above each grade</text>
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
@@ -112,7 +112,7 @@
 </defs>
 <g clip-path='url(#cpMzgyLjc2fDcxNC41Mnw2MS45OHw3OC42Mw==)'>
 <rect x='382.76' y='61.98' width='331.76' height='16.65' style='stroke-width: 1.07; stroke: none; fill: #D9D9D9;' />
-<text x='548.64' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='107.13px' lengthAdjust='spacingAndGlyphs'>Patient maximum AE grade</text>
+<text x='548.64' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='123.28px' lengthAdjust='spacingAndGlyphs'>Patients by maximum AE grade</text>
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 <polyline points='77.62,519.86 77.62,517.12 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />

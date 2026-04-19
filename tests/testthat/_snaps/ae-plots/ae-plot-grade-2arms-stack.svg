@@ -18,7 +18,7 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
-<rect x='-0.000000000000064' y='0.00' width='720.00' height='576.00' style='stroke-width: 1.07; stroke: #FFFFFF; fill: #FFFFFF;' />
+<rect x='0.00' y='0.00' width='720.00' height='576.00' style='stroke-width: 1.07; stroke: #FFFFFF; fill: #FFFFFF;' />
 </g>
 <defs>
   <clipPath id='cpMzcuNjl8MjU5LjY1fDc4LjYzfDUxNy4xMg=='>
@@ -138,7 +138,7 @@
 </defs>
 <g clip-path='url(#cpMzcuNjl8MjU5LjY1fDYxLjk4fDc4LjYz)'>
 <rect x='37.69' y='61.98' width='221.96' height='16.65' style='stroke-width: 1.07; stroke: none; fill: #D9D9D9;' />
-<text x='148.67' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='107.13px' lengthAdjust='spacingAndGlyphs'>Patient maximum AE grade</text>
+<text x='148.67' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='123.28px' lengthAdjust='spacingAndGlyphs'>Patients by maximum AE grade</text>
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
@@ -149,7 +149,7 @@
 </defs>
 <g clip-path='url(#cpMjY1LjEzfDQ4Ny4wOHw2MS45OHw3OC42Mw==)'>
 <rect x='265.13' y='61.98' width='221.96' height='16.65' style='stroke-width: 1.07; stroke: none; fill: #D9D9D9;' />
-<text x='376.10' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='141.40px' lengthAdjust='spacingAndGlyphs'>Patient had at least one AE of grade</text>
+<text x='376.10' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='205.00px' lengthAdjust='spacingAndGlyphs'>Patients with at least one AE at or above each grade</text>
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
@@ -160,7 +160,7 @@
 </defs>
 <g clip-path='url(#cpNDkyLjU2fDcxNC41Mnw2MS45OHw3OC42Mw==)'>
 <rect x='492.56' y='61.98' width='221.96' height='16.65' style='stroke-width: 1.07; stroke: none; fill: #D9D9D9;' />
-<text x='603.54' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='143.84px' lengthAdjust='spacingAndGlyphs'>Patient had at least one AE of grade </text>
+<text x='603.54' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='170.74px' lengthAdjust='spacingAndGlyphs'>Patients with at least one AE at each grade </text>
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 <polyline points='59.17,519.86 59.17,517.12 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />

@@ -138,7 +138,7 @@
 </defs>
 <g clip-path='url(#cpNDUuNTF8MjY0Ljg2fDYxLjk4fDc4LjYz)'>
 <rect x='45.51' y='61.98' width='219.35' height='16.65' style='stroke-width: 1.07; stroke: none; fill: #D9D9D9;' />
-<text x='155.19' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='107.13px' lengthAdjust='spacingAndGlyphs'>Patient maximum AE grade</text>
+<text x='155.19' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='123.28px' lengthAdjust='spacingAndGlyphs'>Patients by maximum AE grade</text>
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
@@ -149,7 +149,7 @@
 </defs>
 <g clip-path='url(#cpMjcwLjM0fDQ4OS42OXw2MS45OHw3OC42Mw==)'>
 <rect x='270.34' y='61.98' width='219.35' height='16.65' style='stroke-width: 1.07; stroke: none; fill: #D9D9D9;' />
-<text x='380.02' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='141.40px' lengthAdjust='spacingAndGlyphs'>Patient had at least one AE of grade</text>
+<text x='380.02' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='205.00px' lengthAdjust='spacingAndGlyphs'>Patients with at least one AE at or above each grade</text>
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
@@ -160,7 +160,7 @@
 </defs>
 <g clip-path='url(#cpNDk1LjE3fDcxNC41Mnw2MS45OHw3OC42Mw==)'>
 <rect x='495.17' y='61.98' width='219.35' height='16.65' style='stroke-width: 1.07; stroke: none; fill: #D9D9D9;' />
-<text x='604.85' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='143.84px' lengthAdjust='spacingAndGlyphs'>Patient had at least one AE of grade </text>
+<text x='604.85' y='73.33' text-anchor='middle' style='font-size: 8.80px; fill: #1A1A1A; font-family: sans;' textLength='170.74px' lengthAdjust='spacingAndGlyphs'>Patients with at least one AE at each grade </text>
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 <polyline points='66.74,519.86 66.74,517.12 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
