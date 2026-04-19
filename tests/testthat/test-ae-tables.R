@@ -61,7 +61,7 @@ test_that("ae_table_grade() with different colnames", {
   rslt = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, subjid="ENROLLID2", grade="grade", arm="TRT") %>%
     expect_silent()
 
-  expect_setequal(names(rslt), c(".id", "label", "variable", "Control", "Treatment", "Total"))
+  expect_setequal(names(rslt), c(".id", "measure", "level", "Control", "Treatment", "Total"))
 })
 
 
@@ -77,17 +77,17 @@ test_that("ae_table_grade() errors", {
 
 })
 
-test_that("ae_table_grade() variants add up", {
+test_that("ae_table_grade() measure add up", {
   #variant `sup` is the cumulative sum of variant `max`
-  f = function(variant){
+  f = function(measure){
     ae_table_grade(db_test$ae, df_enrol=db_test$enrolres, arm="ARM", total=TRUE,
-                   variant=variant, digits=2,  percent_pattern="{n}") %>%
-      select(-label) %>%
-      filter(str_detect(variable, "Grade")) %>%
+                   measure=measure, digits=2,  percent_pattern="{n}") %>%
+      select(-measure) %>%
+      filter(str_detect(level , "Grade")) %>%
       arrange(desc(row_number())) %>%
       pivot_longer(Control:Total) %>%
       arrange(name) %>%
-      mutate(grade=stringr::str_extract(variable, "\\d"))
+      mutate(grade=stringr::str_extract(level, "\\d"))
   }
   a = f("sup")
   b = f("max")
