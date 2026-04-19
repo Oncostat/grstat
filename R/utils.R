@@ -47,17 +47,24 @@ today_ymd = function() {
 
 #' @noRd
 #' @keywords internal
-check_dots_empty2 = function(except=character(0), env = rlang::caller_env()) {
+#' @importFrom cli cli_abort
+#' @importFrom purrr discard_at imap_chr set_names
+#' @importFrom rlang as_label caller_env
+#' @importFrom stringr str_replace_all
+check_dots_empty2 = function(except=character(0), env = caller_env()) {
   dots = substitute(...(), env = env)
   if (length(dots) == 0) return(invisible())
   
   nms0 = names(dots) %0% rep("", n)
   nms = ifelse(nms0 == "", paste0("..", seq_along(dots)), nms0)
   dots = dots %>% as.list() %>% set_names(nms) %>% discard_at(except)
-  bullets = imap_chr(dots, ~ paste(.y, as_label(.x), sep=" = ")) %>% set_names("*")
+  bullets = imap_chr(dots, ~ paste(.y, as_label(.x), sep=" = ")) %>% 
+    set_names("*") %>% 
+    str_replace_all("\\{", "\\{\\{") %>%
+    str_replace_all("\\}", "\\}\\}")
   if (length(dots) == 0) return(invisible())
 
-  cli::cli_abort(
+  cli_abort(
     c("!"="`...` must be empty; did you misspell or forget to name an argument?",
       "x" = "Problematic arguments:",
       bullets),
