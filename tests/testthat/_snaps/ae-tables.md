@@ -33,104 +33,37 @@
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
     Output
       # A tibble: 5 x 4
-        .id       label                      variable   `All patients`
+        .id       measure                      level   `All patients`
         <fct>     <fct>                        <fct>   <chr>         
-      1 max_grade Patient maximum AE grade Grade 1 0             
-      2 max_grade Patient maximum AE grade Grade 2 0             
-      3 max_grade Patient maximum AE grade Grade 3 0             
-      4 max_grade Patient maximum AE grade Grade 4 1 (50%)       
-      5 max_grade Patient maximum AE grade Grade 5 1 (50%)       
+      1 max_grade Patients by maximum AE grade Grade 1 0             
+      2 max_grade Patients by maximum AE grade Grade 2 0             
+      3 max_grade Patients by maximum AE grade Grade 3 0             
+      4 max_grade Patients by maximum AE grade Grade 4 1 (50%)       
+      5 max_grade Patients by maximum AE grade Grade 5 1 (50%)       
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
     Output
       # A tibble: 6 x 4
-        .id           label                                              variable               `All patients`
+        .id           measure                                              level               `All patients`
         <fct>         <fct>                                                <fct>               <chr>         
-      1 any_grade_sup Patient had at least one AE of grade Grade ≥ 1           2 (100%)      
-      2 any_grade_sup Patient had at least one AE of grade Grade ≥ 2           2 (100%)      
-      3 any_grade_sup Patient had at least one AE of grade Grade ≥ 3           2 (100%)      
-      4 any_grade_sup Patient had at least one AE of grade Grade ≥ 4           2 (100%)      
-      5 any_grade_sup Patient had at least one AE of grade Grade = 5           1 (50%)       
-      6 any_grade_sup Patient had at least one AE of grade Some grades missing 2 (100%)      
+      1 any_grade_sup Patients with at least one AE at or above each grade Grade ≥ 1           2 (100%)      
+      2 any_grade_sup Patients with at least one AE at or above each grade Grade ≥ 2           2 (100%)      
+      3 any_grade_sup Patients with at least one AE at or above each grade Grade ≥ 3           2 (100%)      
+      4 any_grade_sup Patients with at least one AE at or above each grade Grade ≥ 4           2 (100%)      
+      5 any_grade_sup Patients with at least one AE at or above each grade Grade = 5           1 (50%)       
+      6 any_grade_sup Patients with at least one AE at or above each grade Some grades missing 2 (100%)      
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
     Output
       # A tibble: 6 x 4
-        .id          label                                        variable               `All patients`
+        .id          measure                                        level               `All patients`
         <fct>        <fct>                                          <fct>               <chr>         
-      1 any_grade_eq "Patient had at least one AE of grade " Grade 1             1 (50%)       
-      2 any_grade_eq "Patient had at least one AE of grade " Grade 2             2 (100%)      
-      3 any_grade_eq "Patient had at least one AE of grade " Grade 3             2 (100%)      
-      4 any_grade_eq "Patient had at least one AE of grade " Grade 4             2 (100%)      
-      5 any_grade_eq "Patient had at least one AE of grade " Grade 5             1 (50%)       
-      6 any_grade_eq "Patient had at least one AE of grade " Some grades missing 2 (100%)      
-
----
-
-    Code
-      df_ae = tibble(subjid = rep(1:2, each = 5), aesoc = rep("Soc1", 10), aegr = c(1:4, NA, 2:5, NA))
-      df_enrolres = tibble(subjid = 1:2, arm = "Foobar")
-      ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
-    Output
-      # A tibble: 1 x 8
-        soc   all_patients_G1 all_patients_G2 all_patients_G3 all_patients_G4 all_patients_G5 all_patients_NA all_patients_Tot
-        <fct> <glue>          <glue>          <glue>          <glue>          <glue>          <glue>          <glue>          
-      1 Soc1  <NA>            <NA>            <NA>            1 (50%)         1 (50%)         <NA>            2 (100%)        
-    Code
-      ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
-    Condition
-      Warning:
-      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
-    Output
-      # A tibble: 1 x 7
-        soc   all_patients_G1 all_patients_G2 all_patients_G3 all_patients_G4 all_patients_G5 all_patients_NA
-        <fct> <glue>          <glue>          <glue>          <glue>          <glue>          <glue>         
-      1 Soc1  2 (100%)        2 (100%)        2 (100%)        2 (100%)        1 (50%)         <NA>           
-    Code
-      ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
-    Condition
-      Warning:
-      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
-    Output
-      # A tibble: 1 x 7
-        soc   all_patients_G1 all_patients_G2 all_patients_G3 all_patients_G4 all_patients_G5 all_patients_NA
-        <fct> <glue>          <glue>          <glue>          <glue>          <glue>          <glue>         
-      1 Soc1  1 (50%)         2 (100%)        2 (100%)        2 (100%)        1 (50%)         <NA>           
-    Code
-      ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
-    Output
-      # A tibble: 5 x 4
-        .id       label                      variable   `All patients`
-        <fct>     <fct>                        <fct>   <chr>         
-      1 max_grade Patient maximum AE grade Grade 1 0             
-      2 max_grade Patient maximum AE grade Grade 2 0             
-      3 max_grade Patient maximum AE grade Grade 3 0             
-      4 max_grade Patient maximum AE grade Grade 4 1 (50%)       
-      5 max_grade Patient maximum AE grade Grade 5 1 (50%)       
-    Code
-      ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
-    Output
-      # A tibble: 6 x 4
-        .id           label                                              variable               `All patients`
-        <fct>         <fct>                                                <fct>               <chr>         
-      1 any_grade_sup Patient had at least one AE of grade Grade ≥ 1           2 (100%)      
-      2 any_grade_sup Patient had at least one AE of grade Grade ≥ 2           2 (100%)      
-      3 any_grade_sup Patient had at least one AE of grade Grade ≥ 3           2 (100%)      
-      4 any_grade_sup Patient had at least one AE of grade Grade ≥ 4           2 (100%)      
-      5 any_grade_sup Patient had at least one AE of grade Grade = 5           1 (50%)       
-      6 any_grade_sup Patient had at least one AE of grade Some grades missing 2 (100%)      
-    Code
-      ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
-    Output
-      # A tibble: 6 x 4
-        .id          label                                        variable               `All patients`
-        <fct>        <fct>                                          <fct>               <chr>         
-      1 any_grade_eq "Patient had at least one AE of grade " Grade 1             1 (50%)       
-      2 any_grade_eq "Patient had at least one AE of grade " Grade 2             2 (100%)      
-      3 any_grade_eq "Patient had at least one AE of grade " Grade 3             2 (100%)      
-      4 any_grade_eq "Patient had at least one AE of grade " Grade 4             2 (100%)      
-      5 any_grade_eq "Patient had at least one AE of grade " Grade 5             1 (50%)       
-      6 any_grade_eq "Patient had at least one AE of grade " Some grades missing 2 (100%)      
+      1 any_grade_eq "Patients with at least one AE at each grade " Grade 1             1 (50%)       
+      2 any_grade_eq "Patients with at least one AE at each grade " Grade 2             2 (100%)      
+      3 any_grade_eq "Patients with at least one AE at each grade " Grade 3             2 (100%)      
+      4 any_grade_eq "Patients with at least one AE at each grade " Grade 4             2 (100%)      
+      5 any_grade_eq "Patients with at least one AE at each grade " Grade 5             1 (50%)       
+      6 any_grade_eq "Patients with at least one AE at each grade " Some grades missing 2 (100%)      
 
 # ae_table_grade() default snapshot
 
@@ -140,92 +73,92 @@
       ae_table_grade(ae, df_enrol = enrolres)
     Output
       # A tibble: 18 x 4
-         .id           label                                                variable          `All patients`
+         .id           measure                                                level          `All patients`
          <fct>         <fct>                                                  <fct>          <chr>         
-       1 max_grade     "Patient maximum AE grade"                         No AE reported 8 (4%)        
-       2 max_grade     "Patient maximum AE grade"                         Grade 1        38 (19%)      
-       3 max_grade     "Patient maximum AE grade"                         Grade 2        62 (31%)      
-       4 max_grade     "Patient maximum AE grade"                         Grade 3        54 (27%)      
-       5 max_grade     "Patient maximum AE grade"                         Grade 4        34 (17%)      
-       6 max_grade     "Patient maximum AE grade"                         Grade 5        4 (2%)        
-       7 any_grade_sup "Patient had at least one AE of grade" No AE reported 8 (4%)        
-       8 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 1      192 (96%)     
-       9 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 2      154 (77%)     
-      10 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 3      92 (46%)      
-      11 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 4      38 (19%)      
-      12 any_grade_sup "Patient had at least one AE of grade" Grade = 5      4 (2%)        
-      13 any_grade_eq  "Patient had at least one AE of grade "         No AE reported 8 (4%)        
-      14 any_grade_eq  "Patient had at least one AE of grade "         Grade 1        164 (82%)     
-      15 any_grade_eq  "Patient had at least one AE of grade "         Grade 2        110 (55%)     
-      16 any_grade_eq  "Patient had at least one AE of grade "         Grade 3        62 (31%)      
-      17 any_grade_eq  "Patient had at least one AE of grade "         Grade 4        36 (18%)      
-      18 any_grade_eq  "Patient had at least one AE of grade "         Grade 5        4 (2%)        
+       1 max_grade     "Patients by maximum AE grade"                         No AE reported 8 (4%)        
+       2 max_grade     "Patients by maximum AE grade"                         Grade 1        38 (19%)      
+       3 max_grade     "Patients by maximum AE grade"                         Grade 2        62 (31%)      
+       4 max_grade     "Patients by maximum AE grade"                         Grade 3        54 (27%)      
+       5 max_grade     "Patients by maximum AE grade"                         Grade 4        34 (17%)      
+       6 max_grade     "Patients by maximum AE grade"                         Grade 5        4 (2%)        
+       7 any_grade_sup "Patients with at least one AE at or above each grade" No AE reported 8 (4%)        
+       8 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 1      192 (96%)     
+       9 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 2      154 (77%)     
+      10 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 3      92 (46%)      
+      11 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 4      38 (19%)      
+      12 any_grade_sup "Patients with at least one AE at or above each grade" Grade = 5      4 (2%)        
+      13 any_grade_eq  "Patients with at least one AE at each grade "         No AE reported 8 (4%)        
+      14 any_grade_eq  "Patients with at least one AE at each grade "         Grade 1        164 (82%)     
+      15 any_grade_eq  "Patients with at least one AE at each grade "         Grade 2        110 (55%)     
+      16 any_grade_eq  "Patients with at least one AE at each grade "         Grade 3        62 (31%)      
+      17 any_grade_eq  "Patients with at least one AE at each grade "         Grade 4        36 (18%)      
+      18 any_grade_eq  "Patients with at least one AE at each grade "         Grade 5        4 (2%)        
     Code
       ae_table_grade(ae, df_enrol = enrolres, arm = "ARM")
     Output
       # A tibble: 18 x 6
-         .id           label                                                variable          Control  Treatment Total    
+         .id           measure                                                level          Control  Treatment Total    
          <fct>         <fct>                                                  <fct>          <chr>    <chr>     <chr>    
-       1 max_grade     "Patient maximum AE grade"                         No AE reported 3 (3%)   5 (5%)    8 (4%)   
-       2 max_grade     "Patient maximum AE grade"                         Grade 1        23 (23%) 15 (15%)  38 (19%) 
-       3 max_grade     "Patient maximum AE grade"                         Grade 2        32 (32%) 30 (30%)  62 (31%) 
-       4 max_grade     "Patient maximum AE grade"                         Grade 3        27 (27%) 27 (27%)  54 (27%) 
-       5 max_grade     "Patient maximum AE grade"                         Grade 4        13 (13%) 21 (21%)  34 (17%) 
-       6 max_grade     "Patient maximum AE grade"                         Grade 5        2 (2%)   2 (2%)    4 (2%)   
-       7 any_grade_sup "Patient had at least one AE of grade" No AE reported 3 (3%)   5 (5%)    8 (4%)   
-       8 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 1      97 (97%) 95 (95%)  192 (96%)
-       9 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 2      74 (74%) 80 (80%)  154 (77%)
-      10 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 3      42 (42%) 50 (50%)  92 (46%) 
-      11 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 4      15 (15%) 23 (23%)  38 (19%) 
-      12 any_grade_sup "Patient had at least one AE of grade" Grade = 5      2 (2%)   2 (2%)    4 (2%)   
-      13 any_grade_eq  "Patient had at least one AE of grade "         No AE reported 3 (3%)   5 (5%)    8 (4%)   
-      14 any_grade_eq  "Patient had at least one AE of grade "         Grade 1        85 (85%) 79 (79%)  164 (82%)
-      15 any_grade_eq  "Patient had at least one AE of grade "         Grade 2        59 (59%) 51 (51%)  110 (55%)
-      16 any_grade_eq  "Patient had at least one AE of grade "         Grade 3        30 (30%) 32 (32%)  62 (31%) 
-      17 any_grade_eq  "Patient had at least one AE of grade "         Grade 4        14 (14%) 22 (22%)  36 (18%) 
-      18 any_grade_eq  "Patient had at least one AE of grade "         Grade 5        2 (2%)   2 (2%)    4 (2%)   
+       1 max_grade     "Patients by maximum AE grade"                         No AE reported 3 (3%)   5 (5%)    8 (4%)   
+       2 max_grade     "Patients by maximum AE grade"                         Grade 1        23 (23%) 15 (15%)  38 (19%) 
+       3 max_grade     "Patients by maximum AE grade"                         Grade 2        32 (32%) 30 (30%)  62 (31%) 
+       4 max_grade     "Patients by maximum AE grade"                         Grade 3        27 (27%) 27 (27%)  54 (27%) 
+       5 max_grade     "Patients by maximum AE grade"                         Grade 4        13 (13%) 21 (21%)  34 (17%) 
+       6 max_grade     "Patients by maximum AE grade"                         Grade 5        2 (2%)   2 (2%)    4 (2%)   
+       7 any_grade_sup "Patients with at least one AE at or above each grade" No AE reported 3 (3%)   5 (5%)    8 (4%)   
+       8 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 1      97 (97%) 95 (95%)  192 (96%)
+       9 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 2      74 (74%) 80 (80%)  154 (77%)
+      10 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 3      42 (42%) 50 (50%)  92 (46%) 
+      11 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 4      15 (15%) 23 (23%)  38 (19%) 
+      12 any_grade_sup "Patients with at least one AE at or above each grade" Grade = 5      2 (2%)   2 (2%)    4 (2%)   
+      13 any_grade_eq  "Patients with at least one AE at each grade "         No AE reported 3 (3%)   5 (5%)    8 (4%)   
+      14 any_grade_eq  "Patients with at least one AE at each grade "         Grade 1        85 (85%) 79 (79%)  164 (82%)
+      15 any_grade_eq  "Patients with at least one AE at each grade "         Grade 2        59 (59%) 51 (51%)  110 (55%)
+      16 any_grade_eq  "Patients with at least one AE at each grade "         Grade 3        30 (30%) 32 (32%)  62 (31%) 
+      17 any_grade_eq  "Patients with at least one AE at each grade "         Grade 4        14 (14%) 22 (22%)  36 (18%) 
+      18 any_grade_eq  "Patients with at least one AE at each grade "         Grade 5        2 (2%)   2 (2%)    4 (2%)   
     Code
       ae_table_grade(ae, df_enrol = enrolres, arm = "ARM", variant = c("eq", "max"))
     Output
       # A tibble: 12 x 6
-         .id          label                                        variable          Control  Treatment Total    
+         .id          measure                                        level          Control  Treatment Total    
          <fct>        <fct>                                          <fct>          <chr>    <chr>     <chr>    
-       1 any_grade_eq "Patient had at least one AE of grade " No AE reported 3 (3%)   5 (5%)    8 (4%)   
-       2 any_grade_eq "Patient had at least one AE of grade " Grade 1        85 (85%) 79 (79%)  164 (82%)
-       3 any_grade_eq "Patient had at least one AE of grade " Grade 2        59 (59%) 51 (51%)  110 (55%)
-       4 any_grade_eq "Patient had at least one AE of grade " Grade 3        30 (30%) 32 (32%)  62 (31%) 
-       5 any_grade_eq "Patient had at least one AE of grade " Grade 4        14 (14%) 22 (22%)  36 (18%) 
-       6 any_grade_eq "Patient had at least one AE of grade " Grade 5        2 (2%)   2 (2%)    4 (2%)   
-       7 max_grade    "Patient maximum AE grade"                 No AE reported 3 (3%)   5 (5%)    8 (4%)   
-       8 max_grade    "Patient maximum AE grade"                 Grade 1        23 (23%) 15 (15%)  38 (19%) 
-       9 max_grade    "Patient maximum AE grade"                 Grade 2        32 (32%) 30 (30%)  62 (31%) 
-      10 max_grade    "Patient maximum AE grade"                 Grade 3        27 (27%) 27 (27%)  54 (27%) 
-      11 max_grade    "Patient maximum AE grade"                 Grade 4        13 (13%) 21 (21%)  34 (17%) 
-      12 max_grade    "Patient maximum AE grade"                 Grade 5        2 (2%)   2 (2%)    4 (2%)   
+       1 any_grade_eq "Patients with at least one AE at each grade " No AE reported 3 (3%)   5 (5%)    8 (4%)   
+       2 any_grade_eq "Patients with at least one AE at each grade " Grade 1        85 (85%) 79 (79%)  164 (82%)
+       3 any_grade_eq "Patients with at least one AE at each grade " Grade 2        59 (59%) 51 (51%)  110 (55%)
+       4 any_grade_eq "Patients with at least one AE at each grade " Grade 3        30 (30%) 32 (32%)  62 (31%) 
+       5 any_grade_eq "Patients with at least one AE at each grade " Grade 4        14 (14%) 22 (22%)  36 (18%) 
+       6 any_grade_eq "Patients with at least one AE at each grade " Grade 5        2 (2%)   2 (2%)    4 (2%)   
+       7 max_grade    "Patients by maximum AE grade"                 No AE reported 3 (3%)   5 (5%)    8 (4%)   
+       8 max_grade    "Patients by maximum AE grade"                 Grade 1        23 (23%) 15 (15%)  38 (19%) 
+       9 max_grade    "Patients by maximum AE grade"                 Grade 2        32 (32%) 30 (30%)  62 (31%) 
+      10 max_grade    "Patients by maximum AE grade"                 Grade 3        27 (27%) 27 (27%)  54 (27%) 
+      11 max_grade    "Patients by maximum AE grade"                 Grade 4        13 (13%) 21 (21%)  34 (17%) 
+      12 max_grade    "Patients by maximum AE grade"                 Grade 5        2 (2%)   2 (2%)    4 (2%)   
     Code
       ae_table_grade(ae, df_enrol = enrolres, arm = "ARM", percent_pattern = "{n}", total = FALSE)
     Output
       # A tibble: 18 x 5
-         .id           label                                                variable          Control Treatment
+         .id           measure                                                level          Control Treatment
          <fct>         <fct>                                                  <fct>          <chr>   <chr>    
-       1 max_grade     "Patient maximum AE grade"                         No AE reported 3       5        
-       2 max_grade     "Patient maximum AE grade"                         Grade 1        23      15       
-       3 max_grade     "Patient maximum AE grade"                         Grade 2        32      30       
-       4 max_grade     "Patient maximum AE grade"                         Grade 3        27      27       
-       5 max_grade     "Patient maximum AE grade"                         Grade 4        13      21       
-       6 max_grade     "Patient maximum AE grade"                         Grade 5        2       2        
-       7 any_grade_sup "Patient had at least one AE of grade" No AE reported 3       5        
-       8 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 1      97      95       
-       9 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 2      74      80       
-      10 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 3      42      50       
-      11 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 4      15      23       
-      12 any_grade_sup "Patient had at least one AE of grade" Grade = 5      2       2        
-      13 any_grade_eq  "Patient had at least one AE of grade "         No AE reported 3       5        
-      14 any_grade_eq  "Patient had at least one AE of grade "         Grade 1        85      79       
-      15 any_grade_eq  "Patient had at least one AE of grade "         Grade 2        59      51       
-      16 any_grade_eq  "Patient had at least one AE of grade "         Grade 3        30      32       
-      17 any_grade_eq  "Patient had at least one AE of grade "         Grade 4        14      22       
-      18 any_grade_eq  "Patient had at least one AE of grade "         Grade 5        2       2        
+       1 max_grade     "Patients by maximum AE grade"                         No AE reported 3       5        
+       2 max_grade     "Patients by maximum AE grade"                         Grade 1        23      15       
+       3 max_grade     "Patients by maximum AE grade"                         Grade 2        32      30       
+       4 max_grade     "Patients by maximum AE grade"                         Grade 3        27      27       
+       5 max_grade     "Patients by maximum AE grade"                         Grade 4        13      21       
+       6 max_grade     "Patients by maximum AE grade"                         Grade 5        2       2        
+       7 any_grade_sup "Patients with at least one AE at or above each grade" No AE reported 3       5        
+       8 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 1      97      95       
+       9 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 2      74      80       
+      10 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 3      42      50       
+      11 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 4      15      23       
+      12 any_grade_sup "Patients with at least one AE at or above each grade" Grade = 5      2       2        
+      13 any_grade_eq  "Patients with at least one AE at each grade "         No AE reported 3       5        
+      14 any_grade_eq  "Patients with at least one AE at each grade "         Grade 1        85      79       
+      15 any_grade_eq  "Patients with at least one AE at each grade "         Grade 2        59      51       
+      16 any_grade_eq  "Patients with at least one AE at each grade "         Grade 3        30      32       
+      17 any_grade_eq  "Patients with at least one AE at each grade "         Grade 4        14      22       
+      18 any_grade_eq  "Patients with at least one AE at each grade "         Grade 5        2       2        
 
 # ae_table_grade() with missing and grade>2
 
@@ -235,29 +168,29 @@
       ae %>% filter(is.na(aegr) | aegr > 2) %>% ae_table_grade(df_enrol = enrolres, arm = "ARM")
     Output
       # A tibble: 21 x 6
-         .id           label                                                variable               Control  Treatment Total   
+         .id           measure                                                level               Control  Treatment Total   
          <fct>         <fct>                                                  <fct>               <chr>    <chr>     <chr>   
-       1 max_grade     "Patient maximum AE grade"                         No AE reported      47 (47%) 35 (35%)  82 (41%)
-       2 max_grade     "Patient maximum AE grade"                         Grade 1             0        0         0       
-       3 max_grade     "Patient maximum AE grade"                         Grade 2             0        0         0       
-       4 max_grade     "Patient maximum AE grade"                         Grade 3             25 (25%) 25 (25%)  50 (25%)
-       5 max_grade     "Patient maximum AE grade"                         Grade 4             11 (11%) 20 (20%)  31 (16%)
-       6 max_grade     "Patient maximum AE grade"                         Grade 5             2 (2%)   1 (1%)    3 (2%)  
-       7 max_grade     "Patient maximum AE grade"                         All grades missing  15 (15%) 19 (19%)  34 (17%)
-       8 any_grade_sup "Patient had at least one AE of grade" No AE reported      47 (47%) 35 (35%)  82 (41%)
-       9 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 1           38 (38%) 46 (46%)  84 (42%)
-      10 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 2           38 (38%) 46 (46%)  84 (42%)
-      11 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 3           38 (38%) 46 (46%)  84 (42%)
-      12 any_grade_sup "Patient had at least one AE of grade" Grade ≥ 4           13 (13%) 21 (21%)  34 (17%)
-      13 any_grade_sup "Patient had at least one AE of grade" Grade = 5           2 (2%)   1 (1%)    3 (2%)  
-      14 any_grade_sup "Patient had at least one AE of grade" Some grades missing 25 (25%) 34 (34%)  59 (29%)
-      15 any_grade_eq  "Patient had at least one AE of grade "         No AE reported      47 (47%) 35 (35%)  82 (41%)
-      16 any_grade_eq  "Patient had at least one AE of grade "         Grade 1             0        0         0       
-      17 any_grade_eq  "Patient had at least one AE of grade "         Grade 2             0        0         0       
-      18 any_grade_eq  "Patient had at least one AE of grade "         Grade 3             27 (27%) 29 (29%)  56 (28%)
-      19 any_grade_eq  "Patient had at least one AE of grade "         Grade 4             12 (12%) 21 (21%)  33 (16%)
-      20 any_grade_eq  "Patient had at least one AE of grade "         Grade 5             2 (2%)   1 (1%)    3 (2%)  
-      21 any_grade_eq  "Patient had at least one AE of grade "         Some grades missing 25 (25%) 34 (34%)  59 (29%)
+       1 max_grade     "Patients by maximum AE grade"                         No AE reported      47 (47%) 35 (35%)  82 (41%)
+       2 max_grade     "Patients by maximum AE grade"                         Grade 1             0        0         0       
+       3 max_grade     "Patients by maximum AE grade"                         Grade 2             0        0         0       
+       4 max_grade     "Patients by maximum AE grade"                         Grade 3             25 (25%) 25 (25%)  50 (25%)
+       5 max_grade     "Patients by maximum AE grade"                         Grade 4             11 (11%) 20 (20%)  31 (16%)
+       6 max_grade     "Patients by maximum AE grade"                         Grade 5             2 (2%)   1 (1%)    3 (2%)  
+       7 max_grade     "Patients by maximum AE grade"                         All grades missing  15 (15%) 19 (19%)  34 (17%)
+       8 any_grade_sup "Patients with at least one AE at or above each grade" No AE reported      47 (47%) 35 (35%)  82 (41%)
+       9 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 1           38 (38%) 46 (46%)  84 (42%)
+      10 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 2           38 (38%) 46 (46%)  84 (42%)
+      11 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 3           38 (38%) 46 (46%)  84 (42%)
+      12 any_grade_sup "Patients with at least one AE at or above each grade" Grade ≥ 4           13 (13%) 21 (21%)  34 (17%)
+      13 any_grade_sup "Patients with at least one AE at or above each grade" Grade = 5           2 (2%)   1 (1%)    3 (2%)  
+      14 any_grade_sup "Patients with at least one AE at or above each grade" Some grades missing 25 (25%) 34 (34%)  59 (29%)
+      15 any_grade_eq  "Patients with at least one AE at each grade "         No AE reported      47 (47%) 35 (35%)  82 (41%)
+      16 any_grade_eq  "Patients with at least one AE at each grade "         Grade 1             0        0         0       
+      17 any_grade_eq  "Patients with at least one AE at each grade "         Grade 2             0        0         0       
+      18 any_grade_eq  "Patients with at least one AE at each grade "         Grade 3             27 (27%) 29 (29%)  56 (28%)
+      19 any_grade_eq  "Patients with at least one AE at each grade "         Grade 4             12 (12%) 21 (21%)  33 (16%)
+      20 any_grade_eq  "Patients with at least one AE at each grade "         Grade 5             2 (2%)   1 (1%)    3 (2%)  
+      21 any_grade_eq  "Patients with at least one AE at each grade "         Some grades missing 25 (25%) 34 (34%)  59 (29%)
 
 # ae_table_soc() default snapshot
 
