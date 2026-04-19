@@ -52,6 +52,15 @@ test_that("ae_table_grade() with missing and grade>2", {
 })
 
 
+test_that("ae_table_grade() with old argument names", {
+  
+  a = ae_table_grade(db_test$ae, data_pat=db_test$enrolres, measure ="sup", percent_pattern = "{n} ({p}%)", percent_digits=2)
+  b = ae_table_grade(df_ae=db_test$ae, df_enrol=db_test$enrolres, variant="sup", percent=TRUE, digits=2)
+  
+  expect_identical(a, b)
+})
+
+
 test_that("ae_table_grade() with different colnames", {
   df_enrol = db_test$enrolres %>%
     rename(ENROLLID2=subjid, TRT=arm)
