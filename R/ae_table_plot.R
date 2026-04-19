@@ -9,7 +9,12 @@
 #'
 #' @return a ggplot
 #' @export
-#'
+#' @importFrom cli cli_warn
+#' @importFrom dplyr across cur_group mutate n
+#' @importFrom forcats as_factor
+#' @importFrom ggplot2 aes element_text facet_wrap geom_col ggplot labs position_dodge position_fill position_stack scale_y_continuous theme
+#' @importFrom scales label_percent
+#' @importFrom tidyr pivot_longer
 #' @examples
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
@@ -18,12 +23,6 @@
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="fill")
 #' ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="stack", type="absolute")
-#' @importFrom cli cli_warn
-#' @importFrom dplyr across cur_group mutate n
-#' @importFrom forcats as_factor
-#' @importFrom ggplot2 aes element_text facet_wrap geom_col ggplot labs position_dodge position_fill position_stack scale_y_continuous theme
-#' @importFrom scales label_percent
-#' @importFrom tidyr pivot_longer
 ae_plot_grade = function(
     df_ae, ..., df_enrol,
     measure = c("max", "sup", "eq"),

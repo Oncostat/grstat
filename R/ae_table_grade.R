@@ -30,9 +30,8 @@
 #' @importFrom dplyr arrange case_when cur_group filter left_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
 #' @importFrom glue glue
-#' @importFrom rlang check_dots_empty check_installed
 #' @importFrom stringr str_remove str_starts str_subset
-#' @importFrom tibble lst
+#' @importFrom tibble lst remove_rownames
 #' @importFrom tidyselect matches
 #' @export
 #'
@@ -155,6 +154,7 @@ ae_table_grade = function(
 #' @param padding_v Vertical padding for cells.
 #'
 #' @return A `flextable` object ready to print or export.
+#' @importFrom flextable hline_top
 #' @export
 as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
   check_dots_empty()
@@ -236,8 +236,9 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
 }
 
 
+#' @importFrom scales label_percent
 np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
-  pc = scales::label_percent(accuracy=10^(-digits), suffix="")
+  pc = label_percent(accuracy=10^(-digits), suffix="")
   p = pc(p)
   ifelse(is.null(zero_value) | n>0, glue(pattern), glue(zero_value))
 }
@@ -252,6 +253,7 @@ np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
   df
 }
 
+#' @importFrom tidyr complete pivot_wider
 max_grade = function(df, params) {
   ae_id = attr(df, "ae_id")
   lab_no_ae = glue("No {params$ae_label} reported")
@@ -307,7 +309,7 @@ max_grade = function(df, params) {
 }
 
 
-
+#' @importFrom tidyr unnest_longer pivot_wider
 any_grade = function(df, f, params) {
   ae_id = attr(df, "ae_id")
   id = if(caller_arg(f)==".calc_any_grade_sup") "any_grade_sup" else "any_grade_eq"
