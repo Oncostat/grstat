@@ -23,9 +23,6 @@
 #' @param na_strategy A named list controlling how missing AEs or absent patients are
 #'   displayed in the output tables. Must contain `display` (one of `"if_any"`
 #'   or `"always"`) and `grouped` (logical).
-#' @param df_ae,df_enrol Deprecated. Use `data_ae` and `data_pat` instead.
-#' @param variant Deprecated. Use `measure` instead.
-#' @param percent,digits Deprecated. Use `percent_pattern`and `percent_digits` instead.
 #'
 #' @return A data frame of class `ae_table_grade`, ready for use with [as_flextable()].
 #'
@@ -65,28 +62,17 @@ ae_table_grade = function(
   percent_digits = 0,
   zero_value = "0",
   total = TRUE,
-  na_strategy = list(display="if_any", grouped=FALSE),
-  #deprecated
-  df_ae,
-  df_enrol,
-  variant,
-  percent = TRUE,
-  digits = 0
+  na_strategy = list(display="always", grouped=TRUE)
 ) {
-  check_dots_empty()
-  if(!missing(df_enrol)){
-    data_pat = df_enrol
+  dots = list(...)
+  data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae  
+  data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
+  measure = if(has_name(dots, "variant")) dots$variant else measure
+  percent_digits = if(has_name(dots, "digits")) dots$digits else percent_digits
+  if(has_name(dots, "percent")){
+    percent_pattern = if(isFALSE(dots$percent)) "{n}" else "{n} ({p}%)"
   }
-  if(!missing(df_ae)){
-    data_ae = df_ae
-  }
-  if(!missing(digits)){
-    percent_digits = digits
-  }
-  if(!missing(variant)){
-    measure = variant
-  }
-
+  check_dots_empty2(except = c("df_ae", "df_enrol", "variant", "percent", "digits"))
   assert_names_exists(data_ae, lst(subjid, grade))
   assert_names_exists(data_pat, lst(subjid, arm))
   assert_names_exists(na_strategy, c("display", "grouped"))
