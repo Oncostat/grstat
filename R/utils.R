@@ -45,6 +45,29 @@ today_ymd = function() {
 }
 
 
+#' @noRd
+#' @keywords internal
+check_dots_empty2 = function(except=character(0), env = rlang::caller_env()) {
+  dots = substitute(...(), env = env)
+
+  nms0 = names(dots) %0% rep("", n)
+  nms = ifelse(nms0 == "", paste0("..", seq_along(dots)), nms0)
+  dots = dots %>% as.list() %>% set_names(nms) %>% discard_at(except)
+  bullets = imap_chr(dots, ~ paste(.y, as_label(.x), sep=" = ")) %>% set_names("*")
+
+  n = length(dots)
+  if (n == 0) {
+    return(invisible())
+  }
+  
+  cli::cli_abort(
+    c("!"="`...` must be empty; did you misspell or forget to name an argument?",
+      "x" = "Problematic arguments:",
+      bullets),
+    call = env
+  )
+}
+
 # EDCimport -----------------------------------------------------------------------------------
 
 #' @noRd
