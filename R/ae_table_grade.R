@@ -147,7 +147,7 @@ ae_table_grade = function(
       mutate(
         .id = if_else(level %in% cols_missing, factor("missing"), .id),
         .id = fct_relevel(.id, "missing", after = Inf),
-        measure = if_else(.id == "missing", "Missing values", label)
+        measure = if_else(.id == "missing", "AE grade completeness", measure)
       ) %>%
       arrange(.id) %>%
       distinct()
@@ -181,8 +181,8 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
     as_tibble_col("col_keys") %>%
     left_join(arms, by=c("col_keys"="arm")) %>%
     mutate(
-      row1 = ifelse(is.na(n), col_keys, get_label(arms$arm, default="Arm")),
-      row2 = ifelse(is.na(n), col_keys, glue("{col_keys}\n(N={n})")),
+      row1 = ifelse(is.na(n), str_to_sentence(col_keys), get_label(arms$arm, default="Arm")),
+      row2 = ifelse(is.na(n), str_to_sentence(col_keys), glue("{col_keys}\n(N={n})")),
     ) %>%
     select(-n)
   if(n_distinct(arms$arm)==1) {
