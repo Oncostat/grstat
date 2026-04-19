@@ -157,6 +157,7 @@ ae_table_grade = function(
 #'
 #' @return A `flextable` object ready to print or export.
 #' @importFrom flextable hline_top
+#' @importFrom stringr str_to_sentence
 #' @export
 as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
   check_dots_empty()
