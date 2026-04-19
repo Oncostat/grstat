@@ -1,9 +1,19 @@
 
+#transform tests so that they are not affected by the change of labels in ae_table_grade()
+transform_legacy = function(x){
+  x %>% 
+    str_replace_all("measure", "label") %>% 
+    str_replace_all("level", "variable") %>% 
+    str_replace_all("Patients with at least one AE at or above each grade", "Patient had at least one AE of grade") %>% 
+    str_replace_all("Patients with at least one AE at each grade", "Patient had at least one AE of grade") %>% 
+    str_replace_all("Patients by maximum AE grade", "Patient maximum AE grade")
+}
 
 test_that("ae_tables simplest snapshot", {
   local_reproducible_output(width=125)
+  rlang::local_options(ae_table_grade_na_strategy = list(display="if_any", grouped=FALSE))
 
-  expect_snapshot({
+  expect_snapshot(transform=transform_legacy, {
 
       df_ae = tibble(subjid=rep(1:2, each=5),
                      aesoc=rep("Soc1", 10),
@@ -23,8 +33,9 @@ test_that("ae_tables simplest snapshot", {
 
 test_that("ae_table_grade() default snapshot", {
   local_reproducible_output(width=125)
+  rlang::local_options(ae_table_grade_na_strategy = list(display="if_any", grouped=FALSE))
 
-  expect_snapshot({
+  expect_snapshot(transform=transform_legacy, {
     ae = db_test$ae
     enrolres = db_test$enrolres
 
@@ -39,8 +50,9 @@ test_that("ae_table_grade() default snapshot", {
 
 test_that("ae_table_grade() with missing and grade>2", {
   local_reproducible_output(width=125)
+  rlang::local_options(ae_table_grade_na_strategy = list(display="if_any", grouped=FALSE))
 
-  expect_snapshot({
+  expect_snapshot(transform=transform_legacy, {
     ae = db_test_na$ae
     enrolres = db_test_na$enrolres
 
