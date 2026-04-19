@@ -30,6 +30,7 @@
 #' @importFrom dplyr arrange case_when cur_group filter left_join mutate rename_with select summarise
 #' @importFrom forcats fct_relevel fct_reorder
 #' @importFrom glue glue
+#' @importFrom rlang is_missing
 #' @importFrom stringr str_remove str_starts str_subset
 #' @importFrom tibble lst remove_rownames
 #' @importFrom tidyselect matches
@@ -71,6 +72,7 @@ ae_table_grade = function(
   if(has_name(dots, "percent")){
     percent_pattern = if(isFALSE(dots$percent)) "{n}" else "{n} ({p}%)"
   }
+  na_strategy = if(is_missing(na_strategy)) na_strategy else getOption("ae_table_grade_na_strategy", na_strategy)
   check_dots_empty2(except = c("df_ae", "df_enrol", "variant", "percent", "digits"))
   assert_names_exists(data_ae, lst(subjid, grade))
   assert_names_exists(data_pat, lst(subjid, arm))
