@@ -5,24 +5,27 @@
 \title{Graphic representation of AEs}
 \usage{
 ae_plot_grade(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
-  variant = c("max", "sup", "eq"),
+  data_pat,
+  measure = c("max", "sup", "eq"),
   position = c("dodge", "stack", "fill"),
   type = c("relative", "absolute"),
   arm = NULL,
   grade = "AEGR",
   subjid = "SUBJID",
-  total = FALSE
+  total = FALSE,
+  na_strategy = list(display = "always", grouped = TRUE)
 )
 }
 \arguments{
-\item{df_ae, df_enrol}{Deprecated. Use \code{data_ae} and \code{data_pat} instead.}
+\item{data_ae}{Data frame of adverse events, with one row per AE.}
 
 \item{...}{Unused.}
 
-\item{variant}{Character vector specifying which variants to compute: \code{"max"}, \code{"sup"}, \code{"eq"}.}
+\item{data_pat}{Data frame of enrolled patients, with one row per patient.}
+
+\item{measure}{Character vector specifying which variants to compute: \code{"max"}, \code{"sup"}, \code{"eq"}.}
 
 \item{position}{Position adjustment (cf. \code{\link[ggplot2:geom_bar]{ggplot2::geom_col()}})}
 
@@ -35,6 +38,10 @@ ae_plot_grade(
 \item{subjid}{Name of the subject ID column (in both data frames).}
 
 \item{total}{Logical. If \code{TRUE}, adds a "Total" column across arms (only if multiple arms exist).}
+
+\item{na_strategy}{A named list controlling how missing AEs or absent patients are
+displayed in the output tables. Must contain \code{display} (one of \code{"if_any"}
+or \code{"always"}) and \code{grouped} (logical).}
 }
 \value{
 a ggplot
@@ -45,9 +52,9 @@ Produce a graphic representation of AE, counting AE as bars for each patient, co
 \examples{
 tm = grstat_example()
 attach(tm, warn.conflicts=FALSE)
-ae_plot_grade(df_ae=ae, df_enrol=enrolres)
-ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", variant=c("sup", "max"))
-ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
-ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="fill")
-ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="stack", type="absolute")
+ae_plot_grade(data_ae=ae, data_pat=enrolres)
+ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", measure=c("sup", "max"))
+ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", type="absolute")
+ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="fill")
+ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="stack", type="absolute")
 }

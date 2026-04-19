@@ -8,7 +8,7 @@ ae_table_grade(
   data_ae,
   ...,
   data_pat,
-  variant = c("max", "sup", "eq"),
+  measure = c("max", "sup", "eq"),
   arm = NULL,
   grade = "AEGR",
   subjid = "SUBJID",
@@ -17,11 +17,7 @@ ae_table_grade(
   percent_digits = 0,
   zero_value = "0",
   total = TRUE,
-  na_strategy = list(display = "if_any", grouped = FALSE),
-  df_ae,
-  df_enrol,
-  percent = TRUE,
-  digits = 0
+  na_strategy = list(display = "always", grouped = TRUE)
 )
 }
 \arguments{
@@ -31,7 +27,7 @@ ae_table_grade(
 
 \item{data_pat}{Data frame of enrolled patients, with one row per patient.}
 
-\item{variant}{Character vector specifying which variants to compute: \code{"max"}, \code{"sup"}, \code{"eq"}.}
+\item{measure}{Character vector specifying which variants to compute: \code{"max"}, \code{"sup"}, \code{"eq"}.}
 
 \item{arm}{Name of the arm column in \code{data_pat}. If \code{NULL}, all patients are pooled.}
 
@@ -52,10 +48,6 @@ ae_table_grade(
 \item{na_strategy}{A named list controlling how missing AEs or absent patients are
 displayed in the output tables. Must contain \code{display} (one of \code{"if_any"}
 or \code{"always"}) and \code{grouped} (logical).}
-
-\item{df_ae, df_enrol}{Deprecated. Use \code{data_ae} and \code{data_pat} instead.}
-
-\item{percent, digits}{Deprecated. Use \code{percent_pattern}and \code{percent_digits} instead.}
 }
 \value{
 A data frame of class \code{ae_table_grade}, ready for use with \code{\link[=as_flextable]{as_flextable()}}.
@@ -72,12 +64,13 @@ By default, it shows three variants:
 }
 \examples{
 db = grstat_example(N=200, p_na=0.1)
-ae_table_grade(db$ae, data_pat=db$enrolres, 
+ae_table_grade(db$ae, data_pat=db$enrolres,
                total=FALSE, percent_digits=1) \%>\%
   as_flextable()
 
 db = grstat_example(N=20, p_na=0)
-ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM", 
+ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM",
+               measure=c("max", "sup"), 
                total=TRUE, zero_value="-",
                na_strategy=list(display="always", grouped=TRUE)) \%>\%
   as_flextable()
