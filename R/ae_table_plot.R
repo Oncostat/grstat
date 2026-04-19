@@ -61,7 +61,7 @@ ae_plot_grade = function(
 
 
   tbl = ae_table_grade(df_ae=df_ae, df_enrol=df_enrol, measure=measure,
-                       arm=arm, grade=grade, subjid=subjid, percent_digits=Inf,
+                       arm=arm, grade=grade, subjid=subjid, percent_digits=0,
                        percent_pattern=percent_pattern, total=total)
   p = switch(position, fill=position_fill(), stack=position_stack(),
              dodge=position_dodge(0.9))

@@ -90,7 +90,7 @@ ae_table_grade = function(
     percent_pattern = "{n}"
   }
 
-  params = lst(total, digits, zero_value, percent_pattern, ae_label)
+  params = lst(total, digits=percent_digits, zero_value, percent_pattern, ae_label)
   # fmt: skip
   x = measure %>%
     map(~{
