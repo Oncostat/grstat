@@ -17,6 +17,12 @@ test_that("ae_plot_grade() works", {
 
 })
 
+test_that("ae_plot_grade() with old argument names", {
+  a = ae_plot_grade(db_test$ae, data_pat=db_test$enrolres, measure ="sup")
+  b = ae_plot_grade(df_ae=db_test$ae, df_enrol=db_test$enrolres, variant="sup")
+  a@plot_env = b@plot_env = environment()
+  expect_equal(a, b, ignore_function_env = TRUE, ignore_attr = TRUE)
+})
 
 test_that("ae_plot_grade_sum() works", {
   ae = db_test$ae
