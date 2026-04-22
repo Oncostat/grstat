@@ -1444,19 +1444,6 @@
       211             Not evaluable
       212         Complete response
 
-# Non excluion patient
-
-    Code
-      as.data.frame(non_excl_unconf)
-    Output
-        subjid     best_response       date target_sum target_sum_diff_first target_sum_diff_min six_months_confirmation
-      1    145 Complete response 2026-05-14         NA                     0                  NA                   FALSE
-    Code
-      as.data.frame(non_excl_conf)
-    Output
-        subjid best_response       date target_sum target_sum_diff_first target_sum_diff_min six_months_confirmation
-      1    145 Not evaluable 2026-05-14         NA                     0                  NA                   FALSE
-
 # Missing values don't exclude patients
 
     Code
@@ -1469,4 +1456,19 @@
     Output
         subjid best_response       date target_sum target_sum_diff_first target_sum_diff_min six_months_confirmation
       1    145 Not evaluable 2026-01-29         NA                     0                  NA                   FALSE
+
+# No bug when no CR or PR
+
+    Code
+      as.data.frame(aggregate_recist_rates(data_br))
+    Output
+                        best_response   n    p       ic_95
+      1             Complete response   0  0.0     [0;1.2]
+      2              Partial response   0  0.0     [0;1.2]
+      3                Stable disease  72 23.2 [18.6;28.2]
+      4           Progressive disease 236 75.9 [70.7;80.5]
+      5                 Not evaluable   3  1.0   [0.2;2.8]
+      6 Objective Response Rate (ORR)   0  0.0     [0;1.2]
+      7   Clinical Benefit Rate (CBR)   0  0.0     [0;1.2]
+      8    Disease Control Rate (DCR)  72 23.2 [18.6;28.2]
 
