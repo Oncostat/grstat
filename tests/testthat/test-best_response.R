@@ -17,6 +17,7 @@ test_that("validation best response", {
   cats = c("CR","PR","SD","PD","NE")
 
   #NA pour le post-PD
+  date0 = lubridate::ymd("2026-01-01")
   grid = tidyr::expand_grid(v1 = cats,
                             v2 = c(cats, NA),
                             v3 = c(cats, NA),
@@ -40,10 +41,10 @@ test_that("validation best response", {
            RCTLSUM = 1) %>% #sum for watefall, osef
     mutate(
       k=row_number(),
-      RCDT = lubridate::today() + k,
-      RCDT1 = lubridate::today() + k*12,
-      RCDT2 = lubridate::today() + k*27,
-      RCDT3 = lubridate::today() + k*29,
+      RCDT = date0 + k,
+      RCDT1 = date0 + k*12,
+      RCDT2 = date0 + k*27,
+      RCDT3 = date0 + k*29,
       .by = subjid
     )
 
@@ -93,3 +94,18 @@ test_that("Missing values don't exclude patients", {
     as.data.frame(non_excl_conf)
   })
 })
+
+test_that("No bug when no CR or PR", {
+  local_reproducible_output(width=125)
+  db = grstat_example(N=500)
+  data_br = db$recist %>%
+    filter(!rcresp %in%c("Complete response", "Partial response")) %>%
+    calc_best_response()
+
+  aggregate_recist_rates(data_br)
+
+  expect_snapshot({
+    as.data.frame(aggregate_recist_rates(data_br))
+  })
+})
+
