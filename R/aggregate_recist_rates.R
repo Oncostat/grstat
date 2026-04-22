@@ -47,33 +47,29 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
 
   if("ORR" %in% derived_endpoints){
     ORR = recist %>%
-      filter(best_response=="Complete response" | best_response=="Partial response") %>%
-      count(best_response = "Objective Response Rate (ORR)") %>%
-      mutate(p = round(n / total * 100, 1))
-
-    if (length(ORR$best_response) ==0){
-      ORR = data.frame(best_response ="Objective Response Rate (ORR)",n=0,p=0)
-    }
+      summarise(
+        n = sum(best_response %in% c("Complete response", "Partial response"), na.rm=TRUE),
+        p = round(n / total * 100, 1),
+        best_response = "Objective Response Rate (ORR)",
+      )
   }
 
   if("CBR" %in% derived_endpoints){
     CBR = recist %>%
-      filter(best_response=="Complete response" | best_response=="Partial response" | six_months_confirmation) %>%
-      count(best_response = "Clinical Benefit Rate (CBR)") %>%
-      mutate(p = round(n / total * 100, 1))
-    if (length(CBR$best_response) ==0){
-      CBR = data.frame(best_response ="Clinical Benefit Rate (CBR)",n=0,p=0)
-    }
+      summarise(
+        n = sum(best_response %in% c("Complete response", "Partial response") | six_months_confirmation, na.rm=TRUE),
+        p = round(n / total * 100, 1),
+        best_response = "Clinical Benefit Rate (CBR)",
+      )
   }
 
   if("DCR" %in% derived_endpoints){
     DCR = recist %>%
-      filter(best_response=="Complete response" | best_response=="Partial response" | best_response=="Stable disease") %>%
-      count(best_response = "Disease Control Rate (DCR)") %>%
-      mutate(p = round(n / total * 100, 1))
-    if (length(DCR$best_response) ==0){
-      DCR = data.frame(best_response ="Disease Control Rate (DCR)",n=0,p=0)
-    }
+      summarise(
+        n = sum(best_response %in% c("Complete response", "Partial response","Stable disease"), na.rm=TRUE),
+        p = round(n / total * 100, 1),
+        best_response = "Disease Control Rate (DCR)",
+      )
   }
 
   summary_df = bind_rows(response_counts, ORR, CBR, DCR) %>%
