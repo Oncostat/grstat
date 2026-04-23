@@ -54,14 +54,14 @@ today_ymd = function() {
 check_dots_empty2 = function(except=character(0), env = caller_env()) {
   dots = substitute(...(), env = env)
   if (length(dots) == 0) return(invisible())
-  
+
   nms0 = names(dots) %0% rep("", n)
   nms = ifelse(nms0 == "", paste0("..", seq_along(dots)), nms0)
   dots = dots %>% as.list() %>% set_names(nms) %>% discard_at(except)
-  bullets = imap_chr(dots, ~ paste(.y, as_label(.x), sep=" = ")) %>% 
-    set_names("*") %>% 
+  bullets = imap_chr(dots, ~ paste(.y, as_label(.x), sep=" = ")) %>%
     str_replace_all("\\{", "\\{\\{") %>%
-    str_replace_all("\\}", "\\}\\}")
+    str_replace_all("\\}", "\\}\\}") %>%
+    set_names("*")
   if (length(dots) == 0) return(invisible())
 
   cli_abort(
