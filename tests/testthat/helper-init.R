@@ -14,6 +14,7 @@ options(
   tidyverse.quiet=TRUE,
   tidyselect_verbosity ="verbose",#quiet or verbose
   lifecycle_verbosity="warning", #NULL, "quiet", "warning" or "error"
+  grstat_lifecycle_verbosity="quiet",
   rlang_backtrace_on_error = "full",
   testthat.progress.max_fails = 50
 )
