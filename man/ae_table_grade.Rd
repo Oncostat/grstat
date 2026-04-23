@@ -70,7 +70,7 @@ ae_table_grade(db$ae, data_pat=db$enrolres,
 
 db = grstat_example(N=20, p_na=0)
 ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM",
-               measure=c("max", "sup"), 
+               measure=c("max", "sup"),
                total=TRUE, zero_value="-",
                na_strategy=list(display="always", grouped=TRUE)) \%>\%
   as_flextable()

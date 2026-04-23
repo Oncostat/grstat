@@ -44,7 +44,7 @@
 #'
 #' db = grstat_example(N=20, p_na=0)
 #' ae_table_grade(db$ae, data_pat=db$enrolres, arm="ARM",
-#'                measure=c("max", "sup"), 
+#'                measure=c("max", "sup"),
 #'                total=TRUE, zero_value="-",
 #'                na_strategy=list(display="always", grouped=TRUE)) %>%
 #'   as_flextable()
@@ -65,7 +65,7 @@ ae_table_grade = function(
   na_strategy = list(display="always", grouped=TRUE)
 ) {
   dots = list(...)
-  data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae  
+  data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae
   data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
   measure = if(has_name(dots, "variant")) dots$variant else measure
   percent_digits = if(has_name(dots, "digits")) dots$digits else percent_digits
@@ -111,7 +111,7 @@ ae_table_grade = function(
       measure = case_when(
         .id == "max_grade" ~ glue("Patients by maximum {ae_label} grade"),
         .id == "any_grade_sup" ~ glue("Patients with at least one {ae_label} at or above each grade"),
-        .id == "any_grade_eq" ~ glue("Patients with at least one {ae_label} at each grade "),
+        .id == "any_grade_eq" ~ glue("Patients with at least one {ae_label} at each grade"),
         .default="ERROR"
       ),
       across(c(.id, measure), as_factor),
