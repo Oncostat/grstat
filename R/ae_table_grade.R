@@ -3,7 +3,7 @@
 #'
 #' `r lifecycle::badge("stable")`\cr
 #' This function creates summary tables of adverse events (AEs) by grade, for each treatment arm if provided.
-#' By default, it shows three variants:
+#' By default, it shows three measures:
 #' - `"max"`: highest AE grade experienced by each patient
 #' - `"sup"`: at least one AE of grade ≥ *x*
 #' - `"eq"`: at least one AE of grade == *x*
@@ -156,6 +156,7 @@ ae_table_grade = function(
 #' @param padding_v Vertical padding for cells.
 #'
 #' @return A `flextable` object ready to print or export.
+#' @rdname ae_table_grade
 #' @importFrom flextable hline_top
 #' @importFrom stringr str_to_sentence
 #' @export

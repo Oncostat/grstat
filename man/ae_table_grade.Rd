@@ -2,6 +2,7 @@
 % Please edit documentation in R/ae_table_grade.R
 \name{ae_table_grade}
 \alias{ae_table_grade}
+\alias{as_flextable.ae_table_grade}
 \title{Tabulate Adverse Events by Grade (max, ≥x, ==x)}
 \usage{
 ae_table_grade(
@@ -19,6 +20,8 @@ ae_table_grade(
   total = TRUE,
   na_strategy = list(display = "always", grouped = TRUE)
 )
+
+\method{as_flextable}{ae_table_grade}(x, ..., padding_v = NULL)
 }
 \arguments{
 \item{data_ae}{Data frame of adverse events, with one row per AE.}
@@ -48,19 +51,27 @@ ae_table_grade(
 \item{na_strategy}{A named list controlling how missing AEs or absent patients are
 displayed in the output tables. Must contain \code{display} (one of \code{"if_any"}
 or \code{"always"}) and \code{grouped} (logical).}
+
+\item{x}{An object of class \code{ae_table_grade}.}
+
+\item{padding_v}{Vertical padding for cells.}
 }
 \value{
 A data frame of class \code{ae_table_grade}, ready for use with \code{\link[=as_flextable]{as_flextable()}}.
+
+A \code{flextable} object ready to print or export.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}\cr
 This function creates summary tables of adverse events (AEs) by grade, for each treatment arm if provided.
-By default, it shows three variants:
+By default, it shows three measures:
 \itemize{
 \item \code{"max"}: highest AE grade experienced by each patient
 \item \code{"sup"}: at least one AE of grade ≥ \emph{x}
 \item \code{"eq"}: at least one AE of grade == \emph{x}
 }
+
+Converts an object of class \code{ae_table_grade} to a formatted \code{flextable}.
 }
 \examples{
 db = grstat_example(N=200, p_na=0.1)
