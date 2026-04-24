@@ -1,25 +1,32 @@
 
 test_that("ae_plot_grade() works", {
-  tm = grstat_example()
-  attach(tm, warn.conflicts=FALSE)
+  ae = db_test$ae
+  enrolres = db_test$enrolres
+  rlang::local_options(ae_table_grade_na_strategy = list(display="if_any", grouped=FALSE))
 
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres)
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres)
   vdiffr::expect_doppelganger("ae-plot-grade-1arm", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", variant=c("sup", "max"))
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", measure=c("sup", "max"))
   vdiffr::expect_doppelganger("ae-plot-grade-2arms", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", type="absolute")
   vdiffr::expect_doppelganger("ae-plot-grade-2arms-absolute", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="fill")
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="fill")
   vdiffr::expect_doppelganger("ae-plot-grade-2arms-fill", p)
-  p = ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="stack", type="absolute")
+  p = ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="stack", type="absolute")
   vdiffr::expect_doppelganger("ae-plot-grade-2arms-stack", p)
 
 })
 
+test_that("ae_plot_grade() with old argument names", {
+  a = ae_plot_grade(db_test$ae, data_pat=db_test$enrolres, measure ="sup")
+  b = ae_plot_grade(df_ae=db_test$ae, df_enrol=db_test$enrolres, variant="sup")
+  a@plot_env = b@plot_env = environment()
+  expect_equal(a, b, ignore_function_env = TRUE, ignore_attr = TRUE)
+})
 
 test_that("ae_plot_grade_sum() works", {
-  tm = grstat_example()
-  attach(tm, warn.conflicts=FALSE)
+  ae = db_test$ae
+  enrolres = db_test$enrolres
 
   p = ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
   vdiffr::expect_doppelganger("ae-plot-grade-sum-1arm", p)
@@ -32,8 +39,8 @@ test_that("ae_plot_grade_sum() works", {
 
 
 test_that("butterfly_plot() works", {
-  tm = grstat_example()
-  attach(tm, warn.conflicts=FALSE)
+  ae = db_test$ae
+  enrolres = db_test$enrolres
   ae2 = ae %>%
     mutate(serious = sae=="Yes")
 
@@ -47,8 +54,8 @@ test_that("butterfly_plot() works", {
 })
 
 test_that("butterfly_plot() errors", {
-  tm = grstat_example()
-  attach(tm, warn.conflicts=FALSE)
+  ae = db_test$ae
+  enrolres = db_test$enrolres
   ae2 = ae %>%
     mutate(bad_serious = sae=="foobar")
 

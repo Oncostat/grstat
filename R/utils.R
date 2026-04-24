@@ -45,6 +45,33 @@ today_ymd = function() {
 }
 
 
+#' @noRd
+#' @keywords internal
+#' @importFrom cli cli_abort
+#' @importFrom purrr discard_at imap_chr set_names
+#' @importFrom rlang as_label caller_env
+#' @importFrom stringr str_replace_all
+check_dots_empty2 = function(except=character(0), env = caller_env()) {
+  dots = substitute(...(), env = env)
+  if (length(dots) == 0) return(invisible())
+
+  nms0 = names(dots) %0% rep("", n)
+  nms = ifelse(nms0 == "", paste0("..", seq_along(dots)), nms0)
+  dots = dots %>% as.list() %>% set_names(nms) %>% discard_at(except)
+  bullets = imap_chr(dots, ~ paste(.y, as_label(.x), sep=" = ")) %>%
+    str_replace_all("\\{", "\\{\\{") %>%
+    str_replace_all("\\}", "\\}\\}") %>%
+    set_names("*")
+  if (length(dots) == 0) return(invisible())
+
+  cli_abort(
+    c("!"="`...` must be empty; did you misspell or forget to name an argument?",
+      "x" = "Problematic arguments:",
+      bullets),
+    call = env
+  )
+}
+
 # EDCimport -----------------------------------------------------------------------------------
 
 #' @noRd

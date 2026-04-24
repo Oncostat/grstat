@@ -68,8 +68,8 @@ The function `ae_table_grade` produces AE grade table summaries based on the var
 ## Default AE Table Grades - incuding All Variants (Max, Sup, Eq)
 
 ```{r}
-ae_table_grade(df_ae=ae, df_enrol=enrolres) %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres) %>% 
+  as_flextable() %>% 
   fontsize(size = 8, part = "all") %>% 
   padding(padding.top=0, padding.bottom=0)
 ```
@@ -79,8 +79,8 @@ ae_table_grade(df_ae=ae, df_enrol=enrolres) %>%
 As an extra example of AE grade table, a table of maximum grade per patient and per arm (i.e. variant = "max") is also presented.
 
 ```{r}
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm.") %>% 
   fontsize(size = 8, part = "all") %>% 
   padding(padding.top=0, padding.bottom=0)
