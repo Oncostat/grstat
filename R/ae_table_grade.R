@@ -257,6 +257,11 @@ np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
   df
 }
 
+#' @importFrom dplyr na_if
+.fix_grade_na = function(x){
+  as.numeric(na_if(as.character(x), "NA"))
+}
+
 #' @importFrom tidyr complete pivot_wider
 max_grade = function(df, params) {
   ae_id = attr(df, "ae_id")
