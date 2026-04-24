@@ -1,308 +1,223 @@
-# Summary tables for AE
+# Tabulate Adverse Events by Grade (max, ≥x, ==x)
 
 **\[stable\]**  
-The function `ae_table_grade()` creates a summary table of maximum AE
-grades for each patient according to the CTCAE grade. The resulting
-dataframe can be piped to
-[`as_flextable()`](https://davidgohel.github.io/flextable/reference/as_flextable.html)
-to get a nicely formatted flextable.
+This function creates summary tables of adverse events (AEs) by grade,
+for each treatment arm if provided. By default, it shows three measures:
+
+- `"max"`: highest AE grade experienced by each patient
+
+- `"sup"`: at least one AE of grade ≥ *x*
+
+- `"eq"`: at least one AE of grade == *x*
+
+Converts an object of class `ae_table_grade` to a formatted `flextable`.
 
 ## Usage
 
 ``` r
 ae_table_grade(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
-  variant = c("max", "sup", "eq"),
+  data_pat,
+  measure = c("max", "sup", "eq"),
   arm = NULL,
   grade = "AEGR",
   subjid = "SUBJID",
   ae_label = "AE",
-  percent = TRUE,
-  digits = 2,
-  total = TRUE
+  percent_pattern = "{n} ({p}%)",
+  percent_digits = 0,
+  zero_value = "0",
+  total = TRUE,
+  na_strategy = list(display = "always", grouped = TRUE)
 )
+
+# S3 method for class 'ae_table_grade'
+as_flextable(x, ..., padding_v = NULL)
 ```
 
 ## Arguments
 
-- df_ae:
+- data_ae:
 
-  adverse event dataset, one row per AE, containing subjid, soc, and
-  grade.
+  Data frame of adverse events, with one row per AE.
 
 - ...:
 
-  unused
+  Unused.
 
-- df_enrol:
+- data_pat:
 
-  enrollment dataset, one row per patient, containing subjid (and arm if
-  needed). All patients should be in this dataset.
+  Data frame of enrolled patients, with one row per patient.
 
-- variant:
+- measure:
 
-  one or several of `c("max", "sup", "eq")`. `max` computes the maximum
-  AE grade per patient, `sup` computes the number of patients having
-  experienced at least one AE of grade higher or equal to X, and `eq`
-  computes the number of patients having experienced at least one AE of
-  grade equal to X.
+  Character vector specifying which variants to compute: `"max"`,
+  `"sup"`, `"eq"`.
 
 - arm:
 
-  name of the treatment column in `df_enrol`. Case-insensitive. Can be
-  set to `NULL`.
+  Name of the arm column in `data_pat`. If `NULL`, all patients are
+  pooled.
 
 - grade:
 
-  name of the AE grade column in `df_ae`. Case-insensitive.
+  Name of the AE grade column in `data_ae`.
 
 - subjid:
 
-  name of the patient ID in both `df_ae` and `df_enrol`.
-  Case-insensitive.
+  Name of the subject ID column (in both data frames).
 
 - ae_label:
 
-  the label of adverse events, usually "AE" or "SAE".
+  Label used in the output tables (e.g. "AE", "Toxicity").
 
-- percent:
+- percent_pattern:
 
-  whether to show percentages with counts. Defaults to TRUE. Can also be
-  "only" to not show counts.
+  Pattern used to format counts and percentages. Use `{n}` and `{p}` as
+  placeholders.
 
-- digits:
+- percent_digits:
 
-  significant digits for percentages.
+  Number of digits to show for percentages.
+
+- zero_value:
+
+  String to use when count is zero.
 
 - total:
 
-  whether to add a `total` column for each arm.
+  Logical. If `TRUE`, adds a "Total" column across arms (only if
+  multiple arms exist).
+
+- na_strategy:
+
+  A named list controlling how missing AEs or absent patients are
+  displayed in the output tables. Must contain `display` (one of
+  `"if_any"` or `"always"`) and `grouped` (logical).
+
+- x:
+
+  An object of class `ae_table_grade`.
+
+- padding_v:
+
+  Vertical padding for cells.
 
 ## Value
 
-a crosstable
+A data frame of class `ae_table_grade`, ready for use with
+[`as_flextable()`](https://davidgohel.github.io/flextable/reference/as_flextable.html).
 
-## See also
-
-`ae_table_grade()`,
-[`ae_table_soc()`](https://oncostat.github.io/grstat/reference/ae_table_soc.md),
-[`ae_plot_grade()`](https://oncostat.github.io/grstat/reference/ae_plot_grade.md),
-[`ae_plot_grade_sum()`](https://oncostat.github.io/grstat/reference/ae_plot_grade_sum.md),
-[`butterfly_plot()`](https://oncostat.github.io/grstat/reference/butterfly_plot.md)
+A `flextable` object ready to print or export.
 
 ## Examples
 
 ``` r
-tm = grstat_example()
-attach(tm, warn.conflicts=FALSE)
-
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL) %>%
-  as_flextable(header_show_n=TRUE)
-
-
-.cl-ae5e2f04{table-layout:auto;}.cl-ae55e98e{font-family:'DejaVu Sans';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-ae55e9a2{font-family:'DejaVu Sans';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-ae593184{margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-ae59318e{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-ae593198{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-ae596b0e{background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(0, 0, 0, 1.00);border-top: 1.5pt solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-ae596b18{background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(0, 0, 0, 1.00);border-top: 1.5pt solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-ae596b22{background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(0, 0, 0, 1.00);border-top: 1pt solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-ae596b23{background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-ae596b2c{background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-ae596b36{background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(0, 0, 0, 1.00);border-top: 1pt solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-ae596b37{background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1pt solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-ae596b40{background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-ae596b41{background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}
+db = grstat_example(N=200, p_na=0.1)
+ae_table_grade(db$ae, data_pat=db$enrolres,
+               total=FALSE, percent_digits=1) %>%
+  as_flextable()
 
 
+.cl-58880610{table-layout:auto;}.cl-587e692a{font-family:'DejaVu Sans';font-size:8pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-587e6952{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-5883426a{margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-5883427e{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-58836dda{background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(0, 0, 0, 1.00);border-top: 2pt solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-58836dee{background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-58836df8{background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-58836df9{background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-58836e02{background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-58836e03{background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(0, 0, 0, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-58836e0c{background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}
 
-label
+
+Measure
 ```
 
-variable
+Level
 
-Treatment arm
+All patients  
+(N=200)
 
-All patients (N=200)
-
-Patient maximum AE grade
-
-No declared AE
-
-8 (4%)
+Patients by maximum AE grade
 
 Grade 1
 
-38 (19%)
+41 (20.5%)
 
 Grade 2
 
-62 (31%)
+64 (32.0%)
 
 Grade 3
 
-54 (27%)
+50 (25.0%)
 
 Grade 4
 
-34 (17%)
+31 (15.5%)
 
 Grade 5
 
-4 (2%)
+3 (1.5%)
 
-Patient had at least one AE of grade
-
-No declared AE
-
-8 (4%)
+Patients with at least one AE at or above each grade
 
 Grade ≥ 1
 
-192 (96%)
+189 (94.5%)
 
 Grade ≥ 2
 
-154 (77%)
+148 (74.0%)
 
 Grade ≥ 3
 
-92 (46%)
+84 (42.0%)
 
 Grade ≥ 4
 
-38 (19%)
+34 (17.0%)
 
 Grade = 5
 
-4 (2%)
+3 (1.5%)
 
-Patient had at least one AE of grade
-
-No declared AE
-
-8 (4%)
+Patients with at least one AE at each grade
 
 Grade 1
 
-164 (82%)
+156 (78.0%)
 
 Grade 2
 
-110 (55%)
+103 (51.5%)
 
 Grade 3
 
-62 (31%)
+56 (28.0%)
 
 Grade 4
 
-36 (18%)
+33 (16.5%)
 
 Grade 5
 
-4 (2%)
+3 (1.5%)
 
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm")
-[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-[as_flextable](https://davidgohel.github.io/flextable/reference/as_flextable.html)(header_show_n=TRUE)
+AE grade completeness
 
-| label                                 | variable       | Treatment arm   |                   | Total     |
-|---------------------------------------|----------------|-----------------|-------------------|-----------|
-|                                       |                | Control (N=100) | Treatment (N=100) |           |
-| Patient maximum AE grade              | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)    |
-|                                       | Grade 1        | 23 (23%)        | 15 (15%)          | 38 (19%)  |
-|                                       | Grade 2        | 32 (32%)        | 30 (30%)          | 62 (31%)  |
-|                                       | Grade 3        | 27 (27%)        | 27 (27%)          | 54 (27%)  |
-|                                       | Grade 4        | 13 (13%)        | 21 (21%)          | 34 (17%)  |
-|                                       | Grade 5        | 2 (2%)          | 2 (2%)            | 4 (2%)    |
-| Patient had at least one AE of grade  | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)    |
-|                                       | Grade ≥ 1      | 97 (97%)        | 95 (95%)          | 192 (96%) |
-|                                       | Grade ≥ 2      | 74 (74%)        | 80 (80%)          | 154 (77%) |
-|                                       | Grade ≥ 3      | 42 (42%)        | 50 (50%)          | 92 (46%)  |
-|                                       | Grade ≥ 4      | 15 (15%)        | 23 (23%)          | 38 (19%)  |
-|                                       | Grade = 5      | 2 (2%)          | 2 (2%)            | 4 (2%)    |
-| Patient had at least one AE of grade  | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)    |
-|                                       | Grade 1        | 85 (85%)        | 79 (79%)          | 164 (82%) |
-|                                       | Grade 2        | 59 (59%)        | 51 (51%)          | 110 (55%) |
-|                                       | Grade 3        | 30 (30%)        | 32 (32%)          | 62 (31%)  |
-|                                       | Grade 4        | 14 (14%)        | 22 (22%)          | 36 (18%)  |
-|                                       | Grade 5        | 2 (2%)          | 2 (2%)            | 4 (2%)    |
+No AE reported
 
-\#To get SAE only, filter df_ae first ae
-[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-dplyr::[filter](https://dplyr.tidyverse.org/reference/filter.html)(sae=="Yes")
-[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-ae_table_grade(df_enrol=enrolres, arm="arm", ae_label="SAE")
-[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-[as_flextable](https://davidgohel.github.io/flextable/reference/as_flextable.html)(header_show_n=TRUE)
+8 (4.0%)
 
-| label                                  | variable        | Treatment arm   |                   | Total     |
-|----------------------------------------|-----------------|-----------------|-------------------|-----------|
-|                                        |                 | Control (N=100) | Treatment (N=100) |           |
-| Patient maximum SAE grade              | No declared SAE | 73 (73%)        | 71 (71%)          | 144 (72%) |
-|                                        | Grade 1         | 9 (9%)          | 8 (8%)            | 17 (8%)   |
-|                                        | Grade 2         | 8 (8%)          | 8 (8%)            | 16 (8%)   |
-|                                        | Grade 3         | 5 (5%)          | 6 (6%)            | 11 (6%)   |
-|                                        | Grade 4         | 5 (5%)          | 6 (6%)            | 11 (6%)   |
-|                                        | Grade 5         | 0 (0%)          | 1 (1%)            | 1 (0%)    |
-| Patient had at least one SAE of grade  | No declared SAE | 73 (73%)        | 71 (71%)          | 144 (72%) |
-|                                        | Grade ≥ 1       | 27 (27%)        | 29 (29%)          | 56 (28%)  |
-|                                        | Grade ≥ 2       | 18 (18%)        | 21 (21%)          | 39 (20%)  |
-|                                        | Grade ≥ 3       | 10 (10%)        | 13 (13%)          | 23 (12%)  |
-|                                        | Grade ≥ 4       | 5 (5%)          | 7 (7%)            | 12 (6%)   |
-|                                        | Grade = 5       | 0 (0%)          | 1 (1%)            | 1 (0%)    |
-| Patient had at least one SAE of grade  | No declared SAE | 73 (73%)        | 71 (71%)          | 144 (72%) |
-|                                        | Grade 1         | 10 (10%)        | 8 (8%)            | 18 (9%)   |
-|                                        | Grade 2         | 11 (11%)        | 8 (8%)            | 19 (10%)  |
-|                                        | Grade 3         | 5 (5%)          | 8 (8%)            | 13 (6%)   |
-|                                        | Grade 4         | 5 (5%)          | 6 (6%)            | 11 (6%)   |
-|                                        | Grade 5         | 0 (0%)          | 1 (1%)            | 1 (0%)    |
+All grades missing
 
-\#To describe a sub-population, filter df_enrol first enrolres2 =
-enrolres [%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-dplyr::[filter](https://dplyr.tidyverse.org/reference/filter.html)(arm=="Control")
-ae [%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-ae_table_grade(df_enrol=enrolres2, arm="arm")
-[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-[as_flextable](https://davidgohel.github.io/flextable/reference/as_flextable.html)(header_show_n=TRUE)
+3 (1.5%)
 
-| label                                 | variable       | Treatment arm   |                 | Total    |
-|---------------------------------------|----------------|-----------------|-----------------|----------|
-|                                       |                | Control (N=100) | Treatment (N=0) |          |
-| Patient maximum AE grade              | No declared AE | 3 (3%)          | 0 (NA)          | 3 (3%)   |
-|                                       | Grade 1        | 23 (23%)        | 0 (NA)          | 23 (23%) |
-|                                       | Grade 2        | 32 (32%)        | 0 (NA)          | 32 (32%) |
-|                                       | Grade 3        | 27 (27%)        | 0 (NA)          | 27 (27%) |
-|                                       | Grade 4        | 13 (13%)        | 0 (NA)          | 13 (13%) |
-|                                       | Grade 5        | 2 (2%)          | 0 (NA)          | 2 (2%)   |
-| Patient had at least one AE of grade  | No declared AE | 3 (3%)          | 0 (NA)          | 3 (3%)   |
-|                                       | Grade ≥ 1      | 97 (97%)        | 0 (NA)          | 97 (97%) |
-|                                       | Grade ≥ 2      | 74 (74%)        | 0 (NA)          | 74 (74%) |
-|                                       | Grade ≥ 3      | 42 (42%)        | 0 (NA)          | 42 (42%) |
-|                                       | Grade ≥ 4      | 15 (15%)        | 0 (NA)          | 15 (15%) |
-|                                       | Grade = 5      | 2 (2%)          | 0 (NA)          | 2 (2%)   |
-| Patient had at least one AE of grade  | No declared AE | 3 (3%)          | 0 (NA)          | 3 (3%)   |
-|                                       | Grade 1        | 85 (85%)        | 0 (NA)          | 85 (85%) |
-|                                       | Grade 2        | 59 (59%)        | 0 (NA)          | 59 (59%) |
-|                                       | Grade 3        | 30 (30%)        | 0 (NA)          | 30 (30%) |
-|                                       | Grade 4        | 14 (14%)        | 0 (NA)          | 14 (14%) |
-|                                       | Grade 5        | 2 (2%)          | 0 (NA)          | 2 (2%)   |
+Some grades missing
 
-\#You can also filter the AE table ae
-[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-ae_table_grade(df_enrol=enrolres, arm="arm")
-[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-dplyr::[filter](https://dplyr.tidyverse.org/reference/filter.html)(!variable
-[%in%](https://rdrr.io/r/base/match.html)
-[c](https://rdrr.io/r/base/c.html)("Grade 1", "Grade 2"))
-[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
-[as_flextable](https://davidgohel.github.io/flextable/reference/as_flextable.html)(header_show_n=TRUE)
+59 (29.5%)
 
-| label                                 | variable       | Treatment arm   |                   | Total     |
-|---------------------------------------|----------------|-----------------|-------------------|-----------|
-|                                       |                | Control (N=100) | Treatment (N=100) |           |
-| Patient maximum AE grade              | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)    |
-|                                       | Grade 3        | 27 (27%)        | 27 (27%)          | 54 (27%)  |
-|                                       | Grade 4        | 13 (13%)        | 21 (21%)          | 34 (17%)  |
-|                                       | Grade 5        | 2 (2%)          | 2 (2%)            | 4 (2%)    |
-| Patient had at least one AE of grade  | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)    |
-|                                       | Grade ≥ 1      | 97 (97%)        | 95 (95%)          | 192 (96%) |
-|                                       | Grade ≥ 2      | 74 (74%)        | 80 (80%)          | 154 (77%) |
-|                                       | Grade ≥ 3      | 42 (42%)        | 50 (50%)          | 92 (46%)  |
-|                                       | Grade ≥ 4      | 15 (15%)        | 23 (23%)          | 38 (19%)  |
-|                                       | Grade = 5      | 2 (2%)          | 2 (2%)            | 4 (2%)    |
-| Patient had at least one AE of grade  | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)    |
-|                                       | Grade 3        | 30 (30%)        | 32 (32%)          | 62 (31%)  |
-|                                       | Grade 4        | 14 (14%)        | 22 (22%)          | 36 (18%)  |
-|                                       | Grade 5        | 2 (2%)          | 2 (2%)            | 4 (2%)    |
+db =
+[grstat_example](https://oncostat.github.io/grstat/reference/grstat_example.md)(N=20,
+p_na=0) ae_table_grade(db\$ae, data_pat=db\$enrolres, arm="ARM",
+measure=[c](https://rdrr.io/r/base/c.html)("max", "sup"), total=TRUE,
+zero_value="-",
+na_strategy=[list](https://rdrr.io/r/base/list.html)(display="always",
+grouped=TRUE))
+[%\>%](https://magrittr.tidyverse.org/reference/pipe.html)
+[as_flextable](https://davidgohel.github.io/flextable/reference/as_flextable.html)()
+
+[TABLE]

@@ -105,33 +105,13 @@ returned in a single output by default.
 ### Default AE Table Grades - incuding All Variants (Max, Sup, Eq)
 
 ``` r
-ae_table_grade(df_ae=ae, df_enrol=enrolres) %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres) %>% 
+  as_flextable() %>% 
   fontsize(size = 8, part = "all") %>% 
   padding(padding.top=0, padding.bottom=0)
 ```
 
-| label                                 | variable       | Treatment arm        |
-|---------------------------------------|----------------|----------------------|
-|                                       |                | All patients (N=200) |
-| Patient maximum AE grade              | No declared AE | 8 (4%)               |
-|                                       | Grade 1        | 38 (19%)             |
-|                                       | Grade 2        | 62 (31%)             |
-|                                       | Grade 3        | 54 (27%)             |
-|                                       | Grade 4        | 34 (17%)             |
-|                                       | Grade 5        | 4 (2%)               |
-| Patient had at least one AE of grade  | No declared AE | 8 (4%)               |
-|                                       | Grade ≥ 1      | 192 (96%)            |
-|                                       | Grade ≥ 2      | 154 (77%)            |
-|                                       | Grade ≥ 3      | 92 (46%)             |
-|                                       | Grade ≥ 4      | 38 (19%)             |
-|                                       | Grade = 5      | 4 (2%)               |
-| Patient had at least one AE of grade  | No declared AE | 8 (4%)               |
-|                                       | Grade 1        | 164 (82%)            |
-|                                       | Grade 2        | 110 (55%)            |
-|                                       | Grade 3        | 62 (31%)             |
-|                                       | Grade 4        | 36 (18%)             |
-|                                       | Grade 5        | 4 (2%)               |
+[TABLE]
 
 ### Custom table of maximum AE grade per patient per arm
 
@@ -139,23 +119,14 @@ As an extra example of AE grade table, a table of maximum grade per
 patient and per arm (i.e. variant = “max”) is also presented.
 
 ``` r
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm.") %>% 
   fontsize(size = 8, part = "all") %>% 
   padding(padding.top=0, padding.bottom=0)
 ```
 
-| label                                                                                                 | variable       | Treatment arm   |                   | Total    |
-|-------------------------------------------------------------------------------------------------------|----------------|-----------------|-------------------|----------|
-|                                                                                                       |                | Control (N=100) | Treatment (N=100) |          |
-| Patient maximum AE grade                                                                              | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)   |
-|                                                                                                       | Grade 1        | 23 (23%)        | 15 (15%)          | 38 (19%) |
-|                                                                                                       | Grade 2        | 32 (32%)        | 30 (30%)          | 62 (31%) |
-|                                                                                                       | Grade 3        | 27 (27%)        | 27 (27%)          | 54 (27%) |
-|                                                                                                       | Grade 4        | 13 (13%)        | 21 (21%)          | 34 (17%) |
-|                                                                                                       | Grade 5        | 2 (2%)          | 2 (2%)            | 4 (2%)   |
-| Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm. |                |                 |                   |          |
+[TABLE]
 
 ## SOC’s tables: `ae_table_soc()`
 

@@ -3,7 +3,8 @@
 ## Adverse events
 
 - [`ae_table_grade()`](https://oncostat.github.io/grstat/reference/ae_table_grade.md)
-  **\[stable\]** : Summary tables for AE
+  [`as_flextable(`*`<ae_table_grade>`*`)`](https://oncostat.github.io/grstat/reference/ae_table_grade.md)
+  **\[stable\]** : Tabulate Adverse Events by Grade (max, ≥x, ==x)
 - [`ae_table_soc()`](https://oncostat.github.io/grstat/reference/ae_table_soc.md)
   [`as_flextable(`*`<ae_table_soc>`*`)`](https://oncostat.github.io/grstat/reference/ae_table_soc.md)
   **\[stable\]** : Summary tables for AE by SOC

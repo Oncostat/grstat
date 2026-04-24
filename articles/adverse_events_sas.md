@@ -28,9 +28,9 @@ library(grstat)
 library(flextable)
 library(dplyr)
 
-# tm = EDCimport::read_trialmaster("path/to/file.zip")
-tm = grstat_example()
-attach(tm)
+# db = EDCimport::read_trialmaster("path/to/file.zip")
+db = grstat_example()
+attach(db)
 
 head(ae)
 #> # A tibble: 6 × 7
@@ -78,82 +78,46 @@ des modificateurs (comme
 ### `AE_grades1` : Table des grades maximum par patient
 
 ``` r
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="max") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="max") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
 
-| label                                                                                   | variable       | Treatment arm        |
-|-----------------------------------------------------------------------------------------|----------------|----------------------|
-|                                                                                         |                | All patients (N=200) |
-| Patient maximum AE grade                                                                | No declared AE | 8 (4%)               |
-|                                                                                         | Grade 1        | 38 (19%)             |
-|                                                                                         | Grade 2        | 62 (31%)             |
-|                                                                                         | Grade 3        | 54 (27%)             |
-|                                                                                         | Grade 4        | 34 (17%)             |
-|                                                                                         | Grade 5        | 4 (2%)               |
-| Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |                |                      |
+[TABLE]
 
 ### `AE_grades2` : Table des grades maximum par patient stratifié sur le bras
 
 On pourrait retrouver exactement la sortie SAS en mettant `total=FALSE`.
 
 ``` r
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="max") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at most one AE of given grade")
 ```
 
-| label                                                                                   | variable       | Treatment arm   |                   | Total    |
-|-----------------------------------------------------------------------------------------|----------------|-----------------|-------------------|----------|
-|                                                                                         |                | Control (N=100) | Treatment (N=100) |          |
-| Patient maximum AE grade                                                                | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)   |
-|                                                                                         | Grade 1        | 23 (23%)        | 15 (15%)          | 38 (19%) |
-|                                                                                         | Grade 2        | 32 (32%)        | 30 (30%)          | 62 (31%) |
-|                                                                                         | Grade 3        | 27 (27%)        | 27 (27%)          | 54 (27%) |
-|                                                                                         | Grade 4        | 13 (13%)        | 21 (21%)          | 34 (17%) |
-|                                                                                         | Grade 5        | 2 (2%)          | 2 (2%)            | 4 (2%)   |
-| Percentages reflect the proportion of patients presenting at most one AE of given grade |                |                 |                   |          |
+[TABLE]
 
 ### `AE_grades3` : Table de tous les grades pour chaque patient
 
 ``` r
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm=NULL, variant="eq") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="eq") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
 
-| label                                                                                    | variable       | Treatment arm        |
-|------------------------------------------------------------------------------------------|----------------|----------------------|
-|                                                                                          |                | All patients (N=200) |
-| Patient had at least one AE of grade                                                     | No declared AE | 8 (4%)               |
-|                                                                                          | Grade 1        | 164 (82%)            |
-|                                                                                          | Grade 2        | 110 (55%)            |
-|                                                                                          | Grade 3        | 62 (31%)             |
-|                                                                                          | Grade 4        | 36 (18%)             |
-|                                                                                          | Grade 5        | 4 (2%)               |
-| Percentages reflect the proportion of patients presenting at least one AE of given grade |                |                      |
+[TABLE]
 
 ### `AE_grades3bis` : Table de tous les grades pour chaque patient, stratifié sur le bras
 
 On pourrait retrouver exactement la sortie SAS en mettant `total=FALSE`.
 
 ``` r
-ae_table_grade(df_ae=ae, df_enrol=enrolres, arm="arm", variant="eq") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="eq") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
 
-| label                                                                                    | variable       | Treatment arm   |                   | Total     |
-|------------------------------------------------------------------------------------------|----------------|-----------------|-------------------|-----------|
-|                                                                                          |                | Control (N=100) | Treatment (N=100) |           |
-| Patient had at least one AE of grade                                                     | No declared AE | 3 (3%)          | 5 (5%)            | 8 (4%)    |
-|                                                                                          | Grade 1        | 85 (85%)        | 79 (79%)          | 164 (82%) |
-|                                                                                          | Grade 2        | 59 (59%)        | 51 (51%)          | 110 (55%) |
-|                                                                                          | Grade 3        | 30 (30%)        | 32 (32%)          | 62 (31%)  |
-|                                                                                          | Grade 4        | 14 (14%)        | 22 (22%)          | 36 (18%)  |
-|                                                                                          | Grade 5        | 2 (2%)          | 2 (2%)            | 4 (2%)    |
-| Percentages reflect the proportion of patients presenting at least one AE of given grade |                |                 |                   |           |
+[TABLE]
 
 ### `AE_grades4` : Table des grades maximum par patient, filtrée sur les SAE
 
@@ -163,21 +127,12 @@ doit être “SAE”.
 ``` r
 ae %>% 
   filter(sae=="Yes") %>% 
-  ae_table_grade(df_enrol=enrolres, arm=NULL, variant="max", ae_label="SAE") %>% 
-  as_flextable(header_show_n=TRUE) %>% 
+  ae_table_grade(data_pat=enrolres, arm=NULL, variant="max", ae_label="SAE") %>% 
+  as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum SAE grade was as indicated.")
 ```
 
-| label                                                                                    | variable        | Treatment arm        |
-|------------------------------------------------------------------------------------------|-----------------|----------------------|
-|                                                                                          |                 | All patients (N=200) |
-| Patient maximum SAE grade                                                                | No declared SAE | 144 (72%)            |
-|                                                                                          | Grade 1         | 17 (8%)              |
-|                                                                                          | Grade 2         | 16 (8%)              |
-|                                                                                          | Grade 3         | 11 (6%)              |
-|                                                                                          | Grade 4         | 11 (6%)              |
-|                                                                                          | Grade 5         | 1 (0%)               |
-| Percentages reflect the proportion of patients whose maximum SAE grade was as indicated. |                 |                      |
+[TABLE]
 
 ## Macro `AE_SOC`
 

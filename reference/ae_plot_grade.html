@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">grstat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9030</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9031</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Graphic representation of AEs</h1>
-      <small class="dont-index">Source: <a href="https://github.com/oncostat/grstat/blob/main/R/ae_table_grade.R" class="external-link"><code>R/ae_table_grade.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/oncostat/grstat/blob/main/R/ae_table_plot.R" class="external-link"><code>R/ae_table_plot.R</code></a></small>
       <div class="d-none name"><code>ae_plot_grade.Rd</code></div>
     </div>
 
@@ -47,16 +47,17 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ae_plot_grade</span><span class="op">(</span></span>
-<span>  <span class="va">df_ae</span>,</span>
+<span>  <span class="va">data_ae</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  <span class="va">df_enrol</span>,</span>
-<span>  variant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"max"</span>, <span class="st">"sup"</span>, <span class="st">"eq"</span><span class="op">)</span>,</span>
+<span>  <span class="va">data_pat</span>,</span>
+<span>  measure <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"max"</span>, <span class="st">"sup"</span>, <span class="st">"eq"</span><span class="op">)</span>,</span>
 <span>  position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dodge"</span>, <span class="st">"stack"</span>, <span class="st">"fill"</span><span class="op">)</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"relative"</span>, <span class="st">"absolute"</span><span class="op">)</span>,</span>
 <span>  arm <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  grade <span class="op">=</span> <span class="st">"AEGR"</span>,</span>
 <span>  subjid <span class="op">=</span> <span class="st">"SUBJID"</span>,</span>
-<span>  total <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  na_strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>display <span class="op">=</span> <span class="st">"always"</span>, grouped <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -64,20 +65,20 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-df-ae">df_ae<a class="anchor" aria-label="anchor" href="#arg-df-ae"></a></dt>
-<dd><p>adverse event dataset, one row per AE, containing subjid, soc, and grade.</p></dd>
+<dl><dt id="arg-data-ae">data_ae<a class="anchor" aria-label="anchor" href="#arg-data-ae"></a></dt>
+<dd><p>Data frame of adverse events, with one row per AE.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>unused</p></dd>
+<dd><p>Unused.</p></dd>
 
 
-<dt id="arg-df-enrol">df_enrol<a class="anchor" aria-label="anchor" href="#arg-df-enrol"></a></dt>
-<dd><p>enrollment dataset, one row per patient, containing subjid (and arm if needed). All patients should be in this dataset.</p></dd>
+<dt id="arg-data-pat">data_pat<a class="anchor" aria-label="anchor" href="#arg-data-pat"></a></dt>
+<dd><p>Data frame of enrolled patients, with one row per patient.</p></dd>
 
 
-<dt id="arg-variant">variant<a class="anchor" aria-label="anchor" href="#arg-variant"></a></dt>
-<dd><p>one or several of <code>c("max", "sup", "eq")</code>. <code>max</code> computes the maximum AE grade per patient, <code>sup</code> computes the number of patients having experienced at least one AE of grade higher or equal to X, and <code>eq</code> computes the number of patients having experienced at least one AE of grade equal to X.</p></dd>
+<dt id="arg-measure">measure<a class="anchor" aria-label="anchor" href="#arg-measure"></a></dt>
+<dd><p>Character vector specifying which variants to compute: <code>"max"</code>, <code>"sup"</code>, <code>"eq"</code>.</p></dd>
 
 
 <dt id="arg-position">position<a class="anchor" aria-label="anchor" href="#arg-position"></a></dt>
@@ -89,19 +90,25 @@
 
 
 <dt id="arg-arm">arm<a class="anchor" aria-label="anchor" href="#arg-arm"></a></dt>
-<dd><p>name of the treatment column in <code>df_enrol</code>. Case-insensitive. Can be set to <code>NULL</code>.</p></dd>
+<dd><p>Name of the arm column in <code>data_pat</code>. If <code>NULL</code>, all patients are pooled.</p></dd>
 
 
 <dt id="arg-grade">grade<a class="anchor" aria-label="anchor" href="#arg-grade"></a></dt>
-<dd><p>name of the AE grade column in <code>df_ae</code>. Case-insensitive.</p></dd>
+<dd><p>Name of the AE grade column in <code>data_ae</code>.</p></dd>
 
 
 <dt id="arg-subjid">subjid<a class="anchor" aria-label="anchor" href="#arg-subjid"></a></dt>
-<dd><p>name of the patient ID in both <code>df_ae</code> and <code>df_enrol</code>. Case-insensitive.</p></dd>
+<dd><p>Name of the subject ID column (in both data frames).</p></dd>
 
 
 <dt id="arg-total">total<a class="anchor" aria-label="anchor" href="#arg-total"></a></dt>
-<dd><p>whether to add a <code>total</code> column for each arm.</p></dd>
+<dd><p>Logical. If <code>TRUE</code>, adds a "Total" column across arms (only if multiple arms exist).</p></dd>
+
+
+<dt id="arg-na-strategy">na_strategy<a class="anchor" aria-label="anchor" href="#arg-na-strategy"></a></dt>
+<dd><p>A named list controlling how missing AEs or absent patients are
+displayed in the output tables. Must contain <code>display</code> (one of <code>"if_any"</code>
+or <code>"always"</code>) and <code>grouped</code> (logical).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -113,15 +120,15 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tm</span> <span class="op">=</span> <span class="fu"><a href="grstat_example.html">grstat_example</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/attach.html" class="external-link">attach</a></span><span class="op">(</span><span class="va">tm</span>, warn.conflicts<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>df_ae<span class="op">=</span><span class="va">ae</span>, df_enrol<span class="op">=</span><span class="va">enrolres</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>data_ae<span class="op">=</span><span class="va">ae</span>, data_pat<span class="op">=</span><span class="va">enrolres</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ae_plot_grade-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>df_ae<span class="op">=</span><span class="va">ae</span>, df_enrol<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, variant<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sup"</span>, <span class="st">"max"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>data_ae<span class="op">=</span><span class="va">ae</span>, data_pat<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, measure<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sup"</span>, <span class="st">"max"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ae_plot_grade-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>df_ae<span class="op">=</span><span class="va">ae</span>, df_enrol<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, type<span class="op">=</span><span class="st">"absolute"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>data_ae<span class="op">=</span><span class="va">ae</span>, data_pat<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, type<span class="op">=</span><span class="st">"absolute"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ae_plot_grade-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>df_ae<span class="op">=</span><span class="va">ae</span>, df_enrol<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, position<span class="op">=</span><span class="st">"fill"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>data_ae<span class="op">=</span><span class="va">ae</span>, data_pat<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, position<span class="op">=</span><span class="st">"fill"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ae_plot_grade-4.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>df_ae<span class="op">=</span><span class="va">ae</span>, df_enrol<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, position<span class="op">=</span><span class="st">"stack"</span>, type<span class="op">=</span><span class="st">"absolute"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ae_plot_grade</span><span class="op">(</span>data_ae<span class="op">=</span><span class="va">ae</span>, data_pat<span class="op">=</span><span class="va">enrolres</span>, arm<span class="op">=</span><span class="st">"ARM"</span>, position<span class="op">=</span><span class="st">"stack"</span>, type<span class="op">=</span><span class="st">"absolute"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ae_plot_grade-5.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

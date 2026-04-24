@@ -10,7 +10,7 @@ from GitHub:
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9030")
+pak::pak("Oncostat/grstat@v0.1.0.9031")
 ```
 
 Note that, for reproducibility purpose, an even better solution would be
@@ -46,7 +46,8 @@ See the full documentation on <https://oncostat.github.io/grstat/>.
 ## Adverse events
 
 - [`ae_table_grade()`](https://oncostat.github.io/grstat/reference/ae_table_grade.md)
-  **\[stable\]** : Summary tables for AE
+  [`as_flextable(`*`<ae_table_grade>`*`)`](https://oncostat.github.io/grstat/reference/ae_table_grade.md)
+  **\[stable\]** : Tabulate Adverse Events by Grade (max, ≥x, ==x)
 - [`ae_table_soc()`](https://oncostat.github.io/grstat/reference/ae_table_soc.md)
   [`as_flextable(`*`<ae_table_soc>`*`)`](https://oncostat.github.io/grstat/reference/ae_table_soc.md)
   **\[stable\]** : Summary tables for AE by SOC

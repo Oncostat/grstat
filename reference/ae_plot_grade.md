@@ -7,42 +7,38 @@ patient, colored by grade. Can be faceted by treatment arm.
 
 ``` r
 ae_plot_grade(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
-  variant = c("max", "sup", "eq"),
+  data_pat,
+  measure = c("max", "sup", "eq"),
   position = c("dodge", "stack", "fill"),
   type = c("relative", "absolute"),
   arm = NULL,
   grade = "AEGR",
   subjid = "SUBJID",
-  total = FALSE
+  total = FALSE,
+  na_strategy = list(display = "always", grouped = TRUE)
 )
 ```
 
 ## Arguments
 
-- df_ae:
+- data_ae:
 
-  adverse event dataset, one row per AE, containing subjid, soc, and
-  grade.
+  Data frame of adverse events, with one row per AE.
 
 - ...:
 
-  unused
+  Unused.
 
-- df_enrol:
+- data_pat:
 
-  enrollment dataset, one row per patient, containing subjid (and arm if
-  needed). All patients should be in this dataset.
+  Data frame of enrolled patients, with one row per patient.
 
-- variant:
+- measure:
 
-  one or several of `c("max", "sup", "eq")`. `max` computes the maximum
-  AE grade per patient, `sup` computes the number of patients having
-  experienced at least one AE of grade higher or equal to X, and `eq`
-  computes the number of patients having experienced at least one AE of
-  grade equal to X.
+  Character vector specifying which variants to compute: `"max"`,
+  `"sup"`, `"eq"`.
 
 - position:
 
@@ -56,21 +52,27 @@ ae_plot_grade(
 
 - arm:
 
-  name of the treatment column in `df_enrol`. Case-insensitive. Can be
-  set to `NULL`.
+  Name of the arm column in `data_pat`. If `NULL`, all patients are
+  pooled.
 
 - grade:
 
-  name of the AE grade column in `df_ae`. Case-insensitive.
+  Name of the AE grade column in `data_ae`.
 
 - subjid:
 
-  name of the patient ID in both `df_ae` and `df_enrol`.
-  Case-insensitive.
+  Name of the subject ID column (in both data frames).
 
 - total:
 
-  whether to add a `total` column for each arm.
+  Logical. If `TRUE`, adds a "Total" column across arms (only if
+  multiple arms exist).
+
+- na_strategy:
+
+  A named list controlling how missing AEs or absent patients are
+  displayed in the output tables. Must contain `display` (one of
+  `"if_any"` or `"always"`) and `grouped` (logical).
 
 ## Value
 
@@ -81,13 +83,13 @@ a ggplot
 ``` r
 tm = grstat_example()
 attach(tm, warn.conflicts=FALSE)
-ae_plot_grade(df_ae=ae, df_enrol=enrolres)
+ae_plot_grade(data_ae=ae, data_pat=enrolres)
 
-ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", variant=c("sup", "max"))
+ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", measure=c("sup", "max"))
 
-ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", type="absolute")
+ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", type="absolute")
 
-ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="fill")
+ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="fill")
 
-ae_plot_grade(df_ae=ae, df_enrol=enrolres, arm="ARM", position="stack", type="absolute")
+ae_plot_grade(data_ae=ae, data_pat=enrolres, arm="ARM", position="stack", type="absolute")
 ```
