@@ -80,6 +80,7 @@ a crosstable (dataframe)
 ## Examples
 
 ``` r
+
 tm = grstat_example(N=100)
 attach(tm, warn.conflicts=FALSE)
 

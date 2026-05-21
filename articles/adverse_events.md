@@ -24,6 +24,7 @@ Additional features are available via the
 First, install packages if needed and load them.
 
 ``` r
+
 library(grstat)
 library(flextable)
 library(dplyr)
@@ -50,6 +51,7 @@ experience several events, while those with no adverse events do not
 appear in the table at all.
 
 ``` r
+
 tm = grstat_example()
 attach(tm)
 
@@ -65,6 +67,7 @@ head(ae, 4)
     ## 4      1 Eye disorders                          Visio…     1 No    Radi… ae
 
 ``` r
+
 head(enrolres,4)
 ```
 
@@ -105,6 +108,7 @@ returned in a single output by default.
 ### Default AE Table Grades - incuding All Variants (Max, Sup, Eq)
 
 ``` r
+
 ae_table_grade(data_ae=ae, data_pat=enrolres) %>% 
   as_flextable() %>% 
   fontsize(size = 8, part = "all") %>% 
@@ -119,6 +123,7 @@ As an extra example of AE grade table, a table of maximum grade per
 patient and per arm (i.e. variant = “max”) is also presented.
 
 ``` r
+
 ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated per given arm.") %>% 
@@ -142,6 +147,7 @@ Organ Class (SOC). You can add total = FALSE to remove the “Total”
 column.
 
 ``` r
+
 ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL, 
              sort_by_count=FALSE) %>% 
   head(10) %>% 
@@ -150,21 +156,21 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL,
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.") 
 ```
 
-|                                                                                         | All patients (N=200) |         |        |        |     |     |          |
-|-----------------------------------------------------------------------------------------|----------------------|---------|--------|--------|-----|-----|----------|
-| CTCAE SOC                                                                               | G1                   | G2      | G3     | G4     | G5  | NA  | Tot      |
-| Blood and lymphatic system disorders                                                    | 3 (2%)               | 3 (2%)  | 3 (2%) | 1 (0%) |     |     | 10 (5%)  |
-| Cardiac disorders                                                                       | 11 (6%)              | 4 (2%)  | 7 (4%) | 4 (2%) |     |     | 26 (13%) |
-| Congenital, familial and genetic disorders                                              | 23 (12%)             | 10 (5%) | 4 (2%) | 5 (2%) |     |     | 42 (21%) |
-| Ear and labyrinth disorders                                                             | 7 (4%)               | 7 (4%)  | 4 (2%) |        |     |     | 18 (9%)  |
-| Endocrine disorders                                                                     | 11 (6%)              | 2 (1%)  | 2 (1%) | 1 (0%) |     |     | 16 (8%)  |
-| Eye disorders                                                                           | 21 (10%)             | 16 (8%) | 9 (4%) | 3 (2%) |     |     | 49 (24%) |
-| Gastrointestinal disorders                                                              | 5 (2%)               | 1 (0%)  |        | 1 (0%) |     |     | 7 (4%)   |
-| General disorders and administration site conditions                                    | 2 (1%)               | 5 (2%)  | 2 (1%) |        |     |     | 9 (4%)   |
-| Hepatobiliary disorders                                                                 | 17 (8%)              | 8 (4%)  | 1 (0%) | 2 (1%) |     |     | 28 (14%) |
-| Immune system disorders                                                                 | 15 (8%)              | 9 (4%)  | 7 (4%) | 3 (2%) |     |     | 34 (17%) |
-| In the header, N represents the number of patients.                                     |                      |         |        |        |     |     |          |
-| Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |                      |         |        |        |     |     |          |
+|  | All patients (N=200) |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|
+| CTCAE SOC | G1 | G2 | G3 | G4 | G5 | NA | Tot |
+| Blood and lymphatic system disorders | 3 (2%) | 3 (2%) | 3 (2%) | 1 (0%) |  |  | 10 (5%) |
+| Cardiac disorders | 11 (6%) | 4 (2%) | 7 (4%) | 4 (2%) |  |  | 26 (13%) |
+| Congenital, familial and genetic disorders | 23 (12%) | 10 (5%) | 4 (2%) | 5 (2%) |  |  | 42 (21%) |
+| Ear and labyrinth disorders | 7 (4%) | 7 (4%) | 4 (2%) |  |  |  | 18 (9%) |
+| Endocrine disorders | 11 (6%) | 2 (1%) | 2 (1%) | 1 (0%) |  |  | 16 (8%) |
+| Eye disorders | 21 (10%) | 16 (8%) | 9 (4%) | 3 (2%) |  |  | 49 (24%) |
+| Gastrointestinal disorders | 5 (2%) | 1 (0%) |  | 1 (0%) |  |  | 7 (4%) |
+| General disorders and administration site conditions | 2 (1%) | 5 (2%) | 2 (1%) |  |  |  | 9 (4%) |
+| Hepatobiliary disorders | 17 (8%) | 8 (4%) | 1 (0%) | 2 (1%) |  |  | 28 (14%) |
+| Immune system disorders | 15 (8%) | 9 (4%) | 7 (4%) | 3 (2%) |  |  | 34 (17%) |
+| In the header, N represents the number of patients. |  |  |  |  |  |  |  |
+| Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |
 
 ### Table of SOC and AE terms, all grades combined, stratified by arm
 
@@ -173,6 +179,7 @@ stratified by treatment arm. Provides an overall summary of event
 occurrence per arm, regardless of grade.
 
 ``` r
+
 ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
              sort_by_count=FALSE) %>%
   head(10) %>% 
@@ -181,25 +188,26 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm",
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
 
-|                                                                                         |                                     | Control (N=100) |        |        |        |     |     |        | Treatment (N=100) |        |        |        |     |     |        |
-|-----------------------------------------------------------------------------------------|-------------------------------------|-----------------|--------|--------|--------|-----|-----|--------|-------------------|--------|--------|--------|-----|-----|--------|
-| CTCAE SOC                                                                               | CTCAE v4.0 Term                     | G1              | G2     | G3     | G4     | G5  | NA  | Tot    | G1                | G2     | G3     | G4     | G5  | NA  | Tot    |
-| Blood and lymphatic system disorders                                                    | Bone marrow disorders               |                 |        |        | 1 (1%) |     |     | 1 (1%) |                   |        |        |        |     |     |        |
-|                                                                                         | Coagulation and bleeding analyses   |                 |        | 1 (1%) |        |     |     | 1 (1%) |                   |        |        |        |     |     |        |
-|                                                                                         | Hematologic neoplasms               |                 |        |        |        |     |     |        |                   |        | 1 (1%) |        |     |     | 1 (1%) |
-|                                                                                         | Red blood cell disorders            |                 | 1 (1%) |        |        |     |     | 1 (1%) | 3 (3%)            | 2 (2%) | 1 (1%) |        |     |     | 6 (6%) |
-| Cardiac disorders                                                                       | Cardiac arrhythmias                 | 2 (2%)          | 2 (2%) |        |        |     |     | 4 (4%) | 3 (3%)            |        | 1 (1%) | 1 (1%) |     |     | 5 (5%) |
-|                                                                                         | Cardiac valve disorders             | 3 (3%)          | 1 (1%) | 4 (4%) |        |     |     | 8 (8%) |                   |        | 1 (1%) | 2 (2%) |     |     | 3 (3%) |
-|                                                                                         | Coronary artery disorders           | 1 (1%)          |        |        |        |     |     | 1 (1%) | 2 (2%)            |        |        | 1 (1%) |     |     | 3 (3%) |
-|                                                                                         | Heart failures                      | 1 (1%)          |        |        |        |     |     | 1 (1%) | 1 (1%)            | 1 (1%) | 1 (1%) |        |     |     | 3 (3%) |
-| Congenital, familial and genetic disorders                                              | Chromosomal abnormalities           | 2 (2%)          | 2 (2%) | 1 (1%) |        |     |     | 5 (5%) | 3 (3%)            |        | 1 (1%) | 3 (3%) |     |     | 7 (7%) |
-|                                                                                         | Congenital nervous system disorders | 4 (4%)          | 2 (2%) |        |        |     |     | 6 (6%) | 6 (6%)            | 2 (2%) |        |        |     |     | 8 (8%) |
-| In the header, N represents the number of patients.                                     |                                     |                 |        |        |        |     |     |        |                   |        |        |        |     |     |        |
-| Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |                                     |                 |        |        |        |     |     |        |                   |        |        |        |     |     |        |
+|  |  | Control (N=100) |  |  |  |  |  |  | Treatment (N=100) |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+| CTCAE SOC | CTCAE v4.0 Term | G1 | G2 | G3 | G4 | G5 | NA | Tot | G1 | G2 | G3 | G4 | G5 | NA | Tot |
+| Blood and lymphatic system disorders | Bone marrow disorders |  |  |  | 1 (1%) |  |  | 1 (1%) |  |  |  |  |  |  |  |
+|  | Coagulation and bleeding analyses |  |  | 1 (1%) |  |  |  | 1 (1%) |  |  |  |  |  |  |  |
+|  | Hematologic neoplasms |  |  |  |  |  |  |  |  |  | 1 (1%) |  |  |  | 1 (1%) |
+|  | Red blood cell disorders |  | 1 (1%) |  |  |  |  | 1 (1%) | 3 (3%) | 2 (2%) | 1 (1%) |  |  |  | 6 (6%) |
+| Cardiac disorders | Cardiac arrhythmias | 2 (2%) | 2 (2%) |  |  |  |  | 4 (4%) | 3 (3%) |  | 1 (1%) | 1 (1%) |  |  | 5 (5%) |
+|  | Cardiac valve disorders | 3 (3%) | 1 (1%) | 4 (4%) |  |  |  | 8 (8%) |  |  | 1 (1%) | 2 (2%) |  |  | 3 (3%) |
+|  | Coronary artery disorders | 1 (1%) |  |  |  |  |  | 1 (1%) | 2 (2%) |  |  | 1 (1%) |  |  | 3 (3%) |
+|  | Heart failures | 1 (1%) |  |  |  |  |  | 1 (1%) | 1 (1%) | 1 (1%) | 1 (1%) |  |  |  | 3 (3%) |
+| Congenital, familial and genetic disorders | Chromosomal abnormalities | 2 (2%) | 2 (2%) | 1 (1%) |  |  |  | 5 (5%) | 3 (3%) |  | 1 (1%) | 3 (3%) |  |  | 7 (7%) |
+|  | Congenital nervous system disorders | 4 (4%) | 2 (2%) |  |  |  |  | 6 (6%) | 6 (6%) | 2 (2%) |  |  |  |  | 8 (8%) |
+| In the header, N represents the number of patients. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
 **Using sort_by_count=TRUE**
 
 ``` r
+
 ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
              sort_by_count=TRUE) %>%
   as_flextable() %>% 
@@ -207,111 +215,111 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm",
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
 
-|                                                                                         |                                                      | Control (N=100) |        |        |        |        |        |          | Treatment (N=100) |        |        |        |        |        |        |
-|-----------------------------------------------------------------------------------------|------------------------------------------------------|-----------------|--------|--------|--------|--------|--------|----------|-------------------|--------|--------|--------|--------|--------|--------|
-| CTCAE SOC                                                                               | CTCAE v4.0 Term                                      | G1              | G2     | G3     | G4     | G5     | NA     | Tot      | G1                | G2     | G3     | G4     | G5     | NA     | Tot    |
-| Social circumstances                                                                    | Cultural issues                                      | 7 (7%)          | 2 (2%) | 2 (2%) |        |        |        | 11 (11%) | 4 (4%)            | 1 (1%) | 1 (1%) | 2 (2%) |        |        | 8 (8%) |
-|                                                                                         | Economic conditions affecting care                   |                 | 3 (3%) |        |        |        |        | 3 (3%)   | 2 (2%)            | 1 (1%) |        | 1 (1%) |        |        | 4 (4%) |
-|                                                                                         | Family support issues                                | 9 (9%)          | 3 (3%) |        |        |        |        | 12 (12%) | 5 (5%)            | 1 (1%) | 2 (2%) |        |        |        | 8 (8%) |
-|                                                                                         | Social and environmental issues                      | 2 (2%)          | 1 (1%) | 1 (1%) |        |        |        | 4 (4%)   | 5 (5%)            | 1 (1%) | 1 (1%) | 1 (1%) |        |        | 8 (8%) |
-| Eye disorders                                                                           | Corneal disorders                                    | 7 (7%)          | 2 (2%) |        |        |        |        | 9 (9%)   | 1 (1%)            | 1 (1%) | 1 (1%) |        |        |        | 3 (3%) |
-|                                                                                         | Eyelid disorders                                     | 3 (3%)          | 1 (1%) | 1 (1%) |        |        |        | 5 (5%)   | 2 (2%)            | 2 (2%) | 1 (1%) |        |        |        | 5 (5%) |
-|                                                                                         | Retinal disorders                                    | 4 (4%)          | 6 (6%) | 3 (3%) | 2 (2%) |        |        | 15 (15%) | 2 (2%)            |        | 1 (1%) |        |        |        | 3 (3%) |
-|                                                                                         | Vision disorders                                     | 4 (4%)          | 2 (2%) |        |        |        |        | 6 (6%)   | 2 (2%)            | 2 (2%) | 2 (2%) | 1 (1%) |        |        | 7 (7%) |
-| Congenital, familial and genetic disorders                                              | Chromosomal abnormalities                            | 2 (2%)          | 2 (2%) | 1 (1%) |        |        |        | 5 (5%)   | 3 (3%)            |        | 1 (1%) | 3 (3%) |        |        | 7 (7%) |
-|                                                                                         | Congenital nervous system disorders                  | 4 (4%)          | 2 (2%) |        |        |        |        | 6 (6%)   | 6 (6%)            | 2 (2%) |        |        |        |        | 8 (8%) |
-|                                                                                         | Familial hematologic disorders                       | 1 (1%)          | 1 (1%) |        |        |        |        | 2 (2%)   | 4 (4%)            | 1 (1%) |        | 1 (1%) |        |        | 6 (6%) |
-|                                                                                         | Hereditary connective tissue disorders               | 6 (6%)          | 2 (2%) | 1 (1%) | 1 (1%) |        |        | 10 (10%) | 2 (2%)            |        | 1 (1%) |        |        |        | 3 (3%) |
-| Injury, poisoning and procedural complications                                          | Poisonings                                           | 4 (4%)          | 2 (2%) |        |        |        |        | 6 (6%)   |                   | 2 (2%) | 1 (1%) |        |        |        | 3 (3%) |
-|                                                                                         | Procedural complications                             | 7 (7%)          | 1 (1%) | 1 (1%) |        |        |        | 9 (9%)   | 5 (5%)            |        | 1 (1%) | 1 (1%) |        |        | 7 (7%) |
-|                                                                                         | Radiation-related toxicities                         | 2 (2%)          | 2 (2%) |        | 1 (1%) |        |        | 5 (5%)   |                   | 2 (2%) |        |        |        |        | 2 (2%) |
-|                                                                                         | Traumatic injuries                                   | 1 (1%)          | 3 (3%) |        |        |        |        | 4 (4%)   | 2 (2%)            | 1 (1%) |        |        |        |        | 3 (3%) |
-| Immune system disorders                                                                 | Autoimmune disorders                                 | 2 (2%)          |        |        |        |        |        | 2 (2%)   | 1 (1%)            | 1 (1%) | 1 (1%) | 1 (1%) |        |        | 4 (4%) |
-|                                                                                         | Hypersensitivity conditions                          | 5 (5%)          | 2 (2%) | 2 (2%) | 1 (1%) |        |        | 10 (10%) | 2 (2%)            | 2 (2%) |        |        |        |        | 4 (4%) |
-|                                                                                         | Immunodeficiency                                     |                 | 1 (1%) |        |        |        |        | 1 (1%)   | 2 (2%)            | 1 (1%) | 2 (2%) |        |        |        | 5 (5%) |
-|                                                                                         | Inflammatory responses                               | 1 (1%)          | 1 (1%) | 2 (2%) | 1 (1%) |        |        | 5 (5%)   | 3 (3%)            | 3 (3%) |        |        |        |        | 6 (6%) |
-| Pregnancy, puerperium and perinatal conditions                                          | Breastfeeding issues                                 | 3 (3%)          | 2 (2%) |        |        |        |        | 5 (5%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Fetal complications                                  | 1 (1%)          | 2 (2%) |        | 1 (1%) |        |        | 4 (4%)   | 1 (1%)            | 5 (5%) | 1 (1%) | 1 (1%) |        |        | 8 (8%) |
-|                                                                                         | Labor and delivery complications                     | 3 (3%)          | 1 (1%) | 2 (2%) | 1 (1%) |        |        | 7 (7%)   | 3 (3%)            |        |        |        |        |        | 3 (3%) |
-|                                                                                         | Pregnancy complications                              |                 |        |        |        |        |        |          | 4 (4%)            | 2 (2%) | 1 (1%) |        |        |        | 7 (7%) |
-| Neoplasms benign, malignant, and unspecified                                            | Benign neoplasms                                     | 2 (2%)          | 5 (5%) | 1 (1%) | 1 (1%) |        |        | 9 (9%)   | 2 (2%)            | 2 (2%) |        |        |        |        | 4 (4%) |
-|                                                                                         | Malignant neoplasms                                  |                 | 1 (1%) |        |        |        |        | 1 (1%)   | 2 (2%)            |        |        |        |        |        | 2 (2%) |
-|                                                                                         | Neoplasms unspecified                                | 1 (1%)          |        | 2 (2%) |        |        |        | 3 (3%)   |                   | 2 (2%) |        |        |        |        | 2 (2%) |
-|                                                                                         | Tumor progression                                    | 3 (3%)          | 2 (2%) |        |        |        |        | 5 (5%)   | 2 (2%)            | 1 (1%) | 1 (1%) | 1 (1%) |        |        | 5 (5%) |
-| Hepatobiliary disorders                                                                 | Bile duct disorders                                  | 2 (2%)          | 2 (2%) |        | 1 (1%) |        |        | 5 (5%)   | 2 (2%)            | 2 (2%) |        |        |        |        | 4 (4%) |
-|                                                                                         | Gallbladder disorders                                | 2 (2%)          |        |        | 1 (1%) |        |        | 3 (3%)   | 2 (2%)            | 1 (1%) |        |        |        |        | 3 (3%) |
-|                                                                                         | Hepatic failure                                      | 4 (4%)          |        |        |        |        |        | 4 (4%)   | 1 (1%)            | 2 (2%) |        |        |        |        | 3 (3%) |
-|                                                                                         | Liver disorders                                      | 1 (1%)          | 1 (1%) |        |        |        |        | 2 (2%)   | 5 (5%)            |        | 1 (1%) |        |        |        | 6 (6%) |
-| Surgical and medical procedures                                                         | Device implantation procedures                       | 2 (2%)          |        | 1 (1%) |        |        |        | 3 (3%)   | 3 (3%)            | 1 (1%) |        |        |        |        | 4 (4%) |
-|                                                                                         | Diagnostic procedures                                | 3 (3%)          | 1 (1%) | 1 (1%) |        |        |        | 5 (5%)   |                   | 2 (2%) |        |        |        |        | 2 (2%) |
-|                                                                                         | Surgical complications                               | 1 (1%)          | 3 (3%) |        |        |        |        | 4 (4%)   | 2 (2%)            |        | 2 (2%) |        |        |        | 4 (4%) |
-|                                                                                         | Therapeutic procedures                               | 1 (1%)          | 1 (1%) |        |        |        |        | 2 (2%)   | 2 (2%)            | 2 (2%) | 1 (1%) | 1 (1%) |        |        | 6 (6%) |
-| Cardiac disorders                                                                       | Cardiac arrhythmias                                  | 2 (2%)          | 2 (2%) |        |        |        |        | 4 (4%)   | 3 (3%)            |        | 1 (1%) | 1 (1%) |        |        | 5 (5%) |
-|                                                                                         | Cardiac valve disorders                              | 3 (3%)          | 1 (1%) | 4 (4%) |        |        |        | 8 (8%)   |                   |        | 1 (1%) | 2 (2%) |        |        | 3 (3%) |
-|                                                                                         | Coronary artery disorders                            | 1 (1%)          |        |        |        |        |        | 1 (1%)   | 2 (2%)            |        |        | 1 (1%) |        |        | 3 (3%) |
-|                                                                                         | Heart failures                                       | 1 (1%)          |        |        |        |        |        | 1 (1%)   | 1 (1%)            | 1 (1%) | 1 (1%) |        |        |        | 3 (3%) |
-| Respiratory, thoracic and mediastinal disorders                                         | Lung function disorders                              | 2 (2%)          | 1 (1%) |        |        |        |        | 3 (3%)   |                   | 1 (1%) | 3 (3%) |        |        |        | 4 (4%) |
-|                                                                                         | Pleural disorders                                    | 2 (2%)          |        |        |        |        |        | 2 (2%)   | 1 (1%)            |        | 1 (1%) |        | 1 (1%) |        | 3 (3%) |
-|                                                                                         | Pulmonary vascular disorders                         | 2 (2%)          | 1 (1%) |        |        |        |        | 3 (3%)   | 3 (3%)            |        |        | 1 (1%) |        |        | 4 (4%) |
-|                                                                                         | Respiratory infections                               | 2 (2%)          | 1 (1%) | 1 (1%) |        |        |        | 4 (4%)   |                   | 2 (2%) | 1 (1%) |        |        |        | 3 (3%) |
-| Ear and labyrinth disorders                                                             | Hearing disorders                                    |                 |        |        |        |        |        |          | 2 (2%)            | 1 (1%) | 1 (1%) |        |        |        | 4 (4%) |
-|                                                                                         | Labyrinth disorders                                  | 1 (1%)          | 1 (1%) |        |        |        |        | 2 (2%)   |                   | 1 (1%) | 1 (1%) |        |        |        | 2 (2%) |
-|                                                                                         | Tinnitus                                             | 2 (2%)          |        | 2 (2%) |        |        |        | 4 (4%)   |                   | 2 (2%) |        |        |        |        | 2 (2%) |
-|                                                                                         | Vertigo and balance disorders                        | 1 (1%)          | 1 (1%) |        |        |        |        | 2 (2%)   | 1 (1%)            | 1 (1%) |        |        |        |        | 2 (2%) |
-| Endocrine disorders                                                                     | Adrenal gland disorders                              | 2 (2%)          |        |        |        |        |        | 2 (2%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-|                                                                                         | Parathyroid gland disorders                          | 3 (3%)          |        |        |        |        |        | 3 (3%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Pituitary gland disorders                            | 3 (3%)          |        |        |        |        |        | 3 (3%)   | 1 (1%)            | 1 (1%) |        |        |        |        | 2 (2%) |
-|                                                                                         | Thyroid gland disorders                              | 2 (2%)          |        | 1 (1%) | 1 (1%) |        |        | 4 (4%)   |                   | 1 (1%) | 1 (1%) |        |        |        | 2 (2%) |
-| Psychiatric disorders                                                                   | Anxiety disorders                                    | 1 (1%)          | 1 (1%) |        |        |        |        | 2 (2%)   | 1 (1%)            | 1 (1%) | 1 (1%) |        |        |        | 3 (3%) |
-|                                                                                         | Mood disorders                                       |                 |        | 1 (1%) |        |        |        | 1 (1%)   | 2 (2%)            |        | 1 (1%) |        |        |        | 3 (3%) |
-|                                                                                         | Sleep disorders                                      | 1 (1%)          |        |        |        |        |        | 1 (1%)   | 3 (3%)            |        |        | 1 (1%) |        |        | 4 (4%) |
-|                                                                                         | Substance-related disorders                          | 2 (2%)          |        |        |        |        |        | 2 (2%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-| Infections and infestations                                                             | Bacterial infectious disorders                       | 2 (2%)          |        |        |        |        |        | 2 (2%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Fungal infectious disorders                          | 1 (1%)          |        |        |        |        |        | 1 (1%)   |                   |        |        |        | 1 (1%) |        | 1 (1%) |
-|                                                                                         | Parasitic infectious disorders                       | 3 (3%)          | 2 (2%) |        |        |        |        | 5 (5%)   | 2 (2%)            |        | 1 (1%) |        |        |        | 3 (3%) |
-|                                                                                         | Viral infectious disorders                           | 3 (3%)          | 1 (1%) |        |        |        |        | 4 (4%)   |                   |        |        |        |        |        |        |
-| Vascular disorders                                                                      | Hypertension-related conditions                      |                 |        |        |        |        |        |          |                   | 2 (2%) | 1 (1%) |        |        |        | 3 (3%) |
-|                                                                                         | Hypotension-related conditions                       | 2 (2%)          |        |        |        |        |        | 2 (2%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-|                                                                                         | Vascular hemorrhagic disorders                       | 2 (2%)          |        |        |        |        |        | 2 (2%)   | 3 (3%)            |        |        | 1 (1%) |        |        | 4 (4%) |
-|                                                                                         | Venous thromboembolic events                         | 2 (2%)          | 1 (1%) |        |        |        |        | 3 (3%)   |                   |        |        | 1 (1%) |        |        | 1 (1%) |
-| Musculoskeletal and connective tissue disorders                                         | Arthritis and joint disorders                        |                 | 2 (2%) |        |        | 1 (1%) |        | 3 (3%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Bone disorders                                       |                 |        | 1 (1%) |        | 1 (1%) |        | 2 (2%)   |                   | 1 (1%) | 1 (1%) |        |        |        | 2 (2%) |
-|                                                                                         | Connective tissue disorders                          | 2 (2%)          |        | 1 (1%) | 1 (1%) |        |        | 4 (4%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-|                                                                                         | Muscle disorders                                     | 2 (2%)          |        |        |        |        |        | 2 (2%)   |                   |        | 1 (1%) |        |        |        | 1 (1%) |
-| Nervous system disorders                                                                | Headache disorders                                   | 3 (3%)          |        |        |        |        |        | 3 (3%)   |                   | 1 (1%) |        | 1 (1%) |        |        | 2 (2%) |
-|                                                                                         | Neurological disorders of the central nervous system |                 | 1 (1%) |        |        |        |        | 1 (1%)   | 1 (1%)            | 1 (1%) |        |        |        |        | 2 (2%) |
-|                                                                                         | Peripheral neuropathies                              |                 | 1 (1%) |        |        |        |        | 1 (1%)   |                   | 1 (1%) |        |        |        |        | 1 (1%) |
-|                                                                                         | Seizure disorders                                    |                 | 1 (1%) |        |        |        |        | 1 (1%)   | 2 (2%)            |        |        |        |        |        | 2 (2%) |
-| Investigations                                                                          | Blood analyses                                       | 2 (2%)          |        | 1 (1%) |        |        |        | 3 (3%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Cardiovascular assessments                           | 1 (1%)          |        |        |        |        |        | 1 (1%)   | 1 (1%)            |        | 1 (1%) |        |        |        | 2 (2%) |
-|                                                                                         | Imaging studies                                      |                 | 1 (1%) |        |        |        |        | 1 (1%)   |                   |        | 1 (1%) |        |        |        | 1 (1%) |
-|                                                                                         | Liver function analyses                              | 2 (2%)          |        |        |        |        |        | 2 (2%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-| Metabolism and nutrition disorders                                                      | Fluid and electrolyte disorders                      |                 |        |        |        |        |        |          | 2 (2%)            |        |        |        |        |        | 2 (2%) |
-|                                                                                         | Lipid metabolism disorders                           | 2 (2%)          |        |        |        |        |        | 2 (2%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-|                                                                                         | Nutritional disorders                                | 2 (2%)          |        |        |        |        |        | 2 (2%)   |                   | 1 (1%) |        |        |        |        | 1 (1%) |
-|                                                                                         | Vitamin deficiencies                                 |                 | 1 (1%) |        |        |        |        | 1 (1%)   | 2 (2%)            |        |        |        |        |        | 2 (2%) |
-| Blood and lymphatic system disorders                                                    | Bone marrow disorders                                |                 |        |        | 1 (1%) |        |        | 1 (1%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Coagulation and bleeding analyses                    |                 |        | 1 (1%) |        |        |        | 1 (1%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Hematologic neoplasms                                |                 |        |        |        |        |        |          |                   |        | 1 (1%) |        |        |        | 1 (1%) |
-|                                                                                         | Red blood cell disorders                             |                 | 1 (1%) |        |        |        |        | 1 (1%)   | 3 (3%)            | 2 (2%) | 1 (1%) |        |        |        | 6 (6%) |
-| Skin and subcutaneous tissue disorders                                                  | Dermatitis                                           | 2 (2%)          | 1 (1%) |        |        |        |        | 3 (3%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Skin and subcutaneous tissue injuries                |                 |        |        |        |        |        |          | 1 (1%)            | 1 (1%) |        |        |        |        | 2 (2%) |
-|                                                                                         | Skin infections                                      |                 |        |        |        |        |        |          | 2 (2%)            |        |        |        |        |        | 2 (2%) |
-|                                                                                         | Skin pigmentation disorders                          |                 |        |        | 1 (1%) |        |        | 1 (1%)   | 1 (1%)            | 1 (1%) |        |        |        |        | 2 (2%) |
-| General disorders and administration site conditions                                    | General physical health deterioration                |                 | 2 (2%) |        |        |        |        | 2 (2%)   |                   | 1 (1%) |        |        |        |        | 1 (1%) |
-|                                                                                         | Injection site reactions                             |                 | 1 (1%) | 2 (2%) |        |        |        | 3 (3%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-|                                                                                         | Pain and discomfort                                  |                 | 1 (1%) |        |        |        |        | 1 (1%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-| Gastrointestinal disorders                                                              | Esophageal disorders                                 | 1 (1%)          |        |        | 1 (1%) |        |        | 2 (2%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Gastric disorders                                    | 1 (1%)          |        |        |        |        |        | 1 (1%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-|                                                                                         | Intestinal disorders                                 |                 | 1 (1%) |        |        |        |        | 1 (1%)   | 2 (2%)            |        |        |        |        |        | 2 (2%) |
-| Renal and urinary disorders                                                             | Bladder disorders                                    |                 |        |        |        |        |        |          |                   |        |        | 1 (1%) |        |        | 1 (1%) |
-|                                                                                         | Kidney disorders                                     | 2 (2%)          |        |        |        |        |        | 2 (2%)   |                   |        |        |        |        |        |        |
-|                                                                                         | Urethral disorders                                   |                 |        | 1 (1%) |        |        |        | 1 (1%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-|                                                                                         | Urinary tract disorders                              | 1 (1%)          |        |        |        |        |        | 1 (1%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-| Reproductive system and breast disorders                                                | Breast disorders                                     |                 |        |        |        |        |        |          |                   |        | 1 (1%) |        |        |        | 1 (1%) |
-|                                                                                         | Female reproductive disorders                        |                 |        | 1 (1%) |        |        |        | 1 (1%)   | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-|                                                                                         | Male reproductive disorders                          | 1 (1%)          | 1 (1%) |        |        |        |        | 2 (2%)   |                   | 1 (1%) |        |        |        |        | 1 (1%) |
-|                                                                                         | Menstrual disorders                                  |                 |        |        |        |        |        |          | 1 (1%)            |        |        |        |        |        | 1 (1%) |
-| No Declared AE                                                                          |                                                      |                 |        |        |        |        | 3 (3%) | 3 (3%)   |                   |        |        |        |        | 5 (5%) | 5 (5%) |
-| In the header, N represents the number of patients.                                     |                                                      |                 |        |        |        |        |        |          |                   |        |        |        |        |        |        |
-| Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |                                                      |                 |        |        |        |        |        |          |                   |        |        |        |        |        |        |
+|  |  | Control (N=100) |  |  |  |  |  |  | Treatment (N=100) |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+| CTCAE SOC | CTCAE v4.0 Term | G1 | G2 | G3 | G4 | G5 | NA | Tot | G1 | G2 | G3 | G4 | G5 | NA | Tot |
+| Social circumstances | Cultural issues | 7 (7%) | 2 (2%) | 2 (2%) |  |  |  | 11 (11%) | 4 (4%) | 1 (1%) | 1 (1%) | 2 (2%) |  |  | 8 (8%) |
+|  | Economic conditions affecting care |  | 3 (3%) |  |  |  |  | 3 (3%) | 2 (2%) | 1 (1%) |  | 1 (1%) |  |  | 4 (4%) |
+|  | Family support issues | 9 (9%) | 3 (3%) |  |  |  |  | 12 (12%) | 5 (5%) | 1 (1%) | 2 (2%) |  |  |  | 8 (8%) |
+|  | Social and environmental issues | 2 (2%) | 1 (1%) | 1 (1%) |  |  |  | 4 (4%) | 5 (5%) | 1 (1%) | 1 (1%) | 1 (1%) |  |  | 8 (8%) |
+| Eye disorders | Corneal disorders | 7 (7%) | 2 (2%) |  |  |  |  | 9 (9%) | 1 (1%) | 1 (1%) | 1 (1%) |  |  |  | 3 (3%) |
+|  | Eyelid disorders | 3 (3%) | 1 (1%) | 1 (1%) |  |  |  | 5 (5%) | 2 (2%) | 2 (2%) | 1 (1%) |  |  |  | 5 (5%) |
+|  | Retinal disorders | 4 (4%) | 6 (6%) | 3 (3%) | 2 (2%) |  |  | 15 (15%) | 2 (2%) |  | 1 (1%) |  |  |  | 3 (3%) |
+|  | Vision disorders | 4 (4%) | 2 (2%) |  |  |  |  | 6 (6%) | 2 (2%) | 2 (2%) | 2 (2%) | 1 (1%) |  |  | 7 (7%) |
+| Congenital, familial and genetic disorders | Chromosomal abnormalities | 2 (2%) | 2 (2%) | 1 (1%) |  |  |  | 5 (5%) | 3 (3%) |  | 1 (1%) | 3 (3%) |  |  | 7 (7%) |
+|  | Congenital nervous system disorders | 4 (4%) | 2 (2%) |  |  |  |  | 6 (6%) | 6 (6%) | 2 (2%) |  |  |  |  | 8 (8%) |
+|  | Familial hematologic disorders | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) | 4 (4%) | 1 (1%) |  | 1 (1%) |  |  | 6 (6%) |
+|  | Hereditary connective tissue disorders | 6 (6%) | 2 (2%) | 1 (1%) | 1 (1%) |  |  | 10 (10%) | 2 (2%) |  | 1 (1%) |  |  |  | 3 (3%) |
+| Injury, poisoning and procedural complications | Poisonings | 4 (4%) | 2 (2%) |  |  |  |  | 6 (6%) |  | 2 (2%) | 1 (1%) |  |  |  | 3 (3%) |
+|  | Procedural complications | 7 (7%) | 1 (1%) | 1 (1%) |  |  |  | 9 (9%) | 5 (5%) |  | 1 (1%) | 1 (1%) |  |  | 7 (7%) |
+|  | Radiation-related toxicities | 2 (2%) | 2 (2%) |  | 1 (1%) |  |  | 5 (5%) |  | 2 (2%) |  |  |  |  | 2 (2%) |
+|  | Traumatic injuries | 1 (1%) | 3 (3%) |  |  |  |  | 4 (4%) | 2 (2%) | 1 (1%) |  |  |  |  | 3 (3%) |
+| Immune system disorders | Autoimmune disorders | 2 (2%) |  |  |  |  |  | 2 (2%) | 1 (1%) | 1 (1%) | 1 (1%) | 1 (1%) |  |  | 4 (4%) |
+|  | Hypersensitivity conditions | 5 (5%) | 2 (2%) | 2 (2%) | 1 (1%) |  |  | 10 (10%) | 2 (2%) | 2 (2%) |  |  |  |  | 4 (4%) |
+|  | Immunodeficiency |  | 1 (1%) |  |  |  |  | 1 (1%) | 2 (2%) | 1 (1%) | 2 (2%) |  |  |  | 5 (5%) |
+|  | Inflammatory responses | 1 (1%) | 1 (1%) | 2 (2%) | 1 (1%) |  |  | 5 (5%) | 3 (3%) | 3 (3%) |  |  |  |  | 6 (6%) |
+| Pregnancy, puerperium and perinatal conditions | Breastfeeding issues | 3 (3%) | 2 (2%) |  |  |  |  | 5 (5%) |  |  |  |  |  |  |  |
+|  | Fetal complications | 1 (1%) | 2 (2%) |  | 1 (1%) |  |  | 4 (4%) | 1 (1%) | 5 (5%) | 1 (1%) | 1 (1%) |  |  | 8 (8%) |
+|  | Labor and delivery complications | 3 (3%) | 1 (1%) | 2 (2%) | 1 (1%) |  |  | 7 (7%) | 3 (3%) |  |  |  |  |  | 3 (3%) |
+|  | Pregnancy complications |  |  |  |  |  |  |  | 4 (4%) | 2 (2%) | 1 (1%) |  |  |  | 7 (7%) |
+| Neoplasms benign, malignant, and unspecified | Benign neoplasms | 2 (2%) | 5 (5%) | 1 (1%) | 1 (1%) |  |  | 9 (9%) | 2 (2%) | 2 (2%) |  |  |  |  | 4 (4%) |
+|  | Malignant neoplasms |  | 1 (1%) |  |  |  |  | 1 (1%) | 2 (2%) |  |  |  |  |  | 2 (2%) |
+|  | Neoplasms unspecified | 1 (1%) |  | 2 (2%) |  |  |  | 3 (3%) |  | 2 (2%) |  |  |  |  | 2 (2%) |
+|  | Tumor progression | 3 (3%) | 2 (2%) |  |  |  |  | 5 (5%) | 2 (2%) | 1 (1%) | 1 (1%) | 1 (1%) |  |  | 5 (5%) |
+| Hepatobiliary disorders | Bile duct disorders | 2 (2%) | 2 (2%) |  | 1 (1%) |  |  | 5 (5%) | 2 (2%) | 2 (2%) |  |  |  |  | 4 (4%) |
+|  | Gallbladder disorders | 2 (2%) |  |  | 1 (1%) |  |  | 3 (3%) | 2 (2%) | 1 (1%) |  |  |  |  | 3 (3%) |
+|  | Hepatic failure | 4 (4%) |  |  |  |  |  | 4 (4%) | 1 (1%) | 2 (2%) |  |  |  |  | 3 (3%) |
+|  | Liver disorders | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) | 5 (5%) |  | 1 (1%) |  |  |  | 6 (6%) |
+| Surgical and medical procedures | Device implantation procedures | 2 (2%) |  | 1 (1%) |  |  |  | 3 (3%) | 3 (3%) | 1 (1%) |  |  |  |  | 4 (4%) |
+|  | Diagnostic procedures | 3 (3%) | 1 (1%) | 1 (1%) |  |  |  | 5 (5%) |  | 2 (2%) |  |  |  |  | 2 (2%) |
+|  | Surgical complications | 1 (1%) | 3 (3%) |  |  |  |  | 4 (4%) | 2 (2%) |  | 2 (2%) |  |  |  | 4 (4%) |
+|  | Therapeutic procedures | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) | 2 (2%) | 2 (2%) | 1 (1%) | 1 (1%) |  |  | 6 (6%) |
+| Cardiac disorders | Cardiac arrhythmias | 2 (2%) | 2 (2%) |  |  |  |  | 4 (4%) | 3 (3%) |  | 1 (1%) | 1 (1%) |  |  | 5 (5%) |
+|  | Cardiac valve disorders | 3 (3%) | 1 (1%) | 4 (4%) |  |  |  | 8 (8%) |  |  | 1 (1%) | 2 (2%) |  |  | 3 (3%) |
+|  | Coronary artery disorders | 1 (1%) |  |  |  |  |  | 1 (1%) | 2 (2%) |  |  | 1 (1%) |  |  | 3 (3%) |
+|  | Heart failures | 1 (1%) |  |  |  |  |  | 1 (1%) | 1 (1%) | 1 (1%) | 1 (1%) |  |  |  | 3 (3%) |
+| Respiratory, thoracic and mediastinal disorders | Lung function disorders | 2 (2%) | 1 (1%) |  |  |  |  | 3 (3%) |  | 1 (1%) | 3 (3%) |  |  |  | 4 (4%) |
+|  | Pleural disorders | 2 (2%) |  |  |  |  |  | 2 (2%) | 1 (1%) |  | 1 (1%) |  | 1 (1%) |  | 3 (3%) |
+|  | Pulmonary vascular disorders | 2 (2%) | 1 (1%) |  |  |  |  | 3 (3%) | 3 (3%) |  |  | 1 (1%) |  |  | 4 (4%) |
+|  | Respiratory infections | 2 (2%) | 1 (1%) | 1 (1%) |  |  |  | 4 (4%) |  | 2 (2%) | 1 (1%) |  |  |  | 3 (3%) |
+| Ear and labyrinth disorders | Hearing disorders |  |  |  |  |  |  |  | 2 (2%) | 1 (1%) | 1 (1%) |  |  |  | 4 (4%) |
+|  | Labyrinth disorders | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) |  | 1 (1%) | 1 (1%) |  |  |  | 2 (2%) |
+|  | Tinnitus | 2 (2%) |  | 2 (2%) |  |  |  | 4 (4%) |  | 2 (2%) |  |  |  |  | 2 (2%) |
+|  | Vertigo and balance disorders | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) |
+| Endocrine disorders | Adrenal gland disorders | 2 (2%) |  |  |  |  |  | 2 (2%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+|  | Parathyroid gland disorders | 3 (3%) |  |  |  |  |  | 3 (3%) |  |  |  |  |  |  |  |
+|  | Pituitary gland disorders | 3 (3%) |  |  |  |  |  | 3 (3%) | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) |
+|  | Thyroid gland disorders | 2 (2%) |  | 1 (1%) | 1 (1%) |  |  | 4 (4%) |  | 1 (1%) | 1 (1%) |  |  |  | 2 (2%) |
+| Psychiatric disorders | Anxiety disorders | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) | 1 (1%) | 1 (1%) | 1 (1%) |  |  |  | 3 (3%) |
+|  | Mood disorders |  |  | 1 (1%) |  |  |  | 1 (1%) | 2 (2%) |  | 1 (1%) |  |  |  | 3 (3%) |
+|  | Sleep disorders | 1 (1%) |  |  |  |  |  | 1 (1%) | 3 (3%) |  |  | 1 (1%) |  |  | 4 (4%) |
+|  | Substance-related disorders | 2 (2%) |  |  |  |  |  | 2 (2%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+| Infections and infestations | Bacterial infectious disorders | 2 (2%) |  |  |  |  |  | 2 (2%) |  |  |  |  |  |  |  |
+|  | Fungal infectious disorders | 1 (1%) |  |  |  |  |  | 1 (1%) |  |  |  |  | 1 (1%) |  | 1 (1%) |
+|  | Parasitic infectious disorders | 3 (3%) | 2 (2%) |  |  |  |  | 5 (5%) | 2 (2%) |  | 1 (1%) |  |  |  | 3 (3%) |
+|  | Viral infectious disorders | 3 (3%) | 1 (1%) |  |  |  |  | 4 (4%) |  |  |  |  |  |  |  |
+| Vascular disorders | Hypertension-related conditions |  |  |  |  |  |  |  |  | 2 (2%) | 1 (1%) |  |  |  | 3 (3%) |
+|  | Hypotension-related conditions | 2 (2%) |  |  |  |  |  | 2 (2%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+|  | Vascular hemorrhagic disorders | 2 (2%) |  |  |  |  |  | 2 (2%) | 3 (3%) |  |  | 1 (1%) |  |  | 4 (4%) |
+|  | Venous thromboembolic events | 2 (2%) | 1 (1%) |  |  |  |  | 3 (3%) |  |  |  | 1 (1%) |  |  | 1 (1%) |
+| Musculoskeletal and connective tissue disorders | Arthritis and joint disorders |  | 2 (2%) |  |  | 1 (1%) |  | 3 (3%) |  |  |  |  |  |  |  |
+|  | Bone disorders |  |  | 1 (1%) |  | 1 (1%) |  | 2 (2%) |  | 1 (1%) | 1 (1%) |  |  |  | 2 (2%) |
+|  | Connective tissue disorders | 2 (2%) |  | 1 (1%) | 1 (1%) |  |  | 4 (4%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+|  | Muscle disorders | 2 (2%) |  |  |  |  |  | 2 (2%) |  |  | 1 (1%) |  |  |  | 1 (1%) |
+| Nervous system disorders | Headache disorders | 3 (3%) |  |  |  |  |  | 3 (3%) |  | 1 (1%) |  | 1 (1%) |  |  | 2 (2%) |
+|  | Neurological disorders of the central nervous system |  | 1 (1%) |  |  |  |  | 1 (1%) | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) |
+|  | Peripheral neuropathies |  | 1 (1%) |  |  |  |  | 1 (1%) |  | 1 (1%) |  |  |  |  | 1 (1%) |
+|  | Seizure disorders |  | 1 (1%) |  |  |  |  | 1 (1%) | 2 (2%) |  |  |  |  |  | 2 (2%) |
+| Investigations | Blood analyses | 2 (2%) |  | 1 (1%) |  |  |  | 3 (3%) |  |  |  |  |  |  |  |
+|  | Cardiovascular assessments | 1 (1%) |  |  |  |  |  | 1 (1%) | 1 (1%) |  | 1 (1%) |  |  |  | 2 (2%) |
+|  | Imaging studies |  | 1 (1%) |  |  |  |  | 1 (1%) |  |  | 1 (1%) |  |  |  | 1 (1%) |
+|  | Liver function analyses | 2 (2%) |  |  |  |  |  | 2 (2%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+| Metabolism and nutrition disorders | Fluid and electrolyte disorders |  |  |  |  |  |  |  | 2 (2%) |  |  |  |  |  | 2 (2%) |
+|  | Lipid metabolism disorders | 2 (2%) |  |  |  |  |  | 2 (2%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+|  | Nutritional disorders | 2 (2%) |  |  |  |  |  | 2 (2%) |  | 1 (1%) |  |  |  |  | 1 (1%) |
+|  | Vitamin deficiencies |  | 1 (1%) |  |  |  |  | 1 (1%) | 2 (2%) |  |  |  |  |  | 2 (2%) |
+| Blood and lymphatic system disorders | Bone marrow disorders |  |  |  | 1 (1%) |  |  | 1 (1%) |  |  |  |  |  |  |  |
+|  | Coagulation and bleeding analyses |  |  | 1 (1%) |  |  |  | 1 (1%) |  |  |  |  |  |  |  |
+|  | Hematologic neoplasms |  |  |  |  |  |  |  |  |  | 1 (1%) |  |  |  | 1 (1%) |
+|  | Red blood cell disorders |  | 1 (1%) |  |  |  |  | 1 (1%) | 3 (3%) | 2 (2%) | 1 (1%) |  |  |  | 6 (6%) |
+| Skin and subcutaneous tissue disorders | Dermatitis | 2 (2%) | 1 (1%) |  |  |  |  | 3 (3%) |  |  |  |  |  |  |  |
+|  | Skin and subcutaneous tissue injuries |  |  |  |  |  |  |  | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) |
+|  | Skin infections |  |  |  |  |  |  |  | 2 (2%) |  |  |  |  |  | 2 (2%) |
+|  | Skin pigmentation disorders |  |  |  | 1 (1%) |  |  | 1 (1%) | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) |
+| General disorders and administration site conditions | General physical health deterioration |  | 2 (2%) |  |  |  |  | 2 (2%) |  | 1 (1%) |  |  |  |  | 1 (1%) |
+|  | Injection site reactions |  | 1 (1%) | 2 (2%) |  |  |  | 3 (3%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+|  | Pain and discomfort |  | 1 (1%) |  |  |  |  | 1 (1%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+| Gastrointestinal disorders | Esophageal disorders | 1 (1%) |  |  | 1 (1%) |  |  | 2 (2%) |  |  |  |  |  |  |  |
+|  | Gastric disorders | 1 (1%) |  |  |  |  |  | 1 (1%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+|  | Intestinal disorders |  | 1 (1%) |  |  |  |  | 1 (1%) | 2 (2%) |  |  |  |  |  | 2 (2%) |
+| Renal and urinary disorders | Bladder disorders |  |  |  |  |  |  |  |  |  |  | 1 (1%) |  |  | 1 (1%) |
+|  | Kidney disorders | 2 (2%) |  |  |  |  |  | 2 (2%) |  |  |  |  |  |  |  |
+|  | Urethral disorders |  |  | 1 (1%) |  |  |  | 1 (1%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+|  | Urinary tract disorders | 1 (1%) |  |  |  |  |  | 1 (1%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+| Reproductive system and breast disorders | Breast disorders |  |  |  |  |  |  |  |  |  | 1 (1%) |  |  |  | 1 (1%) |
+|  | Female reproductive disorders |  |  | 1 (1%) |  |  |  | 1 (1%) | 1 (1%) |  |  |  |  |  | 1 (1%) |
+|  | Male reproductive disorders | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) |  | 1 (1%) |  |  |  |  | 1 (1%) |
+|  | Menstrual disorders |  |  |  |  |  |  |  | 1 (1%) |  |  |  |  |  | 1 (1%) |
+| No Declared AE |  |  |  |  |  |  | 3 (3%) | 3 (3%) |  |  |  |  |  | 5 (5%) | 5 (5%) |
+| In the header, N represents the number of patients. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |

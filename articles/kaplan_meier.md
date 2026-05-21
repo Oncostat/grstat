@@ -27,6 +27,7 @@ Kaplan-Meier plots.
 First, install packages if needed and load them.
 
 ``` r
+
 ## Load libraries
 
 library(grstat)
@@ -49,6 +50,7 @@ last RECIST scan, last patient contact, end of treatment, or last
 follow-up.
 
 ``` r
+
 ## Display dataset
 
 head(data_surv)
@@ -97,6 +99,7 @@ considered censored, indicating that we only know they did not
 experience the event up to a certain point.
 
 ``` r
+
 ## Example
 
 data_surv_v2 = data_surv %>%
@@ -131,6 +134,7 @@ We recommend using the `ggsurvfit` package which uses
 the following syntax:
 
 ``` r
+
 km.model_PFS = survfit2(Surv(time_pfs, status_PFS) ~ surg, data = data_surv_v2)
 km.model_PFS
 #> Call: survfit(formula = Surv(time_pfs, status_PFS) ~ surg, data = data_surv_v2)
@@ -169,6 +173,7 @@ To cite their work, refer to the following:
 #### Progression-Free Survival (PFS)
 
 ``` r
+
 km_PFS = survfit2(Surv(time_pfs, status_PFS) ~ surg, data = data_surv_v2) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +
@@ -186,6 +191,7 @@ km_PFS
 
 ``` r
 
+
 N_total <- nrow(data_surv_v2)
 n_event <- sum(data_surv_v2$status_PFS == 1)
 title_text <- glue("Progression-Free Survival (N={N_total}, n event={n_event})")
@@ -194,6 +200,7 @@ title_text <- glue("Progression-Free Survival (N={N_total}, n event={n_event})")
 **This plot can be further customised, for example:**
 
 ``` r
+
 km_PFS +
   add_censor_mark(size = 4, alpha = 0.4) +
   labs(
@@ -215,6 +222,7 @@ plots to better fit the data and improve visualisation. **Note:** The
 function automatically scales the y-axis in percentage.
 
 ``` r
+
 km_OS = survfit2(Surv(time_OS, status_OS) ~ surg, data = data_surv_v2) %>%
   ggsurvfit(linetype_aes = TRUE) +
   add_confidence_interval() +

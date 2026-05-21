@@ -2,6 +2,7 @@
 
 Create a clinical research project with a standardized structure:
 
+
     ├── main.R
     ├── NEWS.md
     ├── README.md

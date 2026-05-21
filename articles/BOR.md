@@ -83,6 +83,7 @@ Note that warnings about your RECIST data may appear, so be sure to take
 them into account.
 
 ``` r
+
 library(grstat)
 library(tidyverse)
 library(flextable)
@@ -121,6 +122,7 @@ which takes the following parameters:
 ### Unconfirmed response
 
 ``` r
+
 best_resp = calc_best_response(recist)
 ```
 
@@ -128,6 +130,7 @@ best_resp = calc_best_response(recist)
     ## #72 and #193)
 
 ``` r
+
 head(best_resp, n= 7L)
 ```
 
@@ -151,12 +154,14 @@ If your column names aren’t recognized, you can specify them using the
 `cols` parameter :
 
 ``` r
+
 best_resp = calc_best_response(recist, cols = c(rc_resp="Glb_resp", subjid="Pat_Num"),)
 ```
 
 ### Confirmed response
 
 ``` r
+
 confirmed_best_resp = calc_best_response(recist, confirmed = TRUE)
 ```
 
@@ -164,6 +169,7 @@ confirmed_best_resp = calc_best_response(recist, confirmed = TRUE)
     ## #72 and #193)
 
 ``` r
+
 head(confirmed_best_resp, n = 7L)
 ```
 
@@ -180,6 +186,7 @@ head(confirmed_best_resp, n = 7L)
     ## # ℹ 2 more variables: target_sum_diff_min <dbl>, six_months_confirmation <lgl>
 
 ``` r
+
 #To illustrate the difference between confirmed and unconfirmed responses, let's focus on patient 7.
 recist %>% filter(subjid ==7)
 ```
@@ -213,6 +220,7 @@ function which consists of two parameters:
   to display
 
 ``` r
+
 tbl = aggregate_recist_rates(best_resp, derived_endpoints=c("ORR", "CBR", "DCR"))
 tbl
 ```
@@ -240,6 +248,7 @@ modifier. Here, for example, we apply bold formatting to row 4 and add a
 footnote to the third row of the CI column.
 
 ``` r
+
 #Exampel with flextable modification:
 tbl %>% 
   as_flextable() %>% 
@@ -249,18 +258,18 @@ tbl %>%
                 ref_symbols ="8", part = "body")
 ```
 
-| Unconfirmed Best Response during treatment                                                                                                     | N=200 | %    | IC 95%\*      |
-|------------------------------------------------------------------------------------------------------------------------------------------------|-------|------|---------------|
-| Complete response                                                                                                                              | 98    | 49.0 | \[41.9;56.1\] |
-| Partial response                                                                                                                               | 27    | 13.5 | \[9.1;19\]    |
-| Stable disease                                                                                                                                 | 16    | 8.0  | \[4.6;12.7\]8 |
-| Progressive disease                                                                                                                            | 59    | 29.5 | \[23.3;36.3\] |
-| Not evaluable                                                                                                                                  | 0     | 0.0  | \[0;1.8\]     |
-| Objective Response Rate (ORR)ORR                                                                                                               | 125   | 62.5 | \[55.4;69.2\] |
-| Clinical Benefit Rate (CBR)CBR                                                                                                                 | 125   | 62.5 | \[55.4;69.2\] |
-| Disease Control Rate (DCR)DCR                                                                                                                  | 141   | 70.5 | \[63.7;76.7\] |
-| \*Clopper-Pearson (Exact) method was used for confidence interval                                                                              |       |      |               |
-| ORRORR was defined as the presence of a partial response (PR) or a complete response (CR).                                                     |       |      |               |
-| CBRCBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months. |       |      |               |
-| DCRDCR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD).                             |       |      |               |
-| 8This is note number 8                                                                                                                         |       |      |               |
+| Unconfirmed Best Response during treatment | N=200 | % | IC 95%\* |
+|----|----|----|----|
+| Complete response | 98 | 49.0 | \[41.9;56.1\] |
+| Partial response | 27 | 13.5 | \[9.1;19\] |
+| Stable disease | 16 | 8.0 | \[4.6;12.7\]8 |
+| Progressive disease | 59 | 29.5 | \[23.3;36.3\] |
+| Not evaluable | 0 | 0.0 | \[0;1.8\] |
+| Objective Response Rate (ORR)ORR | 125 | 62.5 | \[55.4;69.2\] |
+| Clinical Benefit Rate (CBR)CBR | 125 | 62.5 | \[55.4;69.2\] |
+| Disease Control Rate (DCR)DCR | 141 | 70.5 | \[63.7;76.7\] |
+| \*Clopper-Pearson (Exact) method was used for confidence interval |  |  |  |
+| ORRORR was defined as the presence of a partial response (PR) or a complete response (CR). |  |  |  |
+| CBRCBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months. |  |  |  |
+| DCRDCR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD). |  |  |  |
+| 8This is note number 8 |  |  |  |
