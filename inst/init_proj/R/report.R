@@ -9,6 +9,8 @@
 
 # Init --------------------------------------------------------------------
 
+check_report(lst(tbl, fig, txt)) #Est-ce que tous les éléments des listes sont bien utilisés ?
+
 authors = dplyr::bind_rows(
   c(name="Dr Armin Clusion", role="Coordinating investigator",
     address="Gustave Roussy", phone="+33", email="name@gustaveroussy.fr"),
