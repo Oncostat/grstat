@@ -38,6 +38,14 @@ doc = gr_officer_template(
   sponsor = sponsor
 )
 
+crosstable_options(
+  units="cm",
+  style_list_unordered="unordered_list",
+  style_list_ordered="ordered_list",
+  table_legend_prefix="Trial MYAWESOMETRIAL - ",
+  figure_legend_prefix="Trial MYAWESOMETRIAL - ",
+  keep_id=FALSE,
+)
 
 # Filling -------------------------------------------------------------------------------------
 
@@ -101,6 +109,28 @@ doc = doc %>%
   body_add_normal("Efficacy is presented in *Figure @ref(plot_efficacy)* as a Kaplan Meier curve.") %>%
   body_add_gg2(fig$km_efficacy, width=16, height=9) %>%
   body_add_figure_legend("Kaplan Meier curve", bookmark="plot_efficacy") %>%
+  body_add_break()
+
+
+doc = doc %>%
+  body_add_title("Efficacy", level=1) %>%
+  ## Primary endpoint ----
+  body_add_title("Primary endpoint: Progression Free Survival", level=2) %>%
+  body_add_normal(txt$s13.1_method) %>%
+  body_add_normal(txt$s13.1_pfs) %>%
+  body_add_normal(txt$s13.1_conclusion) %>%
+  body_add_normal(txt$s13.1_cox_pfs) %>%
+  body_add_gg2(fig$s13.1_km_pfs, width=16, height=12)
+  ## Secondary endpoints ----
+  body_add_title("Secondary endpoints", level=2) %>%
+  body_add_title("Overall Survival", level=3) %>%
+  body_add_title("Response at 8 weeks and 6 months", level=3) %>%
+  ## Sensitivity analyses ----
+  body_add_title("Sensitivity analyses", level=2) %>%
+  ## Heterogeneity of the effect ----
+  body_add_title("Analyse of the heterogeneity of the effect of the treatment", level=2) %>%
+  body_add_title("Conclusion on effectiveness", level=2) %>%
+  body_add_normal(txt$s13.5_conclusion) %>%
   body_add_break()
 
 # Section 14: Other ---------------------------------------------------------------------------
