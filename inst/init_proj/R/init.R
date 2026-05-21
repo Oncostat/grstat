@@ -141,3 +141,34 @@ flextable2 = function(x, autofit=TRUE, fontsize_body=8, fontsize_head=9, padding
 
 
 
+
+check_report = function(l, path="R/report.R"){
+  lines = readLines(path)
+
+  diffs = l %>%
+    imap(~{
+      used =
+        lines %>%
+        str_subset(glue("^[ \t]*#"), negate=TRUE) %>%
+        str_subset(glue("{.y}\\$")) %>%
+        str_extract(glue("{.y}\\$([A-Za-z0-9_\\.]+)"), group=1)
+      error = setdiff(used, names(.x))
+      if(length(error)>0) {
+        cli_abort("Unkown element {.val {.y}${error}} used in `path`")
+      }
+      diff = setdiff(names(.x), used)
+      diff
+    })
+
+  bullets = diffs %>%
+    discard(is_empty) %>%
+    imap_chr(~{
+      format_inline("In `{.y}`:  {.val {.x}}") %>% set_names("*")
+    })
+
+  cli_warn(c(
+    "Unused report elements: ",
+    bullets
+  ))
+}
+
