@@ -57,7 +57,8 @@ rc_checks = as_tibble(recist_check) %>%
 
 # Errors
 
-These checks signal errors that should be corrected in the CRF.
+These checks signal errors that should be corrected. 
+If the error comes from the CRF, the real value should be entered; if the error comes from the medical record, fill a deviation form.
 
 ```{r}
 rc_errors %>% 
