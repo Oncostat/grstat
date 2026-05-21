@@ -14,7 +14,7 @@
 #'
 #' @importFrom dplyr arrange desc mutate
 #' @importFrom purrr list_rbind
-#' @seealso [RECIST guidelines](https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf)
+#' @seealso [RECIST v1.1 guidelines, Eisenhauer 2008](https://doi.org/10.1016/j.ejca.2008.10.026)
 #'
 #' @examples
 #' # we unfortunately cannot provide a flawed simulated recist dataset, at least not yet
