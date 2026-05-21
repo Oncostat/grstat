@@ -490,7 +490,7 @@ rc_check_nontarget_response = function(rc){
   rtn = list()
 
   rtn$nonmissing_ntl = rc %>%
-    filter(nontarget_yn == "No" & !is.na(nontarget_resp)) %>%
+    filter(nontarget_yn == "No" & !.recist_to_num(nontarget_resp)==5) %>%
     distinct(subjid, rc_date, nontarget_yn, nontarget_resp) %>%
     arrange(nontarget_yn) %>%
     recist_issue("Patients with no Non-Target Lesions should not have a
