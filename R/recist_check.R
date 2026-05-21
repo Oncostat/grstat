@@ -209,7 +209,7 @@ rc_check_missing = function(rc){
   rtn$target_missing_values = rc %>%
     filter(is.na(target_diam) != is.na(target_site)) %>%
     select(subjid, rc_date, target_site, target_diam) %>%
-    recist_issue("Target Lesion diameter and site should not be missing",
+    recist_issue("Target Lesion diameter and site should not be missing (enter the real value, or zero)",
                  level="ERROR")
 
   #missing values on responses: all or nothing
