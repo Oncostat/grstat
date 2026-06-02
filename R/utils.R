@@ -10,12 +10,16 @@ any_of2 = function(x, ignore.case=TRUE, ...){
 
 #' @noRd
 #' @keywords internal
-#' @importFrom stringr str_replace_all str_to_lower
+#' @importFrom stringr str_replace_all str_remove_all str_to_lower
 to_snake_case = function(str) {
+  sep = "______"
   str %>%
+    str_replace_all("[\\s\\-/\\\\–—−\\.]+", sep) %>%
+    iconv(to = "ASCII//TRANSLIT", sub = "") %>%
     str_replace_all("([a-z])([A-Z])", "\\1_\\2") %>%
-    str_replace_all("[^\\w\\s]", "") %>%
-    str_replace_all("\\s+", "_") %>%
+    str_replace_all("[^A-Za-z0-9_]", "") %>%
+    str_replace_all(paste0(sep, "+"), "_") %>%
+    str_remove_all(paste0("^", sep, "|", sep, "$")) %>%
     str_to_lower()
 }
 
