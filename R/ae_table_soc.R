@@ -17,8 +17,9 @@
 #' @param term name of the the CTCAE term column in `df_ae`. Case-insensitive. Can be set to `NULL`.
 #' @param sort_by_count should the table be sorted by the number of AE or by SOC alphabetically.
 #' @param total whether to add a `total` column for each arm.
-#' @param showNA whether to display missing grades.
+#' @param showNA whether to display missing grades. Only relevant if `ae_groups` is not used.
 #' @param digits significant digits for percentages.
+#' @param ae_groups a named list specifying the grade values for each group.
 #' @param warn_miss whether to warn for missing values.
 #' @param grade  name of the AE grade column in `df_ae`. Case-insensitive.
 #' @param soc name of the SOC column in `df_ae`. Case-insensitive. Grade will be considered 0 if missing (e.g. if patient if absent from `df_ae`).
@@ -65,6 +66,7 @@ ae_table_soc = function(
     df_ae, ..., df_enrol,
     variant=c("max", "sup", "eq"),
     arm=NULL, term=NULL,
+    ae_groups = NULL,
     sort_by_count=TRUE, total=TRUE, showNA=TRUE, digits=0, warn_miss=FALSE,
     grade="AEGR", soc="AESOC", subjid="SUBJID"
 ){
@@ -123,18 +125,22 @@ ae_table_soc = function(
   arm_count2 = arm_count %>%
     set_names(to_snake_case)
 
-  extra_cols = if(total) c("NA", "Tot") else c("NA")
+  extra_cols = if(total) c("Tot") else NULL
+  
+  default = list("G1"=1, "G2"=2, "G3"=3, "G4"=4, "G5"=5)
+  if(isTRUE(showNA)) default[["NA"]] = NA
+  ae_groups = .get_ae_groups(ae_groups, default=default)
+
   rtn = df %>%
-    summarise(calc = evaluate_grades(grade_, variant),
+    summarise(calc = .evaluate_grades(grade_, variant, ae_groups),
               .by=any_of(c("subjid_", "arm_", "soc_", "term_"))) %>%
     unnest(calc) %>%
     mutate(
-      # Tot = ifelse(total, Tot, 0),
       soc_ = soc_ %>% fct_infreq(w=Tot) %>%
         fct_last(label_missing_soc, label_missing_pat)
     ) %>%
     summarise(
-      across(c(matches("^G\\d$"), any_of(extra_cols)), ~{
+      across(c(all_of(names(ae_groups)), any_of(extra_cols)), ~{
         n = sum(.x)
         n_arm = arm_count2[[cur_group()$arm_]]
         label = glue("{n} ({p})", p=percent(n/n_arm, digits))
@@ -156,15 +162,17 @@ ae_table_soc = function(
 
   spec = rtn %>%
     build_wider_spec(names_from=arm_,
-                     values_from=c(matches("^G\\d$"), any_of(c("NA", "Tot"))),
-                     names_glue="{arm_}_{.value}") %>%
+                     values_from=c(all_of(names(ae_groups)), any_of(c("NA", "Tot"))),
+                     names_glue="{arm_}__{.value}") %>%
     arrange(.name)
 
   rtn = rtn %>%
     rename(soc=soc_, term=any_of("term_")) %>%
     pivot_wider_spec(spec) %>%
-    add_class("ae_table_soc") %>%
-    arrange(soc, pick(any_of("term")))
+    arrange(soc, pick(any_of("term"))) %>%
+    mutate(across(everything(), ~set_label(.x, cur_column()))) %>%
+    rename_with(to_snake_case) %>%
+    add_class("ae_table_soc")
 
   attr(rtn, "header") =
     glue("{a} (N={b})", a=names(arm_count), b=arm_count) %>%
@@ -201,25 +209,12 @@ as_flextable.ae_table_soc = function(x,
   check_dots_empty()
   if (missing(padding_v)) padding_v = getOption("crosstable_padding_v", padding_v)
   table_ae_header = attr(x, "header")
-  if(FALSE){
-    arm_cols = names(table_ae_header) %>% set_names() %>%
-      map_int(~{
-        pattern = paste0("^", .x, "_(G\\d|NA|Tot)$")
-        sum(str_detect(names(x), pattern))
-      })
-    table_ae_header = table_ae_header[arm_cols>0]
-    arm_cols = arm_cols[arm_cols>0]
-
-    col1 = names(x) %>% str_detect(names(table_ae_header)[1]) %>% which() %>% min() - 1
-    colwidths = c(col1, arm_cols)
-    header_labels = set_names(names(x)) %>% map(~str_replace_all(.x, ".*_", ""))
-    header_labels$soc = "CTCAE SOC"
-    header_labels$term = "CTCAE v4.0 Term"
-  }
   # https://github.com/tidyverse/tidyr/issues/1551
+  labels = get_label(x) %>% unlist()
   header_df = names(x) %>%
     as_tibble_col("col_keys") %>%
-    separate_wider_regex(col_keys, c(h1 = ".*", "_", h2 = ".*"),
+    mutate(label = labels[col_keys]) %>%
+    separate_wider_regex(label, c(h1 = ".*", "__", h2 = ".*"),
                          too_few="align_start", cols_remove=FALSE) %>%
     transmute(
       col_keys,
@@ -243,17 +238,15 @@ as_flextable.ae_table_soc = function(x,
   rtn = x %>%
     flextable() %>%
     set_header_df(mapping=header_df) %>%
-    # hline_top(part="header") %>%
     hline_bottom(part="header") %>%
     merge_h(part="header") %>%
-    # set_header_labels(values=header_labels) %>%
-    # add_header_row(values=c(" ", table_ae_header), colwidths = colwidths) %>%
     align(i=1, part="header", align="center") %>%
     align(j=seq(col1), part="all", align="right") %>%
     padding(padding.top=0, padding.bottom=0) %>%
     set_table_properties(layout="autofit") %>%
     fontsize(size=8, part="all") %>%
     bold(part="header")
+
   if (length(padding_v) >= 1) {
     rtn = padding(rtn, padding.top=padding_v[1], padding.bottom=padding_v[1], part="body")
   }
@@ -267,7 +260,6 @@ as_flextable.ae_table_soc = function(x,
       valign(j="soc", valign="top") %>%
       hline(i=~soc!=dplyr::lead(soc), border=b)
   }
-  # a = cumsum(colwidths)[-1]
   a = sep_cols
   for(i in seq_along(a)){
     from = lag(a, default=col1)[i] + 1
@@ -290,14 +282,39 @@ as_flextable.ae_table_soc = function(x,
 #' @importFrom tidyr replace_na
 #' @noRd
 #' @keywords internal
-evaluate_grades = function(gr, variant){
+.evaluate_grades = function(gr, variant, ae_groups){
   inner_calc = switch(variant, max=~max_narm(gr) == .x,
                       sup=~any(gr >= .x, na.rm=TRUE),
                       eq=~any(gr == .x, na.rm=TRUE))
   n = c(1:5) %>% set_names(paste0("G",1:5)) %>% map_lgl(inner_calc)
-  n_na = c("NA"=all(is.na(n)))
+  n["NA"] = all(is.na(n))
   n = replace_na(n, FALSE)
-  n_tot = c(Tot=sum(c(n, n_na), na.rm=TRUE))
-  c(n, n_na, n_tot) %>%
+  n_tot = c(Tot=sum(n, na.rm=TRUE))
+  n = map_lgl(ae_groups, ~{
+    nm = ifelse(is.na(.x), "NA", paste0("G",.x))
+    any(n[nm])
+  })
+
+  c(n, n_tot) %>%
     as_tibble_row()
+}
+
+
+#' @noRd
+#' @keywords internal
+.get_ae_groups = function(ae_groups, default){
+  if(is.null(ae_groups)) return(default)
+  assert(is_named(ae_groups),
+          msg = "{.arg ae_groups} should be a named list of numeric values between 1 and 5.",
+          class="ae_table_soc_group_bad_class")
+  if(!is.list(ae_groups)){
+    assert_class(ae_groups, "numeric")
+    return(as.list(ae_groups))
+  }
+  ok = ae_groups %>% map_lgl(~all(is.na(.x) | (is.numeric(.x) & .x>0 & .x<6),
+                                  na.rm=TRUE))
+  assert(all(ok),
+          msg = "{.arg ae_groups} should be a named list of numeric values between 1 and 5.",
+          class="ae_table_soc_group_bad_number")
+  ae_groups
 }
