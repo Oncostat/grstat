@@ -6,7 +6,7 @@
 #'
 #' @inheritParams ae_table_soc
 #' @inherit ae_table_soc seealso
-#' @param severe name of the logical column in `df_ae` telling whether an AE is severe. Case-insensitive.
+#' @param severe name of the logical column in `data_ae` telling whether an AE is severe. Case-insensitive.
 #' @param sort_by either "total" or "severe"
 #' @param range_min The minimum value for the upper limit of the x-axis range. Set to `1` to always include 100%.
 #'
@@ -31,31 +31,35 @@
 #' ae2 = ae %>%
 #'   dplyr::mutate(serious = sae=="Yes")
 #'
-#' butterfly_plot(ae2, df_enrol=enrolres, range_min=0.5)
-#' butterfly_plot(ae2, df_enrol=head(enrolres,9), range_min=0.5)
+#' butterfly_plot(ae2, data_pat=enrolres, range_min=0.5)
+#' butterfly_plot(ae2, data_pat=head(enrolres,9), range_min=0.5)
 #'
 #' ae2 %>%
-#'   butterfly_plot(df_enrol=enrolres, severe="serious") +
+#'   butterfly_plot(data_pat=enrolres, severe="serious") +
 #'   ggplot2::labs(caption="Darker areas represent Serious Adverse Events")
 butterfly_plot = function(
-    df_ae, ..., df_enrol, severe=NULL, sort_by=c("total", "severe"), range_min=NULL,
+    data_ae, ..., data_pat,
+    severe=NULL, sort_by=c("total", "severe"), range_min=NULL,
     arm="ARM", subjid="SUBJID", soc="AESOC"
 ){
-  check_dots_empty()
-  assert_not_null(df_ae, df_enrol, sort_by, subjid, soc)
-  assert_names_exists(df_ae, lst(subjid, soc, severe))
-  assert_names_exists(df_enrol, lst(subjid, arm))
+  dots = list(...)
+  data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae
+  data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
+  assert_not_null(data_ae, data_pat, sort_by, subjid, soc)
+  assert_names_exists(data_ae, lst(subjid, soc, severe))
+  assert_names_exists(data_pat, lst(subjid, arm))
+  check_dots_empty2(except = c("df_ae", "df_enrol"))
   sort_by = arg_match(sort_by)
 
-  df_ae = df_ae %>%
+  data_ae = data_ae %>%
     select(subjid_=any_of2(subjid), soc_=any_of2(soc),
            severe_=any_of2(severe)) %>%
     mutate(severe_ = if(is.null(severe)) NA else severe_)
-  df_enrol = df_enrol %>%
+  data_pat = data_pat %>%
     mutate(across(any_of2(arm), factor)) %>%
     select(subjid_=any_of2(subjid), arm_=any_of2(arm))
 
-  arms = df_enrol[["arm_"]]
+  arms = data_pat[["arm_"]]
   n_arms = n_distinct(arms, na.rm=TRUE)
   if(n_arms!=2){
     if(is.null(arms)) arms = "NULL"
@@ -70,32 +74,31 @@ butterfly_plot = function(
                 i = "Missing values are not allowed. Use `tidyr::drop_na({arm})` to remove them."),
               class="grstat_butterfly_arm_na_error")
   }
-
-  df = df_enrol %>%
-    left_join(df_ae, by="subjid_") %>%
+  df = data_pat %>%
+    left_join(data_ae, by="subjid_") %>%
     filter(!is.na(soc_))  %>%
     arrange(subjid_)
 
-  if(!is.factor(df_enrol$arm_)) df_enrol$arm_ = factor(df_enrol$arm_)
+  if(!is.factor(data_pat$arm_)) data_pat$arm_ = factor(data_pat$arm_)
 
-  arms = df_enrol$arm_ %>% unique() %>% na.omit()
+  arms = data_pat$arm_ %>% unique() %>% na.omit()
   if(length(arms)!=2){
     cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
                 i="Arms: {.val {arms}}"),
               class="grstat_butterfly_two_arms_error")
   }
   if(!is.null(severe)){
-    if(!is.logical(df_ae$severe_)){
-      cli_abort(c("{.arg severe} should be a logical column, not a {.type {df_ae$severe_}}. Did you forget to mutate it with `==`?"),
+    if(!is.logical(data_ae$severe_)){
+      cli_abort(c("{.arg severe} should be a logical column, not a {.type {data_ae$severe_}}. Did you forget to mutate it with `==`?"),
                 class="grstat_butterfly_serious_lgl_error")
     }
-    if(!any(df_ae$severe_)){
+    if(!any(data_ae$severe_)){
       cli_warn(c("All {.arg severe} values are FALSE."),
                class="grstat_butterfly_serious_false_warning")
     }
   }
 
-  df_arm = df_enrol %>%
+  df_arm = data_pat %>%
     count(arm_, name="n_arm") %>%
     mutate(label=glue("{arm_} (N={n_arm})") %>% fct_reorder(as.numeric(arm_)))
   left_arm = levels(arms)[1]
@@ -149,6 +152,6 @@ butterfly_plot = function(
 
 
 #' @rdname butterfly_plot
-#' @usage ae_plot_soc(df_ae, ..., df_enrol, severe, sort_by, range_min, arm, subjid, soc)
+#' @usage ae_plot_soc(data_ae, ..., data_pat, severe, sort_by, range_min, arm, subjid, soc)
 #' @export
 ae_plot_soc = butterfly_plot
