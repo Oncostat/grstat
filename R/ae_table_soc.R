@@ -52,13 +52,13 @@
 #' library(flextable)
 #' ae_table_soc(ae, data_pat=enrolres, total=FALSE) %>%
 #'   as_flextable() %>%
-#'   hline(i=~soc=="" & soc!=dplyr::lead(soc))
+#'   hline(i=~group1=="" & group1!=dplyr::lead(group1))
 #' ae_table_soc(ae, data_pat=enrolres, term=NULL, sort_by_count=FALSE) %>%
 #'   as_flextable() %>%
-#'   bold(i=~soc=="Eye disorders")
+#'   bold(i=~group1=="Eye disorders")
 #' ae_table_soc(ae, data_pat=enrolres, term="aeterm", arm=NULL) %>%
 #'   as_flextable() %>%
-#'   highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
+#'   highlight(i=~group1=="Hepatobiliary disorders", j="all_patients__tot")
 ae_table_soc = function(
     data_ae, ..., data_pat,
     measure=c("max", "sup", "eq"),
