@@ -23,42 +23,45 @@
 #' @examples
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM")
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM", weights=c(1,1,3,6,10))
+#' ae_plot_grade_sum(data_ae=ae, data_pat=enrolres)
+#' ae_plot_grade_sum(data_ae=ae, data_pat=enrolres, arm="ARM")
+#' ae_plot_grade_sum(data_ae=ae, data_pat=enrolres, arm="ARM", weights=c(1,1,3,6,10))
 ae_plot_grade_sum = function(
-    df_ae, ..., df_enrol,
+    data_ae, ..., data_pat,
     low="#ffc425", high="#d11141",
     weights=NULL,
     arm=NULL, grade="AEGR", subjid="SUBJID"
 ){
-  check_dots_empty()
-  assert_names_exists(df_ae, lst(subjid, grade))
-  assert_names_exists(df_enrol, lst(subjid, arm))
+  dots = list(...)
+  data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae
+  data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
+  assert_names_exists(data_ae, lst(subjid, grade))
+  assert_names_exists(data_pat, lst(subjid, arm))
+  check_dots_empty2(except = c("df_ae", "df_enrol"))
 
   weighted = !is.null(weights)
   if(!weighted) weights=c(1,1,1,1,1)
   assert(is.numeric(weights))
   assert(length(weights)==5)
 
-  df_ae = df_ae %>% rename_with(tolower) %>%
+  data_ae = data_ae %>% rename_with(tolower) %>%
     select(subjid=tolower(subjid), grade=tolower(grade))
-  df_enrol = df_enrol %>% rename_with(tolower) %>%
+  data_pat = data_pat %>% rename_with(tolower) %>%
     select(subjid=tolower(subjid), arm=tolower(arm))
 
-  df = df_enrol %>%
-    left_join(df_ae, by=tolower(subjid)) %>%
+  df = data_pat %>%
+    left_join(data_ae, by=tolower(subjid)) %>%
     mutate(grade = .fix_grade_na(grade),
            weight = weights[grade] %>% replace_na(0.1)) %>%
     arrange(subjid)
 
   default_arm = "All patients"
   if(!is.null(arm)){
-    npat = deframe(count(df_enrol, arm))
+    npat = deframe(count(data_pat, arm))
     npat["Total"] = sum(npat)
   } else {
     df$arm = default_arm
-    npat = int(!!default_arm:=nrow(df_enrol))
+    npat = int(!!default_arm:=nrow(data_pat))
   }
 
   y_lab = "Count"; caption = NULL
