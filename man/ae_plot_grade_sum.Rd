@@ -6,9 +6,9 @@
 \title{Graphic representation of AEs}
 \usage{
 ae_plot_grade_sum(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
+  data_pat,
   low = "#ffc425",
   high = "#d11141",
   weights = NULL,
@@ -18,11 +18,11 @@ ae_plot_grade_sum(
 )
 }
 \arguments{
-\item{df_ae}{adverse event dataset, one row per AE, containing subjid, soc, and grade.}
+\item{data_ae}{adverse event dataset, one row per AE, containing \code{subjid}, \code{grade}, \code{group1}, and potentially \code{group2}.}
 
 \item{...}{unused}
 
-\item{df_enrol}{enrollment dataset, one row per patient, containing subjid (and arm if needed). All patients should be in this dataset.}
+\item{data_pat}{enrollment dataset, one row per patient, containing \code{subjid} (and \code{arm} if needed). All patients should be in this dataset.}
 
 \item{low}{the color of Grade 1 AE}
 
@@ -30,11 +30,11 @@ ae_plot_grade_sum(
 
 \item{weights}{(optional) a length 5 numeric vector, giving the weights of each grade}
 
-\item{arm}{name of the treatment column in \code{df_enrol}. Case-insensitive. Can be set to \code{NULL}.}
+\item{arm}{name of the treatment column in \code{data_pat}. Case-insensitive. Can be set to \code{NULL}.}
 
-\item{grade}{name of the AE grade column in \code{df_ae}. Case-insensitive.}
+\item{grade}{name of the AE grade column in \code{data_ae}. Case-insensitive.}
 
-\item{subjid}{name of the patient ID in both \code{df_ae} and \code{df_enrol}. Case-insensitive.}
+\item{subjid}{name of the patient ID in both \code{data_ae} and \code{data_pat}. Case-insensitive.}
 }
 \value{
 a ggplot
@@ -46,9 +46,9 @@ Produce a graphic representation of AE, counting AE as bars for each patient, co
 \examples{
 tm = grstat_example()
 attach(tm, warn.conflicts=FALSE)
-ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
-ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM")
-ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM", weights=c(1,1,3,6,10))
+ae_plot_grade_sum(data_ae=ae, data_pat=enrolres)
+ae_plot_grade_sum(data_ae=ae, data_pat=enrolres, arm="ARM")
+ae_plot_grade_sum(data_ae=ae, data_pat=enrolres, arm="ARM", weights=c(1,1,3,6,10))
 }
 \seealso{
 \code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}
