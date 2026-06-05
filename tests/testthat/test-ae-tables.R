@@ -152,7 +152,7 @@ test_that("ae_table_soc(ae_groups) works", {
 
 
   x0 = ae_table_soc(df_ae=ae, df_enrol=enrolres)
-  expect_named(x0, c("soc", "all_patients__g1", "all_patients__g2", "all_patients__g3",
+  expect_named(x0, c("group1", "all_patients__g1", "all_patients__g2", "all_patients__g3",
                      "all_patients__g4", "all_patients__g5", "all_patients__na",
                      "all_patients__tot"))
   x0 %>% as_flextable()
@@ -173,7 +173,7 @@ test_that("ae_table_soc(ae_groups) works", {
   ae_groups=list("Any grade"=c(1:5,NA), "Grade 1-2"=1:2, "Grade 3-5"=3:5)
   x2 = ae_table_soc(df_ae=ae, df_enrol=enrolres,
                     ae_groups=ae_groups)
-  expect_named(x2, c("soc", "all_patients__any_grade", "all_patients__grade_1_2",
+  expect_named(x2, c("group1", "all_patients__any_grade", "all_patients__grade_1_2",
                      "all_patients__grade_3_5", "all_patients__tot"))
   expect_equal(x2$all_patients__any_grade, x2$all_patients__tot, ignore_attr=TRUE)
   # expect_equal(x2$all_patients_any_grade,
@@ -184,7 +184,7 @@ test_that("ae_table_soc(ae_groups) works", {
   ae_groups=list("Any grade"=1:5, "Grade 1-2"=1:2, "Grade 3-5"=3:5)
   x3 = ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="ARM", total=FALSE,
                     ae_groups=ae_groups)
-  expect_named(x3, c("soc",
+  expect_named(x3, c("group1",
                      "control__any_grade", "control__grade_1_2", "control__grade_3_5",
                      "treatment__any_grade", "treatment__grade_1_2", "treatment__grade_3_5"))
 

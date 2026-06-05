@@ -6,9 +6,9 @@
       ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
     Output
       # A tibble: 1 x 8
-        soc   all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
-        <fct> <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
-      1 Soc1  <NA>             <NA>             <NA>             1 (50%)          1 (50%)          <NA>            
+        group1 all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
+        <fct>  <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
+      1 Soc1   <NA>             <NA>             <NA>             1 (50%)          1 (50%)          <NA>            
         all_patients__tot
         <glue>           
       1 2 (100%)         
@@ -16,22 +16,22 @@
       ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
     Condition
       Warning:
-      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
+      Total has been set to `FALSE` as totals are not very interpretable when `measure` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
     Output
       # A tibble: 1 x 7
-        soc   all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
-        <fct> <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
-      1 Soc1  2 (100%)         2 (100%)         2 (100%)         2 (100%)         1 (50%)          <NA>            
+        group1 all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
+        <fct>  <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
+      1 Soc1   2 (100%)         2 (100%)         2 (100%)         2 (100%)         1 (50%)          <NA>            
     Code
       ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
     Condition
       Warning:
-      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
+      Total has been set to `FALSE` as totals are not very interpretable when `measure` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
     Output
       # A tibble: 1 x 7
-        soc   all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
-        <fct> <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
-      1 Soc1  1 (50%)          2 (100%)         2 (100%)         2 (100%)         1 (50%)          <NA>            
+        group1 all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
+        <fct>  <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
+      1 Soc1   1 (50%)          2 (100%)         2 (100%)         2 (100%)         1 (50%)          <NA>            
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
     Output
@@ -203,7 +203,7 @@
       ae_table_soc(ae, df_enrol = enrolres)
     Output
       # A tibble: 27 x 8
-         soc                                                  all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4
+         group1                                               all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4
          <fct>                                                <glue>           <glue>           <glue>           <glue>          
        1 Eye disorders                                        21 (10%)         16 (8%)          9 (4%)           3 (2%)          
        2 Social circumstances                                 27 (14%)         12 (6%)          6 (3%)           4 (2%)          
@@ -265,7 +265,7 @@
       ae_table_soc(ae, df_enrol = enrolres, sort_by_count = FALSE)
     Output
       # A tibble: 27 x 8
-         soc                                                  all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4
+         group1                                               all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4
          <fct>                                                <glue>           <glue>           <glue>           <glue>          
        1 Blood and lymphatic system disorders                 3 (2%)           3 (2%)           3 (2%)           1 (0%)          
        2 Cardiac disorders                                    11 (6%)          4 (2%)           7 (4%)           4 (2%)          
@@ -327,7 +327,7 @@
       ae_table_soc(ae, df_enrol = enrolres, arm = "ARM", digits = 1)
     Output
       # A tibble: 27 x 15
-         soc                                                  control__g1 control__g2 control__g3 control__g4 control__g5
+         group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
          <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
        1 Eye disorders                                        14 (14%)    11 (11%)    4 (4%)      2 (2%)      <NA>       
        2 Social circumstances                                 16 (16%)    8 (8%)      3 (3%)      <NA>        <NA>       
@@ -418,7 +418,7 @@
       ae_table_soc(ae, df_enrol = enrolres, arm = "ARM", showNA = FALSE, total = FALSE)
     Output
       # A tibble: 27 x 11
-         soc                                                  control__g1 control__g2 control__g3 control__g4 control__g5
+         group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
          <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
        1 Eye disorders                                        14 (14%)    11 (11%)    4 (4%)      2 (2%)      <NA>       
        2 Social circumstances                                 16 (16%)    8 (8%)      3 (3%)      <NA>        <NA>       
@@ -480,10 +480,10 @@
       ae_table_soc(ae, df_enrol = enrolres, arm = "ARM", variant = "sup")
     Condition
       Warning:
-      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
+      Total has been set to `FALSE` as totals are not very interpretable when `measure` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
     Output
       # A tibble: 27 x 13
-         soc                                                  control__g1 control__g2 control__g3 control__g4 control__g5
+         group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
          <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
        1 Eye disorders                                        31 (31%)    17 (17%)    6 (6%)      2 (2%)      <NA>       
        2 Social circumstances                                 27 (27%)    11 (11%)    3 (3%)      <NA>        <NA>       
@@ -545,10 +545,10 @@
       ae_table_soc(ae, df_enrol = enrolres, arm = "ARM", variant = "eq")
     Condition
       Warning:
-      Total has been set to `FALSE` as totals are not very interpretable when `variant` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
+      Total has been set to `FALSE` as totals are not very interpretable when `measure` is "sup" or "eq". Set `total=FALSE` explicitly to silence this warning.
     Output
       # A tibble: 27 x 13
-         soc                                                  control__g1 control__g2 control__g3 control__g4 control__g5
+         group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
          <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
        1 Eye disorders                                        18 (18%)    11 (11%)    4 (4%)      2 (2%)      <NA>       
        2 Social circumstances                                 19 (19%)    8 (8%)      3 (3%)      <NA>        <NA>       
@@ -610,7 +610,7 @@
       ae_table_soc(ae, df_enrol = enrolres, arm = "ARM", term = "aeterm", sort_by_count = TRUE)
     Output
       # A tibble: 103 x 16
-          soc                                                  term                                                 control__g1
+          group1                                               group2                                               control__g1
           <fct>                                                <chr>                                                <glue>     
         1 Social circumstances                                 Cultural issues                                      7 (7%)     
         2 Social circumstances                                 Economic conditions affecting care                   <NA>       
@@ -929,7 +929,7 @@
       ae_table_soc(ae, df_enrol = enrolres, arm = "ARM", term = "aeterm", sort_by_count = FALSE)
     Output
       # A tibble: 103 x 16
-          soc                                                  term                                                 control__g1
+          group1                                               group2                                               control__g1
           <fct>                                                <fct>                                                <glue>     
         1 Blood and lymphatic system disorders                 Bone marrow disorders                                <NA>       
         2 Blood and lymphatic system disorders                 Coagulation and bleeding analyses                    <NA>       
@@ -1249,7 +1249,7 @@
       ae %>% filter(aesoc == "Cardiac disorders" | !subjid %in% ctl) %>% ae_table_soc(df_enrol = enrolres, arm = "ARM")
     Output
       # A tibble: 27 x 15
-         soc                                                  control__g1 control__g2 control__g3 control__g4 control__g5
+         group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
          <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
        1 Cardiac disorders                                    7 (7%)      3 (3%)      4 (4%)      <NA>        <NA>       
        2 Congenital, familial and genetic disorders           <NA>        <NA>        <NA>        <NA>        <NA>       
