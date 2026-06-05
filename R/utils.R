@@ -14,7 +14,7 @@ any_of2 = function(x, ignore.case=TRUE, ...){
 to_snake_case = function(str) {
   sep = "______"
   str %>%
-    str_replace_all("[\\s\\-/\\\\–—−\\.]+", sep) %>%
+    str_replace_all("[\\s\\-/\\\\\u2013\u2014\u2212\\.]+", sep) %>%
     iconv(to = "ASCII//TRANSLIT", sub = "") %>%
     str_replace_all("([a-z])([A-Z])", "\\1_\\2") %>%
     str_replace_all("[^A-Za-z0-9_]", "") %>%
@@ -162,24 +162,20 @@ apply_labels = function(data, ..., warn_missing=FALSE) {
 
 
 #' Clean a string to ASCII
-#'
-#' @param old_names a character vector to clean
-#' @param lower whether to convert it to lowercase
-#' @param from the current encoding. passed on to [iconv()]. `""` is the current locale.
-#'
 #' @keywords internal
 #' @noRd
 #' @importFrom stringr str_remove str_remove_all str_replace_all str_trim
 #' @source inspired by `janitor:::old_make_clean_names()`
 #' @examples
 #' x = c(
-#'   "  \r\n \"Âge ≥ 18%\"  (inclusion)  <= 30% -  Visite #1 / 'CR/PR' \n  ",
-#'   "Consentement signé ? (Oui/Non) - Date (JJ/MM/AAAA)\n",
-#'   "Événement indésirable >= Grade 3 (CTCAE v5.0) / Lié au ttt (%)",
-#'   "PS ECOG (0–4) ; baseline...  ",
-#'   "Hb (g/dL) <= 10.0 ; NFS: neutro ≥ 1.5 G/L",
-#'   "Réponse RECIST 1.1 - Best overall response (CR/PR/SD/PD)  "
+#'   "  \r\n \"\u00c2ge \u2265 18%\"  (inclusion)  <= 30% -  Visite #1 / 'CR/PR' \n  ",
+#'   "Consentement sign\u00e9 ? (Oui/Non) - Date (JJ/MM/AAAA)\n",
+#'   "\u00c9v\u00e9nement ind\u00e9sirable >= Grade 3 (CTCAE v5.0) / Li\u00e9 au ttt (%)",
+#'   "PS ECOG (0\u20134) ; baseline...  ",
+#'   "Hb (g/dL) <= 10.0 ; NFS: neutro \u2265 1.5 G/L",
+#'   "R\u00e9ponse RECIST 1.1 - Best overall response (CR/PR/SD/PD)  "
 #' )
+#' x
 #' normalize_string(x)
 normalize_string = function (string, lower=TRUE, from = "") {
   if(isTRUE(lower)) string = tolower(string)
