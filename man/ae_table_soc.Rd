@@ -42,6 +42,8 @@ ae_table_soc(
 
 \item{arm}{name of the treatment column in \code{data_pat}. Case-insensitive. Can be set to \code{NULL}.}
 
+\item{cols}{a named character vector mapping column names. Should contain at least \code{grade} and \code{subjid}. Case-insensitive.}
+
 \item{ae_groups}{a named list specifying the grade values for each group.}
 
 \item{sort_by_count}{whether to sort by the number of AE or by \code{group1} alphabetically.}
@@ -59,10 +61,6 @@ ae_table_soc(
 \item{arm_colors}{colors for the arm groups}
 
 \item{padding_v}{a numeric of lenght up to 2, giving the vertical padding of body (1) and header (2)}
-
-\item{grade}{name of the AE grade column in \code{data_ae}. Case-insensitive.}
-
-\item{subjid}{name of the patient ID in both \code{data_ae} and \code{data_pat}. Case-insensitive.}
 }
 \value{
 a dataframe (\code{ae_table_soc()}) or a flextable (\code{as_flextable()}).
@@ -88,13 +86,13 @@ ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm")
 library(flextable)
 ae_table_soc(ae, data_pat=enrolres, total=FALSE) \%>\%
   as_flextable() \%>\%
-  hline(i=~soc=="" & soc!=dplyr::lead(soc))
+  hline(i=~group1=="" & group1!=dplyr::lead(group1))
 ae_table_soc(ae, data_pat=enrolres, term=NULL, sort_by_count=FALSE) \%>\%
   as_flextable() \%>\%
-  bold(i=~soc=="Eye disorders")
+  bold(i=~group1=="Eye disorders")
 ae_table_soc(ae, data_pat=enrolres, term="aeterm", arm=NULL) \%>\%
   as_flextable() \%>\%
-  highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
+  highlight(i=~group1=="Hepatobiliary disorders", j="all_patients__tot")
 }
 \seealso{
 \code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}

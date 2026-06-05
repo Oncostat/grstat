@@ -41,7 +41,7 @@ a ggplot
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
-Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
+Produce an alternative graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
 }
 \examples{
 tm = grstat_example()

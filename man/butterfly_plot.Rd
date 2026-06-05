@@ -6,23 +6,27 @@
 \title{Graphic representation of AEs by CTCAE SOC}
 \usage{
 butterfly_plot(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
+  data_pat,
   severe = NULL,
   sort_by = c("total", "severe"),
   range_min = NULL,
   arm = "ARM",
   subjid = "SUBJID",
-  soc = "AESOC"
+  group = "AESOC"
 )
 
-ae_plot_soc(df_ae, ..., df_enrol, severe, sort_by, range_min, arm, subjid, soc)
+ae_plot_soc(data_ae, ..., data_pat, severe, sort_by, range_min, arm, subjid, group)
 }
 \arguments{
+\item{data_ae}{adverse event dataset, one row per AE, containing \code{subjid}, \code{grade}, \code{group1}, and potentially \code{group2}.}
+
 \item{...}{unused}
 
-\item{severe}{name of the logical column in \code{df_ae} telling whether an AE is severe. Case-insensitive.}
+\item{data_pat}{enrollment dataset, one row per patient, containing \code{subjid} (and \code{arm} if needed). All patients should be in this dataset.}
+
+\item{severe}{name of the logical column in \code{data_ae} telling whether an AE is severe. Case-insensitive.}
 
 \item{sort_by}{either "total" or "severe"}
 
@@ -31,11 +35,14 @@ ae_plot_soc(df_ae, ..., df_enrol, severe, sort_by, range_min, arm, subjid, soc)
 \item{arm}{name of the treatment column in \code{data_pat}. Case-insensitive. Can be set to \code{NULL}.}
 
 \item{subjid}{name of the patient ID in both \code{data_ae} and \code{data_pat}. Case-insensitive.}
+
+\item{group}{name of the grouping column in \code{data_ae}. Case-insensitive. Usually, the SOC. This is the variable that will be plotted on the y-axis.}
 }
 \value{
 a crosstable (dataframe)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}\cr
 Produces a graphic representation of AEs by CTCAE SOC.
 }
 \examples{
@@ -46,11 +53,11 @@ attach(tm, warn.conflicts=FALSE)
 ae2 = ae \%>\%
   dplyr::mutate(serious = sae=="Yes")
 
-butterfly_plot(ae2, df_enrol=enrolres, range_min=0.5)
-butterfly_plot(ae2, df_enrol=head(enrolres,9), range_min=0.5)
+butterfly_plot(ae2, data_pat=enrolres, range_min=0.5)
+butterfly_plot(ae2, data_pat=head(enrolres,9), range_min=0.5)
 
 ae2 \%>\%
-  butterfly_plot(df_enrol=enrolres, severe="serious") +
+  butterfly_plot(data_pat=enrolres, severe="serious") +
   ggplot2::labs(caption="Darker areas represent Serious Adverse Events")
 }
 \seealso{

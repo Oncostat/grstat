@@ -1,6 +1,8 @@
 
 #' Graphic representation of AEs
 #'
+#' @description
+#' `r lifecycle::badge("stable")`\cr
 #' Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
 #'
 #' @inheritParams ae_table_grade

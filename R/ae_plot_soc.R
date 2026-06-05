@@ -2,14 +2,17 @@
 
 #' Graphic representation of AEs by CTCAE SOC
 #'
+#' @description
+#' `r lifecycle::badge("stable")`\cr
 #' Produces a graphic representation of AEs by CTCAE SOC.
 #'
 #' @inheritParams ae_table_soc
 #' @inherit ae_table_soc seealso
+#' @param group name of the grouping column in `data_ae`. Case-insensitive. Usually, the SOC. This is the variable that will be plotted on the y-axis.
 #' @param severe name of the logical column in `data_ae` telling whether an AE is severe. Case-insensitive.
 #' @param sort_by either "total" or "severe"
 #' @param range_min The minimum value for the upper limit of the x-axis range. Set to `1` to always include 100%.
-#'
+#' @param subjid name of the patient ID in both `data_ae` and `data_pat`. Case-insensitive.
 #' @return a crosstable (dataframe)
 #' @export
 #' @importFrom cli cli_abort cli_warn
@@ -40,11 +43,12 @@
 butterfly_plot = function(
     data_ae, ..., data_pat,
     severe=NULL, sort_by=c("total", "severe"), range_min=NULL,
-    arm="ARM", subjid="SUBJID", soc="AESOC"
+    arm="ARM", subjid="SUBJID", group="AESOC"
 ){
   dots = list(...)
   data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae
   data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
+  soc = if(has_name(dots, "soc")) dots$soc else group
   assert_not_null(data_ae, data_pat, sort_by, subjid, soc)
   assert_names_exists(data_ae, lst(subjid, soc, severe))
   assert_names_exists(data_pat, lst(subjid, arm))
@@ -152,6 +156,6 @@ butterfly_plot = function(
 
 
 #' @rdname butterfly_plot
-#' @usage ae_plot_soc(data_ae, ..., data_pat, severe, sort_by, range_min, arm, subjid, soc)
+#' @usage ae_plot_soc(data_ae, ..., data_pat, severe, sort_by, range_min, arm, subjid, group)
 #' @export
 ae_plot_soc = butterfly_plot

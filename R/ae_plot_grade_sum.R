@@ -2,11 +2,13 @@
 #' Graphic representation of AEs
 #'
 #' `r lifecycle::badge("experimental")`\cr
-#' Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
+#' Produce an alternative graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
 #'
 #' @param weights (optional) a length 5 numeric vector, giving the weights of each grade
 #' @param low the color of Grade 1 AE
 #' @param high the color of Grade 5 AE
+#' @param grade name of the AE grade column in `data_ae`. Case-insensitive.
+#' @param subjid name of the patient ID in both `data_ae` and `data_pat`. Case-insensitive.
 #' @inheritParams ae_table_soc
 #' @inherit ae_table_soc seealso
 #'

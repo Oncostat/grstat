@@ -14,6 +14,7 @@
 #' @param data_pat enrollment dataset, one row per patient, containing `subjid` (and `arm` if needed). All patients should be in this dataset.
 #' @param measure one or several of `c("max", "sup", "eq")`. `max` computes the maximum AE grade per patient, `sup` computes the number of patients having experienced at least one AE of grade higher or equal to X, and `eq` computes the number of patients having experienced at least one AE of grade equal to X.
 #' @param arm name of the treatment column in `data_pat`. Case-insensitive. Can be set to `NULL`.
+#' @param cols a named character vector mapping column names. Should contain at least `grade` and `subjid`. Case-insensitive.
 #' @param group1,group2 name of the 1st and 2nd order grouping columns in `data_ae`. Case-insensitive. Use labels for the flextable output. Usually, `group1` is the SOC and `group2` the term, but it can be any other grouping variable. `group2` can be set to `NULL` if not needed.
 #' @param sort_by_count whether to sort by the number of AE or by `group1` alphabetically.
 #' @param total whether to add a `total` column for each arm.
@@ -21,8 +22,6 @@
 #' @param digits significant digits for percentages.
 #' @param ae_groups a named list specifying the grade values for each group.
 #' @param warn_miss whether to warn for missing values.
-#' @param grade  name of the AE grade column in `data_ae`. Case-insensitive.
-#' @param subjid name of the patient ID in both `data_ae` and `data_pat`. Case-insensitive.
 #' @param ... unused
 #'
 #' @return a dataframe (`ae_table_soc()`) or a flextable (`as_flextable()`).
@@ -319,7 +318,8 @@ as_flextable.ae_table_soc = function(x,
     select(subjid=any_of2(cols$subjid), group1=any_of2(cols$group1),
            group2=any_of2(cols$group2), grade=any_of2(cols$grade)) %>%
     mutate(
-      group1 = if_else(group1 %in% c(0, NA), label_missing_group1, group1) %>% copy_label_from(group1)
+      group1 = if_else(.data$group1 %in% c(0, NA), label_missing_group1, .data$group1) %>% 
+        copy_label_from(.data$group1)
     )
 
   data_pat = data_pat %>%
@@ -338,7 +338,7 @@ as_flextable.ae_table_soc = function(x,
     arrange(subjid) %>%
     mutate(
       arm = to_snake_case(arm),
-      group1 = if_else(!subjid %in% data_ae$subjid, label_missing_pat, group1)
+      group1 = if_else(!subjid %in% data_ae$subjid, label_missing_pat, .data$group1)
     ) %>% 
     copy_label_from(data_pat) %>% 
     copy_label_from(data_ae)
