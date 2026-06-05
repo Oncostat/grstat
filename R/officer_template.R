@@ -21,7 +21,6 @@
 #'
 #' @returns A `docx` object that can be saved or used with `{officer}`
 #' @export
-#' @importFrom flextable body_replace_flextable_at_bkm
 #' @importFrom rlang check_dots_empty check_installed
 #'
 #' @examples

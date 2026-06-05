@@ -122,6 +122,7 @@ gr_recist_mapping = function(){
 #' @returns `output_file` invisibly. Called for side effects.
 #' @export
 #' @importFrom cli cli_abort
+#' @importFrom fs dir_create path_dir
 #' @importFrom rlang check_installed
 #'
 #' @inherit check_recist examples
@@ -156,6 +157,7 @@ recist_report_html = function(recist_check,
 #' @rdname recist_report_html
 #' @export
 #' @importFrom cli cli_abort
+#' @importFrom fs dir_create path_dir
 #' @importFrom rlang check_installed
 #'
 #' @inherit check_recist examples
@@ -198,9 +200,8 @@ recist_report_xlsx = function(recist_check,
 
 #' * Consistant missing values on `target_diam` & `target_site`
 #' @noRd
-#' @importFrom dplyr across distinct filter select
+#' @importFrom dplyr across all_of distinct filter select
 #' @importFrom tibble lst
-#' @importFrom tidyselect all_of
 rc_check_missing = function(rc){
   rtn = lst()
 
@@ -229,7 +230,7 @@ rc_check_missing = function(rc){
 #' * Up to a maximum of five lesions total (and a maximum of two lesions per organ)
 #' * Should not be bone lesions
 #' @noRd
-#' @importFrom dplyr count filter select summarise
+#' @importFrom dplyr count filter n select summarise
 #' @importFrom stringr str_detect
 rc_check_target_lesions = function(rc){
   rtn = list()
@@ -392,9 +393,8 @@ rc_check_baseline_lesions = function(rc){
 #' are not updated automatically.
 #' This also makes duplicates possible.
 #' @keywords internal
-#' @importFrom dplyr arrange distinct filter mutate n_distinct select summarise
-#' @importFrom stats na.omit
-#' @importFrom tidyselect everything
+#' @importFrom dplyr arrange distinct filter mutate n_distinct summarise
+#' @importFrom rlang has_name
 rc_check_derived_columns = function(rc){
 
   rtn = list()
@@ -563,8 +563,8 @@ rc_check_target_response = function(rc, rc_short){
 
 #' Check impossible cases for Target Lesions response
 #' @keywords internal
-#' @importFrom dplyr arrange case_when desc filter mutate transmute
 #' @importFrom EDCimport fct_yesno
+#' @importFrom dplyr arrange case_when desc filter mutate transmute
 rc_check_global_response = function(rc_short){
   rtn = list()
 
@@ -648,12 +648,10 @@ rc_check_global_response = function(rc_short){
 }
 
 
-#' @importFrom dplyr any_of arrange mutate select
 #' @importFrom EDCimport fct_yesno
+#' @importFrom dplyr all_of any_of arrange as_tibble everything mutate select
 #' @importFrom rlang has_name
 #' @importFrom stringr str_detect
-#' @importFrom tibble as_tibble
-#' @importFrom tidyselect all_of everything
 .apply_recist_mapping = function(data, mapping){
 
   mandatory = c("subjid", "rc_date",
@@ -677,7 +675,7 @@ rc_check_global_response = function(rc_short){
 }
 
 #' @importFrom cli cli_abort
-#' @importFrom dplyr right_join
+#' @importFrom dplyr arrange rename_with right_join
 #' @importFrom purrr map
 .add_supp_cols = function(checks, supp_cols_df){
   if(is.null(supp_cols_df)){
@@ -730,8 +728,10 @@ recist_issue_ne = function(message, level="ERROR"){
 # Report helpers ------------------------------------------------------------------------------
 
 
-#' @importFrom fs path path_ext path_ext_remove
 #' @importFrom cli cli_warn
+#' @importFrom fs path path_ext path_ext_remove
+#' @importFrom glue glue
+#' @importFrom stringr str_replace_all
 get_report_path = function(output_dir, output_file){
   project = get_projname()
   date_extraction = get_extraction_date() %>% format("%Y-%m-%d")
@@ -752,8 +752,7 @@ get_report_path = function(output_dir, output_file){
   output_path
 }
 
-#' @importFrom fs path path_ext path_ext_remove
-#' @importFrom cli cli_warn
+#' @importFrom glue glue
 get_report_title = function(x){
   project = get_projname()
   date_extraction = get_extraction_date() %>% format("%Y-%m-%d")

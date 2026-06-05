@@ -52,10 +52,12 @@
 #' @export
 #' @importFrom cli cli_abort cli_inform cli_warn
 #' @importFrom dplyr setdiff
-#' @importFrom fs dir_create dir_ls file_copy is_dir path path_dir path_package path_rel
+#' @importFrom fs dir_create dir_ls file_copy is_dir path_dir path_package path_rel
 #' @importFrom purrr walk
 #' @importFrom rlang check_dots_empty is_installed
 #' @importFrom stringr fixed str_replace
+#' @importFrom tidyr replace_na
+#' @importFrom utils packageVersion
 #'
 #' @examples
 #' \dontrun{
@@ -193,6 +195,7 @@ file_prepend = function(file, txt, do) {
 
 
 
+#' @importFrom cli cli_abort cli_inform
 .user_input_directory = function(){
   cli_inform("Select the root directory of the new project")
   if (requireNamespace("rstudioapi", quietly=TRUE) && rstudioapi::hasFun("selectFile")) {

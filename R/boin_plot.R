@@ -21,7 +21,6 @@
 #' `gantt_include==TRUE`, the output is a `patchwork` object with an additional Gantt diagram.
 #'
 #' @importFrom dplyr as_tibble case_when mutate rename rowwise
-#' @importFrom purrr map2_chr
 #' @importFrom rlang check_dots_empty
 #' @importFrom stringr str_wrap
 #' @importFrom tibble tibble
@@ -159,7 +158,7 @@ boin_plot = function(data_boin, data_patients=NULL,
 #' @importFrom dplyr filter if_else mutate row_number
 #' @importFrom forcats as_factor
 #' @importFrom ggplot2 aes geom_label
-#' @importFrom purrr pmap_chr
+#' @importFrom purrr map2_chr
 #' @importFrom tidyr replace_na separate_rows
 .add_boin_patients = function(p, data_patients){
   if(is.null(data_patients)) return(p)
@@ -192,7 +191,7 @@ boin_plot = function(data_boin, data_patients=NULL,
                data=data_patients %>% filter(!currently))
 }
 
-#' @importFrom dplyr arrange filter if_else last mutate pull
+#' @importFrom dplyr filter mutate
 #' @importFrom forcats as_factor
 #' @importFrom ggplot2 aes element_blank element_rect geom_hline geom_label geom_point geom_segment geom_vline ggplot labs theme theme_minimal
 #' @importFrom tibble enframe
@@ -247,6 +246,7 @@ boin_plot = function(data_boin, data_patients=NULL,
 
 
 #' @importFrom cli cli_abort
+#' @importFrom dplyr setdiff
 .check_data_patients = function(data_patients, doses){
   if(is.null(data_patients)) return(NULL)
   invalid_doses = setdiff(data_patients[["dose"]], doses)

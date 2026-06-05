@@ -10,8 +10,9 @@
 #'
 #' @return a dataframe (`aggregate_recist_rates()`) or a flextable (`as_flextable()`).
 #'
-#' @importFrom dplyr select any_of all_of
 #' @importFrom cli cli_abort
+#' @importFrom dplyr bind_rows count distinct mutate summarise
+#' @importFrom glue glue
 #' @export
 #'
 #' @examples
@@ -97,8 +98,9 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
 #' @rdname aggregate_recist_rates
 #' @export
 #'
-#' @importFrom flextable surround delete_rows footnote as_paragraph set_header_labels
+#' @importFrom flextable as_paragraph bold flextable footnote set_header_labels set_table_properties surround valign
 #' @importFrom officer fp_border
+#' @importFrom rlang check_dots_empty
 as_flextable.aggregate_recist_rates = function(x, ...){
   check_dots_empty()
   derived_endpoints = attr(x, "derived_endpoints")

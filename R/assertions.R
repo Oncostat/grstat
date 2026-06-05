@@ -90,8 +90,6 @@ grstat_dev_warn = function(){
 
 #' @importFrom cli cli_abort cli_vec cli_warn format_inline
 #' @importFrom dplyr pull
-#' @importFrom rlang caller_arg check_dots_empty
-#' @importFrom tibble tibble
 grstat_data_warn = function (.data, message, subjid="subjid", max_subjid=5,
                              class="grstat_data_warn"){
   if (missing(max_subjid))

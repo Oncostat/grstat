@@ -3,14 +3,14 @@
 #' any_of() with case sensitivity
 #' @noRd
 #' @keywords internal
-#' @importFrom tidyselect matches
+#' @importFrom dplyr matches
 any_of2 = function(x, ignore.case=TRUE, ...){
   matches(paste(paste0("^",x,"$"), collapse="|"), ignore.case=ignore.case, ...)
 }
 
 #' @noRd
 #' @keywords internal
-#' @importFrom stringr str_replace_all str_remove_all str_to_lower
+#' @importFrom stringr str_remove_all str_replace_all str_to_lower
 to_snake_case = function(str) {
   sep = "______"
   str %>%
@@ -52,8 +52,8 @@ today_ymd = function() {
 #' @noRd
 #' @keywords internal
 #' @importFrom cli cli_abort
-#' @importFrom purrr discard_at imap_chr set_names
-#' @importFrom rlang as_label caller_env
+#' @importFrom purrr discard_at imap_chr
+#' @importFrom rlang as_label caller_env set_names
 #' @importFrom stringr str_replace_all
 check_dots_empty2 = function(except=character(0), env = caller_env()) {
   dots = substitute(...(), env = env)
@@ -97,9 +97,8 @@ get_extraction_date = function(){
 
 #' @noRd
 #' @keywords internal
-#' @importFrom dplyr across cur_column mutate
+#' @importFrom dplyr across cur_column everything mutate
 #' @importFrom purrr map_chr
-#' @importFrom tidyselect everything
 copy_label_from = function(x, from){
   if(!is.list(x)){
     from_label = attr(from, "label")
@@ -144,10 +143,9 @@ get_label = function(x, default=names(x)){
 #' @noRd
 #' @keywords internal
 #' @importFrom cli cli_warn
-#' @importFrom dplyr across cur_column mutate setdiff
+#' @importFrom dplyr across cur_column everything mutate setdiff
 #' @importFrom rlang current_env
 #' @importFrom tibble lst
-#' @importFrom tidyselect everything
 apply_labels = function(data, ..., warn_missing=FALSE) {
   args = lst(...)
   unknowns = setdiff(names(args), names(data))
@@ -171,7 +169,7 @@ apply_labels = function(data, ..., warn_missing=FALSE) {
 #'
 #' @keywords internal
 #' @noRd
-#' @importFrom stringr str_remove_all str_replace_all str_trim str_remove
+#' @importFrom stringr str_remove str_remove_all str_replace_all str_trim
 #' @source inspired by `janitor:::old_make_clean_names()`
 #' @examples
 #' x = c(
@@ -260,72 +258,6 @@ unify = function (x) {
   if (!is.null(rtn_label))
     attr(rtn, "label") = rtn_label
   rtn
-}
-
-#' @source EDCimport
-#' @importFrom cli cli_abort
-#' @importFrom dplyr case_match case_when setdiff setequal
-#' @importFrom purrr map
-#' @importFrom stringr str_detect
-fct_yesno = function(x,
-                     input=list(yes=c("Yes", "Oui"), no=c("No", "Non"), na=c("NA", "")),
-                     output=c("Yes", "No"),
-                     strict=FALSE,
-                     mutate_character=TRUE,
-                     fail=TRUE){
-  assert_class(input, "list")
-  default_input = list(yes=c("Yes", "Oui"), no=c("No", "Non"), na=c("NA", ""))
-  missing_names = setdiff(names(default_input), names(input))
-  input[missing_names] = default_input[missing_names]
-  assert(setequal(names(input), c("yes", "no", "na")))
-
-  if (!inherits(x, c("logical", "numeric", "integer", "character", "factor"))) return(x)
-  if (is.character(x) && isFALSE(mutate_character)) return(x)
-
-  if (missing(input))  input =  getOption("fct_yesno_input", input)
-  if (missing(output)) output = getOption("fct_yesno_input", output)
-
-  #if logical or numeric AND binary
-  if (all(x %in% c(1, 0, NA))) {
-    return(factor(as.numeric(x), levels=c(1,0), labels=output) %>% copy_label_from(x))
-  } else if(is.numeric(x)){
-    return(x)
-  }
-
-  if (!isFALSE(strict)) {
-    fun = if(strict=="ignore_case") tolower else identity
-    is_yes = fun(x) %in% fun(input$yes)
-    is_no  = fun(x) %in% fun(input$no)
-    is_na  = fun(x) %in% fun(input$na)
-  } else {
-    input = map(input, ~case_match(.x, ""~"^$", .default=.x))
-    is_yes = str_detect(tolower(x), paste(tolower(input$yes), collapse="|"))
-    is_no  = str_detect(tolower(x), paste(tolower(input$no ), collapse="|"))
-    is_na  = str_detect(tolower(x), paste(tolower(input$na ), collapse="|"))
-  }
-  x[is_na] = NA
-
-  if (any(is_yes&is_no, na.rm=TRUE)) {
-    v = x[!is.na(x) & is_yes & is_no]
-    cli_abort("Values that are both yes and no: {.val {v}}",
-              class="fct_yesno_both_error")
-  }
-  yesno = case_when(
-    is.na(x) ~ NA,
-    is_yes ~ TRUE,
-    is_no ~ FALSE,
-    .default=NA
-  )
-  if (any(is.na(x) != is.na(yesno))) {
-    if(isTRUE(fail)){
-      v = x[is.na(x) != is.na(yesno)]
-      cli_abort("Values that cannot be parsed: {.val {unique(sort(v))}}",
-                class="fct_yesno_unparsed_error")
-    }
-    return(x)
-  }
-
-  factor(yesno, levels=c(TRUE,FALSE), labels=output) %>% copy_label_from(x)
 }
 
 

@@ -48,8 +48,7 @@ Imports:
     scales,
     stringr,
     tibble,
-    tidyr,
-    tidyselect
+    tidyr
 Suggests: 
     BOIN,
     blockrand,

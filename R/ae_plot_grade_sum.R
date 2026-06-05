@@ -14,9 +14,9 @@
 #' @export
 #' @importFrom dplyr across any_of arrange count left_join mutate rename_with select
 #' @importFrom forcats fct_infreq fct_rev
-#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_color_manual scale_fill_manual theme theme_minimal vars
+#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_color_manual scale_fill_manual theme vars
 #' @importFrom glue glue
-#' @importFrom rlang check_dots_empty int
+#' @importFrom rlang has_name int
 #' @importFrom tibble deframe lst
 #' @importFrom tidyr replace_na
 #'

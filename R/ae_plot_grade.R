@@ -13,6 +13,7 @@
 #' @importFrom dplyr across cur_group mutate n
 #' @importFrom forcats as_factor
 #' @importFrom ggplot2 aes element_text facet_wrap geom_col ggplot labs position_dodge position_fill position_stack scale_y_continuous theme
+#' @importFrom rlang has_name is_missing
 #' @importFrom scales label_percent
 #' @importFrom tidyr pivot_longer
 #' @examples

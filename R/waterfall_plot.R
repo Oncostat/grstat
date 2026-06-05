@@ -27,12 +27,12 @@
 #'   are detected in plotted variables.
 #'
 #' @export
-#' @importFrom dplyr all_of if_any mutate rename where
+#' @importFrom cli cli_warn
+#' @importFrom dplyr all_of any_of filter if_any mutate select where
 #' @importFrom forcats fct_reorder2
-#' @importFrom ggplot2 aes facet_wrap geom_col geom_hline ggplot labs scale_fill_manual scale_x_discrete scale_y_continuous theme_minimal
+#' @importFrom ggplot2 aes facet_wrap geom_col geom_hline ggplot guide_legend guides labs scale_fill_manual scale_x_discrete scale_y_continuous theme_minimal
 #' @importFrom rlang check_dots_empty
 #' @importFrom scales breaks_width label_percent
-#' @importFrom cli cli_warn
 #'
 #' @return A `ggplot` object.
 #'

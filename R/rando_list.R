@@ -17,8 +17,11 @@
 #'
 #' @return A tibble
 #' @export
-#' @importFrom tidyr separate unite
+#' @importFrom dplyr as_tibble everything mutate pull rename row_number select
+#' @importFrom purrr list_rbind map
+#' @importFrom rlang check_installed
 #' @importFrom stringr str_pad
+#' @importFrom tidyr separate unite
 #'
 #' @section Details:
 #' The output table represents *randomization slots*, not enrolled patients.
@@ -94,6 +97,8 @@ randomisation_list = function(n, arms, strata=NULL, block_sizes=c(2,4), seed=42,
 }
 
 #' @export
+#' @importFrom cli cli_inform
+#' @importFrom dplyr as_tibble
 print.rando_list = function(x, ...){
   a = attributes(x)
   cli_inform("Randomisation list for {.val {a$n}} patients randomized in arms {.val {a$arms}} across {.val {a$n_strata}} strata with blocks of length {.val {a$block_sizes}}.")
@@ -102,6 +107,7 @@ print.rando_list = function(x, ...){
 
 # Checks --------------------------------------------------------------------------------------
 
+#' @importFrom cli cli_warn
 .check_n = function(n, arms){
   if(n%%length(arms)!=0){
     cli_warn(c(
@@ -111,6 +117,7 @@ print.rando_list = function(x, ...){
     class="randomisation_list_n_warn")
   }
 }
+#' @importFrom cli cli_warn
 .check_blocks = function(block_sizes){
   odds = block_sizes[block_sizes%%2!=0]
   if(length(odds)>0){
@@ -120,6 +127,7 @@ print.rando_list = function(x, ...){
     class="randomisation_list_even_block_warn")
   }
 }
+#' @importFrom cli cli_abort
 .check_arms = function(block_sizes, arms){
   wrong = block_sizes%%length(arms)!=0
   if(any(wrong)){

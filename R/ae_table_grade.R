@@ -26,14 +26,13 @@
 #'
 #' @return A data frame of class `ae_table_grade`, ready for use with [as_flextable()].
 #'
-#' @importFrom cli cli_abort
-#' @importFrom dplyr arrange case_when cur_group filter left_join mutate rename_with select summarise
-#' @importFrom forcats fct_relevel fct_reorder
+#' @importFrom dplyr across arrange bind_rows case_when count distinct filter if_any if_else mutate
+#' @importFrom forcats fct_relevel
 #' @importFrom glue glue
-#' @importFrom rlang is_missing
-#' @importFrom stringr str_remove str_starts str_subset
+#' @importFrom purrr map
+#' @importFrom rlang has_name is_missing
+#' @importFrom stringr str_detect
 #' @importFrom tibble lst remove_rownames
-#' @importFrom tidyselect matches
 #' @export
 #'
 #' @examples
@@ -157,8 +156,12 @@ ae_table_grade = function(
 #'
 #' @return A `flextable` object ready to print or export.
 #' @rdname ae_table_grade
-#' @importFrom flextable hline_top
+#' @importFrom dplyr left_join mutate n_distinct select setdiff
+#' @importFrom flextable align bold flextable fontsize hline hline_bottom hline_top merge_h merge_v padding set_header_df set_table_properties
+#' @importFrom glue glue
+#' @importFrom rlang check_dots_empty
 #' @importFrom stringr str_to_sentence
+#' @importFrom tibble as_tibble_col
 #' @export
 as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
   check_dots_empty()
@@ -203,6 +206,8 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
 # Utils ------------------------------------------------------------------
 
 
+#' @importFrom cli cli_abort
+#' @importFrom dplyr all_of any_of arrange left_join mutate rename_with select
 .base_ae_table = function(data_ae, data_pat, arm, grade, subjid) {
   data_ae = data_ae %>%
     rename_with(tolower) %>%
@@ -240,6 +245,7 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
 }
 
 
+#' @importFrom glue glue
 #' @importFrom scales label_percent
 np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
   pc = label_percent(accuracy=10^(-digits), suffix="")
@@ -248,6 +254,7 @@ np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
 }
 
 
+#' @importFrom dplyr bind_rows mutate n_distinct
 .add_total_arm = function(df, do=TRUE, label = "Total") {
   if (isTRUE(do) && n_distinct(df$arm) > 1) {
     df = df %>%
@@ -262,6 +269,9 @@ np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
   as.numeric(na_if(as.character(x), "NA"))
 }
 
+#' @importFrom dplyr arrange case_when last mutate n rename summarise
+#' @importFrom forcats fct_relevel
+#' @importFrom glue glue
 #' @importFrom tidyr complete pivot_wider
 max_grade = function(df, params) {
   ae_id = attr(df, "ae_id")
@@ -300,6 +310,8 @@ max_grade = function(df, params) {
     )
 }
 
+#' @importFrom purrr map
+#' @importFrom rlang set_names
 .calc_any_grade_eq = function(grade, included) {
   rtn = seq(5) %>%
     set_names(~ paste0("Grade ", .x)) %>%
@@ -308,6 +320,8 @@ max_grade = function(df, params) {
   rtn[["no_ae"]] = !all(included)
   rtn
 }
+#' @importFrom purrr map
+#' @importFrom rlang set_names
 .calc_any_grade_sup = function(grade, included) {
   rtn = seq(5) %>%
     set_names(~ paste("Grade", ifelse(.x==5, "=", "\u2265"), .x)) %>%
@@ -318,7 +332,12 @@ max_grade = function(df, params) {
 }
 
 
-#' @importFrom tidyr unnest_longer pivot_wider
+#' @importFrom dplyr arrange last mutate n summarise
+#' @importFrom forcats fct_relevel
+#' @importFrom glue glue
+#' @importFrom rlang caller_arg
+#' @importFrom stringr str_replace
+#' @importFrom tidyr pivot_wider unnest_longer
 any_grade = function(df, f, params) {
   ae_id = attr(df, "ae_id")
   id = if(caller_arg(f)==".calc_any_grade_sup") "any_grade_sup" else "any_grade_eq"

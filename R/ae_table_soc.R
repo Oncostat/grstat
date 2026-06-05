@@ -29,15 +29,13 @@
 #'
 #' @seealso [ae_table_grade()], [ae_table_soc()], [ae_plot_grade()], [ae_plot_grade_sum()], [butterfly_plot()]
 #'
-#' @importFrom cli cli_abort cli_warn
-#' @importFrom dplyr across any_of arrange count cur_group filter if_else left_join mutate pick pull rename select summarise
+#' @importFrom cli cli_warn
+#' @importFrom dplyr across all_of any_of arrange cur_column cur_group everything filter mutate pick pull rename rename_with select summarise
 #' @importFrom forcats fct_infreq fct_relevel
 #' @importFrom glue glue
 #' @importFrom purrr iwalk keep map
-#' @importFrom rlang arg_match check_dots_empty ensym is_empty set_names
-#' @importFrom tibble deframe lst
+#' @importFrom rlang arg_match ensym has_name is_empty set_names
 #' @importFrom tidyr build_wider_spec pivot_wider_spec unnest
-#' @importFrom tidyselect matches
 #' @export
 #'
 #' @examples
@@ -224,11 +222,9 @@ ae_table_soc = function(
 #' @rdname ae_table_soc
 #' @export
 #'
-#' @importFrom dplyr lag lead transmute
+#' @importFrom dplyr case_when lag mutate transmute
 #' @importFrom flextable align bg bold flextable fontsize hline hline_bottom merge_h merge_v padding set_header_df set_table_properties valign
-#' @importFrom purrr map map_int
-#' @importFrom rlang check_dots_empty set_names
-#' @importFrom stringr str_detect str_replace_all
+#' @importFrom rlang check_dots_empty
 #' @importFrom tibble as_tibble_col
 #' @importFrom tidyr separate_wider_regex
 as_flextable.ae_table_soc = function(x,
@@ -303,7 +299,9 @@ as_flextable.ae_table_soc = function(x,
 # Utils ---------------------------------------------------------------------------------------
 
 
-#' @importFrom dplyr any_of left_join mutate select
+#' @importFrom cli cli_abort
+#' @importFrom dplyr arrange count if_else left_join mutate select
+#' @importFrom tibble deframe
 #' @noRd
 #' @keywords internal
 .data_ae_table_soc = function(data_ae, data_pat, cols){  
@@ -378,6 +376,8 @@ as_flextable.ae_table_soc = function(x,
 
 #' @noRd
 #' @keywords internal
+#' @importFrom purrr map_lgl
+#' @importFrom rlang is_named
 .get_ae_groups = function(ae_groups, default){
   if(is.null(ae_groups)) return(default)
   assert(is_named(ae_groups),

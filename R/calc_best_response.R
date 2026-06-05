@@ -34,8 +34,10 @@
 #'
 #'
 #' @export
-#' @importFrom dplyr arrange distinct filter mutate n_distinct select slice_min slice_head
-#' @importFrom forcats fct_reorder
+#' @importFrom cli cli_abort
+#' @importFrom dplyr arrange distinct filter lead mutate n_distinct select slice_min
+#' @importFrom tibble lst
+#' @importFrom tidyr replace_na
 #'
 #' @examples
 #' db = grstat_example()
@@ -171,7 +173,7 @@ calc_best_response = function(data_recist, ...,
 
 #' @noRd
 #' @keywords internal
-#' @importFrom dplyr filter n_distinct
+#' @importFrom dplyr filter n n_distinct
 .check_best_resp = function(df, do=TRUE) {
   if(!isTRUE(do)) return(df)
   df %>%
@@ -197,6 +199,7 @@ calc_best_response = function(data_recist, ...,
 #' @keywords internal
 #' #' @details
 #' La fonction permet de déterminer pour chaque réponse quelle est la réponse confirmé associé en prenant en compte les réponses précédentes
+#' @importFrom dplyr case_when
 .response_confirmed = function(response_num = response_num,
                                next_response_num = next_response_num,
                                delta_date = delta_date,
