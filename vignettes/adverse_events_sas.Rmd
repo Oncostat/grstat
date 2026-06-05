@@ -59,7 +59,7 @@ Voir la description du package `{crosstable}` pour plus d'informations: [documen
 ### `AE_grades1` : Table des grades maximum par patient
 
 ```{r}
-ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="max") %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, measure="max") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
@@ -69,7 +69,7 @@ ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="max") %>%
 On pourrait retrouver exactement la sortie SAS en mettant `total=FALSE`.
 
 ```{r}
-ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", measure="max") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at most one AE of given grade")
 ```
@@ -77,7 +77,7 @@ ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>%
 ### `AE_grades3` : Table de tous les grades pour chaque patient
 
 ```{r}
-ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="eq") %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, measure="eq") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
@@ -87,7 +87,7 @@ ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="eq") %>%
 On pourrait retrouver exactement la sortie SAS en mettant `total=FALSE`.
 
 ```{r}
-ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="eq") %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", measure="eq") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
@@ -99,7 +99,7 @@ Il suffit de filtrer la table `ae` en amont et d'indiquer que le label doit êtr
 ```{r}
 ae %>% 
   filter(sae=="Yes") %>% 
-  ae_table_grade(data_pat=enrolres, arm=NULL, variant="max", ae_label="SAE") %>% 
+  ae_table_grade(data_pat=enrolres, arm=NULL, measure="max", ae_label="SAE") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum SAE grade was as indicated.")
 ```
@@ -120,7 +120,7 @@ Voir `?as_flextable.ae_table_soc` pour plus d'informations: [lien](https://oncos
 On peut ajouter `total=FALSE` pour retirer la colonne "Tot".
 
 ```{r}
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL, 
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm=NULL, group1="aesoc", group2=NULL, 
              sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
@@ -131,7 +131,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL,
 ### `AE_SOC2` : Table des grades par soc et termes
 
 ```{r}
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term="aeterm", 
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm=NULL, group1="aesoc", group2="aeterm", 
              sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
@@ -146,7 +146,8 @@ Il suffit de filtrer la table AE en amont.
 ```{r}
 ae %>% 
   filter(sae=="Yes") %>%
-  ae_table_soc(df_enrol=enrolres, term=NULL, arm=NULL, sort_by_count=FALSE) %>% 
+  ae_table_soc(data_pat=enrolres, group1="aeterm", group2=NULL, arm=NULL, 
+               sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines(c("In the header, N represents the number of patients.",
                      "Percentages reflect the proportion of patients whose maximum SAE grade was as indicated."))
@@ -158,7 +159,8 @@ ae %>%
 On peut ajouter `total=FALSE` pour retirer la colonne "Tot" et obtenir la sortie *AE_SOC5*.
 
 ```{r}
-ae_table_soc(df_ae=ae, df_enrol=enrolres, term=NULL, arm="arm", sort_by_count=FALSE) %>% 
+ae_table_soc(data_ae=ae, data_pat=enrolres, group1="aesoc", group2=NULL, arm="arm", 
+             sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
@@ -168,7 +170,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, term=NULL, arm="arm", sort_by_count=FA
 ### `AE_SOC6` : Table des soc et termes tous grades confondus stratifiée sur le bras
 
 ```{r}
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm", group1="aesoc", group2="aeterm", 
              sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
