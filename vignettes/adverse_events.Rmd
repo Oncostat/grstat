@@ -44,7 +44,7 @@ The AE table provides one row for each adverse event reported for a patient, cap
 
 ```{r}
 
-tm = grstat_example()
+tm = grstat_example(p_na=0.1)
 attach(tm, warn.conflicts=FALSE)
 
 head(ae, 4)
@@ -132,7 +132,13 @@ The function handles many more arguments. For example, you can use `sort_by_coun
 ae_table_soc(data_ae=ae, data_pat=enrolres, measure="sup", arm="arm", group1="aeterm", 
              sort_by_count=FALSE, total=FALSE, showNA=FALSE) %>%
   as_flextable() %>% 
-  delete_rows(i=11:104) %>% 
+  delete_rows(i=11:103) %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
   add_footer_lines("Percentages reflect the proportion of patients who had at least one AE higher or equal to the indicated grade.")
 ```
+
+# Troubleshooting
+
+These functions rely on labels to show the correct header in the flextable. This means that functions such as `head()` or sometimes `filter()` can cause issues as they remove the labels. 
+
+If you want to use these functions, make sure to re-assign the labels to the resulting data frame.
