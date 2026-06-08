@@ -70,13 +70,12 @@ ae_table_grade = function(
   cols = as.list(cols)
   cols$grade = if(has_name(dots, "grade")) dots$grade else cols$grade
   cols$subjid = if(has_name(dots, "subjid")) dots$subjid else cols$subjid
+  cols$arm = arm
   if(has_name(dots, "percent")){
     percent_pattern = if(isFALSE(dots$percent)) "{n}" else "{n} ({p}%)"
   }
   na_strategy = if(is_missing(na_strategy)) na_strategy else getOption("ae_table_grade_na_strategy", na_strategy)
   check_dots_empty2(except = c("df_ae", "df_enrol", "variant", "percent", "digits", "grade", "subjid"))
-  assert_names_exists(data_ae, lst(subjid, grade))
-  assert_names_exists(data_pat, lst(subjid, arm))
   assert_names_exists(na_strategy, c("display", "grouped"))
   assert_class(total, "logical")
 
@@ -84,7 +83,7 @@ ae_table_grade = function(
     total = FALSE
   }
 
-  df = .base_ae_table(data_ae, data_pat, arm, grade, subjid)
+  df = .data_ae_table_grade(data_ae, data_pat, cols)
 
   if(isFALSE(percent)){
     lifecycle::deprecate_warn("0.1.0.9015", "ae_table_grade(percent)",
@@ -210,27 +209,30 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
 
 #' @importFrom cli cli_abort
 #' @importFrom dplyr all_of any_of arrange left_join mutate rename_with select
-.base_ae_table = function(data_ae, data_pat, arm, grade, subjid) {
+.data_ae_table_grade = function(data_ae, data_pat, cols) {
   data_ae = data_ae %>%
     rename_with(tolower) %>%
-    select(subjid = all_of(tolower(subjid)), grade = all_of(tolower(grade)))
+    select(subjid = all_of(tolower(cols$subjid)), grade = all_of(tolower(cols$grade)))
 
   default_arm = set_label("All patients", "Treatment arm")
   data_pat = data_pat %>%
     rename_with(tolower) %>%
-    select(subjid = all_of(tolower(subjid)), arm = any_of(tolower(arm))) %>%
-    mutate(arm = if (is.null(.env$arm)) default_arm else .data$arm)
+    select(subjid = all_of(tolower(cols$subjid)), arm = any_of(tolower(cols$arm))) %>%
+    mutate(arm = if (is.null(cols$arm)) default_arm else .data$arm)
+
+  assert_names_exists(data_ae, c("subjid", "grade"))
+  assert_names_exists(data_pat, c("subjid", "arm"))
 
   if (!is.numeric(data_ae$grade)) {
     cli_abort(
-      "Grade ({.val {grade}}) must be a {.cls numeric} column, not a {.cls {class(data_ae$grade)}}.",
+      "Grade ({.val {cols$grade}}) must be a {.cls numeric} column, not a {.cls {class(data_ae$grade)}}.",
       class = "ae_table_grade_not_num"
     )
   }
   if (any(!data_ae$grade %in% c(1:5, NA), na.rm = TRUE)) {
     cli_abort(
       c(
-        "Grade ({.val {grade}}) must be an integer between 1 and 5.",
+        "Grade ({.val {cols$grade}}) must be an integer between 1 and 5.",
         i = "Wrong values: {.val {setdiff(data_ae$grade, 1:5)}}"
       ),
       class = "ae_table_grade_not_1to5"
