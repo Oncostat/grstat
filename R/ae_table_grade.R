@@ -54,25 +54,27 @@ ae_table_grade = function(
   data_pat,
   measure = c("max", "sup", "eq"),
   arm = NULL,
-  grade = "AEGR",
-  subjid = "SUBJID",
   ae_label = "AE",
   percent_pattern = "{n} ({p}%)",
   percent_digits = 0,
   zero_value = "0",
   total = TRUE,
-  na_strategy = list(display="always", grouped=TRUE)
+  na_strategy = list(display="always", grouped=TRUE),
+  cols = c(grade="AEGR", subjid="SUBJID")
 ) {
   dots = list(...)
   data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae
   data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
   measure = if(has_name(dots, "variant")) dots$variant else measure
   percent_digits = if(has_name(dots, "digits")) dots$digits else percent_digits
+  cols = as.list(cols)
+  cols$grade = if(has_name(dots, "grade")) dots$grade else cols$grade
+  cols$subjid = if(has_name(dots, "subjid")) dots$subjid else cols$subjid
   if(has_name(dots, "percent")){
     percent_pattern = if(isFALSE(dots$percent)) "{n}" else "{n} ({p}%)"
   }
   na_strategy = if(is_missing(na_strategy)) na_strategy else getOption("ae_table_grade_na_strategy", na_strategy)
-  check_dots_empty2(except = c("df_ae", "df_enrol", "variant", "percent", "digits"))
+  check_dots_empty2(except = c("df_ae", "df_enrol", "variant", "percent", "digits", "grade", "subjid"))
   assert_names_exists(data_ae, lst(subjid, grade))
   assert_names_exists(data_pat, lst(subjid, arm))
   assert_names_exists(na_strategy, c("display", "grouped"))
