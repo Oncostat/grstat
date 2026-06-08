@@ -44,8 +44,8 @@ The AE table provides one row for each adverse event reported for a patient, cap
 
 ```{r}
 
-tm = grstat_example()
-attach(tm)
+tm = grstat_example(p_na=0.1)
+attach(tm, warn.conflicts=FALSE)
 
 head(ae, 4)
 
@@ -55,17 +55,23 @@ head(enrolres,4)
 
 # Grade Tables only: `ae_table_grade()`
 
-Create adverse event (AE) grade tables using `ae_table_grade()`.
+The function `ae_table_grade()` summarises toxicity data at the patient level.
 
-The function `ae_table_grade` produces AE grade table summaries based on the variant argument, which can take three different values (“max”, “sup”, “eq”) and determines the type of summary applied to AE grades. When variant = NULL (or not specified), all three summary types are returned in a single output by default.
+The `measure` argument controls how AE grades are summarised:
 
--   The summary type, **`variant = "max"`**, generates a table showing the maximum AE grade per patient, where N is the total number of patients in the study.
+- **`measure = "max"`** summarises the worst reported AE grade observed for each patient. Rows are mutually exclusive.
+- **`measure = "sup"`** summarises cumulative grade thresholds. For example, `Grade ≥ 3` counts patients with at least one AE of grade 3, 4, or 5.
+- **`measure = "eq"`** summarises exact-grade occurrence. For example, `Grade 3` counts patients with at least one grade 3 AE.
 
--   **`variant = "sup"`**, summarises the grades greater than or equal to a specified grade per patient, where n is the number of patients having experienced at least one AE of grade ≥ X, where X ∈ {1, 2, 3, 4, 5}.
+Percentages are calculated using the total number of patients as denominator.
 
--   **`variant = "eq"`**, presents all grades for all patients. In this table, each proportion represents the number of patients who experienced a given grade at least once, where n is the number of patients having experienced at least one AE of grade equal to X, where X ∈ {1, 2, 3, 4, 5}.
+By default, all three summaries are returned in a single table. To return only one summary, specify the corresponding `measure` value.
 
-## Default AE Table Grades - incuding All Variants (Max, Sup, Eq)
+Use `as_flextable()` to format the output as a `flextable` and add footnotes or other formatting as needed. 
+
+Use cases are described below. See `help(ae_table_grade)` for the full list of arguments and some more examples.
+
+## Default: AE Table Grades - incuding All Variants (Max, Sup, Eq)
 
 ```{r}
 ae_table_grade(data_ae=ae, data_pat=enrolres) %>% 
@@ -74,7 +80,7 @@ ae_table_grade(data_ae=ae, data_pat=enrolres) %>%
   padding(padding.top=0, padding.bottom=0)
 ```
 
-## Custom table of maximum AE grade per patient per arm
+## Alternative: Maximum AE grade per patient per arm
 
 As an extra example of AE grade table, a table of maximum grade per patient and per arm (i.e. variant = "max") is also presented.
 
@@ -88,40 +94,51 @@ ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>%
 
 # SOC's tables: `ae_table_soc()`
 
-The function ae_table_soc() creates a summary table of AE grades for each patient according to AE term and SOC Common Terminology Criteria for Adverse Events. (CTCAE). The resulting dataframe can be piped to as_flextable() to get a nicely formatted flextable.
+The function `ae_table_soc()` summarises AE grades by event group at the patient level.
 
-## Table of AE grades by SOC
+The main grouping variable is defined by `group1`, which is typically the System Organ Class (SOC). An optional second grouping variable, `group2`, can be used for more detailed summaries, for example by preferred term within SOC.
 
-This table summarises the distribution of adverse event grades by System Organ Class (SOC). You can add total = FALSE to remove the “Total” column.
+It uses the same `measure` argument as `ae_table_grade()`, but only one is used. By default, `measure = "max"`, as this is the most common summary for safety tables. For each group, patients are then classified according to the maximum reported AE grade observed within that group.
+
+The resulting table contains one row per `group1` level and one column per grade. The `tot` column reports the number of patients with at least one AE in the corresponding group. The `na` column reports patients with at least one AE in the group but no available grade for the maximum-grade assessment.
+
+The resulting data frame can be piped to `as_flextable()` to produce a formatted table. In the header, `N` is the total number of patients. Percentages are calculated using this total as denominator.
+
+## Default: AE maximum grades by SOC
 
 ```{r}
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL, 
-             sort_by_count=FALSE) %>% 
-  head(10) %>% 
+ae_table_soc(data_ae=ae, data_pat=enrolres, group1="aesoc") %>% 
   as_flextable() %>% 
+  delete_rows(i=11:27) %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.") 
 ```
 
-## Table of SOC and AE terms, all grades combined, stratified by arm
-
-Presents SOC and Preferred Term frequencies with all AE grades combined, stratified by treatment arm. Provides an overall summary of event occurrence per arm, regardless of grade.
+## Alternative: AE maximum grades by SOC and term, stratified by arm
 
 ```{r}
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
-             sort_by_count=FALSE) %>%
-  head(10) %>% 
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm", group1="aesoc", group2="aeterm") %>%
   as_flextable() %>% 
+  delete_rows(i=11:165) %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
 
-**Using sort_by_count=TRUE**
+## Alternative 2: AE minimum grades by SOC and term, stratified by arm
+
+The function handles many more arguments. For example, you can use `sort_by_count=FALSE` to sort alphabetically by `group1` instead of by count, and `total=FALSE` and `showNA=FALSE` to remove the "Total" and "NA" columns.
 
 ```{r}
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
-             sort_by_count=TRUE) %>%
+ae_table_soc(data_ae=ae, data_pat=enrolres, measure="sup", arm="arm", group1="aeterm", 
+             sort_by_count=FALSE, total=FALSE, showNA=FALSE) %>%
   as_flextable() %>% 
+  delete_rows(i=11:103) %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
-  add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
+  add_footer_lines("Percentages reflect the proportion of patients who had at least one AE higher or equal to the indicated grade.")
 ```
+
+# Troubleshooting
+
+These functions rely on labels to show the correct header in the flextable. This means that functions such as `head()` or sometimes `filter()` can cause issues as they remove the labels. 
+
+If you want to use these functions, make sure to re-assign the labels to the resulting data frame.

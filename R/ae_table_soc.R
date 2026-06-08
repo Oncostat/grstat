@@ -7,109 +7,127 @@
 #'
 #' @description
 #' `r lifecycle::badge("stable")`\cr
-#' The function `ae_table_soc()` creates a summary table of AE grades for each patient according to term and SOC CTCAE.
+#' The function `ae_table_soc()` creates a summary table of AE grades for each patient by group (usually according CTCAE SOC or term).
 #' The resulting dataframe can be piped to `as_flextable()` to get a nicely formatted flextable.
 #'
-#' @param df_ae adverse event dataset, one row per AE, containing subjid, soc, and grade.
-#' @param df_enrol enrollment dataset, one row per patient, containing subjid (and arm if needed). All patients should be in this dataset.
-#' @param variant one or several of `c("max", "sup", "eq")`. `max` computes the maximum AE grade per patient, `sup` computes the number of patients having experienced at least one AE of grade higher or equal to X, and `eq` computes the number of patients having experienced at least one AE of grade equal to X.
-#' @param arm name of the treatment column in `df_enrol`. Case-insensitive. Can be set to `NULL`.
-#' @param term name of the the CTCAE term column in `df_ae`. Case-insensitive. Can be set to `NULL`.
-#' @param sort_by_count should the table be sorted by the number of AE or by SOC alphabetically.
+#' @param data_ae adverse event dataset, one row per AE, containing `subjid`, `grade`, `group1`, and potentially `group2`.
+#' @param data_pat enrollment dataset, one row per patient, containing `subjid` (and `arm` if needed). All patients should be in this dataset.
+#' @param measure one or several of `c("max", "sup", "eq")`. `max` computes the maximum AE grade per patient, `sup` computes the number of patients having experienced at least one AE of grade higher or equal to X, and `eq` computes the number of patients having experienced at least one AE of grade equal to X.
+#' @param arm name of the treatment column in `data_pat`. Case-insensitive. Can be set to `NULL`.
+#' @param cols a named character vector mapping column names. Should contain at least `grade` and `subjid`. Case-insensitive.
+#' @param group1,group2 name of the 1st and 2nd order grouping columns in `data_ae`. Case-insensitive. Use labels for the flextable output. Usually, `group1` is the SOC and `group2` the term, but it can be any other grouping variable. `group2` can be set to `NULL` if not needed.
+#' @param sort_by_count whether to sort by the number of AE or by `group1` alphabetically.
 #' @param total whether to add a `total` column for each arm.
-#' @param showNA whether to display missing grades.
+#' @param showNA whether to display missing grades. Only relevant if `ae_groups` is not used.
 #' @param digits significant digits for percentages.
+#' @param ae_groups a named list specifying the grade values for each group.
 #' @param warn_miss whether to warn for missing values.
-#' @param grade  name of the AE grade column in `df_ae`. Case-insensitive.
-#' @param soc name of the SOC column in `df_ae`. Case-insensitive. Grade will be considered 0 if missing (e.g. if patient if absent from `df_ae`).
-#' @param subjid name of the patient ID in both `df_ae` and `df_enrol`. Case-insensitive.
 #' @param ... unused
 #'
 #' @return a dataframe (`ae_table_soc()`) or a flextable (`as_flextable()`).
 #'
 #' @seealso [ae_table_grade()], [ae_table_soc()], [ae_plot_grade()], [ae_plot_grade_sum()], [butterfly_plot()]
 #'
-#' @importFrom cli cli_abort cli_warn
-#' @importFrom dplyr across any_of arrange count cur_group filter if_else left_join mutate pick pull rename select summarise
+#' @importFrom cli cli_warn
+#' @importFrom dplyr across all_of any_of arrange cur_column cur_group everything filter mutate pick pull rename rename_with select summarise
 #' @importFrom forcats fct_infreq fct_relevel
 #' @importFrom glue glue
 #' @importFrom purrr iwalk keep map
-#' @importFrom rlang arg_match check_dots_empty ensym is_empty set_names
-#' @importFrom tibble deframe lst
+#' @importFrom rlang arg_match ensym has_name is_empty set_names
 #' @importFrom tidyr build_wider_spec pivot_wider_spec unnest
-#' @importFrom tidyselect matches
 #' @export
 #'
 #' @examples
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
 #'
-#' ae_table_soc(df_ae=ae, df_enrol=enrolres)
-#' ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm")
+#' ae_table_soc(data_ae=ae, data_pat=enrolres)
+#' ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm")
 #'
 #' #sub population
-#' ae_table_soc(df_ae=ae, df_enrol=head(enrolres, 10), arm="arm")
+#' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm")
 #'
 #' #the resulting flextable can be customized using the flextable package
 #' library(flextable)
-#' ae_table_soc(ae, df_enrol=enrolres, total=FALSE) %>%
+#' ae_table_soc(ae, data_pat=enrolres, total=FALSE) %>%
 #'   as_flextable() %>%
-#'   hline(i=~soc=="" & soc!=dplyr::lead(soc))
-#' ae_table_soc(ae, df_enrol=enrolres, term=NULL, sort_by_count=FALSE) %>%
+#'   hline(i=~group1=="" & group1!=dplyr::lead(group1))
+#' ae_table_soc(ae, data_pat=enrolres, term=NULL, sort_by_count=FALSE) %>%
 #'   as_flextable() %>%
-#'   bold(i=~soc=="Eye disorders")
-#' ae_table_soc(ae, df_enrol=enrolres, term="aeterm", arm=NULL) %>%
+#'   bold(i=~group1=="Eye disorders")
+#' ae_table_soc(ae, data_pat=enrolres, term="aeterm", arm=NULL) %>%
 #'   as_flextable() %>%
-#'   highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
+#'   highlight(i=~group1=="Hepatobiliary disorders", j="all_patients__tot")
 ae_table_soc = function(
-    df_ae, ..., df_enrol,
-    variant=c("max", "sup", "eq"),
-    arm=NULL, term=NULL,
-    sort_by_count=TRUE, total=TRUE, showNA=TRUE, digits=0, warn_miss=FALSE,
-    grade="AEGR", soc="AESOC", subjid="SUBJID"
+    data_ae, ..., data_pat,
+    measure=c("max", "sup", "eq"),
+    group1="AESOC", group2=NULL,
+    arm=NULL, 
+    cols = c(grade="AEGR", subjid="SUBJID"),
+    ae_groups = NULL,
+    sort_by_count=TRUE, total=TRUE, showNA=TRUE, digits=0, warn_miss=FALSE
 ){
-  check_dots_empty()
-  default_arm = set_label("All patients", "Treatment arm")
-  null_term = is.null(term)
+  
+  dots = list(...)
+  data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae
+  data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
+  measure = if(has_name(dots, "variant")) dots$variant else measure
+  group1 = if(has_name(dots, "soc")) dots$soc else group1
+  group2 = if(has_name(dots, "term")) dots$term else group2
+  cols = as.list(cols)
+  cols$grade = if(has_name(dots, "grade")) dots$grade else cols$grade
+  cols$subjid = if(has_name(dots, "subjid")) dots$subjid else cols$subjid
+  check_dots_empty2(except = c("df_ae", "df_enrol", "variant", "soc", "term", "grade", "subjid"))
+  cols$group1 = group1
+  cols$group2 = group2
+  cols$arm = arm
+
+  # default_arm = set_label("All patients", "Treatment arm")
+  null_group2 = is.null(group2)
   null_arm = is.null(arm)
-  variant = arg_match(variant)
+  measure = arg_match(measure)
 
-  assert_names_exists(df_ae, lst(subjid, term, soc, grade))
-  assert_names_exists(df_enrol, lst(subjid, arm))
+  #TODO check dans grstat actuel si un data_ae sans term provoque une erreur 
+  # assert_names_exists(data_ae, keep_at(cols, c("subjid", "group1", "group2", "grade")))
+  # assert_names_exists(data_pat, keep_at(cols, c("subjid", "arm")))
 
-  label_missing_soc = "Missing SOC"
+  label_missing_group1 = "Missing"
   label_missing_pat = "No Declared AE"
 
-  if(variant!="max" && missing(total) && total){
+  if(measure!="max" && missing(total) && total){
     cli_warn("Total has been set to `FALSE` as totals are not very interpretable
-             when {.arg variant} is {.val sup} or {.val eq}. Set `total=FALSE`
+             when {.arg measure} is {.val sup} or {.val eq}. Set `total=FALSE`
              explicitly to silence this warning.")
     total=FALSE
   }
 
-  df_ae = df_ae %>%
-    select(subjid_=any_of2(subjid), soc_=any_of2(soc),
-           term_=any_of2(term), grade_=any_of2(grade)) %>%
-    mutate(soc_ = if_else(soc_ %in% c(0, NA), label_missing_soc, soc_))
-  df_enrol = df_enrol %>%
-    select(subjid_=any_of2(subjid), arm_=any_of2(arm)) %>%
-    mutate(arm_ = if(is.null(.env$arm)) default_arm else .data$arm_)
-  if(!is.numeric(df_ae$grade_)){
-    cli_abort("Grade ({.val {grade}}) should be a numeric column.")
-  }
+  # data_ae = data_ae %>%
+  #   select(subjid=any_of2(subjid), group1=any_of2(group1),
+  #          group2=any_of2(group2), grade=any_of2(grade)) %>%
+  #   mutate(group1 = if_else(group1 %in% c(0, NA), label_missing_group1, group1))
+  # data_pat = data_pat %>%
+  #   select(subjid=any_of2(subjid), arm=any_of2(arm)) %>%
+  #   mutate(arm = if(is.null(.env$arm)) default_arm else .data$arm)
+  # if(!is.numeric(data_ae$grade)){
+  #   cli_abort("Grade ({.val {grade}}) should be a numeric column.")
+  # }
 
-  df = df_enrol %>%
-    left_join(df_ae, by="subjid_") %>%
-    arrange(subjid_) %>%
-    mutate(
-      arm_ = to_snake_case(arm_),
-      soc_ = if_else(!subjid_ %in% df_ae$subjid_, label_missing_pat, soc_)
-    )
+  # df = data_pat %>%
+  #   left_join(data_ae, by="subjid") %>%
+  #   arrange(subjid) %>%
+  #   mutate(
+  #     arm = to_snake_case(arm),
+  #     group1 = if_else(!subjid %in% data_ae$subjid, label_missing_pat, group1)
+  #   )
+  df = .data_ae_table_soc(data_ae, data_pat, cols)
+  #Legacy
+  # if(has_name(dots, "soc")) df$group1 = set_label(group1, "CTCAE SOC")
+  # if(has_name(dots, "term")) df$group2 = set_label(group2, "CTCAE v4.0 Term")  
 
   #check missing data
   if(warn_miss){
     miss = names(df) %>% set_names() %>% map(~{
-      df %>% filter(is.na(!!ensym(.x))) %>% pull(subjid_) %>% unique() %>% sort()
+      df %>% filter(is.na(!!ensym(.x))) %>% pull(subjid) %>% unique() %>% sort()
     }) %>% keep(~!is_empty(.x))
     miss %>% iwalk(~{
       cli_warn("{.fn ae_table_soc}: Missing values in column {.val {.y}} for patients {.val {.x}}.",
@@ -117,59 +135,75 @@ ae_table_soc = function(
     })
   }
 
-  arm_count = df_enrol %>%
-    count(arm_) %>%
-    deframe() %>% as.list()
-  arm_count2 = arm_count %>%
-    set_names(to_snake_case)
+  # arm_count = data_pat %>%
+  #   count(arm) %>%
+  #   deframe() %>% as.list()
+  # arm_count2 = arm_count %>%
+  #   set_names(to_snake_case)
+  arm_count = attr(df, "arm_count")  
+  arm_count2 = arm_count %>% set_names(to_snake_case)
 
-  extra_cols = if(total) c("NA", "Tot") else c("NA")
+  extra_cols = if(total) c("Tot") else NULL
+  
+  default = list("G1"=1, "G2"=2, "G3"=3, "G4"=4, "G5"=5)
+  if(isTRUE(showNA)) default[["NA"]] = NA
+  ae_groups = .get_ae_groups(ae_groups, default=default)
+
   rtn = df %>%
-    summarise(calc = evaluate_grades(grade_, variant),
-              .by=any_of(c("subjid_", "arm_", "soc_", "term_"))) %>%
+    summarise(calc = .evaluate_grades(grade, measure, ae_groups),
+              .by=any_of(c("subjid", "arm", "group1", "group2"))) %>%
     unnest(calc) %>%
     mutate(
-      # Tot = ifelse(total, Tot, 0),
-      soc_ = soc_ %>% fct_infreq(w=Tot) %>%
-        fct_last(label_missing_soc, label_missing_pat)
+      group1 = group1 %>% fct_infreq(w=Tot) %>%
+        fct_last(label_missing_group1, label_missing_pat)
     ) %>%
     summarise(
-      across(c(matches("^G\\d$"), any_of(extra_cols)), ~{
+      across(c(all_of(names(ae_groups)), any_of(extra_cols)), ~{
         n = sum(.x)
-        n_arm = arm_count2[[cur_group()$arm_]]
+        n_arm = arm_count2[[cur_group()$arm]]
         label = glue("{n} ({p})", p=percent(n/n_arm, digits))
         label[n==0] = NA
         label
       }),
-      .by=any_of(c("arm_", "soc_", "term_"))
+      .by=any_of(c("arm", "group1", "group2"))
     ) %>%
-    arrange(arm_, soc_)
+    arrange(arm, group1)
 
   if(!total) rtn = rtn %>% select(-any_of("Tot"))
   if(!showNA) rtn = rtn %>% select(-any_of("NA"))
   if(!sort_by_count) {
     rtn = rtn %>%
-      mutate(across(any_of(c("soc_", "term_")), ~factor(as.character(.x))),
-             soc_ = fct_relevel(soc_, label_missing_pat, after=Inf)) %>%
-      arrange(arm_, soc_)
+      mutate(across(any_of(c("group1", "group2")), ~factor(as.character(.x))),
+             group1 = fct_relevel(group1, label_missing_pat, after=Inf)) %>%
+      arrange(arm, group1)
   }
 
   spec = rtn %>%
-    build_wider_spec(names_from=arm_,
-                     values_from=c(matches("^G\\d$"), any_of(c("NA", "Tot"))),
-                     names_glue="{arm_}_{.value}") %>%
+    build_wider_spec(names_from=arm,
+                     values_from=c(all_of(names(ae_groups)), any_of(c("NA", "Tot"))),
+                     names_glue="{arm}__{.value}") %>%
     arrange(.name)
 
-  rtn = rtn %>%
-    rename(soc=soc_, term=any_of("term_")) %>%
-    pivot_wider_spec(spec) %>%
-    add_class("ae_table_soc") %>%
-    arrange(soc, pick(any_of("term")))
 
+  #TODO use labels for group1 and group2, then in the flextable!
+  rtn = rtn %>%
+    rename(group1=group1, group2=any_of("group2")) %>%
+    pivot_wider_spec(spec) %>%
+    arrange(group1, pick(any_of("group2"))) %>%
+    mutate(across(everything(), ~set_label(.x, cur_column()))) %>%
+    rename_with(to_snake_case) %>%
+    copy_label_from(df) %>% 
+    add_class("ae_table_soc")
+
+# print(get_label(rtn))
+# browser()
+  
   attr(rtn, "header") =
     glue("{a} (N={b})", a=names(arm_count), b=arm_count) %>%
     set_names(to_snake_case(names(arm_count))) %>%
     as.character()
+
+
 
   rtn
 }
@@ -187,11 +221,9 @@ ae_table_soc = function(
 #' @rdname ae_table_soc
 #' @export
 #'
-#' @importFrom dplyr lag lead transmute
+#' @importFrom dplyr case_when lag mutate transmute
 #' @importFrom flextable align bg bold flextable fontsize hline hline_bottom merge_h merge_v padding set_header_df set_table_properties valign
-#' @importFrom purrr map map_int
-#' @importFrom rlang check_dots_empty set_names
-#' @importFrom stringr str_detect str_replace_all
+#' @importFrom rlang check_dots_empty
 #' @importFrom tibble as_tibble_col
 #' @importFrom tidyr separate_wider_regex
 as_flextable.ae_table_soc = function(x,
@@ -201,73 +233,57 @@ as_flextable.ae_table_soc = function(x,
   check_dots_empty()
   if (missing(padding_v)) padding_v = getOption("crosstable_padding_v", padding_v)
   table_ae_header = attr(x, "header")
-  if(FALSE){
-    arm_cols = names(table_ae_header) %>% set_names() %>%
-      map_int(~{
-        pattern = paste0("^", .x, "_(G\\d|NA|Tot)$")
-        sum(str_detect(names(x), pattern))
-      })
-    table_ae_header = table_ae_header[arm_cols>0]
-    arm_cols = arm_cols[arm_cols>0]
-
-    col1 = names(x) %>% str_detect(names(table_ae_header)[1]) %>% which() %>% min() - 1
-    colwidths = c(col1, arm_cols)
-    header_labels = set_names(names(x)) %>% map(~str_replace_all(.x, ".*_", ""))
-    header_labels$soc = "CTCAE SOC"
-    header_labels$term = "CTCAE v4.0 Term"
-  }
   # https://github.com/tidyverse/tidyr/issues/1551
+  labels = get_label(x) %>% unlist()
   header_df = names(x) %>%
     as_tibble_col("col_keys") %>%
-    separate_wider_regex(col_keys, c(h1 = ".*", "_", h2 = ".*"),
+    mutate(label = labels[col_keys]) %>%
+    separate_wider_regex(label, c(h1 = ".*", "__", h2 = ".*"),
                          too_few="align_start", cols_remove=FALSE) %>%
     transmute(
       col_keys,
       row1 = case_when(
-        h1 == "soc" ~ "",
-        h1 == "term" ~ "",
+        col_keys == "group1" ~ "",
+        col_keys == "group2" ~ "",
         .default = table_ae_header[h1]
       ),
       row2 = case_when(
-        h1 == "soc" ~ "CTCAE SOC",
-        h1 == "term" ~ "CTCAE v4.0 Term",
+        col_keys == "group1" ~ labels["group1"],
+        col_keys == "group2" ~ labels["group2"],
         .default = h2
       ),
     )
 
-  col1 = header_df$col_keys %in% c("soc", "term") %>% which() %>% max()
+  col1 = header_df$col_keys %in% c("group1", "group2") %>% which() %>% max()
 
-  sep_cols = with(header_df, !col_keys %in% c("soc", "term") & row1!=lead(row1)) %>%
+  sep_cols = with(header_df, !col_keys %in% c("group1", "group2") & row1!=lead(row1)) %>%
     which() %>% unname() %>% c(ncol(x))
-
+  
   rtn = x %>%
     flextable() %>%
     set_header_df(mapping=header_df) %>%
-    # hline_top(part="header") %>%
     hline_bottom(part="header") %>%
     merge_h(part="header") %>%
-    # set_header_labels(values=header_labels) %>%
-    # add_header_row(values=c(" ", table_ae_header), colwidths = colwidths) %>%
     align(i=1, part="header", align="center") %>%
     align(j=seq(col1), part="all", align="right") %>%
     padding(padding.top=0, padding.bottom=0) %>%
     set_table_properties(layout="autofit") %>%
     fontsize(size=8, part="all") %>%
     bold(part="header")
+
   if (length(padding_v) >= 1) {
     rtn = padding(rtn, padding.top=padding_v[1], padding.bottom=padding_v[1], part="body")
   }
   if (length(padding_v) == 2) {
     rtn = padding(rtn, padding.top=padding_v[2], padding.bottom=padding_v[2], part="header")
   }
-  if (!is.null(x[["term"]])) {
+  if (!is.null(x[["group2"]])) {
     b = structure(list(width=1, color="grey", style="solid"), class="fp_border")
     rtn = rtn %>%
-      merge_v(j="soc") %>%
-      valign(j="soc", valign="top") %>%
-      hline(i=~soc!=dplyr::lead(soc), border=b)
+      merge_v(j="group1") %>%
+      valign(j="group1", valign="top") %>%
+      hline(i=~group1!=dplyr::lead(group1), border=b)
   }
-  # a = cumsum(colwidths)[-1]
   a = sep_cols
   for(i in seq_along(a)){
     from = lag(a, default=col1)[i] + 1
@@ -279,164 +295,61 @@ as_flextable.ae_table_soc = function(x,
 }
 
 
-#' Graphic representation of AEs by CTCAE SOC
-#'
-#' Produces a graphic representation of AEs by CTCAE SOC.
-#'
-#' @inheritParams ae_table_soc
-#' @inherit ae_table_soc seealso
-#' @param severe name of the logical column in `df_ae` telling whether an AE is severe. Case-insensitive.
-#' @param sort_by either "total" or "severe"
-#' @param range_min The minimum value for the upper limit of the x-axis range. Set to `1` to always include 100%.
-#'
-#' @return a crosstable (dataframe)
-#' @export
-#' @importFrom cli cli_abort cli_warn
-#' @importFrom dplyr across any_of arrange count filter left_join mutate n_distinct select summarise
-#' @importFrom forcats fct_reorder
-#' @importFrom ggplot2 aes facet_grid geom_blank geom_col ggplot labs scale_x_continuous theme unit vars
-#' @importFrom glue glue
-#' @importFrom rlang arg_match check_dots_empty
-#' @importFrom scales label_percent
-#' @importFrom stats na.omit
-#' @importFrom stringr str_remove
-#' @importFrom tibble lst
-#'
-#' @examples
-#'
-#' tm = grstat_example(N=100)
-#' attach(tm, warn.conflicts=FALSE)
-#'
-#' ae2 = ae %>%
-#'   dplyr::mutate(serious = sae=="Yes")
-#'
-#' butterfly_plot(ae2, df_enrol=enrolres, range_min=0.5)
-#' butterfly_plot(ae2, df_enrol=head(enrolres,9), range_min=0.5)
-#'
-#' ae2 %>%
-#'   butterfly_plot(df_enrol=enrolres, severe="serious") +
-#'   ggplot2::labs(caption="Darker areas represent Serious Adverse Events")
-butterfly_plot = function(
-    df_ae, ..., df_enrol, severe=NULL, sort_by=c("total", "severe"), range_min=NULL,
-    arm="ARM", subjid="SUBJID", soc="AESOC"
-){
-  check_dots_empty()
-  assert_not_null(df_ae, df_enrol, sort_by, subjid, soc)
-  assert_names_exists(df_ae, lst(subjid, soc, severe))
-  assert_names_exists(df_enrol, lst(subjid, arm))
-  sort_by = arg_match(sort_by)
-
-  df_ae = df_ae %>%
-    select(subjid_=any_of2(subjid), soc_=any_of2(soc),
-           severe_=any_of2(severe)) %>%
-    mutate(severe_ = if(is.null(severe)) NA else severe_)
-  df_enrol = df_enrol %>%
-    mutate(across(any_of2(arm), factor)) %>%
-    select(subjid_=any_of2(subjid), arm_=any_of2(arm))
-
-  arms = df_enrol[["arm_"]]
-  n_arms = n_distinct(arms, na.rm=TRUE)
-  if(n_arms!=2){
-    if(is.null(arms)) arms = "NULL"
-    cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
-                i="Found {n_arms} arm{?s} in column {.arg {arm}}: {.val {unique(arms)}}"),
-              class="grstat_butterfly_two_arms_error")
-  }
-
-  arm_na = sum(is.na(arms))
-  if(arm_na > 0){
-    cli_abort(c("{.fn grstat::butterfly_plot} found {arm_na} missing value{?s} in {.arg arm}.",
-                i = "Missing values are not allowed. Use `tidyr::drop_na({arm})` to remove them."),
-              class="grstat_butterfly_arm_na_error")
-  }
-
-  df = df_enrol %>%
-    left_join(df_ae, by="subjid_") %>%
-    filter(!is.na(soc_))  %>%
-    arrange(subjid_)
-
-  if(!is.factor(df_enrol$arm_)) df_enrol$arm_ = factor(df_enrol$arm_)
-
-  arms = df_enrol$arm_ %>% unique() %>% na.omit()
-  if(length(arms)!=2){
-    cli_abort(c("{.fn grstat::butterfly_plot} needs exactly 2 arms.",
-                i="Arms: {.val {arms}}"),
-              class="grstat_butterfly_two_arms_error")
-  }
-  if(!is.null(severe)){
-    if(!is.logical(df_ae$severe_)){
-      cli_abort(c("{.arg severe} should be a logical column, not a {.type {df_ae$severe_}}. Did you forget to mutate it with `==`?"),
-                class="grstat_butterfly_serious_lgl_error")
-    }
-    if(!any(df_ae$severe_)){
-      cli_warn(c("All {.arg severe} values are FALSE."),
-               class="grstat_butterfly_serious_false_warning")
-    }
-  }
-
-  df_arm = df_enrol %>%
-    count(arm_, name="n_arm") %>%
-    mutate(label=glue("{arm_} (N={n_arm})") %>% fct_reorder(as.numeric(arm_)))
-  left_arm = levels(arms)[1]
-
-  a = df %>%
-    summarise(any_ae = TRUE,
-              any_severe = any(severe_, na.rm=TRUE),
-              .by=any_of(c("subjid_", "arm_", "soc_"))) %>%
-    summarise(n_ae = sum(any_ae, na.rm=TRUE),
-              n_severe = sum(any_severe, na.rm=TRUE),
-              .by=any_of(c("arm_", "soc_"))) %>%
-    left_join(df_arm, by="arm_") %>%
-    mutate(
-      n_ae = n_ae * ifelse(arm_==left_arm, -1, 1),
-      n_severe = n_severe * ifelse(arm_==left_arm, -1, 1),
-      pct_ae = n_ae/n_arm,
-      pct_severe = n_severe/n_arm,
-      soc_ = fct_reorder(soc_, abs(pct_ae), .fun=max, .na_rm=TRUE),
-    )
-
-  a %>% arrange(soc_)
-  a %>% arrange(abs(pct_ae))
-  if(sort_by=="severe") a$soc_ = fct_reorder(a$soc_, abs(a$pct_severe), .fun=max)
-
-  label_percent_positive = function(x) label_percent()(x) %>% str_remove("-")
-
-  layer_blank = NULL
-  if(!is.null(range_min)){
-    data_blank = a %>% summarise(pct_ae = ifelse(arm_==left_arm, -range_min, range_min),
-                                 .by=c(label, soc_))
-    layer_blank = geom_blank(aes(x=pct_ae), data=data_blank)
-  }
-  layer_severe = NULL
-  if(!is.null(severe)){
-    layer_severe = geom_col(aes(x=pct_severe), color="grey40", width=0.6)
-  }
-
-  a %>%
-    ggplot(aes(y=soc_, fill=label)) +
-    geom_col(aes(x=pct_ae), alpha=0.6) +
-    layer_severe +
-    layer_blank +
-    scale_x_continuous(labels=label_percent_positive) +
-    facet_grid(cols=vars(label), scales="free_x") +
-    labs(y=NULL, fill=NULL, x="Proportion of patients presenting at least 1 adverse event") +
-    theme(
-      legend.position="none",
-      panel.spacing.x=unit(1, "mm")
-    )
-}
-
-
-#' @rdname butterfly_plot
-#' @usage ae_plot_soc(df_ae, ..., df_enrol, severe, sort_by, range_min, arm, subjid, soc)
-#' @export
-ae_plot_soc = butterfly_plot
-
-
 # Utils ---------------------------------------------------------------------------------------
 
 
-#' for each patient/soc, detect if each grade satisfies the specified
+#' @importFrom cli cli_abort
+#' @importFrom dplyr arrange count if_else left_join mutate select
+#' @importFrom tibble deframe
+#' @noRd
+#' @keywords internal
+.data_ae_table_soc = function(data_ae, data_pat, cols){  
+  label_missing_group1 = "Missing"
+  label_missing_pat = "No Declared AE"
+  default_arm = set_label("All patients", "Treatment arm")
+  col_gp2 = if("group2" %in% names(cols)) "group2" else NULL
+  col_arm = if("arm" %in% names(cols)) "arm" else NULL  
+  cols_ae = c("subjid", "grade", "group1", col_gp2)
+  cols_pat = c("subjid", col_arm)
+  assert_names_exists(data_ae, cols[cols_ae])
+  assert_names_exists(data_pat, cols[cols_pat])
+  
+  data_ae = data_ae %>%
+    select(subjid=any_of2(cols$subjid), group1=any_of2(cols$group1),
+           group2=any_of2(cols$group2), grade=any_of2(cols$grade)) %>%
+    mutate(
+      group1 = if_else(.data$group1 %in% c(0, NA), label_missing_group1, .data$group1) %>% 
+        copy_label_from(.data$group1)
+    )
+
+  data_pat = data_pat %>%
+    select(subjid=any_of2(cols$subjid), arm=any_of2(cols$arm)) %>%
+    mutate(arm = if(is.null(cols$arm)) default_arm else .data$arm)
+  if(!is.numeric(data_ae$grade)){
+    cli_abort("Grade ({.val {grade}}) should be a numeric column.")
+  }
+
+  arm_count = data_pat %>%
+    count(arm) %>%
+    deframe() %>% as.list()
+
+  rtn = data_pat %>%
+    left_join(data_ae, by="subjid") %>%
+    arrange(subjid) %>%
+    mutate(
+      arm = to_snake_case(arm),
+      group1 = if_else(!subjid %in% data_ae$subjid, label_missing_pat, .data$group1)
+    ) %>% 
+    copy_label_from(data_pat) %>% 
+    copy_label_from(data_ae)
+
+  # browser()
+  attr(rtn, "arm_count") = arm_count
+
+  rtn
+}
+
+#' for each patient/group, detect if each grade satisfies the specified
 #' condition (max/eq/sup)
 #' @importFrom purrr map_lgl
 #' @importFrom rlang set_names
@@ -444,14 +357,40 @@ ae_plot_soc = butterfly_plot
 #' @importFrom tidyr replace_na
 #' @noRd
 #' @keywords internal
-evaluate_grades = function(gr, variant){
-  inner_calc = switch(variant, max=~max_narm(gr) == .x,
+.evaluate_grades = function(gr, measure, ae_groups){
+  inner_calc = switch(measure, max=~max_narm(gr) == .x,
                       sup=~any(gr >= .x, na.rm=TRUE),
                       eq=~any(gr == .x, na.rm=TRUE))
   n = c(1:5) %>% set_names(paste0("G",1:5)) %>% map_lgl(inner_calc)
-  n_na = c("NA"=all(is.na(n)))
+  n["NA"] = all(is.na(n))
   n = replace_na(n, FALSE)
-  n_tot = c(Tot=sum(c(n, n_na), na.rm=TRUE))
-  c(n, n_na, n_tot) %>%
+  n_tot = c(Tot=sum(n, na.rm=TRUE))
+  n = map_lgl(ae_groups, ~{
+    nm = ifelse(is.na(.x), "NA", paste0("G",.x))
+    any(n[nm])
+  })
+
+  c(n, n_tot) %>%
     as_tibble_row()
+}
+
+#' @noRd
+#' @keywords internal
+#' @importFrom purrr map_lgl
+#' @importFrom rlang is_named
+.get_ae_groups = function(ae_groups, default){
+  if(is.null(ae_groups)) return(default)
+  assert(is_named(ae_groups),
+          msg = "{.arg ae_groups} should be a named list of numeric values between 1 and 5.",
+          class="ae_table_soc_group_bad_class")
+  if(!is.list(ae_groups)){
+    assert_class(ae_groups, "numeric")
+    return(as.list(ae_groups))
+  }
+  ok = ae_groups %>% map_lgl(~all(is.na(.x) | (is.numeric(.x) & .x>0 & .x<6),
+                                  na.rm=TRUE))
+  assert(all(ok),
+          msg = "{.arg ae_groups} should be a named list of numeric values between 1 and 5.",
+          class="ae_table_soc_group_bad_number")
+  ae_groups
 }

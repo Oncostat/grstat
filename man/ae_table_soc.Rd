@@ -6,20 +6,20 @@
 \title{Summary tables for AE by SOC}
 \usage{
 ae_table_soc(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
-  variant = c("max", "sup", "eq"),
+  data_pat,
+  measure = c("max", "sup", "eq"),
+  group1 = "AESOC",
+  group2 = NULL,
   arm = NULL,
-  term = NULL,
+  cols = c(grade = "AEGR", subjid = "SUBJID"),
+  ae_groups = NULL,
   sort_by_count = TRUE,
   total = TRUE,
   showNA = TRUE,
   digits = 0,
-  warn_miss = FALSE,
-  grade = "AEGR",
-  soc = "AESOC",
-  subjid = "SUBJID"
+  warn_miss = FALSE
 )
 
 \method{as_flextable}{ae_table_soc}(
@@ -30,33 +30,31 @@ ae_table_soc(
 )
 }
 \arguments{
-\item{df_ae}{adverse event dataset, one row per AE, containing subjid, soc, and grade.}
+\item{data_ae}{adverse event dataset, one row per AE, containing \code{subjid}, \code{grade}, \code{group1}, and potentially \code{group2}.}
 
 \item{...}{unused}
 
-\item{df_enrol}{enrollment dataset, one row per patient, containing subjid (and arm if needed). All patients should be in this dataset.}
+\item{data_pat}{enrollment dataset, one row per patient, containing \code{subjid} (and \code{arm} if needed). All patients should be in this dataset.}
 
-\item{variant}{one or several of \code{c("max", "sup", "eq")}. \code{max} computes the maximum AE grade per patient, \code{sup} computes the number of patients having experienced at least one AE of grade higher or equal to X, and \code{eq} computes the number of patients having experienced at least one AE of grade equal to X.}
+\item{measure}{one or several of \code{c("max", "sup", "eq")}. \code{max} computes the maximum AE grade per patient, \code{sup} computes the number of patients having experienced at least one AE of grade higher or equal to X, and \code{eq} computes the number of patients having experienced at least one AE of grade equal to X.}
 
-\item{arm}{name of the treatment column in \code{df_enrol}. Case-insensitive. Can be set to \code{NULL}.}
+\item{group1, group2}{name of the 1st and 2nd order grouping columns in \code{data_ae}. Case-insensitive. Use labels for the flextable output. Usually, \code{group1} is the SOC and \code{group2} the term, but it can be any other grouping variable. \code{group2} can be set to \code{NULL} if not needed.}
 
-\item{term}{name of the the CTCAE term column in \code{df_ae}. Case-insensitive. Can be set to \code{NULL}.}
+\item{arm}{name of the treatment column in \code{data_pat}. Case-insensitive. Can be set to \code{NULL}.}
 
-\item{sort_by_count}{should the table be sorted by the number of AE or by SOC alphabetically.}
+\item{cols}{a named character vector mapping column names. Should contain at least \code{grade} and \code{subjid}. Case-insensitive.}
+
+\item{ae_groups}{a named list specifying the grade values for each group.}
+
+\item{sort_by_count}{whether to sort by the number of AE or by \code{group1} alphabetically.}
 
 \item{total}{whether to add a \code{total} column for each arm.}
 
-\item{showNA}{whether to display missing grades.}
+\item{showNA}{whether to display missing grades. Only relevant if \code{ae_groups} is not used.}
 
 \item{digits}{significant digits for percentages.}
 
 \item{warn_miss}{whether to warn for missing values.}
-
-\item{grade}{name of the AE grade column in \code{df_ae}. Case-insensitive.}
-
-\item{soc}{name of the SOC column in \code{df_ae}. Case-insensitive. Grade will be considered 0 if missing (e.g. if patient if absent from \code{df_ae}).}
-
-\item{subjid}{name of the patient ID in both \code{df_ae} and \code{df_enrol}. Case-insensitive.}
 
 \item{x}{a dataframe, resulting of \code{ae_table_soc()}}
 
@@ -71,30 +69,30 @@ a formatted flextable
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}\cr
-The function \code{ae_table_soc()} creates a summary table of AE grades for each patient according to term and SOC CTCAE.
+The function \code{ae_table_soc()} creates a summary table of AE grades for each patient by group (usually according CTCAE SOC or term).
 The resulting dataframe can be piped to \code{as_flextable()} to get a nicely formatted flextable.
 }
 \examples{
 tm = grstat_example()
 attach(tm, warn.conflicts=FALSE)
 
-ae_table_soc(df_ae=ae, df_enrol=enrolres)
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm")
+ae_table_soc(data_ae=ae, data_pat=enrolres)
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm")
 
 #sub population
-ae_table_soc(df_ae=ae, df_enrol=head(enrolres, 10), arm="arm")
+ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm")
 
 #the resulting flextable can be customized using the flextable package
 library(flextable)
-ae_table_soc(ae, df_enrol=enrolres, total=FALSE) \%>\%
+ae_table_soc(ae, data_pat=enrolres, total=FALSE) \%>\%
   as_flextable() \%>\%
-  hline(i=~soc=="" & soc!=dplyr::lead(soc))
-ae_table_soc(ae, df_enrol=enrolres, term=NULL, sort_by_count=FALSE) \%>\%
+  hline(i=~group1=="" & group1!=dplyr::lead(group1))
+ae_table_soc(ae, data_pat=enrolres, term=NULL, sort_by_count=FALSE) \%>\%
   as_flextable() \%>\%
-  bold(i=~soc=="Eye disorders")
-ae_table_soc(ae, df_enrol=enrolres, term="aeterm", arm=NULL) \%>\%
+  bold(i=~group1=="Eye disorders")
+ae_table_soc(ae, data_pat=enrolres, term="aeterm", arm=NULL) \%>\%
   as_flextable() \%>\%
-  highlight(i=~soc=="Hepatobiliary disorders", j="all_patients_Tot")
+  highlight(i=~group1=="Hepatobiliary disorders", j="all_patients__tot")
 }
 \seealso{
 \code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}

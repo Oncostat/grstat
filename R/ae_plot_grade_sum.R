@@ -2,11 +2,13 @@
 #' Graphic representation of AEs
 #'
 #' `r lifecycle::badge("experimental")`\cr
-#' Produce a graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
+#' Produce an alternative graphic representation of AE, counting AE as bars for each patient, colored by grade. Can be faceted by treatment arm.
 #'
 #' @param weights (optional) a length 5 numeric vector, giving the weights of each grade
 #' @param low the color of Grade 1 AE
 #' @param high the color of Grade 5 AE
+#' @param grade name of the AE grade column in `data_ae`. Case-insensitive.
+#' @param subjid name of the patient ID in both `data_ae` and `data_pat`. Case-insensitive.
 #' @inheritParams ae_table_soc
 #' @inherit ae_table_soc seealso
 #'
@@ -14,51 +16,54 @@
 #' @export
 #' @importFrom dplyr across any_of arrange count left_join mutate rename_with select
 #' @importFrom forcats fct_infreq fct_rev
-#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_color_manual scale_fill_manual theme theme_minimal vars
+#' @importFrom ggplot2 aes element_blank facet_grid geom_col ggplot labs scale_color_manual scale_fill_manual theme vars
 #' @importFrom glue glue
-#' @importFrom rlang check_dots_empty int
+#' @importFrom rlang has_name int
 #' @importFrom tibble deframe lst
 #' @importFrom tidyr replace_na
 #'
 #' @examples
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM")
-#' ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM", weights=c(1,1,3,6,10))
+#' ae_plot_grade_sum(data_ae=ae, data_pat=enrolres)
+#' ae_plot_grade_sum(data_ae=ae, data_pat=enrolres, arm="ARM")
+#' ae_plot_grade_sum(data_ae=ae, data_pat=enrolres, arm="ARM", weights=c(1,1,3,6,10))
 ae_plot_grade_sum = function(
-    df_ae, ..., df_enrol,
+    data_ae, ..., data_pat,
     low="#ffc425", high="#d11141",
     weights=NULL,
     arm=NULL, grade="AEGR", subjid="SUBJID"
 ){
-  check_dots_empty()
-  assert_names_exists(df_ae, lst(subjid, grade))
-  assert_names_exists(df_enrol, lst(subjid, arm))
+  dots = list(...)
+  data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae
+  data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
+  assert_names_exists(data_ae, lst(subjid, grade))
+  assert_names_exists(data_pat, lst(subjid, arm))
+  check_dots_empty2(except = c("df_ae", "df_enrol"))
 
   weighted = !is.null(weights)
   if(!weighted) weights=c(1,1,1,1,1)
   assert(is.numeric(weights))
   assert(length(weights)==5)
 
-  df_ae = df_ae %>% rename_with(tolower) %>%
+  data_ae = data_ae %>% rename_with(tolower) %>%
     select(subjid=tolower(subjid), grade=tolower(grade))
-  df_enrol = df_enrol %>% rename_with(tolower) %>%
+  data_pat = data_pat %>% rename_with(tolower) %>%
     select(subjid=tolower(subjid), arm=tolower(arm))
 
-  df = df_enrol %>%
-    left_join(df_ae, by=tolower(subjid)) %>%
+  df = data_pat %>%
+    left_join(data_ae, by=tolower(subjid)) %>%
     mutate(grade = .fix_grade_na(grade),
            weight = weights[grade] %>% replace_na(0.1)) %>%
     arrange(subjid)
 
   default_arm = "All patients"
   if(!is.null(arm)){
-    npat = deframe(count(df_enrol, arm))
+    npat = deframe(count(data_pat, arm))
     npat["Total"] = sum(npat)
   } else {
     df$arm = default_arm
-    npat = int(!!default_arm:=nrow(df_enrol))
+    npat = int(!!default_arm:=nrow(data_pat))
   }
 
   y_lab = "Count"; caption = NULL

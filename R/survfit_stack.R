@@ -15,8 +15,8 @@
 #'
 #' @return A `survfit` object (or `survfit2` if `ggsurvfit` is installed)
 #'
-#' @importFrom rlang check_installed is_named
 #' @importFrom cli cli_abort
+#' @importFrom rlang check_installed is_named
 #' @export
 #'
 #' @examples
@@ -71,7 +71,7 @@ survfit_stack = function(data, surv_list){
 
 
 #' @noRd
-#' @importFrom dplyr all_of select
+#' @importFrom dplyr all_of mutate select
 #' @importFrom purrr imap list_rbind
 #' @importFrom rlang is_installed
 .survfit_stack_2 = function(data, surv_list){
@@ -97,7 +97,7 @@ survfit_stack = function(data, surv_list){
 }
 
 #' @noRd
-#' @importFrom dplyr all_of select
+#' @importFrom dplyr all_of mutate select
 #' @importFrom purrr imap list_rbind
 #' @importFrom rlang is_installed
 .survfit_stack_3 = function(data, surv_list){

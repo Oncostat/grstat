@@ -54,6 +54,7 @@ grstat_example = function(N=200, seed=42, ...){
 #'
 #' @keywords internal
 #' @importFrom forcats fct_relevel
+#' @importFrom stats runif
 #' @importFrom tibble tibble
 example_enrol = function(N, seed, r=0.5, r2=1/3, ...){
   set.seed(seed)
@@ -186,9 +187,10 @@ example_ae = function(enrolres, seed, p_na=0,
 #'   - `rcresp`: The global RECIST response
 #'
 #' @keywords internal
-#' @importFrom dplyr bind_rows select mutate filter row_number
+#' @importFrom dplyr across arrange case_when filter if_else mutate n row_number select
 #' @importFrom forcats fct_drop
-#' @importFrom stats rnorm
+#' @importFrom stats runif
+#' @importFrom tidyr replace_na unnest
 example_rc = function(enrolres, seed,
                       rc_num_timepoints = 5,
                       rc_p_new_lesions = 0.09,
@@ -289,6 +291,8 @@ example_rc = function(enrolres, seed,
 #' Simulate the linear decrease of the TL length sum
 #' @noRd
 #' @keywords internal
+#' @importFrom dplyr case_when if_else
+#' @importFrom stats rnorm runif
 #' @importFrom tibble tibble
 .simulate_one_patient = function(arm, rc_num_timepoints, rc_p_na,
                                  rc_sd_tlsum_noise, rc_coef_treatement) {
