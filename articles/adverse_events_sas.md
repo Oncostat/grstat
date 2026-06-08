@@ -80,7 +80,7 @@ des modificateurs (comme
 
 ``` r
 
-ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="max") %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, measure="max") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
 ```
@@ -93,7 +93,7 @@ On pourrait retrouver exactement la sortie SAS en mettant `total=FALSE`.
 
 ``` r
 
-ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", measure="max") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at most one AE of given grade")
 ```
@@ -104,7 +104,7 @@ ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="max") %>%
 
 ``` r
 
-ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, variant="eq") %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm=NULL, measure="eq") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
@@ -117,7 +117,7 @@ On pourrait retrouver exactement la sortie SAS en mettant `total=FALSE`.
 
 ``` r
 
-ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", variant="eq") %>% 
+ae_table_grade(data_ae=ae, data_pat=enrolres, arm="arm", measure="eq") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients presenting at least one AE of given grade")
 ```
@@ -133,7 +133,7 @@ doit être “SAE”.
 
 ae %>% 
   filter(sae=="Yes") %>% 
-  ae_table_grade(data_pat=enrolres, arm=NULL, variant="max", ae_label="SAE") %>% 
+  ae_table_grade(data_pat=enrolres, arm=NULL, measure="max", ae_label="SAE") %>% 
   as_flextable() %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum SAE grade was as indicated.")
 ```
@@ -173,7 +173,7 @@ On peut ajouter `total=FALSE` pour retirer la colonne “Tot”.
 
 ``` r
 
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL, 
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm=NULL, group1="aesoc", group2=NULL, 
              sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
@@ -182,7 +182,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL,
 
 |  | All patients (N=200) |  |  |  |  |  |  |
 |----|----|----|----|----|----|----|----|
-| CTCAE SOC | G1 | G2 | G3 | G4 | G5 | NA | Tot |
+| AE SOC | G1 | G2 | G3 | G4 | G5 | NA | Tot |
 | Blood and lymphatic system disorders | 3 (2%) | 3 (2%) | 3 (2%) | 1 (0%) |  |  | 10 (5%) |
 | Cardiac disorders | 11 (6%) | 4 (2%) | 7 (4%) | 4 (2%) |  |  | 26 (13%) |
 | Congenital, familial and genetic disorders | 23 (12%) | 10 (5%) | 4 (2%) | 5 (2%) |  |  | 42 (21%) |
@@ -217,7 +217,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term=NULL,
 
 ``` r
 
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term="aeterm", 
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm=NULL, group1="aesoc", group2="aeterm", 
              sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
@@ -226,7 +226,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm=NULL, term="aeterm",
 
 |  |  | All patients (N=200) |  |  |  |  |  |  |
 |----|----|----|----|----|----|----|----|----|
-| CTCAE SOC | CTCAE v4.0 Term | G1 | G2 | G3 | G4 | G5 | NA | Tot |
+| AE SOC | AE Term (HLGT) | G1 | G2 | G3 | G4 | G5 | NA | Tot |
 | Blood and lymphatic system disorders | Bone marrow disorders |  |  |  | 1 (0%) |  |  | 1 (0%) |
 |  | Coagulation and bleeding analyses |  |  | 1 (0%) |  |  |  | 1 (0%) |
 |  | Hematologic neoplasms |  |  | 1 (0%) |  |  |  | 1 (0%) |
@@ -341,7 +341,8 @@ Il suffit de filtrer la table AE en amont.
 
 ae %>% 
   filter(sae=="Yes") %>%
-  ae_table_soc(df_enrol=enrolres, term=NULL, arm=NULL, sort_by_count=FALSE) %>% 
+  ae_table_soc(data_pat=enrolres, group1="aeterm", group2=NULL, arm=NULL, 
+               sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines(c("In the header, N represents the number of patients.",
                      "Percentages reflect the proportion of patients whose maximum SAE grade was as indicated."))
@@ -349,28 +350,50 @@ ae %>%
 
 |  | All patients (N=200) |  |  |  |  |  |  |
 |----|----|----|----|----|----|----|----|
-| CTCAE SOC | G1 | G2 | G3 | G4 | G5 | NA | Tot |
-| Blood and lymphatic system disorders |  |  | 1 (0%) | 1 (0%) |  |  | 2 (1%) |
-| Cardiac disorders |  | 1 (0%) | 2 (1%) | 1 (0%) |  |  | 4 (2%) |
-| Congenital, familial and genetic disorders | 3 (2%) | 3 (2%) |  | 1 (0%) |  |  | 7 (4%) |
-| Endocrine disorders |  |  | 1 (0%) | 1 (0%) |  |  | 2 (1%) |
-| Eye disorders |  | 2 (1%) | 1 (0%) |  |  |  | 3 (2%) |
-| Gastrointestinal disorders | 2 (1%) |  |  | 1 (0%) |  |  | 3 (2%) |
-| Hepatobiliary disorders | 1 (0%) |  |  | 1 (0%) |  |  | 2 (1%) |
-| Immune system disorders | 3 (2%) |  |  | 1 (0%) |  |  | 4 (2%) |
-| Injury, poisoning and procedural complications |  | 2 (1%) |  |  |  |  | 2 (1%) |
-| Investigations | 1 (0%) |  |  |  |  |  | 1 (0%) |
-| Metabolism and nutrition disorders | 1 (0%) |  |  |  |  |  | 1 (0%) |
-| Musculoskeletal and connective tissue disorders |  |  | 1 (0%) |  |  |  | 1 (0%) |
-| Neoplasms benign, malignant, and unspecified | 1 (0%) | 2 (1%) | 1 (0%) |  |  |  | 4 (2%) |
-| Pregnancy, puerperium and perinatal conditions | 1 (0%) | 5 (2%) |  | 1 (0%) |  |  | 7 (4%) |
-| Psychiatric disorders |  |  | 1 (0%) |  |  |  | 1 (0%) |
-| Renal and urinary disorders |  |  | 1 (0%) |  |  |  | 1 (0%) |
-| Respiratory, thoracic and mediastinal disorders |  |  |  | 1 (0%) | 1 (0%) |  | 2 (1%) |
-| Skin and subcutaneous tissue disorders | 1 (0%) | 1 (0%) |  |  |  |  | 2 (1%) |
-| Social circumstances | 2 (1%) | 2 (1%) | 1 (0%) | 1 (0%) |  |  | 6 (3%) |
-| Surgical and medical procedures | 2 (1%) | 1 (0%) | 1 (0%) | 1 (0%) |  |  | 5 (2%) |
-| Vascular disorders |  |  | 1 (0%) | 1 (0%) |  |  | 2 (1%) |
+| AE Term (HLGT) | G1 | G2 | G3 | G4 | G5 | NA | Tot |
+| Benign neoplasms | 1 (0%) | 2 (1%) |  |  |  |  | 3 (2%) |
+| Bile duct disorders |  |  |  | 1 (0%) |  |  | 1 (0%) |
+| Bone marrow disorders |  |  |  | 1 (0%) |  |  | 1 (0%) |
+| Breastfeeding issues |  | 1 (0%) |  |  |  |  | 1 (0%) |
+| Cardiac arrhythmias |  |  |  | 1 (0%) |  |  | 1 (0%) |
+| Cardiac valve disorders |  | 1 (0%) | 2 (1%) |  |  |  | 3 (2%) |
+| Chromosomal abnormalities |  | 2 (1%) |  | 1 (0%) |  |  | 3 (2%) |
+| Coagulation and bleeding analyses |  |  | 1 (0%) |  |  |  | 1 (0%) |
+| Congenital nervous system disorders | 2 (1%) | 1 (0%) |  |  |  |  | 3 (2%) |
+| Corneal disorders |  | 1 (0%) |  |  |  |  | 1 (0%) |
+| Cultural issues | 1 (0%) |  |  | 1 (0%) |  |  | 2 (1%) |
+| Economic conditions affecting care |  | 1 (0%) |  |  |  |  | 1 (0%) |
+| Esophageal disorders |  |  |  | 1 (0%) |  |  | 1 (0%) |
+| Eyelid disorders |  |  | 1 (0%) |  |  |  | 1 (0%) |
+| Family support issues | 1 (0%) |  | 1 (0%) |  |  |  | 2 (1%) |
+| Fetal complications |  | 3 (2%) |  | 1 (0%) |  |  | 4 (2%) |
+| Gastric disorders | 1 (0%) |  |  |  |  |  | 1 (0%) |
+| Hepatic failure | 1 (0%) |  |  |  |  |  | 1 (0%) |
+| Hereditary connective tissue disorders | 1 (0%) |  |  |  |  |  | 1 (0%) |
+| Hypersensitivity conditions | 2 (1%) |  |  |  |  |  | 2 (1%) |
+| Hypertension-related conditions |  |  | 1 (0%) |  |  |  | 1 (0%) |
+| Inflammatory responses | 1 (0%) |  |  | 1 (0%) |  |  | 2 (1%) |
+| Intestinal disorders | 1 (0%) |  |  |  |  |  | 1 (0%) |
+| Labor and delivery complications | 1 (0%) |  |  |  |  |  | 1 (0%) |
+| Liver function analyses | 1 (0%) |  |  |  |  |  | 1 (0%) |
+| Lung function disorders |  |  | 1 (0%) |  |  |  | 1 (0%) |
+| Mood disorders |  |  | 1 (0%) |  |  |  | 1 (0%) |
+| Muscle disorders |  |  | 1 (0%) |  |  |  | 1 (0%) |
+| Neoplasms unspecified |  |  | 1 (0%) |  |  |  | 1 (0%) |
+| Pleural disorders |  |  |  |  | 1 (0%) |  | 1 (0%) |
+| Poisonings |  | 1 (0%) |  |  |  |  | 1 (0%) |
+| Pregnancy complications |  | 1 (0%) |  |  |  |  | 1 (0%) |
+| Pulmonary vascular disorders |  |  |  | 1 (0%) |  |  | 1 (0%) |
+| Radiation-related toxicities |  | 1 (0%) |  |  |  |  | 1 (0%) |
+| Retinal disorders |  | 1 (0%) |  |  |  |  | 1 (0%) |
+| Skin and subcutaneous tissue injuries | 1 (0%) | 1 (0%) |  |  |  |  | 2 (1%) |
+| Social and environmental issues |  | 1 (0%) |  |  |  |  | 1 (0%) |
+| Surgical complications |  | 1 (0%) | 1 (0%) |  |  |  | 2 (1%) |
+| Therapeutic procedures | 2 (1%) |  |  | 1 (0%) |  |  | 3 (2%) |
+| Thyroid gland disorders |  |  | 1 (0%) | 1 (0%) |  |  | 2 (1%) |
+| Urethral disorders |  |  | 1 (0%) |  |  |  | 1 (0%) |
+| Vascular hemorrhagic disorders |  |  |  | 1 (0%) |  |  | 1 (0%) |
+| Vitamin deficiencies | 1 (0%) |  |  |  |  |  | 1 (0%) |
 | No Declared AE |  |  |  |  |  | 144 (72%) | 144 (72%) |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients whose maximum SAE grade was as indicated. |  |  |  |  |  |  |  |
@@ -382,7 +405,8 @@ la sortie *AE_SOC5*.
 
 ``` r
 
-ae_table_soc(df_ae=ae, df_enrol=enrolres, term=NULL, arm="arm", sort_by_count=FALSE) %>% 
+ae_table_soc(data_ae=ae, data_pat=enrolres, group1="aesoc", group2=NULL, arm="arm", 
+             sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
   add_footer_lines("Percentages reflect the proportion of patients whose maximum AE grade was as indicated.")
@@ -390,7 +414,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, term=NULL, arm="arm", sort_by_count=FA
 
 |  | Control (N=100) |  |  |  |  |  |  | Treatment (N=100) |  |  |  |  |  |  |
 |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
-| CTCAE SOC | G1 | G2 | G3 | G4 | G5 | NA | Tot | G1 | G2 | G3 | G4 | G5 | NA | Tot |
+| AE SOC | G1 | G2 | G3 | G4 | G5 | NA | Tot | G1 | G2 | G3 | G4 | G5 | NA | Tot |
 | Blood and lymphatic system disorders |  | 1 (1%) | 1 (1%) | 1 (1%) |  |  | 3 (3%) | 3 (3%) | 2 (2%) | 2 (2%) |  |  |  | 7 (7%) |
 | Cardiac disorders | 7 (7%) | 3 (3%) | 4 (4%) |  |  |  | 14 (14%) | 4 (4%) | 1 (1%) | 3 (3%) | 4 (4%) |  |  | 12 (12%) |
 | Congenital, familial and genetic disorders | 10 (10%) | 7 (7%) | 2 (2%) | 1 (1%) |  |  | 20 (20%) | 13 (13%) | 3 (3%) | 2 (2%) | 4 (4%) |  |  | 22 (22%) |
@@ -425,7 +449,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, term=NULL, arm="arm", sort_by_count=FA
 
 ``` r
 
-ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm", 
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm", group1="aesoc", group2="aeterm", 
              sort_by_count=FALSE) %>% 
   as_flextable() %>% 
   add_footer_lines("In the header, N represents the number of patients.") %>% 
@@ -434,7 +458,7 @@ ae_table_soc(df_ae=ae, df_enrol=enrolres, arm="arm", term="aeterm",
 
 |  |  | Control (N=100) |  |  |  |  |  |  | Treatment (N=100) |  |  |  |  |  |  |
 |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
-| CTCAE SOC | CTCAE v4.0 Term | G1 | G2 | G3 | G4 | G5 | NA | Tot | G1 | G2 | G3 | G4 | G5 | NA | Tot |
+| AE SOC | AE Term (HLGT) | G1 | G2 | G3 | G4 | G5 | NA | Tot | G1 | G2 | G3 | G4 | G5 | NA | Tot |
 | Blood and lymphatic system disorders | Bone marrow disorders |  |  |  | 1 (1%) |  |  | 1 (1%) |  |  |  |  |  |  |  |
 |  | Coagulation and bleeding analyses |  |  | 1 (1%) |  |  |  | 1 (1%) |  |  |  |  |  |  |  |
 |  | Hematologic neoplasms |  |  |  |  |  |  |  |  |  | 1 (1%) |  |  |  | 1 (1%) |

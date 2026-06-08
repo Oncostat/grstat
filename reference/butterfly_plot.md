@@ -1,45 +1,46 @@
 # Graphic representation of AEs by CTCAE SOC
 
+**\[stable\]**  
 Produces a graphic representation of AEs by CTCAE SOC.
 
 ## Usage
 
 ``` r
 butterfly_plot(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
+  data_pat,
   severe = NULL,
   sort_by = c("total", "severe"),
   range_min = NULL,
   arm = "ARM",
   subjid = "SUBJID",
-  soc = "AESOC"
+  group = "AESOC"
 )
 
-ae_plot_soc(df_ae, ..., df_enrol, severe, sort_by, range_min, arm, subjid, soc)
+ae_plot_soc(data_ae, ..., data_pat, severe, sort_by, range_min, arm, subjid, group)
 ```
 
 ## Arguments
 
-- df_ae:
+- data_ae:
 
-  adverse event dataset, one row per AE, containing subjid, soc, and
-  grade.
+  adverse event dataset, one row per AE, containing `subjid`, `grade`,
+  `group1`, and potentially `group2`.
 
 - ...:
 
   unused
 
-- df_enrol:
+- data_pat:
 
-  enrollment dataset, one row per patient, containing subjid (and arm if
-  needed). All patients should be in this dataset.
+  enrollment dataset, one row per patient, containing `subjid` (and
+  `arm` if needed). All patients should be in this dataset.
 
 - severe:
 
-  name of the logical column in `df_ae` telling whether an AE is severe.
-  Case-insensitive.
+  name of the logical column in `data_ae` telling whether an AE is
+  severe. Case-insensitive.
 
 - sort_by:
 
@@ -52,18 +53,18 @@ ae_plot_soc(df_ae, ..., df_enrol, severe, sort_by, range_min, arm, subjid, soc)
 
 - arm:
 
-  name of the treatment column in `df_enrol`. Case-insensitive. Can be
+  name of the treatment column in `data_pat`. Case-insensitive. Can be
   set to `NULL`.
 
 - subjid:
 
-  name of the patient ID in both `df_ae` and `df_enrol`.
+  name of the patient ID in both `data_ae` and `data_pat`.
   Case-insensitive.
 
-- soc:
+- group:
 
-  name of the SOC column in `df_ae`. Case-insensitive. Grade will be
-  considered 0 if missing (e.g. if patient if absent from `df_ae`).
+  name of the grouping column in `data_ae`. Case-insensitive. Usually,
+  the SOC. This is the variable that will be plotted on the y-axis.
 
 ## Value
 
@@ -87,12 +88,12 @@ attach(tm, warn.conflicts=FALSE)
 ae2 = ae %>%
   dplyr::mutate(serious = sae=="Yes")
 
-butterfly_plot(ae2, df_enrol=enrolres, range_min=0.5)
+butterfly_plot(ae2, data_pat=enrolres, range_min=0.5)
 
-butterfly_plot(ae2, df_enrol=head(enrolres,9), range_min=0.5)
+butterfly_plot(ae2, data_pat=head(enrolres,9), range_min=0.5)
 
 
 ae2 %>%
-  butterfly_plot(df_enrol=enrolres, severe="serious") +
+  butterfly_plot(data_pat=enrolres, severe="serious") +
   ggplot2::labs(caption="Darker areas represent Serious Adverse Events")
 ```

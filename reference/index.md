@@ -9,10 +9,10 @@
   [`as_flextable(`*`<ae_table_soc>`*`)`](https://oncostat.github.io/grstat/reference/ae_table_soc.md)
   **\[stable\]** : Summary tables for AE by SOC
 - [`ae_plot_grade()`](https://oncostat.github.io/grstat/reference/ae_plot_grade.md)
-  : Graphic representation of AEs
+  **\[stable\]** : Graphic representation of AEs
 - [`butterfly_plot()`](https://oncostat.github.io/grstat/reference/butterfly_plot.md)
   [`ae_plot_soc()`](https://oncostat.github.io/grstat/reference/butterfly_plot.md)
-  : Graphic representation of AEs by CTCAE SOC
+  **\[stable\]** : Graphic representation of AEs by CTCAE SOC
 
 ## Utils
 

@@ -1,5 +1,6 @@
 # Graphic representation of AEs
 
+**\[stable\]**  
 Produce a graphic representation of AE, counting AE as bars for each
 patient, colored by grade. Can be faceted by treatment arm.
 

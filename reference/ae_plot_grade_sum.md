@@ -1,16 +1,16 @@
 # Graphic representation of AEs
 
 **\[experimental\]**  
-Produce a graphic representation of AE, counting AE as bars for each
-patient, colored by grade. Can be faceted by treatment arm.
+Produce an alternative graphic representation of AE, counting AE as bars
+for each patient, colored by grade. Can be faceted by treatment arm.
 
 ## Usage
 
 ``` r
 ae_plot_grade_sum(
-  df_ae,
+  data_ae,
   ...,
-  df_enrol,
+  data_pat,
   low = "#ffc425",
   high = "#d11141",
   weights = NULL,
@@ -22,19 +22,19 @@ ae_plot_grade_sum(
 
 ## Arguments
 
-- df_ae:
+- data_ae:
 
-  adverse event dataset, one row per AE, containing subjid, soc, and
-  grade.
+  adverse event dataset, one row per AE, containing `subjid`, `grade`,
+  `group1`, and potentially `group2`.
 
 - ...:
 
   unused
 
-- df_enrol:
+- data_pat:
 
-  enrollment dataset, one row per patient, containing subjid (and arm if
-  needed). All patients should be in this dataset.
+  enrollment dataset, one row per patient, containing `subjid` (and
+  `arm` if needed). All patients should be in this dataset.
 
 - low:
 
@@ -50,16 +50,16 @@ ae_plot_grade_sum(
 
 - arm:
 
-  name of the treatment column in `df_enrol`. Case-insensitive. Can be
+  name of the treatment column in `data_pat`. Case-insensitive. Can be
   set to `NULL`.
 
 - grade:
 
-  name of the AE grade column in `df_ae`. Case-insensitive.
+  name of the AE grade column in `data_ae`. Case-insensitive.
 
 - subjid:
 
-  name of the patient ID in both `df_ae` and `df_enrol`.
+  name of the patient ID in both `data_ae` and `data_pat`.
   Case-insensitive.
 
 ## Value
@@ -79,9 +79,9 @@ a ggplot
 ``` r
 tm = grstat_example()
 attach(tm, warn.conflicts=FALSE)
-ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres)
+ae_plot_grade_sum(data_ae=ae, data_pat=enrolres)
 
-ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM")
+ae_plot_grade_sum(data_ae=ae, data_pat=enrolres, arm="ARM")
 
-ae_plot_grade_sum(df_ae=ae, df_enrol=enrolres, arm="ARM", weights=c(1,1,3,6,10))
+ae_plot_grade_sum(data_ae=ae, data_pat=enrolres, arm="ARM", weights=c(1,1,3,6,10))
 ```
