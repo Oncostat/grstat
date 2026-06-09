@@ -59,6 +59,7 @@ ae_table_grade = function(
   percent_digits = 0,
   zero_value = "0",
   total = TRUE,
+  ae_groups = NULL,
   na_strategy = list(display="always", grouped=TRUE),
   cols = c(grade="AEGR", subjid="SUBJID")
 ) {
@@ -79,6 +80,13 @@ ae_table_grade = function(
   assert_names_exists(na_strategy, c("display", "grouped"))
   assert_class(total, "logical")
 
+  lab_no_ae = glue("No {ae_label} reported")
+  lab_ae_na = "All grades missing"
+
+  default = list("Grade 1"=1, "Grade 2"=2, "Grade 3"=3, "Grade 4"=4, "Grade 5"=5)
+  default[[lab_no_ae]] = 0
+  default[[lab_ae_na]] = NA
+  ae_groups = .get_ae_groups(ae_groups, default=default)
   if (missing(total) && is.null(arm)) {
     total = FALSE
   }
@@ -91,7 +99,10 @@ ae_table_grade = function(
     percent_pattern = "{n}"
   }
 
-  params = lst(total, digits=percent_digits, zero_value, percent_pattern, ae_label)
+  arms = list(levels = levels(factor(df$arm)), label = get_label(df$arm))
+  arms = df %>% distinct(subjid, arm) %>% count(arm)
+  params = lst(total, digits=percent_digits, zero_value, percent_pattern, ae_label, ae_groups)
+
   # fmt: skip
   x = measure %>%
     map(~{
@@ -102,9 +113,6 @@ ae_table_grade = function(
         eq =  any_grade(df, params=params, type="eq")
       )
     })
-
-  arms = list(levels = levels(factor(df$arm)), label = get_label(df$arm))
-  arms = df %>% distinct(subjid, arm) %>% count(arm)
 
   rtn = bind_rows(x) %>%
     mutate(
@@ -283,29 +291,31 @@ max_grade = function(df, params) {
   lab_ae_na = "All grades missing"
   lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
 
-  a = df %>%
+  tmp = df %>%
     summarise(
       max_gr = max_narm(grade),
       .by = c(subjid, arm)
     ) %>%
-    mutate(max_gr = ifelse(!subjid %in% ae_id, 0, max_gr))
-  a %>%
-    .add_total_arm(do=params$total, label=lab_total) %>%
-    mutate(n_arm = n(), .by = arm) %>%
-    summarise(n = n(), p = n() / unify(n_arm), .by = c(arm, max_gr)) %>%
-    complete(arm, max_gr = c(0:5, NA), fill = list(n = 0, p = 0)) %>%
+    mutate(max_gr = ifelse(!subjid %in% ae_id, 0, max_gr)) %>%
+    .add_total_arm(do=params$total, label=lab_total)
+    
+  params$ae_groups %>% 
+    map(~{
+      tmp %>% 
+        summarise(
+          n = sum(max_gr %in% .x),
+          p = n / n(),
+          .by = arm
+      )
+    }) %>% 
+    bind_rows(.id="level") %>%
+    complete(arm, level = names(params$ae_groups), fill = list(n = 0, p = 0)) %>%
     mutate(
-      max_gr = case_when(
-        max_gr == 0 ~ lab_no_ae,
-        is.na(max_gr) ~ lab_ae_na,
-        .default = paste("Grade", max_gr)
-      ),
-      max_gr = max_gr %>% fct_relevel(lab_no_ae) %>% fct_last(lab_ae_na),
+      level = level %>% fct_relevel(lab_no_ae) %>% fct_last(lab_ae_na),
       np = np(n, p, digits=params$digits, zero_value=params$zero_value,
               pattern=params$percent_pattern),
       arm = fct_last(arm, lab_total)
-    ) %>%
-    rename(level = max_gr) %>%
+    ) %>% 
     arrange(arm, level) %>%
     pivot_wider(id_cols = level, names_from = arm, values_from = np) %>%
     mutate(
