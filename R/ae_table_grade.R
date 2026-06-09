@@ -98,8 +98,8 @@ ae_table_grade = function(
       switch(
         .x,
         max = max_grade(df, params=params),
-        sup = any_grade(df, f=.calc_any_grade_sup, params=params),
-        eq =  any_grade(df, f=.calc_any_grade_eq, params=params)
+        sup = any_grade(df, params=params, type="sup"),
+        eq =  any_grade(df, params=params, type="eq")
       )
     })
 
@@ -316,20 +316,17 @@ max_grade = function(df, params) {
 
 #' @importFrom purrr map
 #' @importFrom rlang set_names
-.calc_any_grade_eq = function(grade, included) {
-  rtn = seq(5) %>%
-    set_names(~ paste0("Grade ", .x)) %>%
-    map(~ any(grade == .x, na.rm = TRUE))
-  rtn[["Some grades missing"]] = all(included) & any(is.na(grade))
-  rtn[["no_ae"]] = !all(included)
-  rtn
-}
-#' @importFrom purrr map
-#' @importFrom rlang set_names
-.calc_any_grade_sup = function(grade, included) {
-  rtn = seq(5) %>%
-    set_names(~ paste("Grade", ifelse(.x==5, "=", "\u2265"), .x)) %>%
-    map(~ any(grade >= .x, na.rm = TRUE))
+.calc_any_grade = function(grade, included, type=c("sup", "eq")) {
+  type = match.arg(type)
+  if(type=="sup"){
+    rtn = seq(5) %>%
+      set_names(~ paste("Grade", ifelse(.x==5, "=", "\u2265"), .x)) %>%
+      map(~ any(grade >= .x, na.rm = TRUE))
+  } else {
+    rtn = seq(5) %>%
+      set_names(~ paste0("Grade ", .x)) %>%
+      map(~ any(grade == .x, na.rm = TRUE))
+  }
   rtn[["Some grades missing"]] = all(included) & any(is.na(grade))
   rtn[["no_ae"]] = !all(included)
   rtn
@@ -342,9 +339,9 @@ max_grade = function(df, params) {
 #' @importFrom rlang caller_arg
 #' @importFrom stringr str_replace
 #' @importFrom tidyr pivot_wider unnest_longer
-any_grade = function(df, f, params) {
+any_grade = function(df, type, params) {
   ae_id = attr(df, "ae_id")
-  id = if(caller_arg(f)==".calc_any_grade_sup") "any_grade_sup" else "any_grade_eq"
+  id = if(type=="sup") "any_grade_sup" else "any_grade_eq"
   lab_no_ae = glue("No {params$ae_label} reported")
   lab_ae_na = "Some grades missing"
   lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
@@ -352,7 +349,7 @@ any_grade = function(df, f, params) {
   df %>%
     .add_total_arm(do=params$total, label=lab_total) %>%
     summarise(
-      tmp = list(f(grade, subjid %in% ae_id)),
+      tmp = list(.calc_any_grade(grade, included=(subjid %in% ae_id), type=type)),
       .by = c(subjid, arm)
     ) %>%
     unnest_longer(tmp, indices_to = "level") %>%
