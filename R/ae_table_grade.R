@@ -81,11 +81,10 @@ ae_table_grade = function(
   assert_class(total, "logical")
 
   lab_no_ae = glue("No {ae_label} reported")
-  lab_ae_na = "All grades missing"
 
   default = list("Grade 1"=1, "Grade 2"=2, "Grade 3"=3, "Grade 4"=4, "Grade 5"=5)
   default[[lab_no_ae]] = 0
-  default[[lab_ae_na]] = NA
+  default[["TMP_MISSING"]] = NA
   ae_groups = .get_ae_groups(ae_groups, default=default)
   if (missing(total) && is.null(arm)) {
     total = FALSE
@@ -101,7 +100,8 @@ ae_table_grade = function(
 
   arms = list(levels = levels(factor(df$arm)), label = get_label(df$arm))
   arms = df %>% distinct(subjid, arm) %>% count(arm)
-  params = lst(total, digits=percent_digits, zero_value, percent_pattern, ae_label, ae_groups)
+  params = lst(total, digits=percent_digits, zero_value, percent_pattern, 
+               ae_label, ae_groups, lab_no_ae)
 
   # fmt: skip
   x = measure %>%
@@ -287,7 +287,6 @@ np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
 #' @importFrom tidyr complete pivot_wider
 max_grade = function(df, params) {
   ae_id = attr(df, "ae_id")
-  lab_no_ae = glue("No {params$ae_label} reported")
   lab_ae_na = "All grades missing"
   lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
 
@@ -311,7 +310,8 @@ max_grade = function(df, params) {
     bind_rows(.id="level") %>%
     complete(arm, level = names(params$ae_groups), fill = list(n = 0, p = 0)) %>%
     mutate(
-      level = level %>% fct_relevel(lab_no_ae) %>% fct_last(lab_ae_na),
+      level = level %>% fct_recode(!!lab_ae_na := "TMP_MISSING") %>% 
+        fct_relevel(params$lab_no_ae) %>% fct_last(lab_ae_na),
       np = np(n, p, digits=params$digits, zero_value=params$zero_value,
               pattern=params$percent_pattern),
       arm = fct_last(arm, lab_total)
