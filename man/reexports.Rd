@@ -13,10 +13,10 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{dplyr}{\code{\link[dplyr:reexports]{\%>\%}}}
+  \item{dplyr}{\code{\link[dplyr:\%>\%]{\%>\%}}}
 
-  \item{flextable}{\code{\link[flextable]{as_flextable}}}
+  \item{flextable}{\code{\link[flextable:as_flextable]{as_flextable()}}}
 
-  \item{tibble}{\code{\link[tibble]{tibble}}}
+  \item{tibble}{\code{\link[tibble:tibble]{tibble()}}}
 }}
 

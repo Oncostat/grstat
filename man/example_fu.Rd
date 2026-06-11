@@ -8,10 +8,10 @@ example_fu(
   enrolres,
   recist,
   seed,
-  lambda_censor = 0.3,
+  lambda_censor = 0.2,
   lambda_control = 0.2,
   beta_arm = -0.6,
-  beta_prog_status = 0.5,
+  beta_prog_status = 2,
   ...
 )
 }
@@ -22,18 +22,24 @@ example_fu(
 
 \item{seed}{Integer. Random seed for reproducibility (can be \code{NULL}).}
 
+\item{lambda_censor}{numeric. Rate parameter of an exponential distribution used to simulate censoring times.}
+
+\item{lambda_control}{numeric. Scale parameter of an exponential baseline hazard function.}
+
+\item{beta_arm}{numeric. Parameter associated to the treatment effect.}
+
+\item{beta_prog_status}{numeric. Parameter associated to a known progression on a RECIST assessment.}
+
 \item{...}{Additional arguments (currently unused).}
-
-\item{censor_min_days}{minimum time in days between last RECIST evaluation and administrative censoring}
-
-\item{censor_max_days}{maximum time in days between last RECIST evaluation and administrative censoring}
 }
 \value{
 A tibble with \code{N} rows and the following columns:
 \itemize{
 \item \code{subjid}: Subject ID
-\item \code{fu_status}: Status of the patient (0 - Alive/Censored , 1 - Dead)
-\item \code{fu_date}: Date of latest news (death date if dead, otherwise censoring date)
+\item \code{pfs_status}: Progression-free survival status of the patient
+\item \code{pfs_date}: Date of latest news before progression/death
+\item \code{os_status}: Overall survival status of the patient (0 - Alive/Censored , 1 - Dead)
+\item \code{os_date}: Date of latest news (death date if dead, otherwise censoring date)
 }
 }
 \description{

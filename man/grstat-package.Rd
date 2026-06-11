@@ -20,9 +20,14 @@ Useful links:
 \author{
 \strong{Maintainer}: Dan Chaltiel \email{dan.chaltiel@gustaveroussy.fr} (\href{https://orcid.org/0000-0003-3488-779X}{ORCID})
 
+Authors:
+\itemize{
+  \item Dan Chaltiel \email{dan.chaltiel@gustaveroussy.fr} (\href{https://orcid.org/0000-0003-3488-779X}{ORCID})
+}
+
 Other contributors:
 \itemize{
-  \item Team Oncostat (01ed4t417) [copyright holder, funder]
+  \item Team Oncostat (\href{https://ror.org/01ed4t417}{ROR}) [copyright holder, funder]
   \item Baptiste Archambaud \email{baptiste.archambaud@gustaveroussy.fr} [contributor]
   \item Charlotte Bargain \email{charlotte.bargain@gustaveroussy.fr} [contributor]
   \item Aldéric Fraslin \email{alderic.fraslin@gustaveroussy.fr} (\href{https://orcid.org/0000-0003-2235-0012}{ORCID}) [contributor]

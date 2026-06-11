@@ -14,6 +14,7 @@ example_rc(
   rc_p_nt_lesions_resp = list(CR = 0.73, SD = 0.25, PD = 0.01, NE = 0.01),
   rc_sd_tlsum_noise = 0.5,
   rc_coef_treatement = 3,
+  rc_subj_delai = 42,
   ...
 )
 }

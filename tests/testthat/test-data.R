@@ -98,6 +98,19 @@ test_that("RECIST plots", {
   rc = db$recist %>%
     left_join(x$enrolres, by="subjid", suffix=c("_bak", ""))
 
+  data_km = rc %>%
+    summarise(
+      date_pd = min_narm(rcdt[rcresp=="Progressive disease"]),
+      last_date = max_narm(rcdt),
+      .by=subjid
+    ) %>%
+    left_join(db$enrolres, by="subjid", suffix=c("_rc", "")) %>%
+    mutate(
+      date_pfs = pmin(date_pd, last_date, na.rm=TRUE),
+      time_pfs = as.numeric(date_pfs - date_inclusion)/30.4,
+      event_pfs = !is.na(date_pd)
+    )
+
   # KM plot
   km = survival::survfit(survival::Surv(time_pfs, event_pfs) ~ arm, data=data_km)
   ggsurvfit::ggsurvfit(km) +

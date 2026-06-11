@@ -11,7 +11,7 @@ grstat_example(N = 200, seed = 42, ...)
 
 \item{seed}{the random seed (can be \code{NULL})}
 
-\item{...}{passed on to internal functions. See \code{\link[=example_enrol]{example_enrol()}},  \code{\link[=example_ae]{example_ae()}}, and  \code{\link[=example_rc]{example_rc()}} for the argument names.}
+\item{...}{passed on to internal functions. See \code{\link[=example_enrol]{example_enrol()}},  \code{\link[=example_ae]{example_ae()}}, \code{\link[=example_rc]{example_rc()}}, and \code{\link[=example_fu]{example_fu()}} for the argument names.}
 }
 \value{
 A list of datasets, like in EDCimport.

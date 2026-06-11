@@ -26,7 +26,7 @@ ae_plot_grade(
 
 \item{variant}{one or several of \code{c("max", "sup", "eq")}. \code{max} computes the maximum AE grade per patient, \code{sup} computes the number of patients having experienced at least one AE of grade higher or equal to X, and \code{eq} computes the number of patients having experienced at least one AE of grade equal to X.}
 
-\item{position}{Position adjustment (cf. \code{\link[ggplot2:geom_bar]{ggplot2::geom_col()}})}
+\item{position}{Position adjustment (cf. \code{\link[ggplot2:geom_col]{ggplot2::geom_col()}})}
 
 \item{type}{whether to present patients as proportions (\code{relative}) or as counts (\code{absolute})}
 
