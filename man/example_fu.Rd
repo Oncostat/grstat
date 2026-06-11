@@ -8,10 +8,10 @@ example_fu(
   enrolres,
   recist,
   seed,
-  lambda_censor = 0.2,
-  lambda_control = 0.2,
-  beta_arm = -0.6,
-  beta_prog_status = 2,
+  fu_lambda_censor = 0.2,
+  fu_lambda_control = 0.2,
+  fu_beta_arm = -0.6,
+  fu_beta_prog_status = 2,
   ...
 )
 }
@@ -22,13 +22,13 @@ example_fu(
 
 \item{seed}{Integer. Random seed for reproducibility (can be \code{NULL}).}
 
-\item{lambda_censor}{numeric. Rate parameter of an exponential distribution used to simulate censoring times.}
+\item{fu_lambda_censor}{numeric. Rate parameter of an exponential distribution used to simulate censoring times.}
 
-\item{lambda_control}{numeric. Scale parameter of an exponential baseline hazard function.}
+\item{fu_lambda_control}{numeric. Scale parameter of an exponential baseline hazard function.}
 
-\item{beta_arm}{numeric. Parameter associated to the treatment effect.}
+\item{fu_beta_arm}{numeric. Parameter associated to the treatment effect.}
 
-\item{beta_prog_status}{numeric. Parameter associated to a known progression on a RECIST assessment.}
+\item{fu_beta_prog_status}{numeric. Parameter associated to a known progression on a RECIST assessment.}
 
 \item{...}{Additional arguments (currently unused).}
 }

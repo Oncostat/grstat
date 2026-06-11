@@ -304,10 +304,10 @@ example_rc = function(enrolres, seed,
 #' @param enrolres the enrolment result table, from [example_enrol()].
 #' @param recist the recist table with progression date, from [example_rc()].
 #' @param seed Integer. Random seed for reproducibility (can be `NULL`).
-#' @param lambda_censor numeric. Rate parameter of an exponential distribution used to simulate censoring times.
-#' @param lambda_control numeric. Scale parameter of an exponential baseline hazard function.
-#' @param beta_arm numeric. Parameter associated to the treatment effect.
-#' @param beta_prog_status numeric. Parameter associated to a known progression on a RECIST assessment.
+#' @param fu_lambda_censor numeric. Rate parameter of an exponential distribution used to simulate censoring times.
+#' @param fu_lambda_control numeric. Scale parameter of an exponential baseline hazard function.
+#' @param fu_beta_arm numeric. Parameter associated to the treatment effect.
+#' @param fu_beta_prog_status numeric. Parameter associated to a known progression on a RECIST assessment.
 #' @param ... Additional arguments (currently unused).
 #'
 #' @return A tibble with `N` rows and the following columns:
@@ -324,40 +324,32 @@ example_rc = function(enrolres, seed,
 #' @importFrom stats rexp
 #' @importFrom forcats as_factor fct_recode
 example_fu = function(enrolres, recist, seed,
-                      lambda_censor = 0.2, lambda_control = 0.2,
-                      beta_arm = -0.6, beta_prog_status = 2, ...){
+                      fu_lambda_censor = 0.2, fu_lambda_control = 0.2,
+                      fu_beta_arm = -0.6, fu_beta_prog_status = 2, ...){
 
   stopifnot(is.data.frame(enrolres), is.data.frame(recist))
-  if (!all(c("subjid", "date_inclusion") %in% names(enrolres))) {
-    stop("`enrolres` must contain columns `subjid` and `date_inclusion`.")
-  }
-  if (!all(c("subjid", "rcdt", "rcresp") %in% names(recist))) {
-    stop("`recist` must contain columns `subjid`, `rcdt` (date of RECIST evaluation) and `rcresp` (RECIST global response).")
-  }
-  if(!("arm" %in% names(enrolres))) {
-    stop("`enrolres` must contain `arm`.")
-  }
-  if(!is.null(seed)) { set.seed(seed) }
+  assert_names_exists(enrolres, c("subjid", "date_inclusion", "arm"))
+  assert_names_exists(recist, c("subjid", "rcdt", "rcresp"))
 
-  enrolres = enrolres %>% arrange(subjid)
-  recist = recist %>% arrange(subjid)
+  assert_not_null(seed)
+  set.seed(seed)
 
-  prog_status = .progression_status(recist)
-  progression_date = .progression_date(recist)
+  data_progression_status = .progression_status(recist)
+  data_progression_date = .progression_date(recist)
 
   # Survival rate assigned for each subject, according to arm of treatment and progression status
-  lambda = .surv_coef(arm = enrolres$arm, prog_status = prog_status$status,
-                      lambda_control = lambda_control, beta_arm = beta_arm,
-                      beta_prog_status = beta_prog_status)
+  lambda = .surv_coef(arm = enrolres$arm, prog_status = data_progression_status$status,
+                      fu_lambda_control = fu_lambda_control, fu_beta_arm = fu_beta_arm,
+                      fu_beta_prog_status = fu_beta_prog_status)
 
   time_to_death = rexp(n = nrow(enrolres), rate = lambda)
-  time_to_censor = rexp(n = nrow(enrolres), rate = lambda_censor)
+  time_to_censor = rexp(n = nrow(enrolres), rate = fu_lambda_censor)
 
   fu_data = enrolres %>%
 
     select(subjid, date_inclusion) %>%
-    left_join(prog_status, by = join_by(subjid)) %>%
-    left_join(progression_date, by = join_by(subjid)) %>%
+    left_join(data_progression_status, by = join_by(subjid)) %>%
+    left_join(data_progression_date, by = join_by(subjid)) %>%
 
     mutate(
       date_inclusion = as.Date(date_inclusion),
@@ -383,6 +375,7 @@ example_fu = function(enrolres, recist, seed,
                         true = death_date,
                         false = censoring_date)
     ) %>%
+    arrange(subjid) %>%
     select(subjid, pfs_status, pfs_date, os_status, os_date) %>%
     apply_labels(subjid = "Subject ID",
                  pfs_status = "Status PFS",
@@ -408,16 +401,15 @@ example_fu = function(enrolres, recist, seed,
 .progression_status = function(recist) {
 
   stopifnot(is.data.frame(recist))
-  if (!all(c("subjid", "rcresp") %in% names(recist))) {
-    stop("`recist` must contain columns `subjid`, and `rcresp` (RECIST global response).")
-  }
+  assert_names_exists(recist, c("subjid", "rcresp"))
 
-  rcresp_levels = levels(recist$rcresp)
-  if (!"Progressive disease" %in% rcresp_levels) { stop("One level of `rcresp_levels` must be 'Progressive disease'. Found: ", paste(rcresp_levels, collapse = ", ")) }
+  if(!any(recist$rcresp == "Progressive disease")) {
+    cli::cli_abort("No patient has 'Progressive disease' in `recist$rcresp`.")
+  }
 
   progression_status = recist %>%
     select(subjid, rcresp) %>%
-    summarise(status = any(rcresp == "Progressive disease"), .by = 'subjid') %>%
+    summarise(status = any(rcresp == "Progressive disease", na.rm = TRUE), .by = 'subjid') %>%
     mutate(status = as_factor(if_else(!is.na(status),
                                       true = "Progressive disease",
                                       false = "No progression")))
@@ -434,6 +426,11 @@ example_fu = function(enrolres, recist, seed,
 .progression_date = function(recist) {
 
   stopifnot(is.data.frame(recist))
+  assert_names_exists(recist, c("subjid", "rcresp", "rcdt"))
+
+  if(!any(recist$rcresp == "Progressive disease")) {
+    cli::cli_abort("No patient has 'Progressive disease' in `recist$rcresp`.")
+  }
 
   progression_date = recist %>%
     summarise(
@@ -448,39 +445,23 @@ example_fu = function(enrolres, recist, seed,
 #' Assign a survival rate parameter (exponential lambda) for each patient, depending on treatment and progression status
 #' @param arm factor vector of treatment arms (`Control` versus `Treatment`)
 #' @param prog_status factor vector of progression status (`No progressive disease` versus `progressive disease`)
-#' @param lambda_control scale parameter of an exponential baseline hazard function
-#' @param beta_arm parameter associated to the treatment effect
-#' @param beta_prog_status parameter associated to a known progression on a RECIST assessment
+#' @param fu_lambda_control scale parameter of an exponential baseline hazard function
+#' @param fu_beta_arm parameter associated to the treatment effect
+#' @param fu_beta_prog_status parameter associated to a known progression on a RECIST assessment
 #' @return numeric vector of rates (lambda) per subject, aligned with `arm` and `prog_status`
 #' @noRd
 #' @keywords internal
-.surv_coef = function(arm, prog_status, lambda_control, beta_arm, beta_prog_status) {
+.surv_coef = function(arm, prog_status, fu_lambda_control, fu_beta_arm, fu_beta_prog_status) {
 
-  if(is.null(arm)) {stop("`arm` is NULL.")}
-  if(is.null(prog_status)) {stop("`prog_status` is NULL.")}
+  assert_not_null(arm)
+  assert_not_null(prog_status)
 
-  if(!is.factor(arm)) arm = as_factor(arm)
-  if(!is.factor(prog_status)) prog_status = mutate(prog_status, status = as_factor(status))
+  if(nlevels(arm) != 2) {
+    cli::cli_abort("Number of arm of treatment must be 2 (`Control` versus `Treatment`")
+  }
 
-  arm_levels = levels(arm)
-  n_arm = nlevels(arm)
-  if (!"Control" %in% arm_levels) { stop("One level of `arm` must be 'Control'. Found: ", paste(arm_levels, collapse = ", ")) }
-
-  prog_status_levels = levels(prog_status)
-  n_prog_status = nlevels(prog_status)
-  if (!"Progressive disease" %in% prog_status_levels) { stop("One level of `prog_status` must be 'Progressive disease'. Found: ", paste(prog_status_levels, collapse = ", ")) }
-
-
-  if(n_arm == 2 & n_prog_status == 2) { # "Control" versus "Treatment" and "Progressive disease" versus "No Progressive disease (stable or response)"
-
-    if (!"Treatment" %in% arm_levels) { stop("One level of `arm` must be 'Treatment'. Found: ", paste(arm_levels, collapse = ", ")) }
-
-    beta = beta_arm*(arm == "Treatment") + beta_prog_status*(prog_status == "Progressive disease")
-    lambda = lambda_control * exp(beta)
-
-  } else if(n_arm != 2) { stop("Wrong number of arms of treatment: ", n_arm, ". Only two arms of treatment are supported.")
-  } else if(n_prog_status != 2) { stop("Wrong number of progression status: ", n_prog_status, ". Progression status must be a binary variable.")}
-
+  beta = fu_beta_arm*(arm == "Treatment") + fu_beta_prog_status*(prog_status == "Progressive disease")
+  lambda = fu_lambda_control * exp(beta)
   lambda
 }
 
