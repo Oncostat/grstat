@@ -54,35 +54,43 @@ ae_table_grade = function(
   data_pat,
   measure = c("max", "sup", "eq"),
   arm = NULL,
-  grade = "AEGR",
-  subjid = "SUBJID",
   ae_label = "AE",
   percent_pattern = "{n} ({p}%)",
   percent_digits = 0,
   zero_value = "0",
   total = TRUE,
-  na_strategy = list(display="always", grouped=TRUE)
+  ae_groups = NULL,
+  na_strategy = list(display="always", grouped=TRUE),
+  cols = c(grade="AEGR", subjid="SUBJID")
 ) {
   dots = list(...)
   data_ae = if(has_name(dots, "df_ae")) dots$df_ae else data_ae
   data_pat = if(has_name(dots, "df_enrol")) dots$df_enrol else data_pat
   measure = if(has_name(dots, "variant")) dots$variant else measure
   percent_digits = if(has_name(dots, "digits")) dots$digits else percent_digits
+  cols = as.list(cols)
+  cols$grade = if(has_name(dots, "grade")) dots$grade else cols$grade
+  cols$subjid = if(has_name(dots, "subjid")) dots$subjid else cols$subjid
+  cols$arm = arm
   if(has_name(dots, "percent")){
     percent_pattern = if(isFALSE(dots$percent)) "{n}" else "{n} ({p}%)"
   }
   na_strategy = if(is_missing(na_strategy)) na_strategy else getOption("ae_table_grade_na_strategy", na_strategy)
-  check_dots_empty2(except = c("df_ae", "df_enrol", "variant", "percent", "digits"))
-  assert_names_exists(data_ae, lst(subjid, grade))
-  assert_names_exists(data_pat, lst(subjid, arm))
+  check_dots_empty2(except = c("df_ae", "df_enrol", "variant", "percent", "digits", "grade", "subjid"))
   assert_names_exists(na_strategy, c("display", "grouped"))
   assert_class(total, "logical")
 
+  lab_no_ae = glue("No {ae_label} reported")
+
+  default = list("Grade 1"=1, "Grade 2"=2, "Grade 3"=3, "Grade 4"=4, "Grade 5"=5)
+  default[[lab_no_ae]] = 0
+  default[["TMP_MISSING"]] = NA
+  ae_groups = .get_ae_groups(ae_groups, default=default)
   if (missing(total) && is.null(arm)) {
     total = FALSE
   }
 
-  df = .base_ae_table(data_ae, data_pat, arm, grade, subjid)
+  df = .data_ae_table_grade(data_ae, data_pat, cols)
 
   if(isFALSE(percent)){
     lifecycle::deprecate_warn("0.1.0.9015", "ae_table_grade(percent)",
@@ -90,20 +98,21 @@ ae_table_grade = function(
     percent_pattern = "{n}"
   }
 
-  params = lst(total, digits=percent_digits, zero_value, percent_pattern, ae_label)
+  arms = list(levels = levels(factor(df$arm)), label = get_label(df$arm))
+  arms = df %>% distinct(subjid, arm) %>% count(arm)
+  params = lst(total, digits=percent_digits, zero_value, percent_pattern, 
+               ae_label, ae_groups, lab_no_ae)
+
   # fmt: skip
   x = measure %>%
     map(~{
       switch(
         .x,
         max = max_grade(df, params=params),
-        sup = any_grade(df, f=.calc_any_grade_sup, params=params),
-        eq =  any_grade(df, f=.calc_any_grade_eq, params=params)
+        sup = any_grade(df, params=params, type="sup"),
+        eq =  any_grade(df, params=params, type="eq")
       )
     })
-
-  arms = list(levels = levels(factor(df$arm)), label = get_label(df$arm))
-  arms = df %>% distinct(subjid, arm) %>% count(arm)
 
   rtn = bind_rows(x) %>%
     mutate(
@@ -208,27 +217,30 @@ as_flextable.ae_table_grade = function(x, ..., padding_v = NULL) {
 
 #' @importFrom cli cli_abort
 #' @importFrom dplyr all_of any_of arrange left_join mutate rename_with select
-.base_ae_table = function(data_ae, data_pat, arm, grade, subjid) {
+.data_ae_table_grade = function(data_ae, data_pat, cols) {
   data_ae = data_ae %>%
     rename_with(tolower) %>%
-    select(subjid = all_of(tolower(subjid)), grade = all_of(tolower(grade)))
+    select(subjid = all_of(tolower(cols$subjid)), grade = all_of(tolower(cols$grade)))
 
   default_arm = set_label("All patients", "Treatment arm")
   data_pat = data_pat %>%
     rename_with(tolower) %>%
-    select(subjid = all_of(tolower(subjid)), arm = any_of(tolower(arm))) %>%
-    mutate(arm = if (is.null(.env$arm)) default_arm else .data$arm)
+    select(subjid = all_of(tolower(cols$subjid)), arm = any_of(tolower(cols$arm))) %>%
+    mutate(arm = if (is.null(cols$arm)) default_arm else .data$arm)
+
+  assert_names_exists(data_ae, c("subjid", "grade"))
+  assert_names_exists(data_pat, c("subjid", "arm"))
 
   if (!is.numeric(data_ae$grade)) {
     cli_abort(
-      "Grade ({.val {grade}}) must be a {.cls numeric} column, not a {.cls {class(data_ae$grade)}}.",
+      "Grade ({.val {cols$grade}}) must be a {.cls numeric} column, not a {.cls {class(data_ae$grade)}}.",
       class = "ae_table_grade_not_num"
     )
   }
   if (any(!data_ae$grade %in% c(1:5, NA), na.rm = TRUE)) {
     cli_abort(
       c(
-        "Grade ({.val {grade}}) must be an integer between 1 and 5.",
+        "Grade ({.val {cols$grade}}) must be an integer between 1 and 5.",
         i = "Wrong values: {.val {setdiff(data_ae$grade, 1:5)}}"
       ),
       class = "ae_table_grade_not_1to5"
@@ -275,33 +287,35 @@ np = function(n, p, digits=0, zero_value="0", pattern="{n} ({p}%)") {
 #' @importFrom tidyr complete pivot_wider
 max_grade = function(df, params) {
   ae_id = attr(df, "ae_id")
-  lab_no_ae = glue("No {params$ae_label} reported")
   lab_ae_na = "All grades missing"
   lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
 
-  a = df %>%
+  tmp = df %>%
     summarise(
       max_gr = max_narm(grade),
       .by = c(subjid, arm)
     ) %>%
-    mutate(max_gr = ifelse(!subjid %in% ae_id, 0, max_gr))
-  a %>%
-    .add_total_arm(do=params$total, label=lab_total) %>%
-    mutate(n_arm = n(), .by = arm) %>%
-    summarise(n = n(), p = n() / unify(n_arm), .by = c(arm, max_gr)) %>%
-    complete(arm, max_gr = c(0:5, NA), fill = list(n = 0, p = 0)) %>%
+    mutate(max_gr = ifelse(!subjid %in% ae_id, 0, max_gr)) %>%
+    .add_total_arm(do=params$total, label=lab_total)
+    
+  params$ae_groups %>% 
+    map(~{
+      tmp %>% 
+        summarise(
+          n = sum(max_gr %in% .x),
+          p = n / n(),
+          .by = arm
+      )
+    }) %>% 
+    bind_rows(.id="level") %>%
+    complete(arm, level = names(params$ae_groups), fill = list(n = 0, p = 0)) %>%
     mutate(
-      max_gr = case_when(
-        max_gr == 0 ~ lab_no_ae,
-        is.na(max_gr) ~ lab_ae_na,
-        .default = paste("Grade", max_gr)
-      ),
-      max_gr = max_gr %>% fct_relevel(lab_no_ae) %>% fct_last(lab_ae_na),
+      level = level %>% fct_recode(!!lab_ae_na := "TMP_MISSING") %>% 
+        fct_relevel(params$lab_no_ae) %>% fct_last(lab_ae_na),
       np = np(n, p, digits=params$digits, zero_value=params$zero_value,
               pattern=params$percent_pattern),
       arm = fct_last(arm, lab_total)
-    ) %>%
-    rename(level = max_gr) %>%
+    ) %>% 
     arrange(arm, level) %>%
     pivot_wider(id_cols = level, names_from = arm, values_from = np) %>%
     mutate(
@@ -312,20 +326,17 @@ max_grade = function(df, params) {
 
 #' @importFrom purrr map
 #' @importFrom rlang set_names
-.calc_any_grade_eq = function(grade, included) {
-  rtn = seq(5) %>%
-    set_names(~ paste0("Grade ", .x)) %>%
-    map(~ any(grade == .x, na.rm = TRUE))
-  rtn[["Some grades missing"]] = all(included) & any(is.na(grade))
-  rtn[["no_ae"]] = !all(included)
-  rtn
-}
-#' @importFrom purrr map
-#' @importFrom rlang set_names
-.calc_any_grade_sup = function(grade, included) {
-  rtn = seq(5) %>%
-    set_names(~ paste("Grade", ifelse(.x==5, "=", "\u2265"), .x)) %>%
-    map(~ any(grade >= .x, na.rm = TRUE))
+.calc_any_grade = function(grade, included, type=c("sup", "eq")) {
+  type = match.arg(type)
+  if(type=="sup"){
+    rtn = seq(5) %>%
+      set_names(~ paste("Grade", ifelse(.x==5, "=", "\u2265"), .x)) %>%
+      map(~ any(grade >= .x, na.rm = TRUE))
+  } else {
+    rtn = seq(5) %>%
+      set_names(~ paste0("Grade ", .x)) %>%
+      map(~ any(grade == .x, na.rm = TRUE))
+  }
   rtn[["Some grades missing"]] = all(included) & any(is.na(grade))
   rtn[["no_ae"]] = !all(included)
   rtn
@@ -338,9 +349,9 @@ max_grade = function(df, params) {
 #' @importFrom rlang caller_arg
 #' @importFrom stringr str_replace
 #' @importFrom tidyr pivot_wider unnest_longer
-any_grade = function(df, f, params) {
+any_grade = function(df, type, params) {
   ae_id = attr(df, "ae_id")
-  id = if(caller_arg(f)==".calc_any_grade_sup") "any_grade_sup" else "any_grade_eq"
+  id = if(type=="sup") "any_grade_sup" else "any_grade_eq"
   lab_no_ae = glue("No {params$ae_label} reported")
   lab_ae_na = "Some grades missing"
   lab_total = make.unique(c(unique(df$arm), "Total"), sep = "") %>% last()
@@ -348,7 +359,7 @@ any_grade = function(df, f, params) {
   df %>%
     .add_total_arm(do=params$total, label=lab_total) %>%
     summarise(
-      tmp = list(f(grade, subjid %in% ae_id)),
+      tmp = list(.calc_any_grade(grade, included=(subjid %in% ae_id), type=type)),
       .by = c(subjid, arm)
     ) %>%
     unnest_longer(tmp, indices_to = "level") %>%
