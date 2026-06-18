@@ -34,6 +34,7 @@ check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE,
   assert_class(rc, "data.frame", null.ok=FALSE)
   assert_class(supp_cols_df, "data.frame")
   assert_class(mapping, "character")
+  
   rc = .apply_recist_mapping(rc, mapping) %>%
     .remove_post_pd(resp=target_resp, date=rc_date, do=exclude_post_pd)
 
@@ -43,6 +44,7 @@ check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE,
     rc_check_missing(rc),
     rc_check_target_lesions(rc),
     rc_check_constancy(rc),
+    rc_check_consistency(rc),
     rc_check_baseline_lesions(rc),
     rc_check_derived_columns(rc),
     rc_check_target_response(rc, rc_short),
@@ -337,6 +339,27 @@ rc_check_constancy = function(rc){
     )
   }
 
+  rtn
+}
+
+
+#' Baseline Target Lesions should be at least 10mm or 15mm (lymph node)
+#' @noRd
+#' @importFrom dplyr arrange distinct filter mutate select
+#' @importFrom tidyr pivot_longer
+rc_check_consistency = function(rc){
+  rtn = list()
+  rtn$consistency = rc %>%
+    pivot_longer(cols=contains("resp")) %>%
+    distinct(name, value) %>%
+    mutate(
+      resp_num = .recist_to_num(value),
+      resp_t = .recist_from_num(resp_num),
+      resp_nt = .recist_from_num(resp_num, non_target = TRUE),
+      resp = if_else(str_detect(name, "ntl"), resp_nt, resp_t)
+    ) |> 
+    summarise(name = toString(name), subjid=NA, .by=c(value, resp)) %>%
+    recist_issue("Check that responses are consistent", level="CHECK")
   rtn
 }
 
