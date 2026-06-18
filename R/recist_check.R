@@ -262,6 +262,14 @@ rc_check_target_lesions = function(rc){
     summarise(dates = toString(rc_date), .by=-rc_date) %>%
     recist_issue("Target Lesion: More than 2 lesions are lymph nodes", level="ERROR")
 
+  #Are patients without target lesions allowed in the protocol?
+  rtn$no_target_sites = rc %>%
+    filter(all(is.na(target_site)), .by=subjid) %>%
+    summarise(dates = toString(sort(unique(rc_date))), .by=c(subjid, target_site)) %>%
+    recist_issue("Target Lesion: no lesions (site is missing). Check that this 
+                  is allowed in inclusion criteria.", 
+                 level="CHECK")
+   
   #Should not be bone lesions
   rtn$target_bone_lesion = rc %>%
     filter(str_detect(tolower(target_site), "bone")) %>%
