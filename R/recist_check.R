@@ -545,7 +545,7 @@ rc_check_target_response = function(rc, rc_short){
                  higher than 30%",
                  level="ERROR")
 
-  #Partial Response
+  #Progressive Disease
   rtn$target_pd_wrong = rc_short %>%
     mutate(diff_abs_nad = target_sum-sum_nadir,
            diff_rel_nad = diff_abs_nad/sum_nadir) %>%
@@ -658,11 +658,11 @@ rc_check_global_response = function(rc_short){
                 "target_site", "target_diam", "target_resp",
                 "nontarget_yn", "nontarget_resp",
                 "new_lesions", "global_resp")
-
+  assert_names_exists(data, mapping[mandatory])
   rtn = data %>%
-    as_tibble() %>%
-    select(any_of(mapping)) %>%
-    select(all_of(mandatory), everything()) %>%
+    as_tibble() %>% 
+    select(any_of2(mapping)) %>% 
+    select(all_of2(mandatory), everything()) %>%
     arrange(subjid, rc_date) %>%
     mutate(new_lesions = fct_yesno(new_lesions),
            nontarget_yn = fct_yesno(nontarget_yn))
