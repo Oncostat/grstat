@@ -4,6 +4,7 @@
 #' @noRd
 #' @keywords internal
 #' @importFrom dplyr matches
+#' @importFrom purrr compact
 any_of2 = function(x, ignore.case=TRUE, ...){
   x %>%
     map(\(.x) matches(paste0("^", .x, "$"), ignore.case = ignore.case, ...)) %>% 
@@ -104,14 +105,19 @@ check_dots_empty2 = function(except=character(0), env = caller_env()) {
 #' @keywords internal
 #' @importFrom EDCimport edc_lookup
 get_projname = function(){
-  edc_lookup() %>% attr("project_name")
+  lookup = edc_lookup(check=FALSE)
+  if(is.null(lookup)) return("unnamed_project")
+  lookup %>% attr("project_name")
 }
 
 #' @noRd
 #' @keywords internal
 #' @importFrom EDCimport edc_lookup
 get_extraction_date = function(){
-  edc_lookup() %>% attr("datetime_extraction")
+  lookup = edc_lookup(check=FALSE)
+  NA_Date_ = structure(NA_real_, class = "Date")
+  if(is.null(lookup)) return(NA_Date_)
+  lookup %>% attr("datetime_extraction")
 }
 
 
