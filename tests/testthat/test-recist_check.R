@@ -115,14 +115,23 @@ test_that("RECIST checks: rc_check_target_lesions()", {
     target_diam = 10,
     target_is_node = FALSE
   )
+  # Patient 6 : CHECK no target_sites
+  id6 = tibble(
+    subjid = rep(6, 3),
+    rc_date = 0,
+    target_site = NA,
+    target_diam = 10,
+    target_is_node = FALSE
+  )
 
-  chk = bind_rows(id1, id2, id3, id4, id5) %>%
+  chk = bind_rows(id1, id2, id3, id4, id5, id6) %>%
     rc_check_target_lesions()
 
   expect_equal(chk$target_lesions_sup5$data[[1]]$subjid, 2)
   expect_equal(chk$target_nodes_sup2$data[[1]]$subjid, 3)
   expect_equal(chk$target_bone_lesion$data[[1]]$subjid, 4)
   expect_equal(chk$target_sites_sup2$data[[1]]$subjid, 5)
+  expect_equal(chk$no_target_sites$data[[1]]$subjid, 6)
 })
 
 
@@ -166,8 +175,22 @@ test_that("Limit-case test", {
     #T2: PD on new lesion
     tibble(subjid=1, rc_date=2, target_is_node=TRUE, target_site="Lymph Node", target_diam=13),
   )
-  #
+})
 
 
-
+test_that("Reporting works", {
+  
+  db = grstat_example(N = 200)
+  #mockup: one site per date (db$recist is 1 row per date)
+  rc = db$recist |> 
+    rename(RCNTLRES = rcntlresp) %>% 
+    mutate(
+      RCTLSITE = "SITE",
+      RCTLDIAM = rctlsum,
+    )
+  a = check_recist(rc)
+  x1 = recist_report_html(a, output_file=tempfile(fileext=".html"), output_dir=NULL)
+  expect_true(file.exists(x1))
+  x2 = recist_report_xlsx(a, output_file=tempfile(fileext=".xlsx"), output_dir=NULL)
+  expect_true(file.exists(x2))
 })

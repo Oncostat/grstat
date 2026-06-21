@@ -4,9 +4,32 @@
 #' @noRd
 #' @keywords internal
 #' @importFrom dplyr matches
+#' @importFrom purrr compact
 any_of2 = function(x, ignore.case=TRUE, ...){
-  matches(paste(paste0("^",x,"$"), collapse="|"), ignore.case=ignore.case, ...)
+  x %>%
+    map(\(.x) matches(paste0("^", .x, "$"), ignore.case = ignore.case, ...)) %>% 
+    compact() %>% 
+    unlist()
 }
+
+#' all_of() with case sensitivity
+#' @noRd
+#' @keywords internal
+#' @importFrom dplyr matches
+all_of2 = function(x, ignore.case=TRUE, ...){
+  pos = x %>%
+    map(\(.x) matches(paste0("^", .x, "$"), ignore.case = ignore.case, ...))
+
+  missing = lengths(pos) == 0
+  if (any(missing)) {
+    cli_abort("Can't select columns that don't exist: {.var {x[missing]}}.")
+  }
+
+  pos %>%
+    compact() %>% 
+    unlist()
+}
+
 
 #' @noRd
 #' @keywords internal
@@ -82,14 +105,19 @@ check_dots_empty2 = function(except=character(0), env = caller_env()) {
 #' @keywords internal
 #' @importFrom EDCimport edc_lookup
 get_projname = function(){
-  edc_lookup() %>% attr("project_name")
+  lookup = edc_lookup(check=FALSE)
+  if(is.null(lookup)) return("unnamed_project")
+  lookup %>% attr("project_name")
 }
 
 #' @noRd
 #' @keywords internal
 #' @importFrom EDCimport edc_lookup
 get_extraction_date = function(){
-  edc_lookup() %>% attr("datetime_extraction")
+  lookup = edc_lookup(check=FALSE)
+  NA_Date_ = structure(NA_real_, class = "Date")
+  if(is.null(lookup)) return(NA_Date_)
+  lookup %>% attr("datetime_extraction")
 }
 
 

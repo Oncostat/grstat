@@ -14,7 +14,7 @@
 #'
 #' @importFrom dplyr arrange desc mutate
 #' @importFrom purrr list_rbind
-#' @seealso [RECIST guidelines](https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf)
+#' @seealso [RECIST v1.1 guidelines, Eisenhauer 2008](https://doi.org/10.1016/j.ejca.2008.10.026)
 #'
 #' @examples
 #' # we unfortunately cannot provide a flawed simulated recist dataset, at least not yet
@@ -34,6 +34,7 @@ check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE,
   assert_class(rc, "data.frame", null.ok=FALSE)
   assert_class(supp_cols_df, "data.frame")
   assert_class(mapping, "character")
+  
   rc = .apply_recist_mapping(rc, mapping) %>%
     .remove_post_pd(resp=target_resp, date=rc_date, do=exclude_post_pd)
 
@@ -43,6 +44,7 @@ check_recist = function(rc, mapping=gr_recist_mapping(), exclude_post_pd=TRUE,
     rc_check_missing(rc),
     rc_check_target_lesions(rc),
     rc_check_constancy(rc),
+    rc_check_consistency(rc),
     rc_check_baseline_lesions(rc),
     rc_check_derived_columns(rc),
     rc_check_target_response(rc, rc_short),
@@ -148,9 +150,9 @@ recist_report_html = function(recist_check,
                     params=list(recist_check=recist_check, report_title=title))
 
   if(open){
-    utils::browseURL(output_file)
+    utils::browseURL(output_path)
   }
-  invisible(output_file)
+  invisible(output_path)
 }
 
 
@@ -190,7 +192,7 @@ recist_report_xlsx = function(recist_check,
   if(isTRUE(open)){
     utils::browseURL(output_path)
   }
-  invisible(rtn)
+  invisible(output_path)
 }
 
 
@@ -209,7 +211,7 @@ rc_check_missing = function(rc){
   rtn$target_missing_values = rc %>%
     filter(is.na(target_diam) != is.na(target_site)) %>%
     select(subjid, rc_date, target_site, target_diam) %>%
-    recist_issue("Target Lesion diameter and site should not be missing",
+    recist_issue("Target Lesion diameter and site should not be missing (enter the real value, or zero)",
                  level="ERROR")
 
   #missing values on responses: all or nothing
@@ -261,6 +263,14 @@ rc_check_target_lesions = function(rc){
     summarise(dates = toString(rc_date), .by=-rc_date) %>%
     recist_issue("Target Lesion: More than 2 lesions are lymph nodes", level="ERROR")
 
+  #Are patients without target lesions allowed in the protocol?
+  rtn$no_target_sites = rc %>%
+    filter(all(is.na(target_site)), .by=subjid) %>%
+    summarise(dates = toString(sort(unique(rc_date))), .by=c(subjid, target_site)) %>%
+    recist_issue("Target Lesion: no lesions (site is missing). Check that this 
+                  is allowed in inclusion criteria.", 
+                 level="CHECK")
+   
   #Should not be bone lesions
   rtn$target_bone_lesion = rc %>%
     filter(str_detect(tolower(target_site), "bone")) %>%
@@ -338,6 +348,27 @@ rc_check_constancy = function(rc){
     )
   }
 
+  rtn
+}
+
+
+#' Baseline Target Lesions should be at least 10mm or 15mm (lymph node)
+#' @noRd
+#' @importFrom dplyr arrange contains distinct filter mutate select
+#' @importFrom tidyr pivot_longer
+rc_check_consistency = function(rc){
+  rtn = list()
+  rtn$consistency = rc %>%
+    pivot_longer(cols=contains("resp")) %>%
+    distinct(name, value) %>%
+    mutate(
+      resp_num = .recist_to_num(value),
+      resp_t = .recist_from_num(resp_num),
+      resp_nt = .recist_from_num(resp_num, non_target = TRUE),
+      resp = if_else(str_detect(name, "ntl"), resp_nt, resp_t)
+    ) |> 
+    summarise(name = toString(name), subjid=NA, .by=c(value, resp)) %>%
+    recist_issue("Check that responses are consistent", level="CHECK")
   rtn
 }
 
@@ -490,7 +521,7 @@ rc_check_nontarget_response = function(rc){
   rtn = list()
 
   rtn$nonmissing_ntl = rc %>%
-    filter(nontarget_yn == "No" & !is.na(nontarget_resp)) %>%
+    filter(nontarget_yn == "No" & !.recist_to_num(nontarget_resp)==5) %>%
     distinct(subjid, rc_date, nontarget_yn, nontarget_resp) %>%
     arrange(nontarget_yn) %>%
     recist_issue("Patients with no Non-Target Lesions should not have a
@@ -545,7 +576,7 @@ rc_check_target_response = function(rc, rc_short){
                  higher than 30%",
                  level="ERROR")
 
-  #Partial Response
+  #Progressive Disease
   rtn$target_pd_wrong = rc_short %>%
     mutate(diff_abs_nad = target_sum-sum_nadir,
            diff_rel_nad = diff_abs_nad/sum_nadir) %>%
@@ -658,11 +689,11 @@ rc_check_global_response = function(rc_short){
                 "target_site", "target_diam", "target_resp",
                 "nontarget_yn", "nontarget_resp",
                 "new_lesions", "global_resp")
-
+  assert_names_exists(data, mapping[mandatory])
   rtn = data %>%
-    as_tibble() %>%
-    select(any_of(mapping)) %>%
-    select(all_of(mandatory), everything()) %>%
+    as_tibble() %>% 
+    select(any_of2(mapping)) %>% 
+    select(all_of2(mandatory), everything()) %>%
     arrange(subjid, rc_date) %>%
     mutate(new_lesions = fct_yesno(new_lesions),
            nontarget_yn = fct_yesno(nontarget_yn))
@@ -739,7 +770,9 @@ get_report_path = function(output_dir, output_file){
                      project=project, date_extraction=date_extraction) %>%
     str_replace_all("__", "_") %>%
     str_replace_all("_\\.", "\\.")
-  output_path = path(getwd(), output_dir, output_path)
+  if(!is.null(output_dir)){
+    output_path = path(output_dir, output_path)
+  }
   if(file.exists(output_path)){
     output_path2 = paste0(path_ext_remove(output_path), "_bak.", path_ext(output_path))
     cli_warn("{.arg output_path} already exists and was renamed

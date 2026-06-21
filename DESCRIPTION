@@ -53,6 +53,7 @@ Suggests:
     BOIN,
     blockrand,
     callr,
+    DT,
     ggsurvfit,
     gtools,
     knitr,
