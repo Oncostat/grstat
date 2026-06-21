@@ -175,8 +175,22 @@ test_that("Limit-case test", {
     #T2: PD on new lesion
     tibble(subjid=1, rc_date=2, target_is_node=TRUE, target_site="Lymph Node", target_diam=13),
   )
-  #
+})
 
 
-
+test_that("Reporting works", {
+  
+  db = grstat_example(N = 200)
+  #mockup: one site per date (db$recist is 1 row per date)
+  rc = db$recist |> 
+    rename(RCNTLRES = rcntlresp) %>% 
+    mutate(
+      RCTLSITE = "SITE",
+      RCTLDIAM = rctlsum,
+    )
+  a = check_recist(rc)
+  x1 = recist_report_html(a, output_file=tempfile(fileext=".html"), output_dir=NULL)
+  expect_true(file.exists(x1))
+  x2 = recist_report_xlsx(a, output_file=tempfile(fileext=".xlsx"), output_dir=NULL)
+  expect_true(file.exists(x2))
 })
