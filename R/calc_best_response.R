@@ -64,8 +64,7 @@ calc_best_response = function(data_recist, ...,
   grstat_dev_warn()
 
   data_recist = data_recist %>%
-    select(subjid=any_of2(subjid), response=any_of2(rc_resp), sum=any_of2(rc_sum),
-           date=any_of2(rc_date)) %>%
+    select(any_of2(c(subjid, response=unname(rc_resp), sum=unname(rc_sum), date=unname(rc_date)))) %>%
     distinct()
 
   na_date = data_recist %>%
