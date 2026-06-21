@@ -15,12 +15,12 @@ any_of2 = function(x, ignore.case=TRUE, ...){
 #' all_of() with case sensitivity
 #' @noRd
 #' @keywords internal
-#' @importFrom tidyselect matches
+#' @importFrom dplyr matches
 all_of2 = function(x, ignore.case=TRUE, ...){
   pos = x %>%
     map(\(.x) matches(paste0("^", .x, "$"), ignore.case = ignore.case, ...))
 
-  missing = pos %>% map_int(length) == 0
+  missing = lengths(pos) == 0
   if (any(missing)) {
     cli_abort("Can't select columns that don't exist: {.var {x[missing]}}.")
   }

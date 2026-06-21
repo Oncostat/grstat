@@ -354,7 +354,7 @@ rc_check_constancy = function(rc){
 
 #' Baseline Target Lesions should be at least 10mm or 15mm (lymph node)
 #' @noRd
-#' @importFrom dplyr arrange distinct filter mutate select
+#' @importFrom dplyr arrange contains distinct filter mutate select
 #' @importFrom tidyr pivot_longer
 rc_check_consistency = function(rc){
   rtn = list()
