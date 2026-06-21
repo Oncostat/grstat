@@ -770,7 +770,9 @@ get_report_path = function(output_dir, output_file){
                      project=project, date_extraction=date_extraction) %>%
     str_replace_all("__", "_") %>%
     str_replace_all("_\\.", "\\.")
-  output_path = path(getwd(), output_dir, output_path)
+  if(!is.null(output_dir)){
+    output_path = path(output_dir, output_path)
+  }
   if(file.exists(output_path)){
     output_path2 = paste0(path_ext_remove(output_path), "_bak.", path_ext(output_path))
     cli_warn("{.arg output_path} already exists and was renamed
