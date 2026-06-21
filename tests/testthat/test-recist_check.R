@@ -115,14 +115,23 @@ test_that("RECIST checks: rc_check_target_lesions()", {
     target_diam = 10,
     target_is_node = FALSE
   )
+  # Patient 6 : CHECK no target_sites
+  id6 = tibble(
+    subjid = rep(6, 3),
+    rc_date = 0,
+    target_site = NA,
+    target_diam = 10,
+    target_is_node = FALSE
+  )
 
-  chk = bind_rows(id1, id2, id3, id4, id5) %>%
+  chk = bind_rows(id1, id2, id3, id4, id5, id6) %>%
     rc_check_target_lesions()
 
   expect_equal(chk$target_lesions_sup5$data[[1]]$subjid, 2)
   expect_equal(chk$target_nodes_sup2$data[[1]]$subjid, 3)
   expect_equal(chk$target_bone_lesion$data[[1]]$subjid, 4)
   expect_equal(chk$target_sites_sup2$data[[1]]$subjid, 5)
+  expect_equal(chk$no_target_sites$data[[1]]$subjid, 6)
 })
 
 
