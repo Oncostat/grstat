@@ -41,5 +41,5 @@ recist_report_xlsx(recist_check)
 
 }
 \seealso{
-\href{https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf}{RECIST guidelines}
+\href{https://doi.org/10.1016/j.ejca.2008.10.026}{RECIST v1.1 guidelines, Eisenhauer 2008}
 }
