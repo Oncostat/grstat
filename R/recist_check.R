@@ -150,9 +150,9 @@ recist_report_html = function(recist_check,
                     params=list(recist_check=recist_check, report_title=title))
 
   if(open){
-    utils::browseURL(output_file)
+    utils::browseURL(output_path)
   }
-  invisible(output_file)
+  invisible(output_path)
 }
 
 
@@ -192,7 +192,7 @@ recist_report_xlsx = function(recist_check,
   if(isTRUE(open)){
     utils::browseURL(output_path)
   }
-  invisible(rtn)
+  invisible(output_path)
 }
 
 
