@@ -87,10 +87,6 @@ ae_table_soc = function(
   null_arm = is.null(arm)
   measure = arg_match(measure)
 
-  #TODO check dans grstat actuel si un data_ae sans term provoque une erreur 
-  # assert_names_exists(data_ae, keep_at(cols, c("subjid", "group1", "group2", "grade")))
-  # assert_names_exists(data_pat, keep_at(cols, c("subjid", "arm")))
-
   label_missing_group1 = "Missing"
   label_missing_pat = "No Declared AE"
 
@@ -101,28 +97,7 @@ ae_table_soc = function(
     total=FALSE
   }
 
-  # data_ae = data_ae %>%
-  #   select(subjid=any_of2(subjid), group1=any_of2(group1),
-  #          group2=any_of2(group2), grade=any_of2(grade)) %>%
-  #   mutate(group1 = if_else(group1 %in% c(0, NA), label_missing_group1, group1))
-  # data_pat = data_pat %>%
-  #   select(subjid=any_of2(subjid), arm=any_of2(arm)) %>%
-  #   mutate(arm = if(is.null(.env$arm)) default_arm else .data$arm)
-  # if(!is.numeric(data_ae$grade)){
-  #   cli_abort("Grade ({.val {grade}}) should be a numeric column.")
-  # }
-
-  # df = data_pat %>%
-  #   left_join(data_ae, by="subjid") %>%
-  #   arrange(subjid) %>%
-  #   mutate(
-  #     arm = to_snake_case(arm),
-  #     group1 = if_else(!subjid %in% data_ae$subjid, label_missing_pat, group1)
-  #   )
   df = .data_ae_table_soc(data_ae, data_pat, cols)
-  #Legacy
-  # if(has_name(dots, "soc")) df$group1 = set_label(group1, "CTCAE SOC")
-  # if(has_name(dots, "term")) df$group2 = set_label(group2, "CTCAE v4.0 Term")  
 
   #check missing data
   if(warn_miss){
@@ -135,11 +110,6 @@ ae_table_soc = function(
     })
   }
 
-  # arm_count = data_pat %>%
-  #   count(arm) %>%
-  #   deframe() %>% as.list()
-  # arm_count2 = arm_count %>%
-  #   set_names(to_snake_case)
   arm_count = attr(df, "arm_count")  
   arm_count2 = arm_count %>% set_names(to_snake_case)
 
