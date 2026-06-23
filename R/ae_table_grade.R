@@ -15,7 +15,7 @@
 #' @param arm Name of the arm column in `data_pat`. If `NULL`, all patients are pooled.
 #' @param grade Name of the AE grade column in `data_ae`.
 #' @param subjid Name of the subject ID column (in both data frames).
-#' @param ae_label Label used in the output tables (e.g. "AE", "Toxicity").
+#' @param ae_label Label used in the output tables (e.g. "AE", "SAE", "Toxicity").
 #' @param percent_pattern Pattern used to format counts and percentages. Use `{n}` and `{p}` as placeholders.
 #' @param percent_digits Number of digits to show for percentages.
 #' @param zero_value String to use when count is zero.

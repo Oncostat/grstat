@@ -15,6 +15,7 @@ ae_table_soc(
   arm = NULL,
   cols = c(grade = "AEGR", subjid = "SUBJID"),
   ae_groups = NULL,
+  ae_label = "AE",
   sort_by_count = TRUE,
   total = TRUE,
   showNA = TRUE,
@@ -46,6 +47,8 @@ ae_table_soc(
 \item{cols}{a named character vector mapping column names. Should contain at least \code{grade} and \code{subjid}. Case-insensitive.}
 
 \item{ae_groups}{a named list specifying the grade values for each group.}
+
+\item{ae_label}{Label used in the output tables (e.g. "AE", "SAE", "Toxicity").}
 
 \item{sort_by_count}{whether to sort by the number of AE or by \code{group1} alphabetically.}
 

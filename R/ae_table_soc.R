@@ -21,6 +21,7 @@
 #' @param digits significant digits for percentages.
 #' @param ae_groups a named list specifying the grade values for each group.
 #' @param warn_miss whether to warn for missing values.
+#' @inheritParams ae_table_grade
 #' @param ... unused
 #'
 #' @return a dataframe (`ae_table_soc()`) or a flextable (`as_flextable()`).
@@ -67,7 +68,7 @@ ae_table_soc = function(
     group1="AESOC", group2=NULL,
     arm=NULL, 
     cols = c(grade="AEGR", subjid="SUBJID"),
-    ae_groups = NULL,
+    ae_groups = NULL, ae_label="AE", 
     sort_by_count=TRUE, total=TRUE, showNA=TRUE, digits=0, warn_miss=FALSE
 ){
   
@@ -173,7 +174,7 @@ ae_table_soc = function(
     as.character()
 
   attr(rtn, "footer") = 
-    .get_footer(rtn, measure, arm_count, group1, group2)
+    .get_footer(rtn, measure, arm_count, group1, group2, ae_label)
   
   rtn
 }
@@ -225,7 +226,9 @@ as_flextable.ae_table_soc = function(x,
       ),
     )
   
-  show_footer = match.arg(show_footer[1], choices=c("both", "explanation", "example", "none", TRUE, FALSE))
+  show_footer = show_footer[1]
+  assert(show_footer[1] %in% list("both", "explanation", "example", "none", TRUE, FALSE), 
+         msg='`show_footer` must be one of "both", "explanation", "example", or "none"')
   footer = attr(x, "footer")
   footer_explanation = if(show_footer %in% list("both", "explanation", TRUE)) footer$explanation
   footer_example =  if(show_footer %in% list("both", "example", TRUE)) footer$example
@@ -375,8 +378,7 @@ as_flextable.ae_table_soc = function(x,
 # Example footer generation logic for ae_table_soc()
 #' @noRd
 #' @keywords internal
-.get_footer = function(rtn, measure, arm_count, group1, group2, ae_label = "AE") {
-  rtn_bak = rtn
+.get_footer = function(rtn, measure, arm_count, group1, group2, ae_label) {
   na_rows = rtn %>% select(-starts_with("group")) %>% pull(2) %>% is.na()
   rtn = rtn[!na_rows,] %>% head(1)
 
@@ -419,15 +421,15 @@ as_flextable.ae_table_soc = function(x,
   example = switch(
     measure[1],
     max = glue(
-      "For example, for AE {group_desc}, the maximum grade was {example_grade} ",
+      "For example, for {ae_label} {group_desc}, the maximum grade was {example_grade} ",
       "for {example_value} patients."
     ),
     sup = glue(
-      "For example, for AE {group_desc}, at least one AE of grade ≥ {example_grade} ",
+      "For example, for {ae_label} {group_desc}, at least one {ae_label} of grade ≥ {example_grade} ",
       "was reported for {example_value} patients."
     ),
     eq = glue(
-      "For example, for AE {group_desc}, at least one AE of grade = {example_grade} ",
+      "For example, for {ae_label} {group_desc}, at least one {ae_label} of grade = {example_grade} ",
       "was reported for {example_value} patients."
     ),
     "ERROR"
