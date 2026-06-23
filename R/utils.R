@@ -54,6 +54,7 @@ to_snake_case = function(str) {
 fct_last = function(f, ...) {
   lvl = c(...)
   lvl = intersect(lvl, levels(f))
+  if(is_empty(lvl)) return(f)
   fct_relevel(f, lvl, after = Inf)
 }
 

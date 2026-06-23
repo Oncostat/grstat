@@ -174,7 +174,7 @@ ae_table_soc = function(
   if(!sort_by_count) {
     rtn = rtn %>%
       mutate(across(any_of(c("group1", "group2")), ~factor(as.character(.x))),
-             group1 = fct_relevel(group1, label_missing_pat, after=Inf)) %>%
+             group1 = fct_last(group1, label_missing_pat)) %>%
       arrange(arm, group1)
   }
 
