@@ -192,6 +192,8 @@ ae_table_soc(data_ae=ae, data_pat=enrolres, group1="aesoc") %>%
 | Cardiac disorders | 7 (4%) | 3 (2%) | 7 (4%) | 4 (2%) |  | 2 (1%) | 23 (12%) |
 | Respiratory, thoracic and mediastinal disorders | 9 (4%) | 5 (2%) | 6 (3%) | 1 (0%) |  | 2 (1%) | 23 (12%) |
 | No Declared AE |  |  |  |  |  | 8 (4%) | 8 (4%) |
+| Figures represent the number of patients who experienced an AE of maximum grade, for a given AE SOC. |  |  |  |  |  |  |  |
+| For example, for AE with AE SOC "Social circumstances", the maximum grade was G2 for 10 (5%) patients. |  |  |  |  |  |  |  |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |
 
@@ -219,6 +221,8 @@ ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm", group1="aesoc", group2="a
 |  | Retinal disorders | 3 (3%) | 4 (4%) | 2 (2%) | 2 (2%) |  | 1 (1%) | 12 (12%) | 1 (1%) |  |  |  |  | 2 (2%) | 3 (3%) |
 |  | Vision disorders | 3 (3%) | 1 (1%) |  |  |  | 1 (1%) | 5 (5%) | 1 (1%) | 2 (2%) | 1 (1%) |  |  |  | 4 (4%) |
 |  |  | 3 (3%) | 1 (1%) |  |  |  | 1 (1%) | 5 (5%) | 1 (1%) | 1 (1%) |  |  |  |  | 2 (2%) |
+| Figures represent the number of patients who experienced an AE of maximum grade, for a given arm, AE SOC, and AE Term (HLGT). |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| For example, for AE in Control arm, with AE SOC "Social circumstances", and AE Term (HLGT) "Cultural issues", the maximum grade was G2 for 2 (2%) patients. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
@@ -253,6 +257,8 @@ ae_table_soc(data_ae=ae, data_pat=enrolres, measure="sup", arm="arm", group1="ae
 | Blood analyses | 3 (3%) | 1 (1%) | 1 (1%) |  |  |  |  |  |  |  |
 | Bone disorders | 2 (2%) | 2 (2%) | 2 (2%) | 1 (1%) | 1 (1%) | 2 (2%) | 2 (2%) | 1 (1%) |  |  |
 | No Declared AE |  |  |  |  |  |  |  |  |  |  |
+| Figures represent the number of patients who experienced at least one AE of grade ≥ X, for a given arm and AE Term (HLGT). |  |  |  |  |  |  |  |  |  |  |
+| For example, for AE in Control arm and with AE Term (HLGT) "Arthritis and joint disorders", at least one AE of grade ≥ G2 was reported for 3 (3%) patients. |  |  |  |  |  |  |  |  |  |  |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients who had at least one AE higher or equal to the indicated grade. |  |  |  |  |  |  |  |  |  |  |
 

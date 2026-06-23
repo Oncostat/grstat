@@ -210,6 +210,8 @@ ae_table_soc(data_ae=ae, data_pat=enrolres, arm=NULL, group1="aesoc", group2=NUL
 | Surgical and medical procedures | 13 (6%) | 10 (5%) | 4 (2%) | 1 (0%) |  |  | 28 (14%) |
 | Vascular disorders | 10 (5%) | 3 (2%) | 1 (0%) | 2 (1%) |  |  | 16 (8%) |
 | No Declared AE |  |  |  |  |  | 8 (4%) | 8 (4%) |
+| Figures represent the number of patients who experienced an AE of maximum grade, for a given AE SOC. |  |  |  |  |  |  |  |
+| For example, for AE with AE SOC "Blood and lymphatic system disorders", the maximum grade was G2 for 3 (2%) patients. |  |  |  |  |  |  |  |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |
 
@@ -330,6 +332,8 @@ ae_table_soc(data_ae=ae, data_pat=enrolres, arm=NULL, group1="aesoc", group2="ae
 |  | Vascular hemorrhagic disorders | 5 (2%) |  |  | 1 (0%) |  |  | 6 (3%) |
 |  | Venous thromboembolic events | 2 (1%) | 1 (0%) |  | 1 (0%) |  |  | 4 (2%) |
 | No Declared AE |  |  |  |  |  |  | 8 (4%) | 8 (4%) |
+| Figures represent the number of patients who experienced an AE of maximum grade, for a given AE SOC and AE Term (HLGT). |  |  |  |  |  |  |  |  |
+| For example, for AE with AE SOC "Blood and lymphatic system disorders" and AE Term (HLGT) "Red blood cell disorders", the maximum grade was G2 for 3 (2%) patients. |  |  |  |  |  |  |  |  |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |  |
 
@@ -395,6 +399,8 @@ ae %>%
 | Vascular hemorrhagic disorders |  |  |  | 1 (0%) |  |  | 1 (0%) |
 | Vitamin deficiencies | 1 (0%) |  |  |  |  |  | 1 (0%) |
 | No Declared AE |  |  |  |  |  | 144 (72%) | 144 (72%) |
+| Figures represent the number of patients who experienced an AE of maximum grade, for a given AE Term (HLGT). |  |  |  |  |  |  |  |
+| For example, for AE with AE Term (HLGT) "Benign neoplasms", the maximum grade was G2 for 2 (1%) patients. |  |  |  |  |  |  |  |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients whose maximum SAE grade was as indicated. |  |  |  |  |  |  |  |
 
@@ -442,6 +448,8 @@ ae_table_soc(data_ae=ae, data_pat=enrolres, group1="aesoc", group2=NULL, arm="ar
 | Surgical and medical procedures | 6 (6%) | 5 (5%) | 2 (2%) |  |  |  | 13 (13%) | 7 (7%) | 5 (5%) | 2 (2%) | 1 (1%) |  |  | 15 (15%) |
 | Vascular disorders | 6 (6%) | 1 (1%) |  |  |  |  | 7 (7%) | 4 (4%) | 2 (2%) | 1 (1%) | 2 (2%) |  |  | 9 (9%) |
 | No Declared AE |  |  |  |  |  | 3 (3%) | 3 (3%) |  |  |  |  |  | 5 (5%) | 5 (5%) |
+| Figures represent the number of patients who experienced an AE of maximum grade, for a given arm and AE SOC. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| For example, for AE in Control arm and with AE SOC "Blood and lymphatic system disorders", the maximum grade was G2 for 1 (1%) patients. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
@@ -562,5 +570,7 @@ ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm", group1="aesoc", group2="a
 |  | Vascular hemorrhagic disorders | 2 (2%) |  |  |  |  |  | 2 (2%) | 3 (3%) |  |  | 1 (1%) |  |  | 4 (4%) |
 |  | Venous thromboembolic events | 2 (2%) | 1 (1%) |  |  |  |  | 3 (3%) |  |  |  | 1 (1%) |  |  | 1 (1%) |
 | No Declared AE |  |  |  |  |  |  | 3 (3%) | 3 (3%) |  |  |  |  |  | 5 (5%) | 5 (5%) |
+| Figures represent the number of patients who experienced an AE of maximum grade, for a given arm, AE SOC, and AE Term (HLGT). |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| For example, for AE in Control arm, with AE SOC "Blood and lymphatic system disorders", and AE Term (HLGT) "Red blood cell disorders", the maximum grade was G2 for 1 (1%) patients. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | In the header, N represents the number of patients. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | Percentages reflect the proportion of patients whose maximum AE grade was as indicated. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |

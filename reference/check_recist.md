@@ -46,8 +46,8 @@ a tibble of nested checks, of class `check_recist`
 
 ## See also
 
-[RECIST
-guidelines](https://ctep.cancer.gov/protocoldevelopment/docs/recist_guideline.pdf)
+[RECIST v1.1 guidelines, Eisenhauer
+2008](https://doi.org/10.1016/j.ejca.2008.10.026)
 
 ## Examples
 
