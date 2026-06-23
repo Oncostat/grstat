@@ -29,7 +29,7 @@
 #' @seealso [ae_table_grade()], [ae_table_soc()], [ae_plot_grade()], [ae_plot_grade_sum()], [butterfly_plot()]
 #'
 #' @importFrom cli cli_warn
-#' @importFrom dplyr across all_of any_of arrange cur_column cur_group everything filter mutate pick pull rename rename_with select summarise
+#' @importFrom dplyr across all_of any_of arrange cur_column cur_group everything filter mutate pick pull rename rename_with select starts_with summarise
 #' @importFrom forcats fct_infreq fct_relevel
 #' @importFrom glue glue
 #' @importFrom purrr iwalk keep map
@@ -59,8 +59,9 @@
 #'   as_flextable()
 #' 
 #' #Stratified by both SOC and TERM
-#' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm", group1="AESOC", group2="AETERM") %>%
-#'   filter(!is.na(group2)) %>% #remove missing term
+#' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm", 
+#'              group1="AESOC", group2="AETERM") %>%
+#'   dplyr::filter(!is.na(group2)) %>% #remove missing term
 #'   as_flextable()
 ae_table_soc = function(
     data_ae, ..., data_pat,
@@ -185,6 +186,7 @@ ae_table_soc = function(
 #'
 #' @param x a dataframe, resulting of `ae_table_soc()`
 #' @param arm_colors colors for the arm groups
+#' @param show_footer whether to show the footer with the explanation, the example, both, or none.
 #' @param padding_v a numeric of lenght up to 2, giving the vertical padding of body (1) and header (2)
 #' @param ... unused
 #'
@@ -380,7 +382,7 @@ as_flextable.ae_table_soc = function(x,
 #' @keywords internal
 .get_footer = function(rtn, measure, arm_count, group1, group2, ae_label) {
   na_rows = rtn %>% select(-starts_with("group")) %>% pull(2) %>% is.na()
-  rtn = rtn[!na_rows,] %>% head(1)
+  rtn = rtn[!na_rows,][1,]
 
   group1_label = get_label(rtn[["group1"]])
   group1_value = as.character(rtn[["group1"]][1])
@@ -409,7 +411,7 @@ as_flextable.ae_table_soc = function(x,
       "an {ae_label} of maximum grade, for a given {group_vars}."
     ),
     sup = glue(
-      "at least one {ae_label} of grade ≥ X, for a given {group_vars}."
+      "at least one {ae_label} of grade \u2265 X, for a given {group_vars}."
     ),
     eq = glue(
       "at least one {ae_label} of grade = X, for a given {group_vars}."
@@ -425,7 +427,7 @@ as_flextable.ae_table_soc = function(x,
       "for {example_value} patients."
     ),
     sup = glue(
-      "For example, for {ae_label} {group_desc}, at least one {ae_label} of grade ≥ {example_grade} ",
+      "For example, for {ae_label} {group_desc}, at least one {ae_label} of grade \u2265 {example_grade} ",
       "was reported for {example_value} patients."
     ),
     eq = glue(

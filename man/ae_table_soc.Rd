@@ -62,6 +62,8 @@ ae_table_soc(
 
 \item{x}{a dataframe, resulting of \code{ae_table_soc()}}
 
+\item{show_footer}{whether to show the footer with the explanation, the example, both, or none.}
+
 \item{arm_colors}{colors for the arm groups}
 
 \item{padding_v}{a numeric of lenght up to 2, giving the vertical padding of body (1) and header (2)}
@@ -98,8 +100,9 @@ ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), group1="AETERM", ae_groups
   as_flextable()
 
 #Stratified by both SOC and TERM
-ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm", group1="AESOC", group2="AETERM") \%>\%
-  filter(!is.na(group2)) \%>\% #remove missing term
+ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm", 
+             group1="AESOC", group2="AETERM") \%>\%
+  dplyr::filter(!is.na(group2)) \%>\% #remove missing term
   as_flextable()
 }
 \seealso{
