@@ -41,23 +41,27 @@
 #' tm = grstat_example()
 #' attach(tm, warn.conflicts=FALSE)
 #'
-#' ae_table_soc(data_ae=ae, data_pat=enrolres)
-#' ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm")
+#' #Default
+#' ae_table_soc(data_ae=ae, data_pat=enrolres) %>%
+#'   as_flextable()
+#' 
+#' #By arm
+#' ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm") %>%
+#'   as_flextable()
 #'
-#' #sub population
-#' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm")
-#'
-#' #the resulting flextable can be customized using the flextable package
-#' library(flextable)
-#' ae_table_soc(ae, data_pat=enrolres, total=FALSE) %>%
-#'   as_flextable() %>%
-#'   hline(i=~group1=="" & group1!=dplyr::lead(group1))
-#' ae_table_soc(ae, data_pat=enrolres, term=NULL, sort_by_count=FALSE) %>%
-#'   as_flextable() %>%
-#'   bold(i=~group1=="Eye disorders")
-#' ae_table_soc(ae, data_pat=enrolres, term="aeterm", arm=NULL) %>%
-#'   as_flextable() %>%
-#'   highlight(i=~group1=="Hepatobiliary disorders", j="all_patients__tot")
+#' #Sub-population
+#' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm") %>%
+#'   as_flextable()
+#' 
+#' #Grouping grades
+#' ae_groups = list("Any grade"=c(1:5,NA), "Grade 1-2"=1:2, "Grade 3-5"=3:5)
+#' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), group1="AETERM", ae_groups=ae_groups) %>%
+#'   as_flextable()
+#' 
+#' #Stratified by both SOC and TERM
+#' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm", group1="AESOC", group2="AETERM") %>%
+#'   filter(!is.na(group2)) %>% #remove missing term
+#'   as_flextable()
 ae_table_soc = function(
     data_ae, ..., data_pat,
     measure=c("max", "sup", "eq"),
