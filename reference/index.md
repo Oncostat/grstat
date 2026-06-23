@@ -30,6 +30,16 @@
 These functions should be used with caution, and results should always
 be checked using your own code in parallel.
 
+### RECIST response
+
+- [`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md)
+  **\[experimental\]** : Calculate Best RECIST Response
+- [`aggregate_recist_rates()`](https://oncostat.github.io/grstat/reference/aggregate_recist_rates.md)
+  [`as_flextable(`*`<aggregate_recist_rates>`*`)`](https://oncostat.github.io/grstat/reference/aggregate_recist_rates.md)
+  **\[experimental\]** : Calculate BOR
+- [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)
+  : Waterfall plot for RECIST best response data
+
 ### RECIST Checks
 
 - [`check_recist()`](https://oncostat.github.io/grstat/reference/check_recist.md)
@@ -45,13 +55,6 @@ be checked using your own code in parallel.
 - [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)
   **\[experimental\]** : Randomization lists
 
-- [`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md)
-  **\[experimental\]** : Calculate Best RECIST Response
-
-- [`aggregate_recist_rates()`](https://oncostat.github.io/grstat/reference/aggregate_recist_rates.md)
-  [`as_flextable(`*`<aggregate_recist_rates>`*`)`](https://oncostat.github.io/grstat/reference/aggregate_recist_rates.md)
-  **\[experimental\]** : Calculate BOR
-
 - [`survfit_stack()`](https://oncostat.github.io/grstat/reference/survfit_stack.md)
   **\[experimental\]** :
 
@@ -62,7 +65,5 @@ be checked using your own code in parallel.
 - [`boin_plot()`](https://oncostat.github.io/grstat/reference/boin_plot.md)
   **\[experimental\]** : Plot BOIN decision boundaries and patient-level
   data
-- [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)
-  : Waterfall plot for RECIST best response data
 - [`ae_plot_grade_sum()`](https://oncostat.github.io/grstat/reference/ae_plot_grade_sum.md)
   **\[experimental\]** : Graphic representation of AEs
