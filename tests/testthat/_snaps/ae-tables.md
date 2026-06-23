@@ -7,10 +7,10 @@
     Output
       # A tibble: 1 x 8
         group1 all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
-        <fct>  <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
+        <fct>  <chr>            <chr>            <chr>            <chr>            <chr>            <chr>           
       1 Soc1   <NA>             <NA>             <NA>             1 (50%)          1 (50%)          <NA>            
         all_patients__tot
-        <glue>           
+        <chr>            
       1 2 (100%)         
     Code
       ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "sup")
@@ -20,7 +20,7 @@
     Output
       # A tibble: 1 x 7
         group1 all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
-        <fct>  <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
+        <fct>  <chr>            <chr>            <chr>            <chr>            <chr>            <chr>           
       1 Soc1   2 (100%)         2 (100%)         2 (100%)         2 (100%)         1 (50%)          <NA>            
     Code
       ae_table_soc(df_ae = df_ae, df_enrol = df_enrolres, variant = "eq")
@@ -30,7 +30,7 @@
     Output
       # A tibble: 1 x 7
         group1 all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4 all_patients__g5 all_patients__na
-        <fct>  <glue>           <glue>           <glue>           <glue>           <glue>           <glue>          
+        <fct>  <chr>            <chr>            <chr>            <chr>            <chr>            <chr>           
       1 Soc1   1 (50%)          2 (100%)         2 (100%)         2 (100%)         1 (50%)          <NA>            
     Code
       ae_table_grade(df_ae = df_ae, df_enrol = df_enrolres, variant = "max")
@@ -204,7 +204,7 @@
     Output
       # A tibble: 27 x 8
          group1                                               all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4
-         <fct>                                                <glue>           <glue>           <glue>           <glue>          
+         <fct>                                                <chr>            <chr>            <chr>            <chr>           
        1 Eye disorders                                        21 (10%)         16 (8%)          9 (4%)           3 (2%)          
        2 Social circumstances                                 27 (14%)         12 (6%)          6 (3%)           4 (2%)          
        3 Congenital, familial and genetic disorders           23 (12%)         10 (5%)          4 (2%)           5 (2%)          
@@ -233,7 +233,7 @@
       26 Reproductive system and breast disorders             3 (2%)           2 (1%)           2 (1%)           <NA>            
       27 No Declared AE                                       <NA>             <NA>             <NA>             <NA>            
          all_patients__g5 all_patients__na all_patients__tot
-         <glue>           <glue>           <glue>           
+         <chr>            <chr>            <chr>            
        1 <NA>             <NA>             49 (24%)         
        2 <NA>             <NA>             49 (24%)         
        3 <NA>             <NA>             42 (21%)         
@@ -266,7 +266,7 @@
     Output
       # A tibble: 27 x 8
          group1                                               all_patients__g1 all_patients__g2 all_patients__g3 all_patients__g4
-         <fct>                                                <glue>           <glue>           <glue>           <glue>          
+         <fct>                                                <chr>            <chr>            <chr>            <chr>           
        1 Blood and lymphatic system disorders                 3 (2%)           3 (2%)           3 (2%)           1 (0%)          
        2 Cardiac disorders                                    11 (6%)          4 (2%)           7 (4%)           4 (2%)          
        3 Congenital, familial and genetic disorders           23 (12%)         10 (5%)          4 (2%)           5 (2%)          
@@ -295,7 +295,7 @@
       26 Vascular disorders                                   10 (5%)          3 (2%)           1 (0%)           2 (1%)          
       27 No Declared AE                                       <NA>             <NA>             <NA>             <NA>            
          all_patients__g5 all_patients__na all_patients__tot
-         <glue>           <glue>           <glue>           
+         <chr>            <chr>            <chr>            
        1 <NA>             <NA>             10 (5%)          
        2 <NA>             <NA>             26 (13%)         
        3 <NA>             <NA>             42 (21%)         
@@ -328,7 +328,7 @@
     Output
       # A tibble: 27 x 15
          group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
-         <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
+         <fct>                                                <chr>       <chr>       <chr>       <chr>       <chr>      
        1 Eye disorders                                        14 (14%)    11 (11%)    4 (4%)      2 (2%)      <NA>       
        2 Social circumstances                                 16 (16%)    8 (8%)      3 (3%)      <NA>        <NA>       
        3 Congenital, familial and genetic disorders           10 (10%)    7 (7%)      2 (2%)      1 (1%)      <NA>       
@@ -357,7 +357,7 @@
       26 Reproductive system and breast disorders             1 (1%)      1 (1%)      1 (1%)      <NA>        <NA>       
       27 No Declared AE                                       <NA>        <NA>        <NA>        <NA>        <NA>       
          control__na control__tot treatment__g1 treatment__g2 treatment__g3 treatment__g4 treatment__g5 treatment__na
-         <glue>      <glue>       <glue>        <glue>        <glue>        <glue>        <glue>        <glue>       
+         <chr>       <chr>        <chr>         <chr>         <chr>         <chr>         <chr>         <chr>        
        1 <NA>        31 (31%)     7 (7%)        5 (5%)        5 (5%)        1 (1%)        <NA>          <NA>         
        2 <NA>        27 (27%)     11 (11%)      4 (4%)        3 (3%)        4 (4%)        <NA>          <NA>         
        3 <NA>        20 (20%)     13 (13%)      3 (3%)        2 (2%)        4 (4%)        <NA>          <NA>         
@@ -386,7 +386,7 @@
       26 <NA>        3 (3%)       2 (2%)        1 (1%)        1 (1%)        <NA>          <NA>          <NA>         
       27 3 (3%)      3 (3%)       <NA>          <NA>          <NA>          <NA>          <NA>          5 (5%)       
          treatment__tot
-         <glue>        
+         <chr>         
        1 18 (18%)      
        2 22 (22%)      
        3 22 (22%)      
@@ -419,7 +419,7 @@
     Output
       # A tibble: 27 x 11
          group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
-         <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
+         <fct>                                                <chr>       <chr>       <chr>       <chr>       <chr>      
        1 Eye disorders                                        14 (14%)    11 (11%)    4 (4%)      2 (2%)      <NA>       
        2 Social circumstances                                 16 (16%)    8 (8%)      3 (3%)      <NA>        <NA>       
        3 Congenital, familial and genetic disorders           10 (10%)    7 (7%)      2 (2%)      1 (1%)      <NA>       
@@ -448,7 +448,7 @@
       26 Reproductive system and breast disorders             1 (1%)      1 (1%)      1 (1%)      <NA>        <NA>       
       27 No Declared AE                                       <NA>        <NA>        <NA>        <NA>        <NA>       
          treatment__g1 treatment__g2 treatment__g3 treatment__g4 treatment__g5
-         <glue>        <glue>        <glue>        <glue>        <glue>       
+         <chr>         <chr>         <chr>         <chr>         <chr>        
        1 7 (7%)        5 (5%)        5 (5%)        1 (1%)        <NA>         
        2 11 (11%)      4 (4%)        3 (3%)        4 (4%)        <NA>         
        3 13 (13%)      3 (3%)        2 (2%)        4 (4%)        <NA>         
@@ -484,7 +484,7 @@
     Output
       # A tibble: 27 x 13
          group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
-         <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
+         <fct>                                                <chr>       <chr>       <chr>       <chr>       <chr>      
        1 Eye disorders                                        31 (31%)    17 (17%)    6 (6%)      2 (2%)      <NA>       
        2 Social circumstances                                 27 (27%)    11 (11%)    3 (3%)      <NA>        <NA>       
        3 Congenital, familial and genetic disorders           20 (20%)    10 (10%)    3 (3%)      1 (1%)      <NA>       
@@ -513,7 +513,7 @@
       26 Gastrointestinal disorders                           4 (4%)      2 (2%)      1 (1%)      1 (1%)      <NA>       
       27 No Declared AE                                       <NA>        <NA>        <NA>        <NA>        <NA>       
          control__na treatment__g1 treatment__g2 treatment__g3 treatment__g4 treatment__g5 treatment__na
-         <glue>      <glue>        <glue>        <glue>        <glue>        <glue>        <glue>       
+         <chr>       <chr>         <chr>         <chr>         <chr>         <chr>         <chr>        
        1 <NA>        18 (18%)      11 (11%)      6 (6%)        1 (1%)        <NA>          <NA>         
        2 <NA>        22 (22%)      11 (11%)      7 (7%)        4 (4%)        <NA>          <NA>         
        3 <NA>        22 (22%)      9 (9%)        6 (6%)        4 (4%)        <NA>          <NA>         
@@ -549,7 +549,7 @@
     Output
       # A tibble: 27 x 13
          group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
-         <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
+         <fct>                                                <chr>       <chr>       <chr>       <chr>       <chr>      
        1 Eye disorders                                        18 (18%)    11 (11%)    4 (4%)      2 (2%)      <NA>       
        2 Social circumstances                                 19 (19%)    8 (8%)      3 (3%)      <NA>        <NA>       
        3 Congenital, familial and genetic disorders           12 (12%)    7 (7%)      2 (2%)      1 (1%)      <NA>       
@@ -578,7 +578,7 @@
       26 Reproductive system and breast disorders             1 (1%)      1 (1%)      1 (1%)      <NA>        <NA>       
       27 No Declared AE                                       <NA>        <NA>        <NA>        <NA>        <NA>       
          control__na treatment__g1 treatment__g2 treatment__g3 treatment__g4 treatment__g5 treatment__na
-         <glue>      <glue>        <glue>        <glue>        <glue>        <glue>        <glue>       
+         <chr>       <chr>         <chr>         <chr>         <chr>         <chr>         <chr>        
        1 <NA>        8 (8%)        5 (5%)        5 (5%)        1 (1%)        <NA>          <NA>         
        2 <NA>        13 (13%)      4 (4%)        3 (3%)        4 (4%)        <NA>          <NA>         
        3 <NA>        15 (15%)      4 (4%)        2 (2%)        4 (4%)        <NA>          <NA>         
@@ -611,7 +611,7 @@
     Output
       # A tibble: 103 x 16
           group1                                               group2                                               control__g1
-          <fct>                                                <chr>                                                <glue>     
+          <fct>                                                <chr>                                                <chr>      
         1 Social circumstances                                 Cultural issues                                      7 (7%)     
         2 Social circumstances                                 Economic conditions affecting care                   <NA>       
         3 Social circumstances                                 Family support issues                                9 (9%)     
@@ -716,7 +716,7 @@
       102 Reproductive system and breast disorders             Menstrual disorders                                  <NA>       
       103 No Declared AE                                       <NA>                                                 <NA>       
           control__g2 control__g3 control__g4 control__g5 control__na control__tot treatment__g1 treatment__g2 treatment__g3
-          <glue>      <glue>      <glue>      <glue>      <glue>      <glue>       <glue>        <glue>        <glue>       
+          <chr>       <chr>       <chr>       <chr>       <chr>       <chr>        <chr>         <chr>         <chr>        
         1 2 (2%)      2 (2%)      <NA>        <NA>        <NA>        11 (11%)     4 (4%)        1 (1%)        1 (1%)       
         2 3 (3%)      <NA>        <NA>        <NA>        <NA>        3 (3%)       2 (2%)        1 (1%)        <NA>         
         3 3 (3%)      <NA>        <NA>        <NA>        <NA>        12 (12%)     5 (5%)        1 (1%)        2 (2%)       
@@ -821,7 +821,7 @@
       102 <NA>        <NA>        <NA>        <NA>        <NA>        <NA>         1 (1%)        <NA>          <NA>         
       103 <NA>        <NA>        <NA>        <NA>        3 (3%)      3 (3%)       <NA>          <NA>          <NA>         
           treatment__g4 treatment__g5 treatment__na treatment__tot
-          <glue>        <glue>        <glue>        <glue>        
+          <chr>         <chr>         <chr>         <chr>         
         1 2 (2%)        <NA>          <NA>          8 (8%)        
         2 1 (1%)        <NA>          <NA>          4 (4%)        
         3 <NA>          <NA>          <NA>          8 (8%)        
@@ -930,7 +930,7 @@
     Output
       # A tibble: 103 x 16
           group1                                               group2                                               control__g1
-          <fct>                                                <fct>                                                <glue>     
+          <fct>                                                <fct>                                                <chr>      
         1 Blood and lymphatic system disorders                 Bone marrow disorders                                <NA>       
         2 Blood and lymphatic system disorders                 Coagulation and bleeding analyses                    <NA>       
         3 Blood and lymphatic system disorders                 Hematologic neoplasms                                <NA>       
@@ -1035,7 +1035,7 @@
       102 Vascular disorders                                   Venous thromboembolic events                         2 (2%)     
       103 No Declared AE                                       <NA>                                                 <NA>       
           control__g2 control__g3 control__g4 control__g5 control__na control__tot treatment__g1 treatment__g2 treatment__g3
-          <glue>      <glue>      <glue>      <glue>      <glue>      <glue>       <glue>        <glue>        <glue>       
+          <chr>       <chr>       <chr>       <chr>       <chr>       <chr>        <chr>         <chr>         <chr>        
         1 <NA>        <NA>        1 (1%)      <NA>        <NA>        1 (1%)       <NA>          <NA>          <NA>         
         2 <NA>        1 (1%)      <NA>        <NA>        <NA>        1 (1%)       <NA>          <NA>          <NA>         
         3 <NA>        <NA>        <NA>        <NA>        <NA>        <NA>         <NA>          <NA>          1 (1%)       
@@ -1140,7 +1140,7 @@
       102 1 (1%)      <NA>        <NA>        <NA>        <NA>        3 (3%)       <NA>          <NA>          <NA>         
       103 <NA>        <NA>        <NA>        <NA>        3 (3%)      3 (3%)       <NA>          <NA>          <NA>         
           treatment__g4 treatment__g5 treatment__na treatment__tot
-          <glue>        <glue>        <glue>        <glue>        
+          <chr>         <chr>         <chr>         <chr>         
         1 <NA>          <NA>          <NA>          <NA>          
         2 <NA>          <NA>          <NA>          <NA>          
         3 <NA>          <NA>          <NA>          1 (1%)        
@@ -1250,7 +1250,7 @@
     Output
       # A tibble: 27 x 15
          group1                                               control__g1 control__g2 control__g3 control__g4 control__g5
-         <fct>                                                <glue>      <glue>      <glue>      <glue>      <glue>     
+         <fct>                                                <chr>       <chr>       <chr>       <chr>       <chr>      
        1 Cardiac disorders                                    7 (7%)      3 (3%)      4 (4%)      <NA>        <NA>       
        2 Congenital, familial and genetic disorders           <NA>        <NA>        <NA>        <NA>        <NA>       
        3 Social circumstances                                 <NA>        <NA>        <NA>        <NA>        <NA>       
@@ -1279,7 +1279,7 @@
       26 Renal and urinary disorders                          <NA>        <NA>        <NA>        <NA>        <NA>       
       27 No Declared AE                                       <NA>        <NA>        <NA>        <NA>        <NA>       
          control__na control__tot treatment__g1 treatment__g2 treatment__g3 treatment__g4 treatment__g5 treatment__na
-         <glue>      <glue>       <glue>        <glue>        <glue>        <glue>        <glue>        <glue>       
+         <chr>       <chr>        <chr>         <chr>         <chr>         <chr>         <chr>         <chr>        
        1 <NA>        14 (14%)     4 (4%)        1 (1%)        3 (3%)        4 (4%)        <NA>          <NA>         
        2 <NA>        <NA>         13 (13%)      3 (3%)        2 (2%)        4 (4%)        <NA>          <NA>         
        3 <NA>        <NA>         11 (11%)      4 (4%)        3 (3%)        4 (4%)        <NA>          <NA>         
@@ -1308,7 +1308,7 @@
       26 <NA>        <NA>         2 (2%)        <NA>          <NA>          1 (1%)        <NA>          <NA>         
       27 86 (86%)    86 (86%)     <NA>          <NA>          <NA>          <NA>          <NA>          5 (5%)       
          treatment__tot
-         <glue>        
+         <chr>         
        1 12 (12%)      
        2 22 (22%)      
        3 22 (22%)      

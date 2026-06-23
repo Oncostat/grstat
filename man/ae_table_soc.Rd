@@ -15,6 +15,7 @@ ae_table_soc(
   arm = NULL,
   cols = c(grade = "AEGR", subjid = "SUBJID"),
   ae_groups = NULL,
+  ae_label = "AE",
   sort_by_count = TRUE,
   total = TRUE,
   showNA = TRUE,
@@ -25,6 +26,7 @@ ae_table_soc(
 \method{as_flextable}{ae_table_soc}(
   x,
   ...,
+  show_footer = c("both", "explanation", "example", "none"),
   arm_colors = c("#f2dcdb", "#dbe5f1", "#ebf1dd", "#e5e0ec"),
   padding_v = NULL
 )
@@ -46,6 +48,8 @@ ae_table_soc(
 
 \item{ae_groups}{a named list specifying the grade values for each group.}
 
+\item{ae_label}{Label used in the output tables (e.g. "AE", "SAE", "Toxicity").}
+
 \item{sort_by_count}{whether to sort by the number of AE or by \code{group1} alphabetically.}
 
 \item{total}{whether to add a \code{total} column for each arm.}
@@ -57,6 +61,8 @@ ae_table_soc(
 \item{warn_miss}{whether to warn for missing values.}
 
 \item{x}{a dataframe, resulting of \code{ae_table_soc()}}
+
+\item{show_footer}{whether to show the footer with the explanation, the example, both, or none.}
 
 \item{arm_colors}{colors for the arm groups}
 
@@ -76,23 +82,28 @@ The resulting dataframe can be piped to \code{as_flextable()} to get a nicely fo
 tm = grstat_example()
 attach(tm, warn.conflicts=FALSE)
 
-ae_table_soc(data_ae=ae, data_pat=enrolres)
-ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm")
+#Default
+ae_table_soc(data_ae=ae, data_pat=enrolres) \%>\%
+  as_flextable()
 
-#sub population
-ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm")
+#By arm, with alternative measure
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm", measure="sup", total=FALSE) \%>\%
+  as_flextable()
 
-#the resulting flextable can be customized using the flextable package
-library(flextable)
-ae_table_soc(ae, data_pat=enrolres, total=FALSE) \%>\%
-  as_flextable() \%>\%
-  hline(i=~group1=="" & group1!=dplyr::lead(group1))
-ae_table_soc(ae, data_pat=enrolres, term=NULL, sort_by_count=FALSE) \%>\%
-  as_flextable() \%>\%
-  bold(i=~group1=="Eye disorders")
-ae_table_soc(ae, data_pat=enrolres, term="aeterm", arm=NULL) \%>\%
-  as_flextable() \%>\%
-  highlight(i=~group1=="Hepatobiliary disorders", j="all_patients__tot")
+#Sub-population, without footer
+ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm") \%>\%
+  as_flextable(show_footer="none")
+
+#Grouping grades, with only TERM
+ae_groups = list("Any grade"=c(1:5,NA), "Grade 1-2"=1:2, "Grade 3-5"=3:5)
+ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), group1="AETERM", ae_groups=ae_groups) \%>\%
+  as_flextable()
+
+#Stratified by both SOC and TERM
+ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm", 
+             group1="AESOC", group2="AETERM") \%>\%
+  dplyr::filter(!is.na(group2)) \%>\% #remove missing term
+  as_flextable()
 }
 \seealso{
 \code{\link[=ae_table_grade]{ae_table_grade()}}, \code{\link[=ae_table_soc]{ae_table_soc()}}, \code{\link[=ae_plot_grade]{ae_plot_grade()}}, \code{\link[=ae_plot_grade_sum]{ae_plot_grade_sum()}}, \code{\link[=butterfly_plot]{butterfly_plot()}}

@@ -38,7 +38,7 @@ ae_table_grade(
 
 \item{subjid}{Name of the subject ID column (in both data frames).}
 
-\item{ae_label}{Label used in the output tables (e.g. "AE", "Toxicity").}
+\item{ae_label}{Label used in the output tables (e.g. "AE", "SAE", "Toxicity").}
 
 \item{percent_pattern}{Pattern used to format counts and percentages. Use \code{{n}} and \code{{p}} as placeholders.}
 
