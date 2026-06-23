@@ -164,6 +164,7 @@ ae_table_soc = function(
     rename(group1=group1, group2=any_of("group2")) %>%
     pivot_wider_spec(spec) %>%
     arrange(group1, pick(any_of("group2"))) %>%
+    mutate(across(-starts_with("group"), as.character)) %>%
     mutate(across(everything(), ~set_label(.x, cur_column()))) %>%
     rename_with(to_snake_case) %>%
     copy_label_from(df) %>% 
