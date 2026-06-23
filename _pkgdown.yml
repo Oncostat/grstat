@@ -4,7 +4,6 @@ template:
   params:
     bootswatch: flatly
 
-
 navbar:
   structure:
     left:  [reference, articles, news]
@@ -14,8 +13,21 @@ authors:
   Team Oncostat:
     href: "https://www.gustaveroussy.fr/fr/oncostat"
 
-reference:
 
+articles:
+  - title: Package's functions
+    navbar: ~
+    contents:
+    - adverse_events
+    - adverse_events_sas
+    - BOR
+  - title: Onboarding guidelines
+    navbar: ~
+    contents:
+    - kaplan_meier
+
+
+reference:
   - title: "Adverse events"
   - contents:
     - ae_table_grade
@@ -30,9 +42,13 @@ reference:
     - body_add_gr_sections_1_8
     - grstat_example
 
-
   - title: "Preview features"
     description: "These functions should be used with caution, and results should always be checked using your own code in parallel."
+  - subtitle: "RECIST response"
+  - contents:
+    - calc_best_response
+    - aggregate_recist_rates
+    - waterfall_plot
   - subtitle: "RECIST Checks"
   - contents:
     - check_recist
@@ -42,11 +58,8 @@ reference:
   - subtitle: "Misc"
   - contents:
     - randomisation_list
-    - calc_best_response
-    - aggregate_recist_rates
     - survfit_stack
   - subtitle: "Plots"
   - contents:
     - boin_plot
-    - waterfall_plot
     - ae_plot_grade_sum
