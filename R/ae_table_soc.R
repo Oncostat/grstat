@@ -1,7 +1,6 @@
 
 #TODO min_percent=1 -> n minimal for percents ?
 #TODO total by arm OK, total total aussi?
-#TODO vline dans as_flextable ?
 
 #' Summary tables for AE by SOC
 #'
@@ -45,15 +44,15 @@
 #' ae_table_soc(data_ae=ae, data_pat=enrolres) %>%
 #'   as_flextable()
 #' 
-#' #By arm
-#' ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm") %>%
+#' #By arm, with alternative measure
+#' ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm", measure="sup", total=FALSE) %>%
 #'   as_flextable()
 #'
-#' #Sub-population
+#' #Sub-population, without footer
 #' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm") %>%
-#'   as_flextable()
+#'   as_flextable(show_footer="none")
 #' 
-#' #Grouping grades
+#' #Grouping grades, with only TERM
 #' ae_groups = list("Any grade"=c(1:5,NA), "Grade 1-2"=1:2, "Grade 3-5"=3:5)
 #' ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), group1="AETERM", ae_groups=ae_groups) %>%
 #'   as_flextable()
@@ -158,8 +157,6 @@ ae_table_soc = function(
                      names_glue="{arm}__{.value}") %>%
     arrange(.name)
 
-
-  #TODO use labels for group1 and group2, then in the flextable!
   rtn = rtn %>%
     rename(group1=group1, group2=any_of("group2")) %>%
     pivot_wider_spec(spec) %>%
@@ -169,17 +166,15 @@ ae_table_soc = function(
     rename_with(to_snake_case) %>%
     copy_label_from(df) %>% 
     add_class("ae_table_soc")
-
-# print(get_label(rtn))
-# browser()
   
   attr(rtn, "header") =
     glue("{a} (N={b})", a=names(arm_count), b=arm_count) %>%
     set_names(to_snake_case(names(arm_count))) %>%
     as.character()
 
-
-
+  attr(rtn, "footer") = 
+    .get_footer(rtn, measure, arm_count, group1, group2)
+  
   rtn
 }
 
@@ -197,13 +192,14 @@ ae_table_soc = function(
 #' @export
 #'
 #' @importFrom dplyr case_when lag mutate transmute
-#' @importFrom flextable align bg bold flextable fontsize hline hline_bottom merge_h merge_v padding set_header_df set_table_properties valign
+#' @importFrom flextable add_footer_lines align bg bold flextable fontsize hline hline_bottom merge_h merge_v padding set_header_df set_table_properties valign
 #' @importFrom rlang check_dots_empty
 #' @importFrom tibble as_tibble_col
 #' @importFrom tidyr separate_wider_regex
 as_flextable.ae_table_soc = function(x,
                                      ...,
-                                     arm_colors=c("#f2dcdb", "#dbe5f1", "#ebf1dd", "#e5e0ec"),
+                                     show_footer = c("both", "explanation", "example", "none"), 
+                                     arm_colors = c("#f2dcdb", "#dbe5f1", "#ebf1dd", "#e5e0ec"),
                                      padding_v = NULL){
   check_dots_empty()
   if (missing(padding_v)) padding_v = getOption("crosstable_padding_v", padding_v)
@@ -228,6 +224,12 @@ as_flextable.ae_table_soc = function(x,
         .default = h2
       ),
     )
+  
+  show_footer = match.arg(show_footer[1], choices=c("both", "explanation", "example", "none", TRUE, FALSE))
+  footer = attr(x, "footer")
+  footer_explanation = if(show_footer %in% list("both", "explanation", TRUE)) footer$explanation
+  footer_example =  if(show_footer %in% list("both", "example", TRUE)) footer$example
+  footer_lines = c(footer_explanation, footer_example)
 
   col1 = header_df$col_keys %in% c("group1", "group2") %>% which() %>% max()
 
@@ -244,7 +246,8 @@ as_flextable.ae_table_soc = function(x,
     padding(padding.top=0, padding.bottom=0) %>%
     set_table_properties(layout="autofit") %>%
     fontsize(size=8, part="all") %>%
-    bold(part="header")
+    bold(part="header") %>% 
+    add_footer_lines(footer_lines)
 
   if (length(padding_v) >= 1) {
     rtn = padding(rtn, padding.top=padding_v[1], padding.bottom=padding_v[1], part="body")
@@ -318,7 +321,6 @@ as_flextable.ae_table_soc = function(x,
     copy_label_from(data_pat) %>% 
     copy_label_from(data_ae)
 
-  # browser()
   attr(rtn, "arm_count") = arm_count
 
   rtn
@@ -368,4 +370,68 @@ as_flextable.ae_table_soc = function(x,
           msg = "{.arg ae_groups} should be a named list of numeric values between 1 and 5.",
           class="ae_table_soc_group_bad_number")
   ae_groups
+}
+
+# Example footer generation logic for ae_table_soc()
+#' @noRd
+#' @keywords internal
+.get_footer = function(rtn, measure, arm_count, group1, group2, ae_label = "AE") {
+  rtn_bak = rtn
+  na_rows = rtn %>% select(-starts_with("group")) %>% pull(2) %>% is.na()
+  rtn = rtn[!na_rows,] %>% head(1)
+
+  group1_label = get_label(rtn[["group1"]])
+  group1_value = as.character(rtn[["group1"]][1])
+  group1_desc = glue("with {group1_label} \"{group1_value}\"")
+  
+  group2_label = get_label(rtn[["group2"]])
+  group2_value = as.character(rtn[["group2"]][1])
+  group2_desc = glue("{group2_label} \"{group2_value}\"")
+  arm_label = if (length(arm_count)>1) "arm" else NULL
+  arm_value = if (length(arm_count)>1) names(arm_count)[1] else NULL
+  arm_desc = glue("in {arm_value} arm")
+
+  x = c(arm_desc, group1_desc, group2_desc)
+  group_desc = cli::format_inline("{x}")
+  x = c(arm_label, group1_label, group2_label)
+  group_vars = cli::format_inline("{x}")
+  
+  example_grade = rtn %>% select(-starts_with("group")) %>%
+    select(2) %>% get_label() %>% str_remove(".*__")
+  example_value = rtn %>% select(-starts_with("group")) %>%
+    select(2) %>% pull(1)
+
+  explanation = switch(
+    measure[1],
+    max = glue(
+      "an {ae_label} of maximum grade, for a given {group_vars}."
+    ),
+    sup = glue(
+      "at least one {ae_label} of grade ≥ X, for a given {group_vars}."
+    ),
+    eq = glue(
+      "at least one {ae_label} of grade = X, for a given {group_vars}."
+    ),
+    "ERROR"
+  )
+  explanation = paste("Figures represent the number of patients who experienced", explanation)
+
+  example = switch(
+    measure[1],
+    max = glue(
+      "For example, for AE {group_desc}, the maximum grade was {example_grade} ",
+      "for {example_value} patients."
+    ),
+    sup = glue(
+      "For example, for AE {group_desc}, at least one AE of grade ≥ {example_grade} ",
+      "was reported for {example_value} patients."
+    ),
+    eq = glue(
+      "For example, for AE {group_desc}, at least one AE of grade = {example_grade} ",
+      "was reported for {example_value} patients."
+    ),
+    "ERROR"
+  )
+
+  lst(explanation, example)
 }

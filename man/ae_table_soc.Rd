@@ -25,6 +25,7 @@ ae_table_soc(
 \method{as_flextable}{ae_table_soc}(
   x,
   ...,
+  show_footer = c("both", "explanation", "example", "none"),
   arm_colors = c("#f2dcdb", "#dbe5f1", "#ebf1dd", "#e5e0ec"),
   padding_v = NULL
 )
@@ -80,15 +81,15 @@ attach(tm, warn.conflicts=FALSE)
 ae_table_soc(data_ae=ae, data_pat=enrolres) \%>\%
   as_flextable()
 
-#By arm
-ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm") \%>\%
+#By arm, with alternative measure
+ae_table_soc(data_ae=ae, data_pat=enrolres, arm="arm", measure="sup", total=FALSE) \%>\%
   as_flextable()
 
-#Sub-population
+#Sub-population, without footer
 ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), arm="arm") \%>\%
-  as_flextable()
+  as_flextable(show_footer="none")
 
-#Grouping grades
+#Grouping grades, with only TERM
 ae_groups = list("Any grade"=c(1:5,NA), "Grade 1-2"=1:2, "Grade 3-5"=3:5)
 ae_table_soc(data_ae=ae, data_pat=head(enrolres, 10), group1="AETERM", ae_groups=ae_groups) \%>\%
   as_flextable()
