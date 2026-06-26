@@ -22,7 +22,7 @@ articles:
     - adverse_events_sas
     - BOR
   - title: Onboarding guidelines
-    navbar: ~
+    navbar: Guidelines
     contents:
     - kaplan_meier
 
