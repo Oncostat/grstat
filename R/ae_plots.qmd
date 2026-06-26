@@ -1,0 +1,256 @@
+---
+title: "Graphiques de descriptions des AE (grade)"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 5
+    df-print: paged
+execute:
+  echo: true
+  cache: false
+  warnings: false
+  messages: false
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: "#>" 
+    R.options:
+      crosstable_compact: true
+---
+
+## Intro
+
+Les tables/plots qu'on présente actuellement résument l'information en présence/absence par patient.
+
+On peut présenter à la place la distribution du nombre d'AE par patient, par grade, et par bras.
+L'information est plus dense, mais plus complète.
+
+## Data
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(scales)
+library(grstat)
+library(ggridges)
+options(
+  ggplot2.discrete.colour=ggsci::scale_colour_lancet,
+  ggplot2.discrete.fill=ggsci::scale_fill_lancet
+)
+
+# tm = grstat_example(N=1000)
+path = "C:/Users/d_chaltiel/Nextcloud/01 - Comite Gyneco/AtezoLACC/ANALYSES/2022-06-10 - IDMC 3/data/ATEZO_ExportTemplate_2020_12_31_SAS_XPORT_2023_02_17_09_59.zip"
+tm = EDCimport::read_trialmaster(path,
+                                 pw="SamplePassword", use_cache=TRUE,
+                                 clean_names_fun=janitor::clean_names)
+attach(tm)
+
+df = ae %>% 
+  left_join(enrolres, by="subjid") %>%
+  rename_with(tolower) %>% 
+  count(
+    aegr, subjid, arm
+  )
+
+df2 = df %>% 
+  mutate(aegr = factor(paste("Grade", aegr))) %>% 
+  count(arm, aegr, n_ae=n, name="n_pat")
+
+df2 %>% arrange(n_ae)
+```
+
+## `grstat`: Plots par patients
+ 
+Graphique standard, qui reprend les 2 tables standards des macros SAS.
+
+
+```{r}
+
+ae_plot_grade(ae, df_enrol=enrolres, arm="arm", variant=c("max", "eq"))
+```
+
+## `grstat`: Plots de count
+
+Ce plot est déjà intégré à `grstat` mais n'est pas validé.
+
+L'idée est de compter le nombre d'AE par patient.
+
+Par défaut les `weights` sont tous à 1, mais ça parait logique de donner plus de poids à un grade 5 qu'à un grade 1.
+
+Les poids que j'ai choisis sont totalement arbitraires et changent forcément le résultat visuel. Ils pourraient être choisis avec le clinicien.
+
+```{r}
+ae_plot_grade_sum(ae, df_enrol=enrolres, arm="arm", weights=c(1,1,3,6,10))
+```
+
+**NB: WIP - ** L'utilisation d'un count pose problème en cas de rando déséquilibrée.
+
+## Propositions: Plots de distribution
+
+### Barplot
+
+
+
+<!-- 
+#### Mean +/- SD
+
+```{r}
+#| warning: false
+df_num = df %>% 
+  summarise(
+    n_ae = sum(n),
+    mean = mean(n),
+    med = median(n),
+    sd = sd(n),
+    q1 = quantile(n, probs=0.25),
+    q3 = quantile(n, probs=0.75),
+    min = min(n),
+    max = max(n),
+    .by=c(aegr, arm)
+  )
+
+df_num %>% 
+  ggplot() +
+  aes(x=aegr, y=mean, ymin=mean-sd, ymax=mean+sd, fill=arm, color=arm) +
+  geom_col(position=position_dodge(0.9), alpha=0.6) +
+  geom_errorbar(position=position_dodge(0.9), width=0.4) +
+  labs(x="AE grade", y="Mean number of AE (+/- SD)", 
+       fill="Treatment arm", color="Treatment arm") +
+  theme(panel.grid.minor.x=element_blank(),
+        legend.position="top")
+```
+
+
+#### Median and quartiles
+ -->
+
+Distribution résumée à la médiane et aux quartiles, donne déjà une bonne idée.
+
+
+```{r}
+#| warning: false
+df_num %>% 
+  ggplot() +
+  aes(x=aegr, y=med, ymin=q1, ymax=q3, fill=arm, color=arm) +
+  geom_col(position=position_dodge(0.9), alpha=0.6) +
+  geom_errorbar(position=position_dodge(0.9), width=0.4) +
+  labs(x="AE grade", y="Median number of AE (Q1,Q3)", 
+       fill="Treatment arm", color="Treatment arm") +
+  theme(panel.grid.minor.x=element_blank(),
+        legend.position="top")
+```
+
+### Histogram
+
+
+```{r}
+#| warning: false
+df2 %>% 
+  ggplot(aes(x = n_ae, y=n_pat, fill=arm, color=arm, group=arm)) +
+  geom_col( position=position_dodge(0.9, preserve="total"), alpha=0.6) +
+  geom_line(position=position_dodge(0.9, preserve="total"), linewidth=2) +
+  facet_grid(rows="aegr", scales="free_y") +
+  scale_x_continuous(breaks=breaks_width(1)) +
+  labs(x="Number of AE", y="Number of patients", fill="Treatment arm", color="Treatment arm") +
+  theme(panel.grid.minor.x=element_blank(),
+        legend.position="top")
+```
+
+
+### Ridge density
+
+Très joli, mais pas très adapté aux données de comptage ? Ne montre pas les grades 5 car <3 par bras...
+
+```{r}
+#| warning: false
+library(ggridges)
+df %>% 
+  ggplot(aes(x = n, y = factor(aegr), fill=arm)) +
+  geom_density_ridges(
+    aes(point_color=arm, point_fill=arm),
+    jittered_points = TRUE, 
+    bandwidth = 0.1,
+    # position = "identity",
+    # position = "raincloud",
+    position = position_points_jitter(width = 0.05, height = 0), #
+    point_shape = '|', point_size = 3, point_alpha = 1,          #
+    rel_min_height = 0.05,
+    alpha = 0.7, scale = 0.9,
+  ) +
+  # scale_discrete_manual(aesthetics = "point_color", values = cols) +
+  # scale_discrete_manual(aesthetics = "point_fill",  values = cols) +
+  labs(x="Number of AE", y="AE grade", 
+       point_color="Treatment arm", point_fill="Treatment arm",
+       fill="Treatment arm") +
+  theme(panel.grid.minor.x=element_blank(),
+        legend.position="top")
+```
+
+
+### Ridge histogram
+
+Pas très lisible...
+
+```{r}
+#| warning: false
+ggplot(df, aes(x = n, y = factor(aegr), fill=arm, height=stat(density))) +
+  ggridges::geom_density_ridges(
+    stat = "binline", binwidth = 1, draw_baseline = FALSE,
+    position = position_dodge(0.3),
+    alpha = 0.7, scale = 0.9,
+  ) +
+  scale_x_continuous(breaks=breaks_width(1), limits=c(0, NA)) +
+  labs(x="Number of AE", y="AE grade", 
+       point_color="Treatment arm", point_fill="Treatment arm",
+       fill="Treatment arm") +
+  theme(panel.grid.minor.x=element_blank(),
+        legend.position="top")
+```
+
+
+
+### Ridge lines
+
+Idem que ridge density, on voit bien que Atezo est plus toxique mais pas très adapté...
+
+```{r}
+
+#| warning: false
+df2 %>% 
+  ggplot(aes(x = n_ae, y = aegr, height=n_pat, fill=arm)) +
+  ggridges::geom_ridgeline(
+    alpha = 0.5, scale = 1/max(df2$n_pat+1),
+  ) +
+  labs(x="Number of AE", y="AE grade", 
+       point_color="Treatment arm", point_fill="Treatment arm",
+       fill="Treatment arm") +
+  theme(panel.grid.minor.x=element_blank(),
+        legend.position="top")
+```
+
+
+
+<!-- 
+
+## BAK 
+
+### Standard histogram 
+
+```{r}
+ggplot(df, aes(x = n, fill=arm, color=arm)) +
+  geom_histogram(binwidth = 1, position=position_dodge(0.9), alpha=0.6) +
+  # geom_freqpoly(binwidth = 1, position=position_dodge(0.9), linewidth=1) +
+  
+  stat_bin(binwidth = 1, position=position_dodge(0.9), pad = FALSE, geom = "path", linewidth=1,
+           na.rm=T) +
+  # facet_grid(rows=vars(factor(aegr))) +
+  facet_grid(rows=vars(factor(aegr)), scales="free_y") +
+  scale_x_continuous(breaks=breaks_width(1)) +
+  labs(x="Number of AE", y="Number of patients", fill="Treatment arm", color="Treatment arm") +
+  theme(panel.grid.minor.x=element_blank(),
+        legend.position="top")
+```
+
+-->

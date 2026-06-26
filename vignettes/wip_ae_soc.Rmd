@@ -1,0 +1,78 @@
+---
+title: "wip_ae_soc"
+output: 
+  pdf_document:
+    toc: true
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{wip_ae_soc}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align="center", 
+  fig.show="hold", 
+  fig.width=7,
+  fig.height=5
+)
+```
+
+```{r setup}
+# devtools::load_all()
+library(grstat)
+```
+
+## Same effect
+
+```{r}
+tm = grstat_example(N=500, n_max=50, p_sae=0.1, beta_trt=0, beta0=-1)
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM")
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", group_ae=TRUE)
+```
+
+## Higher AE grade (same amount)
+
+The experimental treatment causes the same amount of AE, but they are more likely to be Serious AE (20% vs 10%) and of higher grade (beta=0.3).
+
+```{r}
+tm = grstat_example(N=502, n_max=50, n_max_trt=50, p_sae=0.1, p_sae_trt=0.2, beta_trt=0.3)
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM")
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", group_ae=TRUE)
+```
+
+
+## Higher AE amount (same grade)
+
+The experimental treatment causes a higher amoung of AE, but they are as likely to be Serious AE (10%) and on average of same grade (beta=0).
+
+```{r}
+tm = grstat_example(N=504, n_max=50, n_max_trt=100, beta_trt=0)
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM")
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", group_ae=TRUE)
+```
+
+
+## Exp treatment is globally more toxic
+
+The experimental treatment causes more AE (max 70 vs 50), which are more likely to be Serious AE (20% vs 10%). It also gives AE of higher grade (beta=0.3).
+
+```{r}
+tm = grstat_example(N=506, p_sae=0.1, p_sae_trt=0.2, n_max=50, n_max_trt=70, beta_trt=0.3)
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM")
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", group_ae=TRUE)
+```
+
+## Exp treatment is globally more toxic & has specific SOC
+
+The experimental treatment causes more AE (max 70 vs 50), which are more likely to be Serious AE (20% vs 10%). It also gives AE of higher grade (beta=0.3).
+
+```{r}
+tm = grstat_example(N=508, p_sae=0.1, p_sae_trt=0.2, n_max=50, n_max_trt=70, beta_trt=0.3, w_soc_trt =2)
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM")
+butterfly_plot2(df_ae=tm$ae, df_enrol=tm$enrolres, arm="ARM", group_ae=TRUE)
+```
