@@ -122,22 +122,8 @@ as_flextable.aggregate_recist_rates = function(x, ...){
     bold(bold = TRUE, part = "header") %>%
     surround(i = 5, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
     bold(i = 6, bold = TRUE, part = "body") %>%
-    set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
-    footnote(j = "ic_95",
-             value = as_paragraph(label_CP),
-             ref_symbols ="*", part = "header")
+    set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%")
 
-  if (!confirmed){
-  best_response_during_treatment =  best_response_during_treatment %>%
-    set_header_labels(best_response="Unconfirmed Best Response during treatment")
-
-  } else{
-      best_response_during_treatment =  best_response_during_treatment %>%
-      set_header_labels(best_response="Confirmed Best Response during treatment") %>%
-      footnote(i = 1, j = "best_response",
-                value = as_paragraph(label_confirmed),
-                ref_symbols =c("**"), part = "header")
-  }
   if("ORR" %in% derived_endpoints){
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Objective Response Rate (ORR)", bold = TRUE, part = "body") %>%
@@ -158,6 +144,23 @@ as_flextable.aggregate_recist_rates = function(x, ...){
       footnote( i = ~ best_response == "Disease Control Rate (DCR)", j = "best_response",
                 value = as_paragraph(label_DCR),
                 ref_symbols ="DCR", part = "body")
+  }
+
+  best_response_during_treatment = best_response_during_treatment %>%
+    footnote(j = "ic_95",
+             value = as_paragraph(label_CP),
+             ref_symbols ="*", part = "header")
+
+  if (!confirmed){
+    best_response_during_treatment =  best_response_during_treatment %>%
+      set_header_labels(best_response="Unconfirmed Best Response during treatment")
+
+  } else{
+    best_response_during_treatment =  best_response_during_treatment %>%
+      set_header_labels(best_response="Confirmed Best Response during treatment") %>%
+      footnote(i = 1, j = "best_response",
+               value = as_paragraph(label_confirmed),
+               ref_symbols =c("**"), part = "header")
   }
 
   best_response_during_treatment %>%
