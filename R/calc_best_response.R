@@ -128,9 +128,9 @@ calc_best_response = function(data_recist, ...,
 
   data_recist %>%
     mutate(response_final = factor(response_final,
-                                       levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
-                                       labels = c("Complete response","Partial response",
-                                                  "Stable disease", "Progressive disease", "Not evaluable"))
+                                   levels = c("CR", "PR", "SD", "PD", "Not evaluable"),
+                                   labels = c("Complete response","Partial response",
+                                              "Stable disease", "Progressive disease", "Not evaluable"))
     ) %>%
     mutate(six_months_confirmation = duree_suivi_max >= 183) %>%
     select(subjid, best_response=response_final, date, target_sum=sum,
@@ -188,7 +188,7 @@ calc_best_response = function(data_recist, ...,
     grstat_data_warn("Patients with <2 recist evaluations were ignored.",
                      class="check_best_resp_inf2_eval_warning")
 
-    df %>% filter(n()>1, .by=c(subjid, date)) %>%
+  df %>% filter(n()>1, .by=c(subjid, date)) %>%
     grstat_data_warn("Patients with duplicate date of recist evalution but different evaluation are present in the data set",
                      class="check_best_resp_duplic_eval_warning")
   df
