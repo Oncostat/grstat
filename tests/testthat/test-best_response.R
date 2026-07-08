@@ -109,3 +109,22 @@ test_that("No bug when no CR or PR", {
   })
 })
 
+test_that("No bug when modification of best_response before between calc_best_resp and aggregatte", {
+  local_reproducible_output(width=125)
+  db = grstat_example(N=500)
+  data_br = db$recist %>%
+    calc_best_response()
+
+  new_patient = c(subjid = 1000, best_response = "Not evaluable", date = "2023-05-01", target_sum = 0, target_sum_diff_first = 0, target_sum_diff_min = 0, six_months_confirmation = FALSE)
+  data_br_2 = rbind(data_br, new_patient)
+  aggregate_recist_rates(data_br_2)
+
+  data_br_3 = data_br %>%
+    mutate(best_response = ifelse(subjid ==1, "Stable disease", as.character(best_response)))
+  aggregate_recist_rates(data_br_3)
+
+  expect_snapshot({
+    as.data.frame(aggregate_recist_rates(data_br_2))
+    as.data.frame(aggregate_recist_rates(data_br_3))
+  })
+})

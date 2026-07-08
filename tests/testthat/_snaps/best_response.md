@@ -1472,3 +1472,30 @@
       7   Clinical Benefit Rate (CBR)   0  0.0     [0;1.2]
       8    Disease Control Rate (DCR)  72 23.2 [18.6;28.2]
 
+# No bug when modification of best_response before between calc_best_resp and aggregatte
+
+    Code
+      as.data.frame(aggregate_recist_rates(data_br_2))
+    Output
+                        best_response   n    p       ic_95
+      1             Complete response 256 51.1 [46.6;55.6]
+      2              Partial response  69 13.8 [10.9;17.1]
+      3                Stable disease  37  7.4    [5.3;10]
+      4           Progressive disease 138 27.5 [23.7;31.7]
+      5                 Not evaluable   1  0.2     [0;1.1]
+      6 Objective Response Rate (ORR) 325 64.9 [60.5;69.1]
+      7   Clinical Benefit Rate (CBR) 325 64.9 [60.5;69.1]
+      8    Disease Control Rate (DCR) 362 72.3 [68.1;76.1]
+    Code
+      as.data.frame(aggregate_recist_rates(data_br_3))
+    Output
+                        best_response   n    p       ic_95
+      1             Complete response 255 51.0 [46.5;55.5]
+      2              Partial response  69 13.8 [10.9;17.1]
+      3                Stable disease  38  7.6  [5.4;10.3]
+      4           Progressive disease 138 27.6 [23.7;31.7]
+      5                 Not evaluable   0  0.0     [0;0.7]
+      6 Objective Response Rate (ORR) 324 64.8   [60.4;69]
+      7   Clinical Benefit Rate (CBR) 324 64.8   [60.4;69]
+      8    Disease Control Rate (DCR) 362 72.4 [68.3;76.3]
+
