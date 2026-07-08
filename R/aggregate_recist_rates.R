@@ -38,7 +38,7 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
            best_response = factor(best_response,
                                   levels = best_response_label))
 
-  if(length(recist$subjid) != length(data$subjid)){
+  if(length(recist$subjid) != length(data$subjid) | length(unique(recist$subjid)) != length(recist$subjid)){
     cli_abort(c("data should be in wide format relative to subjid",
                 i="Please check that there is no duplicate"))
   }
