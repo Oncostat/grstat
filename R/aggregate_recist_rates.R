@@ -31,13 +31,12 @@
 #'
 aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "DCR")){
   confirmed = attr(data, "confirmed")
+  best_response_label = c("Complete response","Partial response", "Stable disease", "Progressive disease", "Not evaluable")
   recist = data %>%
     distinct() %>%
-    mutate(best_response = factor(best_response,
-           levels = c("Complete response","Partial response",
-                      "Stable disease", "Progressive disease", "Not evaluable"),
-           labels = c("Complete response","Partial response",
-                      "Stable disease", "Progressive disease", "Not evaluable")))
+    mutate(six_months_confirmation = as.logical(six_months_confirmation),
+           best_response = factor(best_response,
+                                  levels = best_response_label))
 
   if(length(recist$subjid) != length(data$subjid)){
     cli_abort(c("data should be in wide format relative to subjid",
