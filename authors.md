@@ -9,32 +9,32 @@
 - **Dan Chaltiel**. Author, maintainer.
   [](https://orcid.org/0000-0003-3488-779X)
 
-- **Baptiste Archambaud**. Contributor.
+- **Matthieu Texier**. Reviewer.
+  [](https://orcid.org/0000-0001-8303-3315)
+
+- **Alexis Cochard**. Author. [](https://orcid.org/0009-0008-0171-6840)
+
+- **Livia Pierotti**. Contributor.
+  [](https://orcid.org/0009-0009-6274-1684)
 
 - **Charlotte Bargain**. Contributor.
+  [](https://orcid.org/0009-0005-8831-469X)
 
 - **Aldéric Fraslin**. Contributor.
   [](https://orcid.org/0000-0003-2235-0012)
-
-- **Nusaïbah Ibrahimi**. Contributor.
-
-- **Livia Pierotti**. Contributor.
-
-- **Alexis Cochard**. Contributor.
-  [](https://orcid.org/0009-0008-0171-6840)
 
 ## Citation
 
 Source:
 [`DESCRIPTION`](https://github.com/oncostat/grstat/blob/main/DESCRIPTION)
 
-Chaltiel D (2026). *grstat: Clinical Research Tools*. R package version
-0.1.0.9036, <https://oncostat.github.io/grstat/>.
+Chaltiel D, Cochard A (2026). *grstat: Clinical Research Tools*. R
+package version 0.1.0.9037, <https://oncostat.github.io/grstat/>.
 
     @Manual{,
       title = {grstat: Clinical Research Tools},
-      author = {Dan Chaltiel},
+      author = {Dan Chaltiel and Alexis Cochard},
       year = {2026},
-      note = {R package version 0.1.0.9036},
+      note = {R package version 0.1.0.9037},
       url = {https://oncostat.github.io/grstat/},
     }

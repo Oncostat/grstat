@@ -38,7 +38,7 @@ be checked using your own code in parallel.
   [`as_flextable(`*`<aggregate_recist_rates>`*`)`](https://oncostat.github.io/grstat/reference/aggregate_recist_rates.md)
   **\[experimental\]** : Calculate BOR
 - [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)
-  : Waterfall plot for RECIST best response data
+  **\[experimental\]** : Waterfall plot for RECIST best response data
 
 ### RECIST Checks
 

@@ -1,4 +1,4 @@
-# grstat [![](reference/figures/logo.png)](https://Oncostat.github.io/grstat/)
+# grstat
 
 [grstat](https://oncostat.github.io/grstat/) is a package designed to
 help standardize the descriptive clinical research analyses at GR.
@@ -10,37 +10,72 @@ from GitHub:
 
 ``` r
 
-# Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9036")
+# Install the latest version from Github
+pak::pak("Oncostat/grstat")
 ```
 
-Note that, for reproducibility purpose, an even better solution would be
-to use [`renv`](https://rstudio.github.io/renv/articles/renv.html).
+We strongly recommend using
+[`renv`](https://rstudio.github.io/renv/articles/renv.html) to ensure
+reproducibility.
 
-## Features
+## Documentation
 
-See the full documentation on <https://oncostat.github.io/grstat/>.
+### Features and lifecycle
 
-### Stable
+A full list of features is available in the
+[**Reference**](https://oncostat.github.io/grstat/reference) page.
 
-- [`ae_table_grade()`](https://oncostat.github.io/grstat/reference/ae_table_grade.md),
-  [`ae_table_soc()`](https://oncostat.github.io/grstat/reference/ae_table_soc.md)
-- [`ae_plot_grade()`](https://oncostat.github.io/grstat/reference/ae_plot_grade.md),
-  [`butterfly_plot()`](https://oncostat.github.io/grstat/reference/butterfly_plot.md)
+The package follows a strict validation workflow:
 
-### Utils
+- ![Stable lifecycle badge](reference/figures/lifecycle-stable.svg)  
+  Stable functions have been validated by the team.  
+  You can use them with confidence, although reviewing the results is
+  always good practice.  
+  Backward compatibility will be as ensured as possible.
 
-- [`gr_new_project()`](https://oncostat.github.io/grstat/reference/gr_new_project.md)
-- [`gr_officer_template()`](https://oncostat.github.io/grstat/reference/gr_officer_template.md)
+- ![Experimental lifecycle
+  badge](reference/figures/lifecycle-experimental.svg)  
+  Experimental functions have not been validated yet.  
+  You should always check them with your own code and data, in every
+  context.  
+  Please report your findings to the team. Every validation contributes
+  to the package maturation process.  
+  Backward compatibility is not warranted.
 
-### Dev
+[Automatic
+tests](https://github.com/Oncostat/grstat/tree/main/tests/testthat) are
+used to ensure that no bug or regression are added when updating or
+correcting the package.
 
-- [`randomisation_list()`](https://oncostat.github.io/grstat/reference/randomisation_list.md)
-- [`check_recist()`](https://oncostat.github.io/grstat/reference/check_recist.md)
-- [`calc_best_response()`](https://oncostat.github.io/grstat/reference/calc_best_response.md)
-- [`boin_plot()`](https://oncostat.github.io/grstat/reference/boin_plot.md)
-- [`survfit_stack()`](https://oncostat.github.io/grstat/reference/survfit_stack.md)
-- [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)
+### Vignettes
+
+You can find vignettes in the
+[**Articles**](https://oncostat.github.io/grstat/articles) page.
+
+Some are tutorials on how to use the packages functions, and some are
+broader guidelines on how to use external tools.
+
+### Prototypes
+
+Additionally, experimental prototypes can be found in the
+[Issues](https://github.com/Oncostat/grstat/issues?q=label%3Aprototype).
+
+These are pieces of code that can be useful to many, but the validation
+cycle is not even started yet.
+
+For example, at the moment, there are:
+
+- [RECIST Alluvial plot
+  (#126)](https://github.com/Oncostat/grstat/issues/126)
+
+- [Cox Multistate: reporting et visualisation
+  (#114)](https://github.com/Oncostat/grstat/issues/114)
+
+- [Analyse en sous-groupes
+  (#106)](https://github.com/Oncostat/grstat/issues/106)
+
+- [Helper pour calculer les RMST
+  (#97)](https://github.com/Oncostat/grstat/issues/97)
 
 # Package index
 
@@ -82,7 +117,7 @@ be checked using your own code in parallel.
   [`as_flextable(`*`<aggregate_recist_rates>`*`)`](https://oncostat.github.io/grstat/reference/aggregate_recist_rates.md)
   **\[experimental\]** : Calculate BOR
 - [`waterfall_plot()`](https://oncostat.github.io/grstat/reference/waterfall_plot.md)
-  : Waterfall plot for RECIST best response data
+  **\[experimental\]** : Waterfall plot for RECIST best response data
 
 ### RECIST Checks
 

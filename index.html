@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Clinical Research Tools • grstat</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Clinical Research Tools">
 <meta name="description" content="Gives tools to standardize the output of clinical research description.">
 <meta property="og:description" content="Gives tools to standardize the output of clinical research description.">
+<meta property="og:image" content="https://oncostat.github.io/grstat/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">grstat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9036</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9037</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,9 +64,11 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="grstat-">grstat <a href="https://Oncostat.github.io/grstat/" class="external-link"><img src="reference/figures/logo.png" align="right" height="175"></a>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="grstat-">grstat 
 <a class="anchor" aria-label="anchor" href="#grstat-"></a>
-</h1></div>
+</h1>
+</div>
 <!-- badges: start -->
 
 <!-- badges: end -->
@@ -70,44 +78,48 @@
 </h2>
 <p>This package is not designed to be on CRAN, so you should install it from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install development version on Github</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"Oncostat/grstat@v0.1.0.9036"</span><span class="op">)</span></span></code></pre></div>
-<p>Note that, for reproducibility purpose, an even better solution would be to use <a href="https://rstudio.github.io/renv/articles/renv.html" class="external-link"><code>renv</code></a>.</p>
+<code class="sourceCode R"><span><span class="co"># Install the latest version from Github</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"Oncostat/grstat"</span><span class="op">)</span></span></code></pre></div>
+<p>We strongly recommend using <a href="https://rstudio.github.io/renv/articles/renv.html" class="external-link"><code>renv</code></a> to ensure reproducibility.</p>
 </div>
 <div class="section level2">
-<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
-<p>See the full documentation on <a href="https://oncostat.github.io/grstat/" class="uri">https://oncostat.github.io/grstat/</a>.</p>
 <div class="section level3">
-<h3 id="stable">Stable<a class="anchor" aria-label="anchor" href="#stable"></a>
+<h3 id="features-and-lifecycle">Features and lifecycle<a class="anchor" aria-label="anchor" href="#features-and-lifecycle"></a>
 </h3>
+<p>A full list of features is available in the <a href="https://oncostat.github.io/grstat/reference"><strong>Reference</strong></a> page.</p>
+<p>The package follows a strict validation workflow:</p>
 <ul>
-<li>
-<code><a href="reference/ae_table_grade.html">ae_table_grade()</a></code>, <code><a href="reference/ae_table_soc.html">ae_table_soc()</a></code>
-</li>
-<li>
-<code><a href="reference/ae_plot_grade.html">ae_plot_grade()</a></code>, <code><a href="reference/butterfly_plot.html">butterfly_plot()</a></code>
-</li>
+<li><p><img src="reference/figures/lifecycle-stable.svg" alt="Stable lifecycle badge"><br>
+Stable functions have been validated by the team.<br>
+You can use them with confidence, although reviewing the results is always good practice.<br>
+Backward compatibility will be as ensured as possible.</p></li>
+<li><p><img src="reference/figures/lifecycle-experimental.svg" alt="Experimental lifecycle badge"><br>
+Experimental functions have not been validated yet.<br>
+You should always check them with your own code and data, in every context.<br>
+Please report your findings to the team. Every validation contributes to the package maturation process.<br>
+Backward compatibility is not warranted.</p></li>
 </ul>
+<p><a href="https://github.com/Oncostat/grstat/tree/main/tests/testthat" class="external-link">Automatic tests</a> are used to ensure that no bug or regression are added when updating or correcting the package.</p>
 </div>
 <div class="section level3">
-<h3 id="utils">Utils<a class="anchor" aria-label="anchor" href="#utils"></a>
+<h3 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
 </h3>
-<ul>
-<li><code><a href="reference/gr_new_project.html">gr_new_project()</a></code></li>
-<li><code><a href="reference/gr_officer_template.html">gr_officer_template()</a></code></li>
-</ul>
+<p>You can find vignettes in the <a href="https://oncostat.github.io/grstat/articles"><strong>Articles</strong></a> page.</p>
+<p>Some are tutorials on how to use the packages functions, and some are broader guidelines on how to use external tools.</p>
 </div>
 <div class="section level3">
-<h3 id="dev">Dev<a class="anchor" aria-label="anchor" href="#dev"></a>
+<h3 id="prototypes">Prototypes<a class="anchor" aria-label="anchor" href="#prototypes"></a>
 </h3>
+<p>Additionally, experimental prototypes can be found in the <a href="https://github.com/Oncostat/grstat/issues?q=label%3Aprototype" class="external-link">Issues</a>.</p>
+<p>These are pieces of code that can be useful to many, but the validation cycle is not even started yet.</p>
+<p>For example, at the moment, there are:</p>
 <ul>
-<li><code><a href="reference/randomisation_list.html">randomisation_list()</a></code></li>
-<li><code><a href="reference/check_recist.html">check_recist()</a></code></li>
-<li><code><a href="reference/calc_best_response.html">calc_best_response()</a></code></li>
-<li><code><a href="reference/boin_plot.html">boin_plot()</a></code></li>
-<li><code><a href="reference/survfit_stack.html">survfit_stack()</a></code></li>
-<li><code><a href="reference/waterfall_plot.html">waterfall_plot()</a></code></li>
+<li><p><a href="https://github.com/Oncostat/grstat/issues/126" class="external-link">RECIST Alluvial plot (#126)</a></p></li>
+<li><p><a href="https://github.com/Oncostat/grstat/issues/114" class="external-link">Cox Multistate: reporting et visualisation (#114)</a></p></li>
+<li><p><a href="https://github.com/Oncostat/grstat/issues/106" class="external-link">Analyse en sous-groupes (#106)</a></p></li>
+<li><p><a href="https://github.com/Oncostat/grstat/issues/97" class="external-link">Helper pour calculer les RMST (#97)</a></p></li>
 </ul>
 </div>
 </div>
@@ -141,7 +153,11 @@
 <li>
 <a href="https://www.gustaveroussy.fr/fr/oncostat" class="external-link">Team Oncostat</a> <br><small class="roles"> Copyright holder, funder </small>  <a href="https://ror.org/01ed4t417" class="external-link"><img src="https://raw.githubusercontent.com/ror-community/ror-logos/main/ror-icon-rgb.svg" class="ror" alt="ROR"></a> </li>
 <li>Dan Chaltiel <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3488-779X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li><a href="authors.html">More about authors...</a></li>
+<li>Matthieu Texier <br><small class="roles"> Reviewer </small> <a href="https://orcid.org/0000-0001-8303-3315" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Alexis Cochard <br><small class="roles"> Author </small> <a href="https://orcid.org/0009-0008-0171-6840" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Livia Pierotti <br><small class="roles"> Contributor </small> <a href="https://orcid.org/0009-0009-6274-1684" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Charlotte Bargain <br><small class="roles"> Contributor </small> <a href="https://orcid.org/0009-0005-8831-469X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Aldéric Fraslin <br><small class="roles"> Contributor </small> <a href="https://orcid.org/0000-0003-2235-0012" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 </ul>
 </div>
 
@@ -160,11 +176,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.gustaveroussy.fr/fr/oncostat" class="external-link">Team Oncostat</a>, Dan Chaltiel.</p>
+  <p>Developed by <a href="https://www.gustaveroussy.fr/fr/oncostat" class="external-link">Team Oncostat</a>, Dan Chaltiel, Matthieu Texier, Alexis Cochard.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

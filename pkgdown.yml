@@ -1,12 +1,12 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   adverse_events_sas: adverse_events_sas.html
   adverse_events: adverse_events.html
   BOR: BOR.html
   kaplan_meier: kaplan_meier.html
-last_built: 2026-06-26T12:16Z
+last_built: 2026-07-14T13:13Z
 urls:
   reference: https://oncostat.github.io/grstat/reference
   article: https://oncostat.github.io/grstat/articles
