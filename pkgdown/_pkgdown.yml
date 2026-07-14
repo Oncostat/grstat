@@ -6,6 +6,11 @@ home:
 authors:
   Team Oncostat:
     href: "https://www.gustaveroussy.fr/fr/oncostat"
+  sidebar:
+    roles: [fnd, cre, aut, rev, ctb]
+  footer:
+    roles: [fnd, cre, aut, rev]
+
 
 template:
   bootstrap: 5
