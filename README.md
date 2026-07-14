@@ -26,3 +26,4 @@ Note that, for reproducibility purpose, you should definitely use [`renv`](https
 ## Features
 
 See the full documentation on https://oncostat.github.io/grstat/.
+[![QRcode to the website](man/figures/grstat_qr.svg)](https://oncostat.github.io/grstat/)

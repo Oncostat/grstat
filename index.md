@@ -27,12 +27,12 @@ A full list of features is available in the [**Reference**](https://oncostat.git
 
 The package follows a strict validation workflow:
 
--   ![](man/figures/lifecycle-stable.svg)\
+-   ![Stable lifecycle badge](man/figures/lifecycle-stable.svg)\
     Stable functions have been validated by the team.\
     You can use them with confidence, although reviewing the results is always good practice.\
     Backward compatibility will be as ensured as possible.
 
--   ![](man/figures/lifecycle-experimental.svg)\
+-   ![Experimental lifecycle badge](man/figures/lifecycle-experimental.svg)\
     Experimental functions have not been validated yet.\
     You should always check them with your own code and data, in every context.\
     Please report your findings to the team. Every validation contributes to the package maturation process.\
