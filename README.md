@@ -18,7 +18,7 @@ This package is not designed to be on CRAN, so you should install it from GitHub
 
 ``` r
 # Install development version on Github
-pak::pak("Oncostat/grstat@v0.1.0.9037")
+pak::pak("Oncostat/grstat@v0.1.0.9038")
 ```
 
 Note that, for reproducibility purpose, you should definitely use [`renv`](https://rstudio.github.io/renv/articles/renv.html).
