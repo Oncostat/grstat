@@ -45,6 +45,7 @@ are detected in plotted variables.}
 A \code{ggplot} object.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}\cr
 Creates a waterfall plot showing the best percent change from baseline in
 target lesion size for each subject.
 }

@@ -1,6 +1,7 @@
 
 #' Waterfall plot for RECIST best response data
 #'
+#' `r lifecycle::badge("experimental")`\cr
 #' Creates a waterfall plot showing the best percent change from baseline in
 #' target lesion size for each subject.
 #'
