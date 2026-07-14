@@ -1,4 +1,17 @@
 url: https://oncostat.github.io/grstat/
+
+home:
+  title: Clinical Research Tools
+
+authors:
+  Team Oncostat:
+    href: "https://www.gustaveroussy.fr/fr/oncostat"
+  sidebar:
+    roles: [fnd, cre, aut, rev, ctb]
+  footer:
+    roles: [fnd, cre, aut, rev]
+
+
 template:
   bootstrap: 5
   params:
@@ -8,11 +21,6 @@ navbar:
   structure:
     left:  [reference, articles, news]
     right: [search, github]
-
-authors:
-  Team Oncostat:
-    href: "https://www.gustaveroussy.fr/fr/oncostat"
-
 
 articles:
   - title: Package's functions

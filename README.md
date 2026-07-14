@@ -21,28 +21,9 @@ This package is not designed to be on CRAN, so you should install it from GitHub
 pak::pak("Oncostat/grstat@v0.1.0.9037")
 ```
 
-Note that, for reproducibility purpose, an even better solution would be
-to use [`renv`](https://rstudio.github.io/renv/articles/renv.html).
+Note that, for reproducibility purpose, you should definitely use [`renv`](https://rstudio.github.io/renv/articles/renv.html).
 
 ## Features
 
 See the full documentation on https://oncostat.github.io/grstat/.
-
-### Stable
-
-- `ae_table_grade()`, `ae_table_soc()`
-- `ae_plot_grade()`, `butterfly_plot()`
-
-### Utils
-
-- `gr_new_project()`
-- `gr_officer_template()`
-
-### Dev
-
-- `randomisation_list()`
-- `check_recist()`
-- `calc_best_response()`
-- `boin_plot()`
-- `survfit_stack()`
-- `waterfall_plot()`
+[![QRcode to the website](man/figures/grstat_qr.svg)](https://oncostat.github.io/grstat/)
