@@ -31,10 +31,14 @@
 #'
 aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "DCR")){
   confirmed = attr(data, "confirmed")
+  best_response_label = c("Complete response","Partial response", "Stable disease", "Progressive disease", "Not evaluable")
   recist = data %>%
-    distinct()
+    distinct() %>%
+    mutate(six_months_confirmation = as.logical(six_months_confirmation),
+           best_response = factor(best_response,
+                                  levels = best_response_label))
 
-  if(length(recist$subjid) != length(data$subjid)){
+  if(length(recist$subjid) != length(data$subjid) | length(unique(recist$subjid)) != length(recist$subjid)){
     cli_abort(c("data should be in wide format relative to subjid",
                 i="Please check that there is no duplicate"))
   }
@@ -106,34 +110,17 @@ as_flextable.aggregate_recist_rates = function(x, ...){
   derived_endpoints = attr(x, "derived_endpoints")
   confirmed = attr(x, "confirmed")
   total = attr(x,"total")
-  label_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
-  label_confirmed = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
-  label_ORR = "ORR was defined as the presence of a partial response (PR) or a complete response (CR)."
-  label_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months."
-  label_DCR = "DCR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD)."
+
   best_response_during_treatment =  x %>%
     flextable() %>%
     set_table_properties(layout="autofit") %>%
     bold(bold = TRUE, part = "header") %>%
     surround(i = 5, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
     bold(i = 6, bold = TRUE, part = "body") %>%
-    set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
-    footnote(j = "ic_95",
-             value = as_paragraph(label_CP),
-             ref_symbols ="*", part = "header")
+    set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%")
 
-  if (!confirmed){
-  best_response_during_treatment =  best_response_during_treatment %>%
-    set_header_labels(best_response="Unconfirmed Best Response during treatment")
-
-  } else{
-      best_response_during_treatment =  best_response_during_treatment %>%
-      set_header_labels(best_response="Confirmed Best Response during treatment") %>%
-      footnote(i = 1, j = "best_response",
-                value = as_paragraph(label_confirmed),
-                ref_symbols =c("**"), part = "header")
-  }
   if("ORR" %in% derived_endpoints){
+    label_ORR = "ORR was defined as the presence of a partial response (PR) or a complete response (CR)."
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Objective Response Rate (ORR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Objective Response Rate (ORR)", j = "best_response",
@@ -141,6 +128,7 @@ as_flextable.aggregate_recist_rates = function(x, ...){
                 ref_symbols ="ORR", part = "body")
   }
   if("CBR" %in% derived_endpoints){
+    label_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months."
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Clinical Benefit Rate (CBR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Clinical Benefit Rate (CBR)", j = "best_response",
@@ -148,11 +136,31 @@ as_flextable.aggregate_recist_rates = function(x, ...){
                 ref_symbols ="CBR", part = "body")
   }
   if("DCR" %in% derived_endpoints){
+    label_DCR = "DCR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD)."
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Disease Control Rate (DCR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Disease Control Rate (DCR)", j = "best_response",
                 value = as_paragraph(label_DCR),
                 ref_symbols ="DCR", part = "body")
+  }
+
+  label_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
+  best_response_during_treatment = best_response_during_treatment %>%
+    footnote(j = "ic_95",
+             value = as_paragraph(label_CP),
+             ref_symbols ="*", part = "header")
+
+  if (!confirmed){
+    best_response_during_treatment =  best_response_during_treatment %>%
+      set_header_labels(best_response="Unconfirmed Best Response during treatment")
+
+  } else{
+    label_confirmed = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
+    best_response_during_treatment =  best_response_during_treatment %>%
+      set_header_labels(best_response="Confirmed Best Response during treatment") %>%
+      footnote(i = 1, j = "best_response",
+               value = as_paragraph(label_confirmed),
+               ref_symbols =c("**"), part = "header")
   }
 
   best_response_during_treatment %>%
