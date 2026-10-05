@@ -11,6 +11,7 @@
 #' @return a dataframe (`aggregate_recist_rates()`) or a flextable (`as_flextable()`).
 #'
 #' @importFrom cli cli_abort
+#' @importFrom dplyr bind_rows count distinct mutate summarise group_by ungroup
 #' @importFrom glue glue
 #' @export
 #'
@@ -118,6 +119,7 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
 #' @rdname aggregate_recist_rates
 #' @export
 #'
+#' @importFrom flextable as_paragraph bold flextable footnote set_header_labels set_table_properties surround valign border
 #' @importFrom officer fp_border
 #' @importFrom rlang check_dots_empty
 #' @importFrom tidyr separate_wider_delim
@@ -127,14 +129,84 @@ as_flextable.aggregate_recist_rates = function(x, ...){
   derived_endpoints = attr(x, "derived_endpoints")
   confirmed = attr(x, "confirmed")
   total = attr(x,"total")
+  data_arm = attr(x, "data_arm")
 
-  best_response_during_treatment =  x %>%
-    flextable() %>%
-    set_table_properties(layout="autofit") %>%
-    bold(bold = TRUE, part = "header") %>%
-    surround(i = 5, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
-    bold(i = 6, bold = TRUE, part = "body") %>%
-    set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%")
+  label_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
+
+  header_labels = c(best_response = "Unconfirmed Best Response",
+                    n="N", p = "%", ic_95 = "IC 95%")
+
+  if (!confirmed){
+    header_labels = c(best_response = "Unconfirmed Best Response during treatment",
+                      n="N", p = "%", ic_95 = "IC 95%")
+  } else{
+    header_labels = c(best_response = "Confirmed Best Response during treatment",
+                      n="N", p = "%", ic_95 = "IC 95%")
+    label_confirmed = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
+  }
+
+  header_df =
+    tibble(col_keys = names(x)) %>%
+    separate_wider_delim(col_keys, names=c("var", "arm"), cols_remove =FALSE,
+                         delim="__", too_few ="align_start") %>%
+    left_join(attr(x,"n_total"), by = "arm") %>%
+    mutate(
+      label = header_labels[var],
+      arm = ifelse(is.na(arm), label, glue("{arm} (N={n_total})")),
+    ) %>%
+    select(col_keys, arm, label)
+
+  if(!is.null(data_arm)){
+    best_response_during_treatment =  x %>%
+      flextable() %>%
+      set_table_properties(layout="autofit") %>%
+      set_header_df(header_df) %>%
+      border_outer() %>%
+      footnote(j = cumsum(c(4,rep(3,length(attr(c,"n_total")$arm)))),
+               i = 2,
+               value = as_paragraph(label_CP),
+               ref_symbols = "*",
+               part = "header"
+      ) %>%
+      merge_v(part="head") %>%
+      merge_h(part="head") %>%
+      align(part="head", i=1, align="center") %>%
+      align(part="head", i=2, j=c(2,3,5,6), align="right") %>%
+      valign(part="head", valign="center") %>%
+      border(part="head", i=2, border.bottom = fp_border(color = "black", style = "solid", width = 1)) %>%
+      border(
+        i = 5,
+        border.bottom = fp_border(color = "black", style = "solid", width = 1),
+        part = "body"
+      ) %>%
+      border(j=c(1,4), border.right=fp_border(color = "black", style = "solid", width = 1), part = "all") %>%
+      bold(bold = TRUE, part = "header")
+  }
+  else{
+    best_response_during_treatment =  x %>%
+      flextable() %>%
+      set_table_properties(layout="autofit") %>%
+      set_header_df(header_df) %>%
+      merge_v(part="head") %>%
+      merge_h(part="head") %>%
+      align(part="head", i=2, j=c(2,3), align="right") %>%
+      valign(part="head", valign="center") %>%
+      bold(bold = TRUE, part = "header") %>%
+      surround(i = 5, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
+      bold(i = 6, bold = TRUE, part = "body") %>%
+      set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%", arm = "Arm") %>%
+      footnote(j = 4,
+               value = as_paragraph(label_CP),
+               ref_symbols = "*",
+               part = "header")
+  }
+
+  if (confirmed){
+    best_response_during_treatment = best_response_during_treatment %>%
+      footnote(j = 1,
+               value = as_paragraph(label_confirmed),
+               ref_symbols =c("**"), part = "header")
+  }
 
   if("ORR" %in% derived_endpoints){
     label_ORR = "ORR was defined as the presence of a partial response (PR) or a complete response (CR)."
@@ -161,25 +233,13 @@ as_flextable.aggregate_recist_rates = function(x, ...){
                 ref_symbols ="DCR", part = "body")
   }
 
-  label_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
-  best_response_during_treatment = best_response_during_treatment %>%
-    footnote(j = "ic_95",
-             value = as_paragraph(label_CP),
-             ref_symbols ="*", part = "header")
+  best_response_during_treatment %>%
+    valign(valign = "bottom", part = "header")
+}
 
-  if (!confirmed){
-    best_response_during_treatment =  best_response_during_treatment %>%
-      set_header_labels(best_response="Unconfirmed Best Response during treatment")
 
-  } else{
-    label_confirmed = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
-    best_response_during_treatment =  best_response_during_treatment %>%
-      set_header_labels(best_response="Confirmed Best Response during treatment") %>%
-      footnote(i = 1, j = "best_response",
-               value = as_paragraph(label_confirmed),
-               ref_symbols =c("**"), part = "header")
-  }
 #' @noRd
+#' @keywords internal
 
 #' @noRd
 #' @keywords internal
