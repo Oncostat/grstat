@@ -1461,41 +1461,108 @@
 
     Code
       as.data.frame(aggregate_recist_rates(data_br))
+    Condition
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
     Output
-                        best_response   n    p       ic_95
-      1             Complete response   0  0.0     [0;1.2]
-      2              Partial response   0  0.0     [0;1.2]
-      3                Stable disease  72 23.2 [18.6;28.2]
-      4           Progressive disease 236 75.9 [70.7;80.5]
-      5                 Not evaluable   3  1.0   [0.2;2.8]
-      6 Objective Response Rate (ORR)   0  0.0     [0;1.2]
-      7   Clinical Benefit Rate (CBR)   0  0.0     [0;1.2]
-      8    Disease Control Rate (DCR)  72 23.2 [18.6;28.2]
+                        best_response n__All patient p__All patient ic_95__All patient
+      1             Complete response              0            0.0            [0;1.2]
+      2              Partial response              0            0.0            [0;1.2]
+      3                Stable disease             72           23.2        [18.6;28.2]
+      4           Progressive disease            236           75.9        [70.7;80.5]
+      5                 Not evaluable              3            1.0          [0.2;2.8]
+      6 Objective Response Rate (ORR)              0            0.0            [0;1.2]
+      7   Clinical Benefit Rate (CBR)              0            0.0            [0;1.2]
+      8    Disease Control Rate (DCR)             72           23.2        [18.6;28.2]
 
-# No bug when modification of best_response before between calc_best_resp and aggregatte
+# No bug when modification of best_response before between calc_best_resp and aggregate
 
     Code
       as.data.frame(aggregate_recist_rates(data_br_2))
+    Condition
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
     Output
-                        best_response   n    p       ic_95
-      1             Complete response 256 51.1 [46.6;55.6]
-      2              Partial response  69 13.8 [10.9;17.1]
-      3                Stable disease  37  7.4    [5.3;10]
-      4           Progressive disease 138 27.5 [23.7;31.7]
-      5                 Not evaluable   1  0.2     [0;1.1]
-      6 Objective Response Rate (ORR) 325 64.9 [60.5;69.1]
-      7   Clinical Benefit Rate (CBR) 325 64.9 [60.5;69.1]
-      8    Disease Control Rate (DCR) 362 72.3 [68.1;76.1]
+                        best_response n__All patient p__All patient ic_95__All patient
+      1             Complete response            256           51.1        [46.6;55.6]
+      2              Partial response             69           13.8        [10.9;17.1]
+      3                Stable disease             37            7.4           [5.3;10]
+      4           Progressive disease            138           27.5        [23.7;31.7]
+      5                 Not evaluable              1            0.2            [0;1.1]
+      6 Objective Response Rate (ORR)            325           64.9        [60.5;69.1]
+      7   Clinical Benefit Rate (CBR)            325           64.9        [60.5;69.1]
+      8    Disease Control Rate (DCR)            362           72.3        [68.1;76.1]
     Code
       as.data.frame(aggregate_recist_rates(data_br_3))
+    Condition
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
     Output
-                        best_response   n    p       ic_95
-      1             Complete response 255 51.0 [46.5;55.5]
-      2              Partial response  69 13.8 [10.9;17.1]
-      3                Stable disease  38  7.6  [5.4;10.3]
-      4           Progressive disease 138 27.6 [23.7;31.7]
-      5                 Not evaluable   0  0.0     [0;0.7]
-      6 Objective Response Rate (ORR) 324 64.8   [60.4;69]
-      7   Clinical Benefit Rate (CBR) 324 64.8   [60.4;69]
-      8    Disease Control Rate (DCR) 362 72.4 [68.3;76.3]
+                        best_response n__All patient p__All patient ic_95__All patient
+      1             Complete response            255           51.0        [46.5;55.5]
+      2              Partial response             69           13.8        [10.9;17.1]
+      3                Stable disease             38            7.6         [5.4;10.3]
+      4           Progressive disease            138           27.6        [23.7;31.7]
+      5                 Not evaluable              0            0.0            [0;0.7]
+      6 Objective Response Rate (ORR)            324           64.8          [60.4;69]
+      7   Clinical Benefit Rate (CBR)            324           64.8          [60.4;69]
+      8    Disease Control Rate (DCR)            362           72.4        [68.3;76.3]
+
+# No bug when 2 arms
+
+    Code
+      as.data.frame(aggregate_recist_rates(data_br4, data_arm = res))
+    Condition
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+      Warning:
+      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+      i Please use `reframe()` instead.
+      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
+    Output
+                        best_response n__Control p__Control ic_95__Control n__Treatment p__Treatment ic_95__Treatment
+      1             Complete response         98       39.2    [33.1;45.6]          158         63.2      [56.9;69.2]
+      2              Partial response         39       15.6    [11.3;20.7]           30         12.0       [8.2;16.7]
+      3                Stable disease         18        7.2     [4.3;11.1]           19          7.6       [4.6;11.6]
+      4           Progressive disease         95       38.0      [32;44.3]           43         17.2      [12.7;22.5]
+      5                 Not evaluable          0        0.0        [0;1.5]            0          0.0          [0;1.5]
+      6 Objective Response Rate (ORR)        137       54.8    [48.4;61.1]          188         75.2      [69.4;80.4]
+      7   Clinical Benefit Rate (CBR)        137       54.8    [48.4;61.1]          188         75.2      [69.4;80.4]
+      8    Disease Control Rate (DCR)        155       62.0      [55.7;68]          207         82.8      [77.5;87.3]
 

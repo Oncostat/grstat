@@ -134,6 +134,6 @@ test_that("No bug when 2 arms", {
     calc_best_response()
 
   expect_snapshot({
-    as.data.frame(aggregate_recist_rates(data_br4, res))
+    as.data.frame(aggregate_recist_rates(data_br4, data_arm = res))
   })
 })
