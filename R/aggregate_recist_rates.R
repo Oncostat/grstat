@@ -77,30 +77,15 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
   ORR = CBR = DCR = data.frame()
 
   if("ORR" %in% derived_endpoints){
-    ORR = recist %>%
-      summarise(
-        n = sum(best_response %in% c("Complete response", "Partial response"), na.rm=TRUE),
-        p = round(n / total * 100, 1),
-        best_response = "Objective Response Rate (ORR)",
-      )
+    ORR = .ORR_calc(recist)
   }
 
   if("CBR" %in% derived_endpoints){
-    CBR = recist %>%
-      summarise(
-        n = sum(best_response %in% c("Complete response", "Partial response") | six_months_confirmation, na.rm=TRUE),
-        p = round(n / total * 100, 1),
-        best_response = "Clinical Benefit Rate (CBR)",
-      )
+    CBR = .CBR_calc(recist)
   }
 
   if("DCR" %in% derived_endpoints){
-    DCR = recist %>%
-      summarise(
-        n = sum(best_response %in% c("Complete response", "Partial response","Stable disease"), na.rm=TRUE),
-        p = round(n / total * 100, 1),
-        best_response = "Disease Control Rate (DCR)",
-      )
+    DCR = .DCR_calc(recist)
   }
 
   summary_df = bind_rows(response_counts, ORR, CBR, DCR) %>%
@@ -194,7 +179,30 @@ as_flextable.aggregate_recist_rates = function(x, ...){
                value = as_paragraph(label_confirmed),
                ref_symbols =c("**"), part = "header")
   }
+#' @noRd
 
-  best_response_during_treatment %>%
-    valign(valign = "bottom", part = "header")
+#' @noRd
+#' @keywords internal
+.CBR_calc = function(recist) {
+  recist %>%
+    mutate(total = n(), .by = arm) %>%
+    summarise(
+      n = sum(best_response %in% c("Complete response", "Partial response") | six_months_confirmation, na.rm=TRUE),
+      p = round(n / total * 100, 1),
+      best_response = "Clinical Benefit Rate (CBR)",
+      .by = arm) %>%
+    distinct()
+}
+
+#' @noRd
+#' @keywords internal
+.ORR_calc = function(recist) {
+  recist %>%
+    mutate(total = n(), .by = arm) %>%
+    summarise(
+      n = sum(best_response %in% c("Complete response", "Partial response"), na.rm=TRUE),
+      p = round(n / total * 100, 1),
+      best_response = "Objective Response Rate (ORR)",
+      .by = arm) %>%
+    distinct()
 }
