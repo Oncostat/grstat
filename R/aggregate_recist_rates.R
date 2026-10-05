@@ -28,24 +28,51 @@
 #'  aggregate_recist_rates(derived_endpoints=c("ORR")) %>%
 #'  as_flextable()
 #'
-aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "DCR")){
-  confirmed = attr(data, "confirmed")
-  best_response_label = c("Complete response","Partial response", "Stable disease", "Progressive disease", "Not evaluable")
-  recist = data %>%
-    distinct() %>%
-    mutate(six_months_confirmation = as.logical(six_months_confirmation),
-           best_response = factor(best_response,
-                                  levels = best_response_label))
+aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "DCR"), data_arm = NULL, cols_arm = c(subjid="subjid",arm="arm")){
 
-  if(length(recist$subjid) != length(data$subjid) | length(unique(recist$subjid)) != length(recist$subjid)){
+  assert_names_exists(data, c("best_response", "six_months_confirmation", "subjid"))
+  if(!is.null(data_arm)) {assert_class(data_arm, class="data.frame")}
+  if(!is.null(data_arm)) {assert_names_exists(data_arm, cols_arm)}
+
+  if(anyDuplicated(data$subjid)){
     cli_abort(c("data should be in wide format relative to subjid",
                 i="Please check that there is no duplicate"))
   }
 
-  total = length(recist$subjid)
-  response_counts = recist %>%
-    count(best_response, .drop=FALSE) %>%
-    mutate(p=round(n / sum(n) * 100, 1))
+
+  confirmed = attr(data, "confirmed")
+  best_response_label = c("Complete response","Partial response", "Stable disease", "Progressive disease", "Not evaluable")
+  if(!is.null(data_arm)){
+    recist = data %>%
+      mutate(six_months_confirmation = as.logical(six_months_confirmation),
+             best_response = factor(best_response,
+                                    levels = best_response_label)) %>%
+      left_join(data_arm, by = "subjid")
+
+    response_counts = recist %>%
+      group_by(arm) %>%
+      count(best_response, .drop = FALSE) %>%
+      mutate(p = round(n / sum(n) * 100, 1))
+
+  }
+  else{
+    recist = data %>%
+      mutate(six_months_confirmation = as.logical(six_months_confirmation),
+             best_response = factor(best_response,
+                                    levels = best_response_label),
+             arm= "All patient")
+
+    response_counts = recist %>%
+      group_by(arm) %>%
+      count(best_response, .drop=FALSE) %>%
+      mutate(p=round(n / sum(n) * 100, 1))
+  }
+
+  n_total = recist %>%
+    group_by(arm) %>%
+    summarise(n_total=n())
+
+  total_global = length(recist$subjid)
 
   ORR = CBR = DCR = data.frame()
 
@@ -77,17 +104,22 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
   }
 
   summary_df = bind_rows(response_counts, ORR, CBR, DCR) %>%
+    ungroup() %>%
+    left_join(n_total, by = "arm") %>%
     mutate(ic_95 = {
-      ci = clopper_pearson_ci(n, total, CI = "two.sided", alpha = 0.05)
+      ci = clopper_pearson_ci(n, n_total, CI = "two.sided", alpha = 0.05)
       glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
     },
-    .by= best_response) %>%
-    add_class("aggregate_recist_rates") %>%
+    .by= c(best_response,arm)) %>%
+    arrange(arm) %>%
+    select(-n_total) %>%
     apply_labels(best_response = "Best Overall Response",
                  n = "Number of patient",
                  p = "Percentage",
                  ic_95 = "IC 95%") %>%
-    structure(derived_endpoints=derived_endpoints, confirmed = confirmed, total = total)
+    pivot_wider(names_from = arm,values_from = c(n, p,ic_95), names_vary = "slowest", names_sep = "__") %>%
+    structure(derived_endpoints=derived_endpoints, confirmed = confirmed, total = total_global, n_total = n_total, data_arm = data_arm) %>%
+    add_class("aggregate_recist_rates")
 
   summary_df
 }

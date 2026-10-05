@@ -5,7 +5,13 @@
 \alias{as_flextable.aggregate_recist_rates}
 \title{Calculate BOR}
 \usage{
-aggregate_recist_rates(data, ..., derived_endpoints = c("ORR", "CBR", "DCR"))
+aggregate_recist_rates(
+  data,
+  ...,
+  derived_endpoints = c("ORR", "CBR", "DCR"),
+  data_arm = NULL,
+  cols_arm = c(subjid = "subjid", arm = "arm")
+)
 
 \method{as_flextable}{aggregate_recist_rates}(x, ...)
 }
