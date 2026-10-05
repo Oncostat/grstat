@@ -240,6 +240,16 @@ as_flextable.aggregate_recist_rates = function(x, ...){
 
 #' @noRd
 #' @keywords internal
+.DCR_calc = function(recist) {
+  recist %>%
+    mutate(total = n(), .by = arm) %>%
+    summarise(
+      n = sum(best_response %in% c("Complete response", "Partial response","Stable disease"), na.rm=TRUE),
+      p = round(n / total * 100, 1),
+      best_response = "Disease Control Rate (DCR)",
+      .by = arm) %>%
+    distinct()
+}
 
 #' @noRd
 #' @keywords internal
