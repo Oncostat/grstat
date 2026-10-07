@@ -7,6 +7,10 @@
 #' @param data A dataset containing longitudinal RECIST data in long format.
 #' @param ... Not used. Ensures that only named arguments are passed.
 #' @param derived_endpoints Character; Derived endpoints to compute from BOR. One or several of c("ORR", "CBR", "DCR"). See vignette("BOR") for endpoint definitions.
+#' @param data_arm A dataset containing ARM specification. Default is `NULL` (no arm specification).
+#' @param cols_arm a vector with column names inside `aggregate_recist_rates()`
+#' * `subjid` The column containing the subject ID. Default is `"SUBJID"`.
+#' * `arm` The column containing the ARM specification . Default is `"arm"`.
 #'
 #' @return a dataframe (`aggregate_recist_rates()`) or a flextable (`as_flextable()`).
 #'
@@ -27,6 +31,13 @@
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
 #'  aggregate_recist_rates(derived_endpoints=c("ORR")) %>%
+#'  as_flextable()
+#' #Or to to separate by arm
+#' res = grstat_example()$enrolres
+#' recist %>%
+#'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
+#'                     subjid = "subjid", rc_sum = "rctlsum") %>%
+#'  aggregate_recist_rates(data_arm = res, cols_arm = c(subjid="subjid",arm="arm")) %>%
 #'  as_flextable()
 #'
 aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "DCR"), data_arm = NULL, cols_arm = c(subjid="subjid",arm="arm")){
