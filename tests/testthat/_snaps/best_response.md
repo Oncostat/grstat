@@ -1461,19 +1461,6 @@
 
     Code
       as.data.frame(aggregate_recist_rates(data_br))
-    Condition
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
     Output
                         best_response n__All patient p__All patient ic_95__All patient
       1             Complete response              0            0.0            [0;1.2]
@@ -1489,19 +1476,6 @@
 
     Code
       as.data.frame(aggregate_recist_rates(data_br_2))
-    Condition
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
     Output
                         best_response n__All patient p__All patient ic_95__All patient
       1             Complete response            256           51.1        [46.6;55.6]
@@ -1514,19 +1488,6 @@
       8    Disease Control Rate (DCR)            362           72.3        [68.1;76.1]
     Code
       as.data.frame(aggregate_recist_rates(data_br_3))
-    Condition
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
     Output
                         best_response n__All patient p__All patient ic_95__All patient
       1             Complete response            255           51.0        [46.5;55.5]
@@ -1542,19 +1503,6 @@
 
     Code
       as.data.frame(aggregate_recist_rates(data_br4, data_arm = res))
-    Condition
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
-      Warning:
-      Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
-      i Please use `reframe()` instead.
-      i When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly.
     Output
                         best_response n__Control p__Control ic_95__Control n__Treatment p__Treatment ic_95__Treatment
       1             Complete response         98       39.2    [33.1;45.6]          158         63.2      [56.9;69.2]

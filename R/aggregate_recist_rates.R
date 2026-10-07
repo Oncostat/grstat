@@ -253,37 +253,31 @@ as_flextable.aggregate_recist_rates = function(x, ...){
 #' @keywords internal
 .DCR_calc = function(recist) {
   recist %>%
-    mutate(total = n(), .by = arm) %>%
     summarise(
       n = sum(best_response %in% c("Complete response", "Partial response","Stable disease"), na.rm=TRUE),
-      p = round(n / total * 100, 1),
+      p = round(n / n() * 100, 1),
       best_response = "Disease Control Rate (DCR)",
-      .by = arm) %>%
-    distinct()
+      .by = arm)
 }
 
 #' @noRd
 #' @keywords internal
 .CBR_calc = function(recist) {
   recist %>%
-    mutate(total = n(), .by = arm) %>%
     summarise(
       n = sum(best_response %in% c("Complete response", "Partial response") | six_months_confirmation, na.rm=TRUE),
-      p = round(n / total * 100, 1),
+      p = round(n / n() * 100, 1),
       best_response = "Clinical Benefit Rate (CBR)",
-      .by = arm) %>%
-    distinct()
+      .by = arm)
 }
 
 #' @noRd
 #' @keywords internal
 .ORR_calc = function(recist) {
   recist %>%
-    mutate(total = n(), .by = arm) %>%
     summarise(
       n = sum(best_response %in% c("Complete response", "Partial response"), na.rm=TRUE),
-      p = round(n / total * 100, 1),
+      p = round(n / n() * 100, 1),
       best_response = "Objective Response Rate (ORR)",
-      .by = arm) %>%
-    distinct()
+      .by = arm)
 }
