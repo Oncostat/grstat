@@ -5,7 +5,13 @@
 \alias{as_flextable.aggregate_recist_rates}
 \title{Calculate BOR}
 \usage{
-aggregate_recist_rates(data, ..., derived_endpoints = c("ORR", "CBR", "DCR"))
+aggregate_recist_rates(
+  data,
+  ...,
+  derived_endpoints = c("ORR", "CBR", "DCR"),
+  data_arm = NULL,
+  cols_arm = c(subjid = "subjid", arm = "arm")
+)
 
 \method{as_flextable}{aggregate_recist_rates}(x, ...)
 }
@@ -15,6 +21,14 @@ aggregate_recist_rates(data, ..., derived_endpoints = c("ORR", "CBR", "DCR"))
 \item{...}{unused}
 
 \item{derived_endpoints}{Character; Derived endpoints to compute from BOR. One or several of c("ORR", "CBR", "DCR"). See vignette("BOR") for endpoint definitions.}
+
+\item{data_arm}{A dataset containing ARM specification. Default is \code{NULL} (no arm specification).}
+
+\item{cols_arm}{a vector with column names inside \code{aggregate_recist_rates()}
+\itemize{
+\item \code{subjid} The column containing the subject ID. Default is \code{"SUBJID"}.
+\item \code{arm} The column containing the ARM specification . Default is \code{"arm"}.
+}}
 
 \item{x}{a dataframe, resulting of \code{aggregate_recist_rates()}}
 }
@@ -40,6 +54,13 @@ recist \%>\%
  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) \%>\%
  aggregate_recist_rates(derived_endpoints=c("ORR")) \%>\%
+ as_flextable()
+#Or to to separate by arm
+res = grstat_example()$enrolres
+recist \%>\%
+ calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
+                    subjid = "subjid", rc_sum = "rctlsum") \%>\%
+ aggregate_recist_rates(data_arm = res, cols_arm = c(subjid="subjid",arm="arm")) \%>\%
  as_flextable()
 
 }

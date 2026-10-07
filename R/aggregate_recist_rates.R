@@ -7,11 +7,15 @@
 #' @param data A dataset containing longitudinal RECIST data in long format.
 #' @param ... Not used. Ensures that only named arguments are passed.
 #' @param derived_endpoints Character; Derived endpoints to compute from BOR. One or several of c("ORR", "CBR", "DCR"). See vignette("BOR") for endpoint definitions.
+#' @param data_arm A dataset containing ARM specification. Default is `NULL` (no arm specification).
+#' @param cols_arm a vector with column names inside `aggregate_recist_rates()`
+#' * `subjid` The column containing the subject ID. Default is `"SUBJID"`.
+#' * `arm` The column containing the ARM specification . Default is `"arm"`.
 #'
 #' @return a dataframe (`aggregate_recist_rates()`) or a flextable (`as_flextable()`).
 #'
 #' @importFrom cli cli_abort
-#' @importFrom dplyr bind_rows count distinct mutate summarise
+#' @importFrom dplyr bind_rows count distinct mutate summarise group_by ungroup
 #' @importFrom glue glue
 #' @export
 #'
@@ -28,63 +32,91 @@
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
 #'  aggregate_recist_rates(derived_endpoints=c("ORR")) %>%
 #'  as_flextable()
+#' #Or to to separate by arm
+#' res = grstat_example()$enrolres
+#' recist %>%
+#'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
+#'                     subjid = "subjid", rc_sum = "rctlsum") %>%
+#'  aggregate_recist_rates(data_arm = res, cols_arm = c(subjid="subjid",arm="arm")) %>%
+#'  as_flextable()
 #'
-aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "DCR")){
-  confirmed = attr(data, "confirmed")
-  recist = data %>%
-    distinct()
+aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "DCR"), data_arm = NULL, cols_arm = c(subjid="subjid",arm="arm")){
 
-  if(length(recist$subjid) != length(data$subjid)){
+  assert_names_exists(data, c("best_response", "six_months_confirmation", "subjid"))
+  if(!is.null(data_arm)) {assert_class(data_arm, class="data.frame")}
+  if(!is.null(data_arm)) {assert_names_exists(data_arm, cols_arm)}
+
+  if(anyDuplicated(data$subjid)){
     cli_abort(c("data should be in wide format relative to subjid",
                 i="Please check that there is no duplicate"))
   }
 
-  total = length(recist$subjid)
-  response_counts = recist %>%
-    count(best_response, .drop=FALSE) %>%
-    mutate(p=round(n / sum(n) * 100, 1))
+
+  confirmed = attr(data, "confirmed")
+  best_response_label = c("Complete response","Partial response", "Stable disease", "Progressive disease", "Not evaluable")
+  if(!is.null(data_arm)){
+    recist = data %>%
+      mutate(six_months_confirmation = as.logical(six_months_confirmation),
+             best_response = factor(best_response,
+                                    levels = best_response_label)) %>%
+      left_join(data_arm, by = "subjid")
+
+    response_counts = recist %>%
+      group_by(arm) %>%
+      count(best_response, .drop = FALSE) %>%
+      mutate(p = round(n / sum(n) * 100, 1))
+
+  }
+  else{
+    recist = data %>%
+      mutate(six_months_confirmation = as.logical(six_months_confirmation),
+             best_response = factor(best_response,
+                                    levels = best_response_label),
+             arm= "All patient")
+
+    response_counts = recist %>%
+      group_by(arm) %>%
+      count(best_response, .drop=FALSE) %>%
+      mutate(p=round(n / sum(n) * 100, 1))
+  }
+
+  n_total = recist %>%
+    group_by(arm) %>%
+    summarise(n_total=n())
+
+  total_global = length(recist$subjid)
 
   ORR = CBR = DCR = data.frame()
 
   if("ORR" %in% derived_endpoints){
-    ORR = recist %>%
-      summarise(
-        n = sum(best_response %in% c("Complete response", "Partial response"), na.rm=TRUE),
-        p = round(n / total * 100, 1),
-        best_response = "Objective Response Rate (ORR)",
-      )
+    ORR = .ORR_calc(recist)
   }
 
   if("CBR" %in% derived_endpoints){
-    CBR = recist %>%
-      summarise(
-        n = sum(best_response %in% c("Complete response", "Partial response") | six_months_confirmation, na.rm=TRUE),
-        p = round(n / total * 100, 1),
-        best_response = "Clinical Benefit Rate (CBR)",
-      )
+    CBR = .CBR_calc(recist)
   }
 
   if("DCR" %in% derived_endpoints){
-    DCR = recist %>%
-      summarise(
-        n = sum(best_response %in% c("Complete response", "Partial response","Stable disease"), na.rm=TRUE),
-        p = round(n / total * 100, 1),
-        best_response = "Disease Control Rate (DCR)",
-      )
+    DCR = .DCR_calc(recist)
   }
 
   summary_df = bind_rows(response_counts, ORR, CBR, DCR) %>%
+    ungroup() %>%
+    left_join(n_total, by = "arm") %>%
     mutate(ic_95 = {
-      ci = clopper_pearson_ci(n, total, CI = "two.sided", alpha = 0.05)
+      ci = clopper_pearson_ci(n, n_total, CI = "two.sided", alpha = 0.05)
       glue("[{round(ci$Lower.limit*100, 1)};{round(ci$Upper.limit*100, 1)}]")
     },
-    .by= best_response) %>%
-    add_class("aggregate_recist_rates") %>%
+    .by= c(best_response,arm)) %>%
+    arrange(arm) %>%
+    select(-n_total) %>%
     apply_labels(best_response = "Best Overall Response",
                  n = "Number of patient",
                  p = "Percentage",
                  ic_95 = "IC 95%") %>%
-    structure(derived_endpoints=derived_endpoints, confirmed = confirmed, total = total)
+    pivot_wider(names_from = arm,values_from = c(n, p,ic_95), names_vary = "slowest", names_sep = "__") %>%
+    structure(derived_endpoints=derived_endpoints, confirmed = confirmed, total = total_global, n_total = n_total, data_arm = data_arm) %>%
+    add_class("aggregate_recist_rates")
 
   summary_df
 }
@@ -98,42 +130,97 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
 #' @rdname aggregate_recist_rates
 #' @export
 #'
-#' @importFrom flextable as_paragraph bold flextable footnote set_header_labels set_table_properties surround valign
+#' @importFrom flextable as_paragraph bold flextable footnote set_header_labels set_table_properties surround valign border
 #' @importFrom officer fp_border
 #' @importFrom rlang check_dots_empty
+#' @importFrom tidyr separate_wider_delim
+#'
 as_flextable.aggregate_recist_rates = function(x, ...){
   check_dots_empty()
   derived_endpoints = attr(x, "derived_endpoints")
   confirmed = attr(x, "confirmed")
   total = attr(x,"total")
+  data_arm = attr(x, "data_arm")
+
   label_CP = "Clopper-Pearson (Exact) method was used for confidence interval"
-  label_confirmed = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
-  label_ORR = "ORR was defined as the presence of a partial response (PR) or a complete response (CR)."
-  label_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months."
-  label_DCR = "DCR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD)."
-  best_response_during_treatment =  x %>%
-    flextable() %>%
-    set_table_properties(layout="autofit") %>%
-    bold(bold = TRUE, part = "header") %>%
-    surround(i = 5, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
-    bold(i = 6, bold = TRUE, part = "body") %>%
-    set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%") %>%
-    footnote(j = "ic_95",
-             value = as_paragraph(label_CP),
-             ref_symbols ="*", part = "header")
+
+  header_labels = c(best_response = "Unconfirmed Best Response",
+                    n="N", p = "%", ic_95 = "IC 95%")
 
   if (!confirmed){
-  best_response_during_treatment =  best_response_during_treatment %>%
-    set_header_labels(best_response="Unconfirmed Best Response during treatment")
-
+    header_labels = c(best_response = "Unconfirmed Best Response during treatment",
+                      n="N", p = "%", ic_95 = "IC 95%")
   } else{
-      best_response_during_treatment =  best_response_during_treatment %>%
-      set_header_labels(best_response="Confirmed Best Response during treatment") %>%
-      footnote(i = 1, j = "best_response",
-                value = as_paragraph(label_confirmed),
-                ref_symbols =c("**"), part = "header")
+    header_labels = c(best_response = "Confirmed Best Response during treatment",
+                      n="N", p = "%", ic_95 = "IC 95%")
+    label_confirmed = "For CR & PR, confirmation of response had to be be demonstrated with an assessment 4 weeks or later from the initial response for response."
   }
+
+  header_df =
+    tibble(col_keys = names(x)) %>%
+    separate_wider_delim(col_keys, names=c("variable", "arm"), cols_remove =FALSE,
+                         delim="__", too_few ="align_start") %>%
+    left_join(attr(x,"n_total"), by = "arm") %>%
+    mutate(
+      label = header_labels[variable],
+      arm = ifelse(is.na(arm), label, glue("{arm} (N={n_total})")),
+    ) %>%
+    select(col_keys, arm, label)
+
+  if(!is.null(data_arm)){
+    best_response_during_treatment =  x %>%
+      flextable() %>%
+      set_table_properties(layout="autofit") %>%
+      set_header_df(header_df) %>%
+      border_outer() %>%
+      footnote(j = cumsum(c(4,rep(3,length(attr(c,"n_total")$arm)))),
+               i = 2,
+               value = as_paragraph(label_CP),
+               ref_symbols = "*",
+               part = "header"
+      ) %>%
+      merge_v(part="head") %>%
+      merge_h(part="head") %>%
+      align(part="head", i=1, align="center") %>%
+      align(part="head", i=2, j=c(2,3,5,6), align="right") %>%
+      valign(part="head", valign="center") %>%
+      border(part="head", i=2, border.bottom = fp_border(color = "black", style = "solid", width = 1)) %>%
+      border(
+        i = 5,
+        border.bottom = fp_border(color = "black", style = "solid", width = 1),
+        part = "body"
+      ) %>%
+      border(j=c(1,4), border.right=fp_border(color = "black", style = "solid", width = 1), part = "all") %>%
+      bold(bold = TRUE, part = "header")
+  }
+  else{
+    best_response_during_treatment =  x %>%
+      flextable() %>%
+      set_table_properties(layout="autofit") %>%
+      set_header_df(header_df) %>%
+      merge_v(part="head") %>%
+      merge_h(part="head") %>%
+      align(part="head", i=2, j=c(2,3), align="right") %>%
+      valign(part="head", valign="center") %>%
+      bold(bold = TRUE, part = "header") %>%
+      surround(i = 5, border.bottom = fp_border(color = "black", style = "solid", width = 1), part = "body") %>%
+      bold(i = 6, bold = TRUE, part = "body") %>%
+      set_header_labels(n=paste0("N=",total), p = "%", ic_95 = "IC 95%", arm = "Arm") %>%
+      footnote(j = 4,
+               value = as_paragraph(label_CP),
+               ref_symbols = "*",
+               part = "header")
+  }
+
+  if (confirmed){
+    best_response_during_treatment = best_response_during_treatment %>%
+      footnote(j = 1,
+               value = as_paragraph(label_confirmed),
+               ref_symbols =c("**"), part = "header")
+  }
+
   if("ORR" %in% derived_endpoints){
+    label_ORR = "ORR was defined as the presence of a partial response (PR) or a complete response (CR)."
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Objective Response Rate (ORR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Objective Response Rate (ORR)", j = "best_response",
@@ -141,6 +228,7 @@ as_flextable.aggregate_recist_rates = function(x, ...){
                 ref_symbols ="ORR", part = "body")
   }
   if("CBR" %in% derived_endpoints){
+    label_CBR = "CBR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD) lasting at least six months."
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Clinical Benefit Rate (CBR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Clinical Benefit Rate (CBR)", j = "best_response",
@@ -148,6 +236,7 @@ as_flextable.aggregate_recist_rates = function(x, ...){
                 ref_symbols ="CBR", part = "body")
   }
   if("DCR" %in% derived_endpoints){
+    label_DCR = "DCR was defined as the presence of a partial response (PR), a complete response (CR), or a stable disease (SD)."
     best_response_during_treatment =  best_response_during_treatment %>%
       bold(i = ~ best_response == "Disease Control Rate (DCR)", bold = TRUE, part = "body") %>%
       footnote( i = ~ best_response == "Disease Control Rate (DCR)", j = "best_response",
@@ -157,4 +246,38 @@ as_flextable.aggregate_recist_rates = function(x, ...){
 
   best_response_during_treatment %>%
     valign(valign = "bottom", part = "header")
+}
+
+
+#' @noRd
+#' @keywords internal
+.DCR_calc = function(recist) {
+  recist %>%
+    summarise(
+      n = sum(best_response %in% c("Complete response", "Partial response","Stable disease"), na.rm=TRUE),
+      p = round(n / n() * 100, 1),
+      best_response = "Disease Control Rate (DCR)",
+      .by = arm)
+}
+
+#' @noRd
+#' @keywords internal
+.CBR_calc = function(recist) {
+  recist %>%
+    summarise(
+      n = sum(best_response %in% c("Complete response", "Partial response") | six_months_confirmation, na.rm=TRUE),
+      p = round(n / n() * 100, 1),
+      best_response = "Clinical Benefit Rate (CBR)",
+      .by = arm)
+}
+
+#' @noRd
+#' @keywords internal
+.ORR_calc = function(recist) {
+  recist %>%
+    summarise(
+      n = sum(best_response %in% c("Complete response", "Partial response"), na.rm=TRUE),
+      p = round(n / n() * 100, 1),
+      best_response = "Objective Response Rate (ORR)",
+      .by = arm)
 }
