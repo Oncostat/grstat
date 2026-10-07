@@ -158,11 +158,11 @@ as_flextable.aggregate_recist_rates = function(x, ...){
 
   header_df =
     tibble(col_keys = names(x)) %>%
-    separate_wider_delim(col_keys, names=c("var", "arm"), cols_remove =FALSE,
+    separate_wider_delim(col_keys, names=c("variable", "arm"), cols_remove =FALSE,
                          delim="__", too_few ="align_start") %>%
     left_join(attr(x,"n_total"), by = "arm") %>%
     mutate(
-      label = header_labels[var],
+      label = header_labels[variable],
       arm = ifelse(is.na(arm), label, glue("{arm} (N={n_total})")),
     ) %>%
     select(col_keys, arm, label)
