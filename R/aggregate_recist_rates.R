@@ -44,7 +44,15 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
 
   assert_names_exists(data, c("best_response", "six_months_confirmation", "subjid"))
   if(!is.null(data_arm)) {assert_class(data_arm, class="data.frame")}
-  if(!is.null(data_arm)) {assert_names_exists(data_arm, cols_arm)}
+  if(!is.null(data_arm)) {
+    assert_names_exists(data_arm, cols_arm)
+    arm_subjects = data_arm %>%
+      select(subjid = all_of2(unname(cols_arm["subjid"])))
+    if(anyDuplicated(arm_subjects$subjid)){
+      cli_abort(c("data_arm should contain one row per subject",
+                  i="Please check that there is no duplicate subject ID"))
+    }
+  }
 
   if(anyDuplicated(data$subjid)){
     cli_abort(c("data should be in wide format relative to subjid",
