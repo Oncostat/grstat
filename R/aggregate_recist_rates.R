@@ -123,7 +123,7 @@ aggregate_recist_rates = function(data, ..., derived_endpoints=c("ORR", "CBR", "
                  p = "Percentage",
                  ic_95 = "IC 95%") %>%
     pivot_wider(names_from = arm,values_from = c(n, p,ic_95), names_vary = "slowest", names_sep = "__") %>%
-    structure(derived_endpoints=derived_endpoints, confirmed = confirmed, total = total_global, n_total = n_total, data_arm = data_arm) %>%
+    structure(derived_endpoints=derived_endpoints, confirmed = confirmed, total = total_global, n_total = n_total, data_arm = if (is.null(data_arm)) NULL else TRUE) %>%
     add_class("aggregate_recist_rates")
 
   summary_df
