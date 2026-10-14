@@ -32,7 +32,7 @@
 #'                     subjid = "subjid", rc_sum = "rctlsum", confirmed = TRUE) %>%
 #'  aggregate_recist_rates(derived_endpoints=c("ORR")) %>%
 #'  as_flextable()
-#' #Or to to separate by arm
+#' # Or to separate by arm
 #' res = grstat_example()$enrolres
 #' recist %>%
 #'  calc_best_response(rc_resp = "rcresp", rc_date = "rcdt",
