@@ -181,7 +181,7 @@ as_flextable.aggregate_recist_rates = function(x, ...){
       set_table_properties(layout="autofit") %>%
       set_header_df(header_df) %>%
       border_outer() %>%
-      footnote(j = cumsum(c(4,rep(3,length(attr(c,"n_total")$arm)))),
+      footnote(j = seq(4, ncol(x), by = 3),
                i = 2,
                value = as_paragraph(label_CP),
                ref_symbols = "*",
