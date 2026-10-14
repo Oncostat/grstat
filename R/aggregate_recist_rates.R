@@ -9,7 +9,7 @@
 #' @param derived_endpoints Character; Derived endpoints to compute from BOR. One or several of c("ORR", "CBR", "DCR"). See vignette("BOR") for endpoint definitions.
 #' @param data_arm A dataset containing ARM specification. Default is `NULL` (no arm specification).
 #' @param cols_arm a vector with column names inside `aggregate_recist_rates()`
-#' * `subjid` The column containing the subject ID. Default is `"SUBJID"`.
+#' * `subjid` The column containing the subject ID. Default is `"subjid"`.
 #' * `arm` The column containing the ARM specification . Default is `"arm"`.
 #'
 #' @return a dataframe (`aggregate_recist_rates()`) or a flextable (`as_flextable()`).
